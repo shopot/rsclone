@@ -1,9 +1,18 @@
 {
-  "include": ["./**/*.js", "./**/*.cjs", "./**/*.jsx", "./**/*.ts", "./**/*.tsx"],
-  "exclude": ["node_modules"],
   "compilerOptions": {
     "esModuleInterop": true,
     "strict": true,
-    "jsx": "react-jsx"
-  }
+    "jsx": "react-jsx",
+    "target": "es2021"
+  },
+  "include": [
+    "./**/*.js",
+    "./**/*.cjs",
+    "./**/*.jsx",
+    "./**/*.ts",
+    "./**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
 }
