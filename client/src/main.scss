@@ -1,0 +1,14 @@
+@import 'css-init/src/init';
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+}
+
+img {
+  max-inline-size: 100%;
+  block-size: auto;
+}
