@@ -1,5 +1,6 @@
 {
   "include": ["./**/*.js", "./**/*.cjs", "./**/*.jsx", "./**/*.ts", "./**/*.tsx"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "esModuleInterop": true,
     "strict": true,
