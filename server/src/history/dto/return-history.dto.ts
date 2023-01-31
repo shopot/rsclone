@@ -1,6 +1,6 @@
 export class ReturnHistoryDto {
   players?: string[];
-  winner?: string;
+  loser?: string;
   duration?: number;
   rounds?: number;
 }
