@@ -28,7 +28,7 @@ export class HistoryService {
     return results.map((item) => {
       // exclude id, roomId
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, roomId, ...results } = item;
+      const { roomId, ...results } = item;
 
       return { ...results, players: results.players.split('#') };
     });
