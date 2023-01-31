@@ -19,4 +19,11 @@ export class Card {
 
     return this.suit === otherCard.suit && this.rank > otherCard.rank;
   }
+
+  getCard() {
+    return {
+      rank: this.rank,
+      suit: this.suit,
+    };
+  }
 }
