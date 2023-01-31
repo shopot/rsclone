@@ -1,7 +1,6 @@
 import { Player } from './Player';
-import { IPlayers } from '../interfaces/IPlayers';
 
-export class Players implements IPlayers {
+export class Players {
   players: Player[];
 
   constructor(players: Player[] = []) {

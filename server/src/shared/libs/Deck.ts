@@ -1,9 +1,8 @@
-import { IDeck } from '../interfaces/IDeck';
 import { Card } from './Card';
 import { TypeCardRank } from '../types/TypeCardRank';
 import { TypeCardSuit } from '../types/TypeCardSuit';
 
-export class Deck implements IDeck {
+export class Deck {
   cards;
 
   constructor(cards: Card[] = []) {

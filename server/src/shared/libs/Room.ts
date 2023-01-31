@@ -1,4 +1,3 @@
-import { IRoom } from '../interfaces/IRoom';
 import { Card } from './Card';
 import { Deck } from './Deck';
 import { Player } from './Player';
@@ -10,7 +9,7 @@ import {
   MAX_ROOM_SIZE,
 } from '../constants';
 
-export class Room implements IRoom {
+export class Room {
   name;
   host: Player;
   players: Players;
