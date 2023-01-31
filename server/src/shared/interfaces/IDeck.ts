@@ -8,4 +8,5 @@ export interface IDeck {
   fill: () => void;
   shuffle: () => void;
   takeCards: (quantity: number) => Card[];
+  getTopCard: () => void;
 }

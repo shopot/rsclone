@@ -54,4 +54,8 @@ export class Deck implements IDeck {
   takeCards(quantity: number) {
     return this.cards.splice(this.size - Math.min(quantity, this.size));
   }
+
+  getTopCard() {
+    return this.cards[0];
+  }
 }
