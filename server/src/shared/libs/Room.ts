@@ -20,6 +20,7 @@ export class Room implements IRoom {
   trump: Card | null;
   attacker: Player | null;
   defender: Player | null;
+  lastLoser: Player | null;
 
   constructor(name: string, host: Player) {
     this.name = name;
@@ -31,6 +32,7 @@ export class Room implements IRoom {
     this.trump = null;
     this.attacker = null;
     this.defender = null;
+    this.lastLoser = null;
   }
 
   get size() {
@@ -81,13 +83,19 @@ export class Room implements IRoom {
     }
     this.trump = this.deck.getTopCard();
     this.round = 1;
-    const attackingPlayer = this.findPlayerWithLowestTrump();
-    if (!attackingPlayer) {
-      throw new Error(
-        "Can't determine attacking player. Something went very wrong",
-      );
+
+    if (this.lastLoser) {
+      this.defender = this.lastLoser;
+      this.attacker = this.players.next(this.defender);
+    } else {
+      const attackingPlayer = this.findPlayerWithLowestTrump();
+      if (!attackingPlayer) {
+        throw new Error(
+          "Can't determine attacking player. Something went very wrong",
+        );
+      }
+      this.attacker = attackingPlayer;
+      this.defender = this.players.prev(this.attacker);
     }
-    this.attacker = attackingPlayer;
-    this.defender = this.players.prev(this.attacker);
   }
 }

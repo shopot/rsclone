@@ -15,6 +15,7 @@ export interface IRoom {
   trump: Card | null;
   attacker: Player | null;
   defender: Player | null;
+  lastLoser: Player | null;
 
   addPlayer: (player: Player) => void;
   start: () => void;
