@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import {
   SubscribeMessage,
   WebSocketGateway,
@@ -5,15 +6,23 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { RatingService } from './rating.service';
 
 @WebSocketGateway({ cors: true })
 export class RatingGateway {
+  constructor(private ratingService: RatingService) {}
+
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('ratingMessage')
+  @SubscribeMessage('ratingGetList')
   handleMessage(@MessageBody() message: string): void {
-    this.server.emit('ratingMessage', message);
+    Logger.debug(message);
+
+    this.ratingService.getAll().then((results) => {
+      this.server.emit('ratingGetList', results);
+    });
+
     console.log(message);
   }
 }
