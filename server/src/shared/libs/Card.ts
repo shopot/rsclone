@@ -1,8 +1,7 @@
 import { TypeCardRank } from '../types/TypeCardRank';
 import { TypeCardSuit } from '../types/TypeCardSuit';
-import { ICard } from '../interfaces/ICard';
 
-export class Card implements ICard {
+export class Card {
   rank;
   suit;
 

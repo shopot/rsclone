@@ -1,8 +1,7 @@
-import { IPlayer } from '../interfaces/IPlayer';
 import { Card } from './Card';
 import { TypePlayerStatus } from '../types/TypePlayerStatus';
 
-export class Player implements IPlayer {
+export class Player {
   id; // socket.id
   name;
   cards: Card[];
