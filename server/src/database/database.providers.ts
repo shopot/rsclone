@@ -1,4 +1,5 @@
-import { History } from 'src/history/models/history.entity';
+import { History } from '../history/models/history.entity';
+import { Rating } from '../rating/models/rating.entity';
 import { DataSource } from 'typeorm';
 
 console.log(__dirname);
@@ -10,7 +11,7 @@ export const databaseProviders = [
       const dataSource = new DataSource({
         type: 'sqlite',
         database: 'db/durak_online.db',
-        entities: [History],
+        entities: [History, Rating],
         synchronize: true, // shouldn't be used in production
       });
 
