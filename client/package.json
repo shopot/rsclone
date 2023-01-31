@@ -15,16 +15,20 @@
   "author": "Sergey Koksharov <gentoosiastic@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "compose-function": "^3.0.3",
     "phaser": "^3.55.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router": "^6.8.0",
     "react-router-dom": "^6.8.0"
   },
   "devDependencies": {
     "@svgr/webpack": "^6.5.1",
+    "@types/compose-function": "^0.0.30",
     "@types/dotenv-webpack": "^7.0.3",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
+    "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",
