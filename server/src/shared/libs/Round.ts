@@ -1,31 +1,35 @@
-import { TypeCardRank } from '../types/TypeCardRank';
 import { TypeCardSuit } from '../types/TypeCardSuit';
-import { MAX_ATTACKS } from '../constants';
+import { MAX_ATTACKER_ROUND_SLOT } from '../constants';
 import { Card } from './Card';
-
-type TypeCardProperty = {
-  rank: TypeCardRank;
-  suit: TypeCardSuit;
-};
+import { CardDto } from './CardDto';
+import { Deck } from './Deck';
 
 type TypeRoundCards = {
-  attackerCards: TypeCardProperty[];
-  defenderCards: TypeCardProperty[];
+  attackerCards: CardDto[];
+  defenderCards: CardDto[];
 };
 
 export class Round {
-  attackersCards: Card[] = [];
-  defenderCards: Card[] = [];
+  attackersCards: Card[];
+  defenderCards: Card[];
   trumpSuit: TypeCardSuit;
-  maxRoundSlots = MAX_ATTACKS;
+  maxRoundSlots: number;
 
-  // private players: Player[];
+  constructor(deck: Deck) {
+    this.attackersCards = [];
+    this.defenderCards = [];
+    this.trumpSuit = deck.getTrumpSuit();
+    this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
+  }
 
-  attack(card: Card) {
+  attack(cardDto: CardDto) {
     // Has limit, can't add new card
     if (this.attackersCards.length >= this.maxRoundSlots) {
       return false;
     }
+
+    // Create card
+    const card = Card.create(cardDto, this.trumpSuit);
 
     // It is a first card
     if (this.attackersCards.length === 0) {
@@ -41,16 +45,19 @@ export class Round {
       )
     ) {
       this.attackersCards.push(card);
+
       return true;
     }
 
     return false;
   }
 
-  defend(card: Card) {
+  defend(cardDto: CardDto) {
     // Check is beating or not, check card, etc.
     // If is beating then returns true;
     const lastAttackCard = this.attackersCards[this.attackersCards.length - 1];
+
+    const card = Card.create(cardDto, this.trumpSuit);
 
     if (card.canBeat(lastAttackCard, this.trumpSuit)) {
       this.defenderCards.push(card);
@@ -60,7 +67,7 @@ export class Round {
     return false;
   }
 
-  isRoundEnded(): boolean {
+  isRoundFinished(): boolean {
     return (
       this.attackersCards.length === this.maxRoundSlots &&
       this.defenderCards.length === this.maxRoundSlots
@@ -74,8 +81,8 @@ export class Round {
     };
   }
 
-  getAttackerCards(): Card[] {
-    return this.attackersCards;
+  getAttackerCards(): CardDto[] {
+    return this.attackersCards.map((card) => card.getCard());
   }
 
   getDefenderCards(): Card[] {
