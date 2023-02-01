@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
-
-const WEBSOCKET_URL = 'http://localhost:3000';
+import { SOCKETIO_ENDPOINT } from '../app/config';
 
 type TypeRatingItem = {
   player: string;
@@ -28,7 +27,7 @@ interface ClientToServerEvents {
 }
 
 export const useRatingStore = create<TypeRatingState>((set) => {
-  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(WEBSOCKET_URL);
+  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKETIO_ENDPOINT);
 
   socket
     .on('connect', () => {
