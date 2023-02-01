@@ -1,1 +1,6 @@
-export type TypeCardSuit = 'clubs' | 'diamonds' | 'hearts' | 'spades';
+export enum TypeCardSuit {
+  Clubs = 'clubs', // ♣
+  Spades = 'spades', // ♠
+  Hearts = 'hearts', // ♥
+  Diamonds = 'diamonds', // ♦
+}
