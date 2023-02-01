@@ -16,7 +16,9 @@
   "license": "ISC",
   "dependencies": {
     "compose-function": "^3.0.3",
+    "listify": "^1.0.3",
     "phaser": "^3.55.2",
+    "pretty-ms": "^8.0.0",
     "rc-table": "^7.30.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -29,6 +31,7 @@
     "@svgr/webpack": "^6.5.1",
     "@types/compose-function": "^0.0.30",
     "@types/dotenv-webpack": "^7.0.3",
+    "@types/listify": "^1.0.0",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "@types/react-router": "^5.1.20",
