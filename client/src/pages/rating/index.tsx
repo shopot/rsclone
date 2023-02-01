@@ -25,10 +25,7 @@ const RatingPage = () => {
     {
       title: 'Last time played',
       dataIndex: 'lastGameAt',
-      render: (value: number) => ({
-        children: new Date(value).toLocaleString(),
-        props: {},
-      }),
+      render: (value: number) => <>{new Date(value).toLocaleString()}</>,
     },
   ];
 
