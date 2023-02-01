@@ -2,6 +2,14 @@ import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
 import { SOCKETIO_ENDPOINT } from '../app/config';
 
+type TypeHistoryItem = {
+  id: number;
+  players: string[];
+  loser: string;
+  duration: number;
+  rounds: number;
+};
+
 type TypeRatingItem = {
   id: number;
   player: string;
@@ -10,24 +18,28 @@ type TypeRatingItem = {
   lastGameAt: number;
 };
 
-type TypeRatingState = {
-  results: TypeRatingItem[];
+type TypeDataState = {
+  historyResults: TypeHistoryItem[];
+  ratingResults: TypeRatingItem[];
   isOnline: boolean;
 
   actions: {
+    setHistoryList: () => void;
     setRatingList: () => void;
   };
 };
 
 interface ServerToClientEvents {
+  historyGetList: (state: TypeHistoryItem[]) => void;
   ratingGetList: (state: TypeRatingItem[]) => void;
 }
 
 interface ClientToServerEvents {
+  historyGetList: () => void;
   ratingGetList: () => void;
 }
 
-export const useRatingStore = create<TypeRatingState>((set) => {
+export const useDataStore = create<TypeDataState>((set) => {
   const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKETIO_ENDPOINT);
 
   socket
@@ -37,15 +49,23 @@ export const useRatingStore = create<TypeRatingState>((set) => {
     .on('disconnect', () => {
       set({ isOnline: false });
     })
+    .on('historyGetList', (state) => {
+      // Вот тут возможно нужно получить старый стейт и если оба пусты то пропустить обновление стейта
+      set({ historyResults: state });
+    })
     .on('ratingGetList', (state) => {
-      set({ results: state });
+      set({ ratingResults: state });
     });
 
   return {
-    results: [],
+    historyResults: [],
+    ratingResults: [],
     isOnline: false,
 
     actions: {
+      setHistoryList() {
+        socket.emit('historyGetList');
+      },
       setRatingList() {
         socket.emit('ratingGetList');
       },

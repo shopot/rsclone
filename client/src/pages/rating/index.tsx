@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import Table from 'rc-table';
-import { useRatingStore } from '../../store/ratingStore';
+import { useDataStore } from '../../store/dataStore';
 
 const RatingPage = () => {
-  const { results, isOnline, actions } = useRatingStore();
+  const { ratingResults, isOnline, actions } = useDataStore();
   useEffect(() => {
     actions.setRatingList();
   }, []);
 
-  console.log(results);
+  console.log(ratingResults);
   const columns = [
     {
       title: 'Player name',
@@ -34,7 +34,7 @@ const RatingPage = () => {
       {isOnline ? (
         <Table
           columns={columns}
-          data={results}
+          data={ratingResults}
           rowKey="id"
         />
       ) : (

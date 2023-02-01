@@ -2,16 +2,16 @@ import React, { useEffect } from 'react';
 import Table from 'rc-table';
 import listify from 'listify';
 import prettyMs from 'pretty-ms';
-import { useHistoryStore } from '../../store/historyStore';
+import { useDataStore } from '../../store/dataStore';
 
 const HistoryPage = () => {
-  const { results, isOnline, actions } = useHistoryStore();
+  const { historyResults, isOnline, actions } = useDataStore();
 
   useEffect(() => {
     actions.setHistoryList();
   }, []);
 
-  console.log(results);
+  console.log(historyResults);
   const columns = [
     {
       title: 'Players',
@@ -38,7 +38,7 @@ const HistoryPage = () => {
       {isOnline ? (
         <Table
           columns={columns}
-          data={results}
+          data={historyResults}
           rowKey="id"
         />
       ) : (
