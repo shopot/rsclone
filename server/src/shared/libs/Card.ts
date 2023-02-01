@@ -1,13 +1,20 @@
 import { TypeCardRank } from '../types/TypeCardRank';
 import { TypeCardSuit } from '../types/TypeCardSuit';
+import { CardDto } from './CardDto';
 
 export class Card {
-  rank;
-  suit;
+  rank: TypeCardRank;
+  suit: TypeCardSuit;
+  isTrump: boolean;
 
   constructor(rank: TypeCardRank, suit: TypeCardSuit) {
     this.rank = rank;
     this.suit = suit;
+    this.isTrump = false;
+  }
+
+  setTrump(flag: boolean) {
+    this.isTrump = flag;
   }
 
   canBeat(otherCard: Card, trumpSuit: TypeCardSuit) {
@@ -20,10 +27,15 @@ export class Card {
     return this.suit === otherCard.suit && this.rank > otherCard.rank;
   }
 
-  getCard() {
-    return {
-      rank: this.rank,
-      suit: this.suit,
-    };
+  getCard(): CardDto {
+    return CardDto.create(this.rank, this.suit);
+  }
+
+  static create(cardDto: CardDto, trumpSuit: TypeCardSuit) {
+    const card = new Card(cardDto.rank, cardDto.suit);
+
+    card.setTrump(card.suit === trumpSuit);
+
+    return card;
   }
 }
