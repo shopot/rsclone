@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { SOCKETIO_ENDPOINT } from '../app/config';
 
 type TypeHistoryItem = {
+  id: number;
   players: string[];
   loser: string;
   duration: number;
