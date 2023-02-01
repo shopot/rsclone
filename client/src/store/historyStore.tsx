@@ -38,6 +38,7 @@ export const useHistoryStore = create<TypeHistoryState>((set) => {
       set({ isOnline: false });
     })
     .on('historyGetList', (state) => {
+      // Вот тут возможно нужно получить старый стейт и если оба пусты то пропустить обновление стейта
       set({ results: state });
     });
 
