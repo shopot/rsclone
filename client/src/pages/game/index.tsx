@@ -16,53 +16,53 @@ const GamePage = () => {
   };
 
   const handleCreatePlayer = () => {
-    socket.emit('gameFromClientCreatePlayer', { data: { playerId: playerName } });
+    socket.emit('fromClientCreatePlayer', { data: { playerId: playerName } });
   };
 
   const handleSendMessage = () => {
-    socket.emit('gameFromClientChatMessage', {
+    socket.emit('fromClientChatMessage', {
       data: { roomId: 'k8Ne3Q05', playerId: 'testbot', chatMessage: message },
     });
   };
 
   const handleJoinGame = () => {
-    socket.emit('gameFromClientJoinRoom', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
+    socket.emit('fromClientJoinRoom', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
   };
 
   const handleLeaveRoom = () => {
-    socket.emit('gameFromClientLeaveRoom', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
+    socket.emit('fromClientLeaveRoom', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
   };
 
   const handleStartGame = () => {
-    socket.emit('gameFromClientStartGame', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
+    socket.emit('fromClientStartGame', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
   };
 
   const handleAttack = () => {
-    socket.emit('gameFromClientAttackerOpen', {
+    socket.emit('fromClientAttackerOpen', {
       data: { roomId: 'k8Ne3Q05', playerId: 'testbot', card: { rank: 7, suit: 'hearts' } },
     });
   };
 
   const handlePass = () => {
-    socket.emit('gameFromClientAttackerPass', {
+    socket.emit('fromClientAttackerPass', {
       data: { roomId: 'k8Ne3Q05', playerId: 'testbot' },
     });
   };
 
   const handleDefence = () => {
-    socket.emit('gameFromClientDefenderClose', {
+    socket.emit('fromClientDefenderClose', {
       data: { roomId: 'k8Ne3Q05', playerId: 'testbot', card: { rank: 7, suit: 'hearts' } },
     });
   };
 
   const handleTake = () => {
-    socket.emit('gameFromClientDefenderTake', {
+    socket.emit('fromClientDefenderTake', {
       data: { roomId: 'k8Ne3Q05', playerId: 'testbot' },
     });
   };
 
   const handleSettings = () => {
-    socket.emit('gameFromClientHandleSettings', { data: { playerId: 'testbot' } });
+    socket.emit('fromClientHandleSettings', { data: { playerId: 'testbot' } });
   };
 
   return (
