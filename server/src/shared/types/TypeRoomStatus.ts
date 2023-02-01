@@ -1,4 +1,6 @@
-export type TypeRoomStatus =
-  | 'waitingforplayers'
-  | 'awaitingstart'
-  | 'gameinprogress';
+export enum TypeRoomStatus {
+  WaitingForPlayers,
+  WaitingForStart,
+  GameInProgress,
+  GameIsOver,
+}
