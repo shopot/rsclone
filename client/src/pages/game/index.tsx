@@ -1,14 +1,53 @@
 import React, { useRef } from 'react';
 import { useGame } from '../../app/hooks/useGame';
-import { PlayGame } from './scenes/PlayGame';
+import { BootScene } from './scenes/BootScene';
+import { GameScene } from './scenes/GameScene';
 
-const config = {
+export const config = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
-  backgroundColor: 0xccfbf1,
+  width: 1280,
+  height: 720,
+  backgroundColor: '#4682B4',
   parent: 'game-content',
-  scene: [PlayGame],
+  scene: [BootScene, GameScene],
+  cardNames: [
+    '6C',
+    '6D',
+    '6H',
+    '6S',
+    '7C',
+    '7D',
+    '7H',
+    '7S',
+    '8C',
+    '8D',
+    '8H',
+    '8S',
+    '9C',
+    '9D',
+    '9H',
+    '9S',
+    '10C',
+    '10D',
+    '10H',
+    '10S',
+    'AC',
+    'AD',
+    'AH',
+    'AS',
+    'JC',
+    'JD',
+    'JH',
+    'JS',
+    'KC',
+    'KD',
+    'KH',
+    'KS',
+    'QC',
+    'QD',
+    'QH',
+    'QS',
+  ],
 };
 
 const GamePage = () => {
