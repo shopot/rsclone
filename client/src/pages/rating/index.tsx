@@ -35,7 +35,7 @@ const RatingPage = () => {
         <Table
           columns={columns}
           data={results}
-          rowKey="player"
+          rowKey="id"
         />
       ) : (
         'Nothing'
