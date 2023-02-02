@@ -75,6 +75,18 @@ export class Room {
     this.logger = new Logger(`Room #${roomId}`);
   }
 
+  public getRoomId() {
+    return this.roomId;
+  }
+
+  public getPlayersCount() {
+    return this.players.totalCount();
+  }
+
+  public getRoomStatus() {
+    return this.roomStatus;
+  }
+
   /**
    * Start game room
    *

@@ -4,7 +4,7 @@ import { TypePlayerMember, TypeGameResponse } from '../shared/types';
 import { generateRoomName } from '../shared/utils/generateRoomName';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
-import { GameReceiveDto } from './dto';
+import { GameReceiveDto, RoomDto } from './dto';
 
 @Injectable()
 export class GameService implements IGameService {
@@ -37,6 +37,19 @@ export class GameService implements IGameService {
 
     console.log(room);
     // Send to client message: Game is created
+  }
+
+  async setFromClientGetRooms(data: GameReceiveDto) {
+    console.log('setFromClientGetRooms', data);
+    const rooms = Array.from(this.rooms).map(([roomId, room]) => {
+      return {
+        roomId,
+        playersCount: room.getPlayersCount(),
+        status: room.getRoomStatus(),
+      };
+    });
+
+    return rooms;
   }
 
   async setFromClientCreatePlayer(data: GameReceiveDto) {
