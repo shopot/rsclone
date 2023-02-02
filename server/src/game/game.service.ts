@@ -1,56 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CreateUserDto,
-  ChatMessageDto,
-  JoinRoomDto,
-  LeaveRoomDto,
-  StartGameDto,
-  AttackerOpenDto,
-  AttackerPassDto,
-  DefenderCloseDto,
-  DefenderTakeDto,
-  SettingsDto,
-} from './dto';
+import { GameReceiveDto } from './dto';
 
 @Injectable()
 export class GameService {
-  async setFromClientCreatePlayer(data: CreateUserDto) {
+  async setFromClientCreatePlayer(data: GameReceiveDto) {
     console.log('setCreatePlayer', data);
   }
 
-  async setFromClientChatMessage(data: ChatMessageDto) {
+  async setFromClientChatMessage(data: GameReceiveDto) {
     console.log('setChatMessage', data);
   }
 
-  async setFromClientJoinRoom(data: JoinRoomDto) {
+  async setFromClientJoinRoom(data: GameReceiveDto) {
     console.log('setJoinRoom', data);
   }
 
-  async setFromClientLeaveRoom(data: LeaveRoomDto) {
+  async setFromClientLeaveRoom(data: GameReceiveDto) {
     console.log('setLeaveRoom', data);
   }
 
-  async setFromClientStartGame(data: StartGameDto) {
+  async setFromClientStartGame(data: GameReceiveDto) {
     console.log('setStartGame', data);
   }
 
-  async setFromClientAttackerOpen(data: AttackerOpenDto) {
+  async setFromClientAttackerOpen(data: GameReceiveDto) {
     console.log('setAttackerOpen', data);
   }
 
-  async setFromClientAttackerPass(data: AttackerPassDto) {
+  async setFromClientAttackerPass(data: GameReceiveDto) {
     console.log('setAttackerPass', data);
   }
 
-  async setFromClientDefenderClose(data: DefenderCloseDto) {
+  async setFromClientDefenderClose(data: GameReceiveDto) {
     console.log('setDefenderClose', data);
   }
 
-  async setFromClientDefenderTake(data: DefenderTakeDto) {
+  async setFromClientDefenderTake(data: GameReceiveDto) {
     console.log('setDefenderTake', data);
   }
 
-  async setFromClientSettings(data: SettingsDto) {
+  async setFromClientSettings(data: GameReceiveDto) {
     console.log('setSettings', data);
   }
 }

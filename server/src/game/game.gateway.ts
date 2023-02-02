@@ -5,18 +5,7 @@ import {
   MessageBody,
   WebSocketServer,
 } from '@nestjs/websockets';
-import {
-  CreateUserDto,
-  ChatMessageDto,
-  JoinRoomDto,
-  LeaveRoomDto,
-  StartGameDto,
-  AttackerOpenDto,
-  AttackerPassDto,
-  DefenderCloseDto,
-  DefenderTakeDto,
-  SettingsDto,
-} from './dto';
+import { GameReceiveDto } from './dto';
 import { Server } from 'socket.io';
 import { GameService } from './game.service';
 
@@ -28,38 +17,40 @@ export class GameGateway {
   server: Server;
 
   @SubscribeMessage('gameFromClientCreatePlayer')
-  handleFromClientCreatePlayer(@MessageBody('data') data: CreateUserDto): void {
+  handleFromClientCreatePlayer(
+    @MessageBody('data') data: GameReceiveDto,
+  ): void {
     Logger.debug('gameFromClientCreatePlayer');
     this.gameService.setFromClientCreatePlayer(data);
   }
 
   @SubscribeMessage('gameFromClientChatMessage')
-  handleFromClientChatMessage(@MessageBody('data') data: ChatMessageDto): void {
+  handleFromClientChatMessage(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientChatMessage');
     this.gameService.setFromClientChatMessage(data);
   }
 
   @SubscribeMessage('gameFromClientJoinRoom')
-  handleFromClientJoinRoom(@MessageBody('data') data: JoinRoomDto): void {
+  handleFromClientJoinRoom(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientJoinRoom');
     this.gameService.setFromClientJoinRoom(data);
   }
 
   @SubscribeMessage('gameFromClientLeaveRoom')
-  handleFromClientLeaveRoom(@MessageBody('data') data: LeaveRoomDto): void {
+  handleFromClientLeaveRoom(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientLeaveRoom');
     this.gameService.setFromClientLeaveRoom(data);
   }
 
   @SubscribeMessage('gameFromClientStartGame')
-  handleFromClientStartGame(@MessageBody('data') data: StartGameDto): void {
+  handleFromClientStartGame(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientStartGame');
     this.gameService.setFromClientStartGame(data);
   }
 
   @SubscribeMessage('gameFromClientAttackerOpen')
   handleFromClientAttackerOpen(
-    @MessageBody('data') data: AttackerOpenDto,
+    @MessageBody('data') data: GameReceiveDto,
   ): void {
     Logger.debug('gameFromClientAttackerOpen');
     this.gameService.setFromClientAttackerOpen(data);
@@ -67,7 +58,7 @@ export class GameGateway {
 
   @SubscribeMessage('gameFromClientAttackerPass')
   handleFromClientAttackerPass(
-    @MessageBody('data') data: AttackerPassDto,
+    @MessageBody('data') data: GameReceiveDto,
   ): void {
     Logger.debug('gameFromClientAttackerPass');
     this.gameService.setFromClientAttackerPass(data);
@@ -75,7 +66,7 @@ export class GameGateway {
 
   @SubscribeMessage('gameFromClientDefenderClose')
   handleFromClientDefenderClose(
-    @MessageBody('data') data: DefenderCloseDto,
+    @MessageBody('data') data: GameReceiveDto,
   ): void {
     Logger.debug('gameFromClientDefenderClose');
     this.gameService.setFromClientDefenderClose(data);
@@ -83,14 +74,14 @@ export class GameGateway {
 
   @SubscribeMessage('gameFromClientDefenderTake')
   handleFromClientDefenderTake(
-    @MessageBody('data') data: DefenderTakeDto,
+    @MessageBody('data') data: GameReceiveDto,
   ): void {
     Logger.debug('gameFromClientDefenderTake');
     this.gameService.setFromClientDefenderTake(data);
   }
 
   @SubscribeMessage('gameFromClientSettings')
-  handleFromClientSettings(@MessageBody('data') data: SettingsDto): void {
+  handleFromClientSettings(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientSettings');
     this.gameService.setFromClientSettings(data);
   }
