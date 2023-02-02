@@ -1,15 +1,48 @@
-@import 'css-init/src/init';
-@import './styles';
+@use 'css-init/src/init' as *;
+@use './styles/constants';
+@use './styles/buttons';
+@use './styles/table';
 
 * {
   box-sizing: border-box;
+  color: inherit;
 }
 
 body {
-  font-family: sans-serif;
+  background-color: constants.$bg-color;
+  color: constants.$text-color;
+  font-family: Inter, sans-serif;
 }
 
 img {
   max-inline-size: 100%;
   block-size: auto;
+}
+
+.container {
+  max-width: 1200px;
+  padding: 10px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+input {
+  border: 1px solid constants.$main-color;
+  border-radius: 5px;
+  padding: 2px;
+  padding-left: 5px;
+  transition: border 0.3s ease-in-out;
+
+  &:focus {
+    border: 1px solid constants.$outline-color;
+    outline: none;
+  }
+}
+
+.heading {
+  margin-bottom: 20px;
 }

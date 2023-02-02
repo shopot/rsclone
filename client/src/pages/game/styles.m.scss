@@ -1,4 +1,16 @@
-.misc-buttons {
+.buttonsDiv {
+  display: flex;
+  flex-direction: column;
+  gap: 1em 2em;
+}
+
+.addPlayer,
+.chat {
+  display: flex;
+  gap: 1em;
+}
+
+.miscButtons {
   display: flex;
   flex-wrap: wrap;
   gap: 1em;
