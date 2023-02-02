@@ -32,7 +32,7 @@ export class Player {
   }
 
   public addCards(cards: Card[]) {
-    return this.cards.concat(cards);
+    this.cards.concat(cards);
   }
 
   public getCards() {
