@@ -25,6 +25,10 @@ const GamePage = () => {
     });
   };
 
+  const handleCreateGame = () => {
+    socket.emit('gameFromClientCreateRoom', { data: { playerId: 'testbot' } });
+  };
+
   const handleJoinGame = () => {
     socket.emit('gameFromClientJoinRoom', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
   };
@@ -100,6 +104,13 @@ const GamePage = () => {
           </button>
         </div>
         <div className={styles.miscButtons}>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleCreateGame}
+          >
+            Create game
+          </button>
           <button
             className="btn"
             type="button"
