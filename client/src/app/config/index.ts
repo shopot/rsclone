@@ -1,1 +1,1 @@
-export const SOCKETIO_ENDPOINT = 'http://localhost:3000';
+export const SOCKET_IO_ENDPOINT = 'http://localhost:3000';

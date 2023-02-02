@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
-import { SOCKETIO_ENDPOINT } from '../app/config';
+import { SOCKET_IO_ENDPOINT } from '../app/config';
 
 type TypeHistoryItem = {
   id: number;
@@ -40,7 +40,7 @@ interface ClientToServerEvents {
 }
 
 export const useDataStore = create<TypeDataState>((set) => {
-  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKETIO_ENDPOINT);
+  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_IO_ENDPOINT);
 
   socket
     .on('connect', () => {
