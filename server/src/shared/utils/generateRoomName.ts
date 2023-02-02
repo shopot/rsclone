@@ -1,6 +1,8 @@
-import cryptoRandomString from 'crypto-random-string';
+import { randomBytes } from 'node:crypto';
 import { ROOM_NAME_LENGTH } from '../constants';
 
 export const generateRoomName = (): string => {
-  return cryptoRandomString({ length: ROOM_NAME_LENGTH, type: 'base64' });
+  return randomBytes(ROOM_NAME_LENGTH)
+    .toString('base64')
+    .slice(0, ROOM_NAME_LENGTH);
 };
