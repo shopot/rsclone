@@ -80,7 +80,7 @@ export class Room {
    *
    * @returns
    */
-  private start(): void {
+  public start(): void {
     if (this.roomStatus !== TypeRoomStatus.WaitingForStart) {
       return;
     }
