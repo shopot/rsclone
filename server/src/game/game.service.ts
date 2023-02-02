@@ -14,43 +14,43 @@ import {
 
 @Injectable()
 export class GameService {
-  async setCreatePlayer(data: CreateUserDto) {
+  async setFromClientCreatePlayer(data: CreateUserDto) {
     console.log('setCreatePlayer', data);
   }
 
-  async setChatMessage(data: ChatMessageDto) {
+  async setFromClientChatMessage(data: ChatMessageDto) {
     console.log('setChatMessage', data);
   }
 
-  async setJoinRoom(data: JoinRoomDto) {
+  async setFromClientJoinRoom(data: JoinRoomDto) {
     console.log('setJoinRoom', data);
   }
 
-  async setLeaveRoom(data: LeaveRoomDto) {
+  async setFromClientLeaveRoom(data: LeaveRoomDto) {
     console.log('setLeaveRoom', data);
   }
 
-  async setStartGame(data: StartGameDto) {
+  async setFromClientStartGame(data: StartGameDto) {
     console.log('setStartGame', data);
   }
 
-  async setAttackerOpen(data: AttackerOpenDto) {
+  async setFromClientAttackerOpen(data: AttackerOpenDto) {
     console.log('setAttackerOpen', data);
   }
 
-  async setAttackerPass(data: AttackerPassDto) {
+  async setFromClientAttackerPass(data: AttackerPassDto) {
     console.log('setAttackerPass', data);
   }
 
-  async setDefenderClose(data: DefenderCloseDto) {
+  async setFromClientDefenderClose(data: DefenderCloseDto) {
     console.log('setDefenderClose', data);
   }
 
-  async setDefenderTake(data: DefenderTakeDto) {
+  async setFromClientDefenderTake(data: DefenderTakeDto) {
     console.log('setDefenderTake', data);
   }
 
-  async setSettings(data: SettingsDto) {
+  async setFromClientSettings(data: SettingsDto) {
     console.log('setSettings', data);
   }
 }

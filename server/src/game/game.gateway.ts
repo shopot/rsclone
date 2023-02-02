@@ -28,62 +28,70 @@ export class GameGateway {
   server: Server;
 
   @SubscribeMessage('gameFromClientCreatePlayer')
-  handleCreatePlayer(@MessageBody('data') data: CreateUserDto): void {
+  handleFromClientCreatePlayer(@MessageBody('data') data: CreateUserDto): void {
     Logger.debug('gameFromClientCreatePlayer');
-    this.gameService.setCreatePlayer(data);
+    this.gameService.setFromClientCreatePlayer(data);
   }
 
   @SubscribeMessage('gameFromClientChatMessage')
-  handleChatMessage(@MessageBody('data') data: ChatMessageDto): void {
+  handleFromClientChatMessage(@MessageBody('data') data: ChatMessageDto): void {
     Logger.debug('gameFromClientChatMessage');
-    this.gameService.setChatMessage(data);
+    this.gameService.setFromClientChatMessage(data);
   }
 
   @SubscribeMessage('gameFromClientJoinRoom')
-  handleJoinRoom(@MessageBody('data') data: JoinRoomDto): void {
+  handleFromClientJoinRoom(@MessageBody('data') data: JoinRoomDto): void {
     Logger.debug('gameFromClientJoinRoom');
-    this.gameService.setJoinRoom(data);
+    this.gameService.setFromClientJoinRoom(data);
   }
 
   @SubscribeMessage('gameFromClientLeaveRoom')
-  handleLeaveRoom(@MessageBody('data') data: LeaveRoomDto): void {
+  handleFromClientLeaveRoom(@MessageBody('data') data: LeaveRoomDto): void {
     Logger.debug('gameFromClientLeaveRoom');
-    this.gameService.setLeaveRoom(data);
+    this.gameService.setFromClientLeaveRoom(data);
   }
 
   @SubscribeMessage('gameFromClientStartGame')
-  handleStartGame(@MessageBody('data') data: StartGameDto): void {
+  handleFromClientStartGame(@MessageBody('data') data: StartGameDto): void {
     Logger.debug('gameFromClientStartGame');
-    this.gameService.setStartGame(data);
+    this.gameService.setFromClientStartGame(data);
   }
 
   @SubscribeMessage('gameFromClientAttackerOpen')
-  handleAttackerOpen(@MessageBody('data') data: AttackerOpenDto): void {
+  handleFromClientAttackerOpen(
+    @MessageBody('data') data: AttackerOpenDto,
+  ): void {
     Logger.debug('gameFromClientAttackerOpen');
-    this.gameService.setAttackerOpen(data);
+    this.gameService.setFromClientAttackerOpen(data);
   }
 
   @SubscribeMessage('gameFromClientAttackerPass')
-  handleAttackerPass(@MessageBody('data') data: AttackerPassDto): void {
+  handleFromClientAttackerPass(
+    @MessageBody('data') data: AttackerPassDto,
+  ): void {
     Logger.debug('gameFromClientAttackerPass');
-    this.gameService.setAttackerPass(data);
+    this.gameService.setFromClientAttackerPass(data);
   }
 
   @SubscribeMessage('gameFromClientDefenderClose')
-  handleDefenderClose(@MessageBody('data') data: DefenderCloseDto): void {
+  handleFromClientDefenderClose(
+    @MessageBody('data') data: DefenderCloseDto,
+  ): void {
     Logger.debug('gameFromClientDefenderClose');
-    this.gameService.setDefenderClose(data);
+    this.gameService.setFromClientDefenderClose(data);
   }
 
   @SubscribeMessage('gameFromClientDefenderTake')
-  handleDefenderTake(@MessageBody('data') data: DefenderTakeDto): void {
+  handleFromClientDefenderTake(
+    @MessageBody('data') data: DefenderTakeDto,
+  ): void {
     Logger.debug('gameFromClientDefenderTake');
-    this.gameService.setDefenderTake(data);
+    this.gameService.setFromClientDefenderTake(data);
   }
 
   @SubscribeMessage('gameFromClientSettings')
-  handleSettings(@MessageBody('data') data: SettingsDto): void {
+  handleFromClientSettings(@MessageBody('data') data: SettingsDto): void {
     Logger.debug('gameFromClientSettings');
-    this.gameService.setSettings(data);
+    this.gameService.setFromClientSettings(data);
   }
 }
