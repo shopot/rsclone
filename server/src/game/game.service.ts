@@ -37,11 +37,11 @@ export class GameService implements IGameService {
 
   async setFromClientGetRooms(data: GameReceiveDto) {
     console.log('setFromClientGetRooms', data);
-    const rooms: RoomDto[] = Array.from(this.rooms).map((room) => {
+    const rooms = Array.from(this.rooms).map(([roomId, room]) => {
       return {
-        roomId: room[0],
-        playersNumber: room[1].players.totalCount(),
-        status: room[1].roomStatus,
+        roomId,
+        playersCount: room.getPlayersCount(),
+        status: room.getRoomStatus(),
       };
     });
 
