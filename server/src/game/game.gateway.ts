@@ -36,6 +36,14 @@ export class GameGateway {
     this.gameService.setFromClientCreateRoom(data);
   }
 
+  @SubscribeMessage('gameFromClientGetRooms')
+  handleFromClientGetRooms(@MessageBody('data') data: GameReceiveDto): void {
+    Logger.debug('gameFromClientGetRooms');
+    this.gameService.setFromClientGetRooms(data).then((results) => {
+      this.server.emit('gameFromServerGetRooms', results);
+    });
+  }
+
   @SubscribeMessage('gameFromClientJoinRoom')
   handleFromClientJoinRoom(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientJoinRoom');
