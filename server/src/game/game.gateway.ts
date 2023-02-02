@@ -1,10 +1,12 @@
 import { Logger } from '@nestjs/common';
 import {
+  ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   MessageBody,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 import { GameReceiveDto } from './dto';
 import { Server } from 'socket.io';
 import { GameService } from './game.service';
@@ -31,9 +33,12 @@ export class GameGateway {
   }
 
   @SubscribeMessage('gameFromClientCreateRoom')
-  handleFromClientCreateRoom(@MessageBody('data') data: GameReceiveDto): void {
+  handleFromClientCreateRoom(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
     Logger.debug('gameFromClientCreateRoom');
-    this.gameService.setFromClientCreateRoom(data);
+    this.gameService.setFromClientCreateRoom(data, client.id);
   }
 
   @SubscribeMessage('gameFromClientJoinRoom')
