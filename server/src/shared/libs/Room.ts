@@ -210,6 +210,20 @@ export class Room {
     }
   }
 
+  public defenderPickUpCards() {
+    if (!this.validateActivePlayer(this.defender)) {
+      throw new Error('Players is invalid. Something went wrong.');
+    }
+
+    this.activePlayer.addCards(this.round.getRoundCards());
+
+    this.gameService.setFromServerDefenderPickUpCards({
+      playerId: this.activePlayer.getPlayerId(),
+    });
+
+    // Go to next attacker
+  }
+
   /**
    * Event gameAttackerPass
    */
