@@ -67,84 +67,96 @@ const GamePage = () => {
 
   return (
     <div>
-      <h1>Game Page</h1>
-      <div className="addPlayer">
-        <input
-          type="text"
-          value={playerName}
-          placeholder="Name of the player"
-          onChange={handlePlayerNameChange}
-        />
-        <button
-          type="button"
-          onClick={handleCreatePlayer}
-        >
-          Add player
-        </button>
-      </div>
-      <div className="chat">
-        <input
-          type="text"
-          value={message}
-          placeholder="message"
-          onChange={handleMessage}
-        />
-        <button
-          type="button"
-          onClick={handleSendMessage}
-        >
-          Send message
-        </button>
-      </div>
-      <div className={styles['misc-buttons']}>
-        <button
-          type="button"
-          onClick={handleJoinGame}
-        >
-          Join game
-        </button>
-        <button
-          type="button"
-          onClick={handleLeaveRoom}
-        >
-          Leave Room
-        </button>
-        <button
-          type="button"
-          onClick={handleStartGame}
-        >
-          Start game
-        </button>
-        <button
-          type="button"
-          onClick={handleAttack}
-        >
-          Make attacking move
-        </button>
-        <button
-          type="button"
-          onClick={handlePass}
-        >
-          Pass
-        </button>
-        <button
-          type="button"
-          onClick={handleDefence}
-        >
-          Make defending move
-        </button>
-        <button
-          type="button"
-          onClick={handleTake}
-        >
-          Take
-        </button>
-        <button
-          type="button"
-          onClick={handleSettings}
-        >
-          Settings
-        </button>
+      <h1 className="heading">Game Page</h1>
+      <div className={styles.buttonsDiv}>
+        <div className={styles.addPlayer}>
+          <input
+            type="text"
+            value={playerName}
+            placeholder="Name of the player"
+            onChange={handlePlayerNameChange}
+          />
+          <button
+            className="btn"
+            type="button"
+            onClick={handleCreatePlayer}
+          >
+            Add player
+          </button>
+        </div>
+        <div className={styles.chat}>
+          <input
+            type="text"
+            value={message}
+            placeholder="Chat message"
+            onChange={handleMessage}
+          />
+          <button
+            className="btn"
+            type="button"
+            onClick={handleSendMessage}
+          >
+            Send message
+          </button>
+        </div>
+        <div className={styles.miscButtons}>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleJoinGame}
+          >
+            Join game
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleLeaveRoom}
+          >
+            Leave Room
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleStartGame}
+          >
+            Start game
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleAttack}
+          >
+            Make attacking move
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handlePass}
+          >
+            Pass
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleDefence}
+          >
+            Make defending move
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleTake}
+          >
+            Take
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleSettings}
+          >
+            Settings
+          </button>
+        </div>
       </div>
     </div>
   );

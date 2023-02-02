@@ -30,6 +30,7 @@ const RatingPage = () => {
 
   return (
     <div>
+      <h1 className="heading">Rating Page</h1>
       {isOnline ? (
         <Table
           columns={columns}

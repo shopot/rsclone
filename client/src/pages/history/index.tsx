@@ -34,6 +34,7 @@ const HistoryPage = () => {
 
   return (
     <div>
+      <h1 className="heading">History Page</h1>
       {isOnline ? (
         <Table
           columns={columns}

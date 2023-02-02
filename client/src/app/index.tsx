@@ -1,39 +1,83 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import PageRouting from '../pages';
-
-import './index.scss';
 import { withProviders } from './providers';
+import './index.scss';
+import styles from './app.m.scss';
 
 const App = () => (
   // Potentially you can insert here
   // A single header for the entire application
   // Or do it on separate pages
   <>
-    <PageRouting />
-    <div style={{ marginTop: '30px' }}>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home page</Link>
-          </li>
-          <li>
-            <Link to="about">About page</Link>
-          </li>
-          <li>
-            <Link to="game">Game page</Link>
-          </li>
-          <li>
-            <Link to="history">History page</Link>
-          </li>
-          <li>
-            <Link to="rating">Rating page</Link>
-          </li>
-          <li>
-            <Link to="nothing-here">Nothing Here</Link>
-          </li>
-        </ul>
-      </nav>
+    <div className="container">
+      <header className={styles.header}>
+        <nav>
+          <ul className={styles.navList}>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+                }
+                to="/"
+              >
+                Home page
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+                }
+                to="about"
+              >
+                About page
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+                }
+                to="game"
+              >
+                Game page
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+                }
+                to="history"
+              >
+                History page
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+                }
+                to="rating"
+              >
+                Rating page
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+                }
+                to="nothing-here"
+              >
+                Nothing Here
+              </NavLink>
+            </li>
+          </ul>
+        </nav>
+      </header>
+      <PageRouting />
     </div>
   </>
 );
