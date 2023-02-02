@@ -2,54 +2,76 @@ import { Deck } from './Deck';
 import { Player } from './Player';
 import {
   STARTING_CARDS_NUMBER,
-  MIN_ROOM_SIZE,
-  MAX_ROOM_SIZE,
+  MIN_NUMBER_OF_PLAYERS,
+  MAX_NUMBER_OF_PLAYERS,
 } from '../constants';
 import { Logger } from '@nestjs/common';
 import { Round } from './Round';
 import { TypeRoomStatus } from '../types/TypeRoomStatus';
-import { CardDto } from './CardDto';
-import { TypeEventPayload, TypePlayerStatus, TypeRoomEvent } from '../types';
+import { CardDto } from '../dto';
+import { TypePlayerStatus } from '../types';
+import { Players } from './Players';
+import { IGameService } from '../interfaces';
+import { TypeCardRank } from '../types/TypeCardRank';
 
 /**
  * Class Room
  */
 export class Room {
+  /** Is a unique string value */
   roomId: string;
-  host: Player;
-  players: Player[]; //Players;
-  roomStatus: TypeRoomStatus;
-  deck: Deck | null;
+  /** Is a object GameService */
+  gameService: IGameService;
+  /** Who create this room (game) */
+  hostPlayer: Player;
+  /** Players list in this room */
+  players: Players;
+  /** Deck of cards */
+  deck: Deck;
+  /** Round */
   round: Round;
+  /** Room status */
+  roomStatus: TypeRoomStatus;
+  /** Number of rounds played in the game */
   roundNumber: number;
+  /** Who attack */
+  attacker: Player;
+  /** Who defense */
+  defender: Player;
+  /** Active player on the current step */
+  activePlayer: Player;
+  /** Total number of pass */
+  passCounter: number;
+  /** Maximum number of pass */
+  passCounterMaxValue: number;
+  /** Time of start game */
   gameTimeStart: number;
 
-  attacker: Player | null;
-  defender: Player | null;
-
-  gameService: null;
   logger: Logger;
 
-  passCounter: number;
-  passCounterMaxValue: number;
-
-  constructor(roomId: string, host: Player, gameService: null) {
+  constructor(roomId: string, hostPlayer: Player, gameService: IGameService) {
     this.roomId = roomId;
-    this.host = host;
-    this.players = [];
-    this.roomStatus = TypeRoomStatus.WaitingForPlayers;
-    this.deck = null;
-    this.roundNumber = 0;
 
-    this.attacker = null;
-    this.defender = null;
-
-    // For emitting events
+    // For send actions
     this.gameService = gameService;
+
+    this.hostPlayer = hostPlayer;
+    this.hostPlayer.setPlayerStatus(TypePlayerStatus.InGame);
+    this.players = new Players([this.hostPlayer]);
+
+    // Create empty deck
+    this.deck = new Deck();
+
+    // Initial data
+    this.roomStatus = TypeRoomStatus.WaitingForPlayers;
+    this.roundNumber = 0;
+    this.attacker = this.hostPlayer;
+    this.defender = this.hostPlayer;
+    this.activePlayer = this.hostPlayer;
     this.passCounter = 0;
     this.passCounterMaxValue = 1;
 
-    // TODO: change dependency injection
+    // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
   }
 
@@ -58,106 +80,134 @@ export class Room {
    *
    * @returns
    */
-  start(): void {
+  private start(): void {
     if (this.roomStatus !== TypeRoomStatus.WaitingForStart) {
       return;
     }
 
     // Start new deck
-    this.deck = new Deck(this.players.length);
+    this.deck = new Deck(this.players.totalCount());
 
-    for (const player of this.players) {
-      player.addCards(this.deck.getCardsFromDeck(STARTING_CARDS_NUMBER));
-    }
+    this.dealtCards();
 
-    // Set round number
     this.roundNumber = 1;
 
     // Set attacker as player with lowest trump
     this.attacker = this.findPlayerWithLowestTrump();
+    this.activePlayer = this.attacker;
 
-    this.defender = this.getNextPlayer(this.attacker.getPlayerId());
+    this.defender = this.players.next(this.attacker);
 
     // Game is started
     this.roomStatus = TypeRoomStatus.GameInProgress;
 
     this.round = new Round(this.deck);
 
-    this.emitEvent(TypeRoomEvent.fromServerGameStart);
-
-    // Send status open for attacker
-    // На фронте делается логика для gameAttackerSetActive
-    this.emitEvent(TypeRoomEvent.fromServerAttackerSetActive, {
-      playerId: this.attacker.getPlayerId(),
-    });
+    this.passCounterMaxValue = this.players.totalCount() - 1;
 
     // Save start time
     this.gameTimeStart = Date.now();
+
+    // Start the game
+    this.gameService.setFromServerGameStart({
+      roomId: this.roomId,
+    });
+
+    // Send status open for attacker
+    // На фронте делается логика для gameAttackerSetActive
+    this.gameService.setFromServerAttackerSetActive({
+      playerId: this.attacker.getPlayerId(),
+    });
   }
 
   /**
    * Give one card from attacker
    */
-  public attackerOpen(cardDto: CardDto) {
-    if (this.attacker === null) {
-      throw new Error("Can't found attacker. Something went wrong.");
+  public setAttackerOpen(cardDto: CardDto): void {
+    if (!this.validateActivePlayer(this.attacker)) {
+      throw new Error('Players is invalid. Something went wrong.');
     }
 
-    // Add the card
+    const playerId = this.activePlayer.getPlayerId();
+
+    const payload = {
+      playerId,
+      card: cardDto,
+    };
+
+    // Add the card & check it
     if (!this.round.attack(cardDto)) {
       // Something went wrong, motherfucker
-      this.emitEvent(TypeRoomEvent.fromServerAttackerOpenFail);
+      this.gameService.setFromServerAttackerOpenFail(payload);
 
       return;
     }
 
     // Remove card from player cards array
-    this.attacker.lostCard(cardDto);
+    this.activePlayer.lostCard(cardDto);
 
     // Reset pass counter
     this.passCounter = 0;
 
-    // Update player winner status
-    this.updatePlayerWinnerStatus(this.attacker);
-
     // Card added successfully, send message to client
-    this.emitEvent(TypeRoomEvent.fromServerAttackerOpenSuccess);
+    this.gameService.setFromServerAttackerOpenSuccess(payload);
 
-    // Check game is finished for attacker
-    if (this.attacker.cards.length === 0) {
-      this.attacker.setPlayerStatus(TypePlayerStatus.YouWinner);
+    // Check game is finish for attacker
+    if (this.isActivePlayerWin()) {
+      this.setPlayerAsWinner(this.activePlayer);
+
+      // Move turn to defender
+      return this.setAttackerDone();
     }
+  }
+
+  /**
+   * Move turn to defender from attacker
+   * Emit event: gameFromServerDefenderSetActive
+   */
+  public setAttackerDone(): void {
+    this.setActivePlayer(this.defender);
+
+    this.gameService.setFromServerDefenderSetActive({
+      playerId: this.activePlayer.getPlayerId(),
+    });
   }
 
   /**
    * Give one card from defender
    */
-  public defenderClose(cardDto: CardDto) {
-    if (this.defender === null) {
-      throw new Error("Can't found defender. Something went wrong.");
+  public setDefenderClose(cardDto: CardDto) {
+    if (!this.validateActivePlayer(this.defender)) {
+      throw new Error('Players is invalid. Something went wrong.');
     }
+
+    const playerId = this.activePlayer.getPlayerId();
+
+    const payload = {
+      playerId,
+      card: cardDto,
+    };
 
     // Add the card
     if (!this.round.defend(cardDto)) {
       // Something went wrong, motherfucker
-      this.emitEvent(TypeRoomEvent.fromServerDefenderCloseFail);
+      this.gameService.setFromServerDefenderCloseFail(payload);
 
       return;
     }
 
     // Remove card from player cards array
-    this.defender.lostCard(cardDto);
+    this.activePlayer.lostCard(cardDto);
 
     // Card added successfully, send message to client
-    this.emitEvent(TypeRoomEvent.fromServerDefenderCloseSuccess);
+    this.gameService.setFromServerDefenderCloseSuccess(payload);
 
-    // Update player winner status
-    this.updatePlayerWinnerStatus(this.defender);
+    // Check game is finish for defender
+    if (this.isActivePlayerWin()) {
+      this.setPlayerAsWinner(this.activePlayer);
 
-    // Check and update Room status
-    this.updateWhenTheGameIsOver();
-
-    this.startNextRoundStep();
+      this.startNextRound();
+    }
   }
 
   /**
@@ -173,25 +223,73 @@ export class Room {
     }
   }
 
-  updatePlayerWinnerStatus(player: Player | null) {
-    if (player && player.getCardsCount() === 0) {
-      player.setPlayerStatus(TypePlayerStatus.YouWinner);
-
-      this.emitEvent(TypeRoomEvent.fromServerSendPlayerStatus, {
-        playerId: player.getPlayerId(),
-        playerStatus: TypePlayerStatus.YouWinner,
-      });
+  /**
+   * Validate and set active player
+   * @param {Player} player
+   */
+  private setActivePlayer(player: Player): void {
+    if (!this.players.getPlayersInGame().includes(player)) {
+      throw new Error("Can't set active player. Something went wrong.");
     }
+
+    this.activePlayer = player;
   }
 
-  startNextRoundStep(): void {
-    if (this.roomStatus === TypeRoomStatus.GameIsOver) {
+  private setPlayerAsLoser(player: Player): void {
+    player.setPlayerStatus(TypePlayerStatus.YouLoser);
+
+    this.gameService.setFromServerSendPlayerStatus({
+      playerId: player.getPlayerId(),
+      playerStatus: TypePlayerStatus.YouLoser,
+    });
+  }
+
+  /**
+   * Set active player as winner
+   */
+  private setPlayerAsWinner(player: Player): void {
+    player.setPlayerStatus(TypePlayerStatus.YouWinner);
+
+    this.gameService.setFromServerSendPlayerStatus({
+      playerId: player.getPlayerId(),
+      playerStatus: TypePlayerStatus.YouWinner,
+    });
+  }
+
+  /**
+   *  Each player is dealt six cards
+   */
+  private dealtCards() {
+    if (this.deck.isEmpty()) {
+      return;
+    }
+
+    this.players.getPlayersInGame().forEach((player) => {
+      const balance = player.getCards().length;
+
+      if (balance < STARTING_CARDS_NUMBER) {
+        player.addCards(
+          this.deck.getCardsFromDeck(STARTING_CARDS_NUMBER - balance),
+        );
+      }
+    });
+  }
+
+  private startNextRound() {
+    // dealt cards to user
+    this.dealtCards();
+
+    this.log(`Room #${this.roomId} - Start next round`);
+  }
+
+  private startNextRoundStep(): void {
+    if (this.isGameOver()) {
       // Game is over nothing to do
       return;
     }
 
     // Если двое переход хода старт нового раунда
-    if (this.players.length === 2) {
+    if (this.players.totalCountInGame() === 2) {
       const oldAttacker = this.attacker;
       this.attacker = this.defender;
       this.defender = oldAttacker;
@@ -199,99 +297,63 @@ export class Room {
       return this.startNextRound();
     }
 
-    if (this.attacker === null) {
-      throw new Error("Can't get player index. Something went very wrong");
-    }
-
-    this.attacker = this.getNextPlayer(this.attacker.getPlayerId());
-
-    if (this.attacker === null) {
-      throw new Error("Can't get player index. Something went very wrong");
-    }
-
-    if (this.attacker.getPlayerId() === this.defender?.getPlayerId()) {
-      this.attacker = this.getNextPlayer(this.attacker.getPlayerId());
-    }
-
     this.log(`Room #${this.roomId} - Start next round step`);
-  }
-
-  startNextRound() {
-    if (this.roomStatus === TypeRoomStatus.GameIsOver) {
-      // Game is over nothing to do
-      return;
-    }
-
-    this.log(`Room #${this.roomId} - Start next round`);
-  }
-
-  /**
-   * Getter for this.players.size
-   */
-  get size(): number {
-    return this.players.length;
   }
 
   /**
    * Add new player to the room
-   * @param player
-   * @returns
+   * @param {Player} player
+   * @returns {void}
    */
-  addPlayer(player: Player): void {
-    if (this.size === MAX_ROOM_SIZE) {
+  public joinRoom(player: Player): void {
+    if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
       return;
     }
 
-    this.players.push(player);
+    this.players.add(player);
 
     if (
       this.roomStatus === TypeRoomStatus.WaitingForPlayers &&
-      this.size >= MIN_ROOM_SIZE // TODO: change it to MIN_NUMBER_OF_PLAYERS
+      this.players.totalCount() >= MIN_NUMBER_OF_PLAYERS
     ) {
       this.roomStatus = TypeRoomStatus.WaitingForStart;
     }
   }
 
-  /**
-   * Returns is active players in game
-   * @returns Players array by TypePlayerStatus.InGame
-   */
-  getPlayersInGame() {
-    return this.players.filter((player) => {
-      return player.getPlayerStatus() === TypePlayerStatus.InGame;
-    });
-  }
+  public leaveRoom(playerId: string): void {
+    const leavePlayer = this.players.getById(playerId);
 
-  getPrevPlayer(playerId: string): Player {
-    const playersInGame = this.getPlayersInGame();
-
-    const idx = playersInGame.findIndex((player) => player.name === playerId);
-
-    idx === 0
-      ? playersInGame[playersInGame.length - 1]
-      : playersInGame[idx - 1];
-
-    return playersInGame[idx];
-  }
-
-  getNextPlayer(playerId: string) {
-    const playersInGame = this.getPlayersInGame();
-
-    const idx = playersInGame.findIndex((player) => player.name === playerId);
-
-    return playersInGame[(idx + 1) % playersInGame.length];
-  }
-
-  findPlayerWithLowestTrump(): Player {
-    if (this.deck === null) {
-      return this.host;
+    if (!leavePlayer) {
+      return;
     }
 
+    if (!this.isGameOver()) {
+      this.roomStatus = TypeRoomStatus.GameIsOver;
+
+      leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+
+      for (const player of this.players) {
+        if (player !== leavePlayer) {
+          this.setPlayerAsWinner(player);
+        }
+      }
+
+      this.setGameIsOver();
+    }
+
+    return;
+  }
+
+  /**
+   * Returns first attacker
+   * @returns {Player} First attacker
+   */
+  private findPlayerWithLowestTrump(): Player {
     const trumpSuit = this.deck.getTrumpSuit();
 
-    let foundPlayer = null;
+    let foundPlayer = this.hostPlayer;
 
-    let lowestTrumpCardRank = Infinity;
+    let lowestTrumpCardRank = TypeCardRank.RANK_A;
 
     for (const player of this.players) {
       for (const card of player.cards) {
@@ -302,53 +364,46 @@ export class Room {
       }
     }
 
-    return foundPlayer ? foundPlayer : this.host;
+    return foundPlayer;
   }
 
   /**
    * Check game is finish
-   * Update game stats and other actions
    */
-  updateWhenTheGameIsOver() {
-    // Get all players in the game
-    const players = this.players.filter(
-      (player) => player.getPlayerStatus() === TypePlayerStatus.InGame,
-    );
-
-    if (players.length === 1) {
-      // Game over
-      this.roomStatus = TypeRoomStatus.GameIsOver;
-
-      // You loser
-      players[0].setPlayerStatus(TypePlayerStatus.YouLoser);
-
-      this.emitEvent(TypeRoomEvent.fromServerSendPlayerStatus, {
-        playerId: players[0].getPlayerId(),
-        playerStatus: TypePlayerStatus.YouLoser,
-      });
-
-      // All players request personal status after this event ** Client -> Server **
-      this.emitEvent(TypeRoomEvent.fromServerGameOver);
-
-      // Update game stats and other actions
-      // ...
-
-      this.log(`Room #${this.roomId} - Game over!`);
-    }
+  private isGameOver(): boolean {
+    return this.roomStatus === TypeRoomStatus.GameIsOver;
   }
 
   /**
-   * Emit event from server to client
-   *
-   * @param {TypeRoomEvent} event Event type as string
-   * @param data TypeEventPayload
+   * Set game over
    */
-  emitEvent(event: TypeRoomEvent, data: TypeEventPayload | null = null) {
-    console.log(data);
-    // this.gameService.emit(this.roomId, event, data);
+  private setGameIsOver(): void {
+    this.roomStatus = TypeRoomStatus.GameIsOver;
+
+    this.gameService.setFromServerGameOver({
+      roomId: this.roomId,
+    });
   }
 
-  log(message: string) {
+  /**
+   * Check player is finish this game   *
+   */
+  private isActivePlayerWin(): boolean {
+    return this.activePlayer.getCardsCount() === 0 && this.deck.isEmpty();
+  }
+
+  /**
+   * Validate active player
+   * Check attacker === defender
+   *
+   * @param {Player} player Current active player
+   * @returns {boolean}
+   */
+  private validateActivePlayer(player: Player): boolean {
+    return this.activePlayer === player && this.attacker !== this.defender;
+  }
+
+  private log(message: string) {
     this.logger.log(message);
   }
 }

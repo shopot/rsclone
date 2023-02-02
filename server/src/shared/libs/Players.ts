@@ -8,6 +8,16 @@ export class Players {
     this.players = players;
   }
 
+  *[Symbol.iterator]() {
+    for (const player of this.players) {
+      yield player;
+    }
+  }
+
+  public getAll() {
+    return this.players;
+  }
+
   public add(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.InGame);
     this.players.push(player);
@@ -19,7 +29,7 @@ export class Players {
     });
   }
 
-  getById(playerId: string): Player | undefined {
+  public getById(playerId: string): Player | undefined {
     const player = this.players.find((player) => {
       return player.getPlayerId() === playerId;
     });
@@ -27,7 +37,7 @@ export class Players {
     return player;
   }
 
-  prev(player: Player): Player {
+  public prev(player: Player): Player {
     const playersInGame = this.getPlayersInGame();
 
     const idx = playersInGame.findIndex((plr) => {
@@ -41,7 +51,7 @@ export class Players {
     return playersInGame[idx];
   }
 
-  next(player: Player): Player {
+  public next(player: Player): Player {
     const playersInGame = this.getPlayersInGame();
 
     const idx = playersInGame.findIndex((plr) => {
@@ -59,5 +69,13 @@ export class Players {
     return this.players.filter((player) => {
       return player.getPlayerStatus() === TypePlayerStatus.InGame;
     });
+  }
+
+  public totalCountInGame() {
+    return this.players.length;
+  }
+
+  public totalCount() {
+    return this.players.length;
   }
 }
