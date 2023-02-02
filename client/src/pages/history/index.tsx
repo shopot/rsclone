@@ -11,7 +11,6 @@ const HistoryPage = () => {
     actions.setHistoryList();
   }, []);
 
-  console.log(historyResults);
   const columns = [
     {
       title: 'Players',

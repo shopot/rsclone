@@ -8,7 +8,6 @@ const RatingPage = () => {
     actions.setRatingList();
   }, []);
 
-  console.log(ratingResults);
   const columns = [
     {
       title: 'Player name',
