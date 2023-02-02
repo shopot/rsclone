@@ -27,12 +27,6 @@ export class GameGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() message: string): void {
-    this.server.emit('message', message);
-    console.log(message);
-  }
-
   @SubscribeMessage('gameFromClientCreatePlayer')
   handleCreatePlayer(@MessageBody('data') data: CreateUserDto): void {
     Logger.debug('gameFromClientCreatePlayer');
