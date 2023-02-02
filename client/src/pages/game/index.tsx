@@ -9,7 +9,10 @@ export const config = {
   height: 720,
   backgroundColor: '#4682B4',
   parent: 'game-content',
+  scaleCards: 0.7,
+  autoCenter: Phaser.Scale.CENTER_BOTH,
   scene: [BootScene, GameScene],
+  icons: ['Dali', 'Earring', 'Frida', 'Mona', 'Peach', 'Unknown'],
   cardNames: [
     '6C',
     '6D',
