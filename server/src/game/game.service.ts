@@ -127,4 +127,10 @@ export class GameService implements IGameService {
   ): Promise<void> {
     console.log('interface');
   }
+
+  async setFromServerDefenderPickUpCards(
+    payload?: TypeGameResponse,
+  ): Promise<void> {
+    console.log('interface');
+  }
 }

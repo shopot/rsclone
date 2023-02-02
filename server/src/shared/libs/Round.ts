@@ -22,7 +22,7 @@ export class Round {
     this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
   }
 
-  attack(cardDto: CardDto) {
+  public attack(cardDto: CardDto) {
     // Has limit, can't add new card
     if (this.attackersCards.length >= this.maxRoundSlots) {
       return false;
@@ -52,7 +52,7 @@ export class Round {
     return false;
   }
 
-  defend(cardDto: CardDto) {
+  public defend(cardDto: CardDto) {
     // Check is beating or not, check card, etc.
     // If is beating then returns true;
     const lastAttackCard = this.attackersCards[this.attackersCards.length - 1];
@@ -74,11 +74,12 @@ export class Round {
     );
   }
 
-  getRoundCards(): TypeRoundCards {
-    return {
-      attackerCards: this.attackersCards.map((card) => card.getCardDto()),
-      defenderCards: this.defenderCards.map((card) => card.getCardDto()),
-    };
+  /**
+   * Returns all cards from the round
+   * @returns {Array<Card>} Round cards array
+   */
+  public getRoundCards(): Card[] {
+    return this.attackersCards.concat(this.defenderCards);
   }
 
   getAttackerCards(): CardDto[] {
