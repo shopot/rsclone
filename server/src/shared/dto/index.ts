@@ -1,1 +1,1 @@
-export * from './CardDto';
+export * from './card.dto';
