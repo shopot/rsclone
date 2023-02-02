@@ -30,6 +30,12 @@ export class GameGateway {
     this.gameService.setFromClientChatMessage(data);
   }
 
+  @SubscribeMessage('gameFromClientCreateRoom')
+  handleFromClientCreateRoom(@MessageBody('data') data: GameReceiveDto): void {
+    Logger.debug('gameFromClientCreateRoom');
+    this.gameService.setFromClientCreateRoom(data);
+  }
+
   @SubscribeMessage('gameFromClientJoinRoom')
   handleFromClientJoinRoom(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientJoinRoom');
