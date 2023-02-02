@@ -1,7 +1,7 @@
 import { Card } from './Card';
 import { TypePlayerMember } from '../types/TypePlayerMember';
 import { TypePlayerStatus } from '../types';
-import { CardDto } from './CardDto';
+import { CardDto } from '../dto';
 
 export class Player {
   socketId; // socket.id wtf string?
@@ -9,26 +9,22 @@ export class Player {
   cards: Card[];
   memberStatus: TypePlayerMember;
   playerStatus: TypePlayerStatus;
-  isDefender;
 
   constructor(
     socketId: string,
     name: string,
     memberStatus: TypePlayerMember = TypePlayerMember.Regular,
+    playerStatus: TypePlayerStatus = TypePlayerStatus.InGame,
   ) {
     this.socketId = socketId;
     this.name = name;
     this.cards = [];
     this.memberStatus = memberStatus;
-    this.isDefender = false;
+    this.playerStatus = playerStatus;
   }
 
   public getPlayerId() {
     return this.name;
-  }
-
-  public getSocketId() {
-    return this.socketId;
   }
 
   public getCardsCount() {
