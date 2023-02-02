@@ -1,11 +1,6 @@
-import { customAlphabet } from 'nanoid';
+import cryptoRandomString from 'crypto-random-string';
 import { ROOM_NAME_LENGTH } from '../constants';
 
-const nanoid = customAlphabet(
-  '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  ROOM_NAME_LENGTH,
-);
-
-export const generateRoomName = () => {
-  return nanoid();
+export const generateRoomName = (): string => {
+  return cryptoRandomString({ length: ROOM_NAME_LENGTH, type: 'base64' });
 };

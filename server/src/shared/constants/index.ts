@@ -1,4 +1,4 @@
-export const ROOM_NAME_LENGTH = 8;
+export const ROOM_NAME_LENGTH = 10;
 export const MIN_NUMBER_OF_PLAYERS = 2;
 export const MAX_NUMBER_OF_PLAYERS = 4;
 export const STARTING_CARDS_NUMBER = 6;
