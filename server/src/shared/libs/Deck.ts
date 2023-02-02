@@ -89,9 +89,7 @@ export class Deck {
     return this.cards.splice(this.size - Math.min(quantity, this.size));
   }
 
-  // isEmpty() {}
-
-  // getTopCard() {
-  //   return this.cards[0];
-  // }
+  isEmpty() {
+    return this.cards.length === 0;
+  }
 }

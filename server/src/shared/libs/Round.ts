@@ -1,7 +1,7 @@
 import { TypeCardSuit } from '../types/TypeCardSuit';
 import { MAX_ATTACKER_ROUND_SLOT } from '../constants';
 import { Card } from './Card';
-import { CardDto } from './CardDto';
+import { CardDto } from '../dto/card.dto';
 import { Deck } from './Deck';
 
 type TypeRoundCards = {
@@ -76,13 +76,13 @@ export class Round {
 
   getRoundCards(): TypeRoundCards {
     return {
-      attackerCards: this.attackersCards.map((card) => card.getCard()),
-      defenderCards: this.defenderCards.map((card) => card.getCard()),
+      attackerCards: this.attackersCards.map((card) => card.getCardDto()),
+      defenderCards: this.defenderCards.map((card) => card.getCardDto()),
     };
   }
 
   getAttackerCards(): CardDto[] {
-    return this.attackersCards.map((card) => card.getCard());
+    return this.attackersCards.map((card) => card.getCardDto());
   }
 
   getDefenderCards(): Card[] {
