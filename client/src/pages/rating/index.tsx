@@ -6,7 +6,7 @@ const RatingPage = () => {
   const { ratingResults, isOnline, actions } = useDataStore();
   useEffect(() => {
     actions.setRatingList();
-  }, []);
+  }, [actions]);
 
   const columns = [
     {

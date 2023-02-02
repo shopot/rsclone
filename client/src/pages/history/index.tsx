@@ -9,7 +9,7 @@ const HistoryPage = () => {
 
   useEffect(() => {
     actions.setHistoryList();
-  }, []);
+  }, [actions]);
 
   const columns = [
     {
