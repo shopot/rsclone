@@ -22,8 +22,12 @@ export class GameService implements IGameService {
     return this.rooms.get(roomId);
   }
 
-  async setFromClientCreateRoom(data: GameReceiveDto) {
-    const hostPlayer = new Player('', data.playerId, TypePlayerMember.Host);
+  async setFromClientCreateRoom(data: GameReceiveDto, socketId: string) {
+    const hostPlayer = new Player(
+      socketId,
+      data.playerId,
+      TypePlayerMember.Host,
+    );
 
     const roomId = generateRoomName();
 
