@@ -62,7 +62,7 @@ const GamePage = () => {
   };
 
   const handleSettings = () => {
-    socket.emit('gameFromClientHandleSettings', { data: { playerId: 'testbot' } });
+    socket.emit('gameFromClientSettings', { data: { playerId: 'testbot' } });
   };
 
   return (
