@@ -1,7 +1,13 @@
 import Phaser from 'phaser';
 import { config } from '../index';
 import { Table } from '../classes/Table';
-import { Deck } from '../classes/Deck';
+import { Icon } from '../classes/Icon';
+import { IconBorder } from '../classes/IconBorder';
+import { Nickname } from '../classes/Nickname';
+import { CardsText } from '../classes/CardsText';
+import { Card } from '../classes/Card';
+import { Suit } from '../classes/Suit';
+import { MainCard } from '../classes/MainCard';
 
 // export class Button extends Phaser.Scene {
 //   create() {
@@ -16,29 +22,32 @@ type TableSize = {
 };
 export class GameScene extends Phaser.Scene {
   deckText!: Phaser.GameObjects.Text;
-  cardAmt_1 = 9;
-  cardAmt_2 = 5;
-  cardAmt_3 = 3;
-  cardAmt_4 = 4;
+  playersCards = [
+    ['6C', '7H', '8S', '10H', 'AH', 'KD', 'QC', '7C'],
+    ['6C', '7H', '8S', '10H', 'AH', 'KD'],
+    ['6C', '7H', '8S', '10H', 'AH', 'KD', 'QC'],
+    ['6C', '7H', '8S', '10H'],
+  ];
   beaten = 7;
-  deckCards = 36 - this.cardAmt_1 - this.cardAmt_2 - this.cardAmt_3 - this.cardAmt_4 - this.beaten;
+  mainTableCards: (MainCard | Card)[] = [];
+  deckCards = 36 - this.playersCards.flat().length - this.beaten;
   players = 4;
   myTable!: Phaser.GameObjects.Graphics;
-  cardWidth = 150 * config.scaleCards;
-  cardHeight = 225 * config.scaleCards;
   myTableSize: TableSize;
   secondTableSize: TableSize;
   thirdTableSize!: TableSize;
   forthTableSize!: TableSize;
-  cardsAmtText_2!: Phaser.GameObjects.Text;
   buttonStates = ['Start', 'Take', '?']; // какие названия по англ?
+  attack = true;
+  piles = 0; // стопочек на столе
+  playersCardsSprites: (MainCard[] | Card[])[] = [];
 
   constructor() {
     super('Game');
 
     this.myTableSize = {
       width: config.width * 0.6,
-      height: 235 * config.scaleCards,
+      height: config.cardSize.h + 8,
       startX: config.width * 0.2,
     };
 
@@ -63,24 +72,27 @@ export class GameScene extends Phaser.Scene {
     }
     this.secondTableSize = {
       width: config.width * secondTableScales.scaleWidth,
-      height: 235 * config.scaleCards,
+      height: config.cardSize.h + 8,
       startX: config.width * secondTableScales.scalePosotion,
     };
     this.thirdTableSize = {
       width: config.width * thirdTableScales.scaleWidth,
-      height: 235 * config.scaleCards,
+      height: config.cardSize.h + 8,
       startX: config.width * thirdTableScales.scalePosotion,
     };
     this.forthTableSize = {
       width: config.width * forthTableScales.scaleWidth,
-      height: 235 * config.scaleCards,
+      height: config.cardSize.h + 8,
       startX: config.width * forthTableScales.scalePosotion,
     };
   }
 
   create() {
+    this.createBg();
     this.createButton();
     this.createDeck();
+    this.createTrumpCard();
+    this.createTrumpSuit();
     this.createTables();
     this.createCards();
     this.createCardsText();
@@ -88,17 +100,21 @@ export class GameScene extends Phaser.Scene {
     this.createBeaten();
   }
 
+  createBg() {
+    const bg = this.add.sprite(config.width / 2, config.height / 2, 'bgDark');
+    bg.depth = -5;
+  }
   createBeaten() {
     this.beaten = 5;
     const centerX = config.width;
-    const centerY = (config.height - this.cardHeight) / 2;
+    const centerY = (config.height - config.cardSize.h) / 2;
     const angle = 180 / (this.beaten + 1);
     const dY = Math.cos(angle) / 100;
     const dX = Math.sin(angle) / 100;
     for (let i = 0; i < this.beaten; i++) {
       this.add
         .sprite(centerX - dX * i, centerY - dY * i, 'cards', 'cardBack')
-        .setScale(config.scaleCards)
+        .setScale(0.7)
         .setAngle(angle + i * angle);
     }
   }
@@ -138,93 +154,96 @@ export class GameScene extends Phaser.Scene {
       } else if (i === 4) {
         tableSize.startX = this.forthTableSize.startX;
       }
-      const spriteY = i === 1 ? config.height - this.cardHeight + 25 : 82;
-      const icon = this.add
-        .sprite(tableSize.startX - 40, spriteY, 'icons', config.icons[i])
-        .setScale(0.3);
+      const spriteY = i === 1 ? config.height - config.cardSize.h + 25 : 82;
+      //поменять на конркетную иконку
+      new Icon(this, tableSize.startX - 40, spriteY, 'icons', config.icons[i]);
 
-      //должен меняться цвет рамки на зеленый, когда ходит
-      const border = this.add
-        .graphics()
-        .lineStyle(4, 0x606060, 1)
-        .strokeRoundedRect(tableSize.startX - 68, spriteY - 27, 55, 55, 5);
+      //должен меняться цвет рамки на зеленый, когда ходит и на серый после
+      new IconBorder(this, tableSize.startX - 68, spriteY - 27, 55, 55, 5);
 
       const textY = i === 1 ? spriteY - 55 : spriteY + 40;
-      const nickname = this.add.text(tableSize.startX + 10, textY, `${config.icons[i]}`, {
-        font: '16px',
-        color: '#000000',
-        strokeThickness: 1,
-        stroke: '#000000',
-      });
+      //поменять на конркетный ник
+      new Nickname(this, tableSize.startX + 10, textY, `${config.icons[i]}`);
     }
+  }
+
+  setCardsPositions() {
+    const border = 8;
+    const tableSize = { ...this.myTableSize };
+    this.playersCardsSprites.forEach((set, i) => {
+      if (i === 1) {
+        tableSize.width = this.secondTableSize.width;
+        tableSize.startX = this.secondTableSize.startX;
+      } else if (i === 2) {
+        tableSize.width = this.thirdTableSize.width;
+        tableSize.startX = this.thirdTableSize.startX;
+      } else if (i === 3) {
+        tableSize.width = this.forthTableSize.width;
+        tableSize.startX = this.forthTableSize.startX;
+      }
+
+      const shift = (tableSize.width - border * 2 - config.cardSize.w) / (set.length - 1);
+      const y = i === 0 ? config.height - config.cardSize.h / 2 : 30; //partially visible
+
+      set.forEach((card, ind) => {
+        const x = tableSize.startX + config.cardSize.w / 2 + ind * shift + border;
+        card.setPosition(x, y);
+      });
+    });
   }
 
   createCards() {
-    const border = 10;
-    const tableSize = { ...this.myTableSize };
-    const cards = { amount: this.cardAmt_1 };
-    for (let i = 1; i <= this.players; i++) {
-      if (i === 2) {
-        tableSize.width = this.secondTableSize.width;
-        tableSize.startX = this.secondTableSize.startX;
-        cards.amount = this.cardAmt_2;
-      } else if (i === 3) {
-        tableSize.width = this.thirdTableSize.width;
-        tableSize.startX = this.thirdTableSize.startX;
-        cards.amount = this.cardAmt_3;
-      } else if (i === 4) {
-        tableSize.width = this.forthTableSize.width;
-        tableSize.startX = this.forthTableSize.startX;
-        cards.amount = this.cardAmt_4;
+    //на раздаче сделать анимацию движения карт в центр стола
+    //затем сортировка по возрастанию и анимация распределения карт на столе (для главного - рубашой вниз)
+    this.playersCards.forEach((set, ind) => {
+      if (ind === 0) {
+        const arr: MainCard[] = [];
+        set.forEach((el) => {
+          const item = new MainCard(this, 0, 0, 'cards', el);
+          arr.push(item);
+        });
+        this.playersCardsSprites.push(arr);
+      } else {
+        const arr: Card[] = [];
+        set.forEach((el) => {
+          const item = new Card(this, 0, 0, 'cards', el);
+          arr.push(item);
+        });
+        this.playersCardsSprites.push(arr);
       }
-
-      const shift = (tableSize.width - border * 2 - this.cardWidth) / (cards.amount - 1); // get card size 150
-      const y = i === 1 ? config.height - this.cardHeight / 2 : 30; //partially visible
-
-      for (let j = 0; j < cards.amount; j++) {
-        //TODO change randwom cards for 1st player for real
-        const texture =
-          i === 1
-            ? config.cardNames[Phaser.Math.Between(0, config.cardNames.length - 1)]
-            : 'cardBack';
-        this.add
-          .sprite(tableSize.startX + this.cardWidth / 2 + j * shift + border, y, 'cards', texture)
-          .setScale(config.scaleCards);
-      }
-      if (cards.amount === 1) {
-        this.add
-          .sprite(
-            tableSize.startX + this.cardWidth / 2 + border,
-            y,
-            'cards',
-            //TODO change randwom cards for 1st player for real
-            config.cardNames[11],
-          )
-          .setScale(config.scaleCards);
-      }
-    }
+    });
+    this.setCardsPositions();
+    this.input.on('gameobjectdown', this.onCardClick, this);
+  }
+  onCardClick(pointer: PointerEvent, card: MainCard) {
+    this.piles++;
+    //если разрешено, то мув
+    //логика расположения карты в зависимости от того, кто нападает + где лежат последние карты
+    card.move(this.attack, this.piles);
+    // console.log(this.cardsPlayer1)
+    const ind = this.playersCards[0].indexOf(card.value);
+    this.playersCards[0].splice(ind, 1);
+    this.mainTableCards.push(this.playersCardsSprites[0][ind]);
+    this.playersCardsSprites[0].splice(ind, 1);
+    this.setCardsPositions();
+    // this.attack = !this.attack;
   }
 
   createCardsText() {
-    const textData = { coordX: 0, amount: 0 };
-    for (let i = 2; i <= this.players; i++) {
-      if (i === 2) {
-        textData.coordX = this.secondTableSize.startX;
-        textData.amount = this.cardAmt_2;
-      } else if (i === 3) {
-        textData.coordX = this.thirdTableSize.startX;
-        textData.amount = this.cardAmt_3;
-      } else if (i === 4) {
-        textData.coordX = this.forthTableSize.startX;
-        textData.amount = this.cardAmt_4;
+    const textData = { x: 0, y: 70, amount: '' };
+    const cards = [...this.playersCards];
+    cards.splice(0, 1);
+    cards.forEach((set, i) => {
+      if (i === 0) {
+        textData.x = this.secondTableSize.startX + 20;
+      } else if (i === 1) {
+        textData.x = this.thirdTableSize.startX + 20;
+      } else if (i === 2) {
+        textData.x = this.forthTableSize.startX + 20;
       }
-      this.cardsAmtText_2 = this.add.text(textData.coordX + 20, 70, `${textData.amount}`, {
-        font: '26px',
-        color: '#FFFF00',
-        strokeThickness: 4,
-        stroke: '#000000',
-      });
-    }
+      if (set.length != 0) textData.amount = set.length.toString();
+      new CardsText(this, textData);
+    });
   }
 
   createTables() {
@@ -256,27 +275,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   createDeck() {
-    //temporary using random
-    const randomIndex = Phaser.Math.Between(0, config.cardNames.length - 1);
-    this.add
-      .sprite(110, config.height / 2, 'cards', config.cardNames[randomIndex])
-      .setAngle(100)
-      .setScale(config.scaleCards);
-
-    // const deck = new Deck(this);
-    for (let i = 0; i < 5; i++) {
-      this.add
-        .sprite(70 - i / 2, config.height / 2 - i, 'cards', 'cardBack')
-        .setAngle(10)
-        .setScale(config.scaleCards);
+    for (let i = 0; i < this.deckCards - 1; i++) {
+      new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack').setAngle(10);
     }
+    const textData = { x: 30, y: config.height / 2 - 80, amount: `${this.deckCards}` };
+    new CardsText(this, textData);
+  }
 
-    this.deckText = this.add.text(30, config.height / 2 - 80, `${this.deckCards}`, {
-      font: '26px',
-      color: '#FFFF00',
-      strokeThickness: 4,
-      stroke: '#000000',
-    });
+  createTrumpCard() {
+    //temporary using random //появится после старта
+    const randomIndex = Phaser.Math.Between(0, config.cardNames.length - 1);
+    new Card(this, 80, config.height / 2, 'cards', config.cardNames[randomIndex]).positionTrump();
+  }
+  createTrumpSuit() {
+    //temporary using random //появится после старта
+    new Suit(this, config.suits[1]);
   }
 
   onDeckChange() {
