@@ -6,6 +6,7 @@ const GamePage = () => {
   const socket = io('http://localhost:3000');
   const [playerName, setPlayerName] = useState('');
   const [message, setMessage] = useState('');
+  const [roomName, setRoomName] = useState('');
 
   const handlePlayerNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPlayerName(e.target.value);
@@ -15,6 +16,10 @@ const GamePage = () => {
     setMessage(e.target.value);
   };
 
+  const handleRoomNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRoomName(e.target.value);
+  };
+
   const handleCreatePlayer = () => {
     socket.emit('gameFromClientCreatePlayer', { data: { playerId: playerName } });
   };
@@ -22,6 +27,12 @@ const GamePage = () => {
   const handleSendMessage = () => {
     socket.emit('gameFromClientChatMessage', {
       data: { roomId: 'k8Ne3Q05', playerId: 'testbot', chatMessage: message },
+    });
+  };
+
+  const handleJoinRoom = () => {
+    socket.emit('gameFromClientJoinRoom', {
+      data: { roomId: roomName, playerId: 'testbot2' },
     });
   };
 
@@ -101,6 +112,21 @@ const GamePage = () => {
             onClick={handleSendMessage}
           >
             Send message
+          </button>
+        </div>
+        <div className={styles.joinRoom}>
+          <input
+            type="text"
+            value={roomName}
+            placeholder="Name of the room"
+            onChange={handleRoomNameChange}
+          />
+          <button
+            className="btn"
+            type="button"
+            onClick={handleJoinRoom}
+          >
+            Join Room
           </button>
         </div>
         <div className={styles.miscButtons}>

@@ -60,8 +60,25 @@ export class GameService implements IGameService {
     console.log('setChatMessage', data);
   }
 
-  async setFromClientJoinRoom(data: GameReceiveDto) {
-    console.log('setJoinRoom', data);
+  async setFromClientJoinRoom(data: GameReceiveDto, socketId: string) {
+    const room = this.rooms.get(data.roomId);
+    if (!room) {
+      const payload = {
+        roomId: data.roomId,
+        socketId: socketId,
+        playerId: data.playerId,
+      };
+      this.setFromServerJoinRoomFail(payload);
+      return false;
+    }
+
+    const player = new Player(
+      socketId,
+      data.playerId,
+      TypePlayerMember.Regular,
+    );
+
+    room.joinRoom(player);
   }
 
   async setFromClientLeaveRoom(data: GameReceiveDto) {
