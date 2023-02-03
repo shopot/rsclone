@@ -93,7 +93,10 @@ export class Room {
    * @returns
    */
   public start(): void {
-    if (this.roomStatus !== TypeRoomStatus.WaitingForStart) {
+    if (
+      this.roomStatus !== TypeRoomStatus.WaitingForStart ||
+      this.players.totalCount() < 2
+    ) {
       return;
     }
 
@@ -332,20 +335,39 @@ export class Room {
    * @returns {void}
    */
   public joinRoom(player: Player): void {
+    const payload = {
+      roomId: this.roomId,
+      playerId: player.getPlayerId(),
+    };
+
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
+      this.gameService.setFromServerJoinRoomFail(payload);
+
       return;
     }
 
     this.players.add(player);
+
+    this.gameService.setFromServerJoinRoomSuccess(payload);
 
     if (
       this.roomStatus === TypeRoomStatus.WaitingForPlayers &&
       this.players.totalCount() >= MIN_NUMBER_OF_PLAYERS
     ) {
       this.roomStatus = TypeRoomStatus.WaitingForStart;
+
+      this.gameService.setFromServerGameWaitingForStart({
+        ...payload,
+        roomStatus: TypeRoomStatus.WaitingForStart,
+      });
     }
   }
 
+  /**
+   * Leave player from room, submit event
+   * @param {string} playerId
+   * @returns
+   */
   public leaveRoom(playerId: string): void {
     const leavePlayer = this.players.getById(playerId);
 
@@ -353,7 +375,12 @@ export class Room {
       return;
     }
 
-    if (!this.isGameOver()) {
+    this.gameService.setFromServerLeaveRoomSuccess({
+      roomId: this.roomId,
+      playerId: leavePlayer.getPlayerId(),
+    });
+
+    if (!this.isGameOver() && this.isPlayerInGame(leavePlayer)) {
       this.roomStatus = TypeRoomStatus.GameIsOver;
 
       leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
@@ -409,6 +436,15 @@ export class Room {
     this.gameService.setFromServerGameOver({
       roomId: this.roomId,
     });
+  }
+
+  /**
+   * Returns true if a player in game
+   * @param {Player} player
+   * @returns
+   */
+  private isPlayerInGame(player: Player) {
+    return player.getPlayerStatus() === TypePlayerStatus.InGame;
   }
 
   /**
