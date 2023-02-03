@@ -1,9 +1,9 @@
+import { TypeSortOrder } from './../shared/types';
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { RATING_ROWS_LIMIT } from './constants';
 import { CreateRatingDto, ReturnRatingDto, UpdateRatingDto } from './dto';
 import { Rating } from './models/rating.entity';
-import { SortOrder } from './rating.types';
 
 @Injectable()
 export class RatingService {
@@ -22,7 +22,7 @@ export class RatingService {
 
     const results = await this.RatingRepository.find({
       order: {
-        wins: SortOrder.Desc,
+        wins: TypeSortOrder.Desc,
       },
       take: RATING_ROWS_LIMIT,
     });

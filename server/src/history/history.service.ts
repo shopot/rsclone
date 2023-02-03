@@ -1,8 +1,8 @@
+import { TypeSortOrder } from './../shared/types';
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { HISTORY_ROWS_LIMIT } from './constants';
 import { CreateHistoryDto, ReturnHistoryDto, UpdateHistoryDto } from './dto';
-import { SortOrder } from './history.types';
 import { History } from './models/history.entity';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class HistoryService {
   public async getAll(): Promise<ReturnHistoryDto[]> {
     const results = await this.historyRepository.find({
       order: {
-        id: SortOrder.Desc,
+        id: TypeSortOrder.Desc,
       },
       take: HISTORY_ROWS_LIMIT,
     });
