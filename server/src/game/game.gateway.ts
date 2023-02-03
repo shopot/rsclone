@@ -7,6 +7,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
+import { TypeRoomEvent } from '../shared/types/TypeRoomEvent';
 import { GameReceiveDto } from './dto';
 import { Server } from 'socket.io';
 import { GameService } from './game.service';
@@ -18,7 +19,7 @@ export class GameGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('gameFromClientCreatePlayer')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientCreatePlayer)
   handleFromClientCreatePlayer(
     @MessageBody('data') data: GameReceiveDto,
   ): void {
@@ -26,13 +27,13 @@ export class GameGateway {
     this.gameService.setFromClientCreatePlayer(data);
   }
 
-  @SubscribeMessage('gameFromClientChatMessage')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientChatMessage)
   handleFromClientChatMessage(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientChatMessage');
     this.gameService.setFromClientChatMessage(data);
   }
 
-  @SubscribeMessage('gameFromClientCreateRoom')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientCreateRoom)
   handleFromClientCreateRoom(
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
@@ -41,7 +42,7 @@ export class GameGateway {
     this.gameService.setFromClientCreateRoom(data, client.id);
   }
 
-  @SubscribeMessage('gameFromClientGetRooms')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientGetRooms)
   handleFromClientGetRooms(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientGetRooms');
     this.gameService.setFromClientGetRooms(data).then((results) => {
@@ -49,7 +50,7 @@ export class GameGateway {
     });
   }
 
-  @SubscribeMessage('gameFromClientJoinRoom')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientJoinRoom)
   handleFromClientJoinRoom(
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
@@ -58,19 +59,19 @@ export class GameGateway {
     this.gameService.setFromClientJoinRoom(data, client.id);
   }
 
-  @SubscribeMessage('gameFromClientLeaveRoom')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientLeaveRoom)
   handleFromClientLeaveRoom(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientLeaveRoom');
     this.gameService.setFromClientLeaveRoom(data);
   }
 
-  @SubscribeMessage('gameFromClientStartGame')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientStartGame)
   handleFromClientStartGame(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientStartGame');
     this.gameService.setFromClientStartGame(data);
   }
 
-  @SubscribeMessage('gameFromClientAttackerOpen')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientAttackerOpen)
   handleFromClientAttackerOpen(
     @MessageBody('data') data: GameReceiveDto,
   ): void {
@@ -78,7 +79,7 @@ export class GameGateway {
     this.gameService.setFromClientAttackerOpen(data);
   }
 
-  @SubscribeMessage('gameFromClientAttackerPass')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientAttackerPass)
   handleFromClientAttackerPass(
     @MessageBody('data') data: GameReceiveDto,
   ): void {
@@ -86,7 +87,7 @@ export class GameGateway {
     this.gameService.setFromClientAttackerPass(data);
   }
 
-  @SubscribeMessage('gameFromClientDefenderClose')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientDefenderClose)
   handleFromClientDefenderClose(
     @MessageBody('data') data: GameReceiveDto,
   ): void {
@@ -94,7 +95,7 @@ export class GameGateway {
     this.gameService.setFromClientDefenderClose(data);
   }
 
-  @SubscribeMessage('gameFromClientDefenderTake')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientDefenderTake)
   handleFromClientDefenderTake(
     @MessageBody('data') data: GameReceiveDto,
   ): void {
@@ -102,7 +103,7 @@ export class GameGateway {
     this.gameService.setFromClientDefenderTake(data);
   }
 
-  @SubscribeMessage('gameFromClientSettings')
+  @SubscribeMessage(TypeRoomEvent.gameFromClientSettings)
   handleFromClientSettings(@MessageBody('data') data: GameReceiveDto): void {
     Logger.debug('gameFromClientSettings');
     this.gameService.setFromClientSettings(data);
