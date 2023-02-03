@@ -1,10 +1,9 @@
-import { Socket } from 'socket.io';
 import { Card } from './Card';
 import { TypePlayerRole, TypePlayerStatus, TypePlayerMember } from '../types';
 import { CardDto } from '../dto';
 
 export class Player {
-  socket: Socket;
+  socketId: string;
   name: string;
   cards: Card[];
   memberStatus: TypePlayerMember;
@@ -12,12 +11,12 @@ export class Player {
   playerRole: TypePlayerRole;
 
   constructor(
-    socket: Socket,
+    socketId: string,
     name: string,
     memberStatus: TypePlayerMember = TypePlayerMember.Regular,
     playerStatus: TypePlayerStatus = TypePlayerStatus.InGame,
   ) {
-    this.socket = socket;
+    this.socketId = socketId;
     this.name = name;
     this.cards = [];
     this.memberStatus = memberStatus;
@@ -33,12 +32,8 @@ export class Player {
     return this.playerRole;
   }
 
-  public getSocket(): Socket {
-    return this.socket;
-  }
-
   public getSocketId(): string {
-    return this.socket.id;
+    return this.socketId;
   }
 
   public getPlayerId() {

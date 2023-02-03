@@ -28,9 +28,12 @@ export class GameGateway {
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientChatMessage)
-  handleFromClientChatMessage(@MessageBody('data') data: GameReceiveDto): void {
+  handleFromClientChatMessage(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
     Logger.debug('gameFromClientChatMessage');
-    this.gameService.setFromClientChatMessage(data);
+    this.gameService.setFromClientChatMessage(data, client);
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientCreateRoom)
@@ -60,9 +63,12 @@ export class GameGateway {
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientLeaveRoom)
-  handleFromClientLeaveRoom(@MessageBody('data') data: GameReceiveDto): void {
+  handleFromClientLeaveRoom(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
     Logger.debug('gameFromClientLeaveRoom');
-    this.gameService.setFromClientLeaveRoom(data);
+    this.gameService.setFromClientLeaveRoom(data, client);
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientStartGame)

@@ -28,7 +28,11 @@ export class GameService implements IGameService {
   }
 
   async setFromClientCreateRoom(data: GameReceiveDto, socket: Socket) {
-    const hostPlayer = new Player(socket, data.playerId, TypePlayerMember.Host);
+    const hostPlayer = new Player(
+      socket.id,
+      data.playerId,
+      TypePlayerMember.Host,
+    );
 
     const roomId = generateRoomName();
     socket.join(roomId);
@@ -58,7 +62,7 @@ export class GameService implements IGameService {
     console.log('setCreatePlayer', data);
   }
 
-  async setFromClientChatMessage(data: GameReceiveDto) {
+  async setFromClientChatMessage(data: GameReceiveDto, socket: Socket) {
     const room = this.rooms.get(data.roomId);
     if (!room) {
       return false;
@@ -69,7 +73,10 @@ export class GameService implements IGameService {
       return false;
     }
 
-    const socket = player.getSocket();
+    if (socket.id !== player.getSocketId()) {
+      return false;
+    }
+
     const message: GameSendDto = {
       source: player.getPlayerId(),
       timestamp: Date.now(),
@@ -93,13 +100,17 @@ export class GameService implements IGameService {
       return false;
     }
 
-    const player = new Player(socket, data.playerId, TypePlayerMember.Regular);
+    const player = new Player(
+      socket.id,
+      data.playerId,
+      TypePlayerMember.Regular,
+    );
 
     socket.join(room.getRoomId());
     room.joinRoom(player);
   }
 
-  async setFromClientLeaveRoom(data: GameReceiveDto) {
+  async setFromClientLeaveRoom(data: GameReceiveDto, socket: Socket) {
     console.log('setLeaveRoom', data);
     const room = this.rooms.get(data.roomId);
     if (!room) {
@@ -110,7 +121,10 @@ export class GameService implements IGameService {
     if (!player) {
       return false;
     }
-    const socket = player.getSocket();
+    if (socket.id !== player.getSocketId()) {
+      return false;
+    }
+
     socket.leave(room.getRoomId());
 
     room.leaveRoom(data.playerId);
