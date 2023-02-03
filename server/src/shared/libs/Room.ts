@@ -1,3 +1,4 @@
+import { TypePlayerRole } from './../types/TypePlayerRole';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -115,7 +116,13 @@ export class Room {
     this.attacker = this.findPlayerWithLowestTrump();
     this.activePlayer = this.attacker;
 
-    this.defender = this.players.next(this.attacker);
+    const nextPlayer = this.players.next(this.attacker);
+
+    if (nextPlayer === null) {
+      throw new Error('Player not found. Something went wrong.');
+    }
+
+    this.defender = nextPlayer;
 
     // Game is started
     this.roomStatus = TypeRoomStatus.GameInProgress;
@@ -267,6 +274,11 @@ export class Room {
     }
 
     this.activePlayer = player;
+  }
+
+  private setNextPlayer() {
+    if (this.activePlayer.getPlayerStatus() === TypePlayerStatus.InGame) {
+    }
   }
 
   private setPlayerAsLoser(player: Player): void {

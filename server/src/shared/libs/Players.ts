@@ -20,6 +20,7 @@ export class Players {
 
   public add(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.InGame);
+
     this.players.push(player);
   }
 
@@ -37,28 +38,47 @@ export class Players {
     return player;
   }
 
-  public prev(player: Player): Player {
+  public next(fromPlayer: Player): Player | null {
     const playersInGame = this.getPlayersInGame();
 
-    const idx = playersInGame.findIndex((plr) => {
-      plr.getPlayerId() === player.getPlayerId();
+    if (playersInGame.length < 2) {
+      // Something went wrong.
+      return null;
+    }
+
+    // When has two players
+    if (playersInGame.length === 2) {
+      return fromPlayer === playersInGame[0]
+        ? playersInGame[1]
+        : playersInGame[0];
+    }
+
+    const idx = this.players.findIndex((plr) => {
+      return plr.getPlayerId() === fromPlayer.getPlayerId();
     });
 
-    idx === 0
-      ? playersInGame[playersInGame.length - 1]
-      : playersInGame[idx - 1];
+    if (idx === -1) {
+      // Player not found. Something went wrong.
+      return null;
+    }
 
-    return playersInGame[idx];
-  }
+    let foundPlayer = null;
+    const endIndex = this.totalCount();
+    let counter = 0; // Max value is equal endIndex
 
-  public next(player: Player): Player {
-    const playersInGame = this.getPlayersInGame();
+    for (let i = idx; counter < endIndex; counter += 1) {
+      i = i < endIndex - 1 ? i + 1 : 0;
 
-    const idx = playersInGame.findIndex((plr) => {
-      plr.getPlayerId() === player.getPlayerId();
-    });
+      if (
+        this.players[i].getPlayerStatus() === TypePlayerStatus.InGame &&
+        i !== idx
+      ) {
+        foundPlayer = this.players[i];
+        break;
+      }
+    }
 
-    return playersInGame[(idx + 1) % playersInGame.length];
+    return foundPlayer;
   }
 
   /**
