@@ -39,7 +39,7 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
   ): void {
     Logger.debug('gameFromClientCreateRoom');
-    this.gameService.setFromClientCreateRoom(data, client.id);
+    this.gameService.setFromClientCreateRoom(data, client);
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientGetRooms)
@@ -56,7 +56,7 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
   ): void {
     Logger.debug('gameFromClientJoinRoom');
-    this.gameService.setFromClientJoinRoom(data, client.id);
+    this.gameService.setFromClientJoinRoom(data, client);
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientLeaveRoom)

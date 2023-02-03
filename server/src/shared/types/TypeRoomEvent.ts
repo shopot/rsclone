@@ -27,4 +27,6 @@ export enum TypeRoomEvent {
   gameFromServerDefenderCloseFail = 'gameFromServerDefenderCloseFail',
 
   gameFromServerSendPlayerStatus = 'gameFromServerSendPlayerStatus',
+
+  gameFromServerChatMessage = 'gameFromServerChatMessage',
 }

@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { Socket } from 'socket.io';
 import { Player } from '../shared/libs/Player';
-import { TypePlayerMember, TypeGameResponse } from '../shared/types';
+import {
+  TypePlayerMember,
+  TypeGameResponse,
+  TypeRoomEvent,
+} from '../shared/types';
 import { generateRoomName } from '../shared/utils/generateRoomName';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
-import { GameReceiveDto, RoomDto } from './dto';
+import { GameReceiveDto, GameSendDto, RoomDto } from './dto';
 
 @Injectable()
 export class GameService implements IGameService {
@@ -22,14 +27,11 @@ export class GameService implements IGameService {
     return this.rooms.get(roomId);
   }
 
-  async setFromClientCreateRoom(data: GameReceiveDto, socketId: string) {
-    const hostPlayer = new Player(
-      socketId,
-      data.playerId,
-      TypePlayerMember.Host,
-    );
+  async setFromClientCreateRoom(data: GameReceiveDto, socket: Socket) {
+    const hostPlayer = new Player(socket, data.playerId, TypePlayerMember.Host);
 
     const roomId = generateRoomName();
+    socket.join(roomId);
 
     const room = new Room(roomId, hostPlayer, this);
 
@@ -57,27 +59,43 @@ export class GameService implements IGameService {
   }
 
   async setFromClientChatMessage(data: GameReceiveDto) {
-    console.log('setChatMessage', data);
+    const room = this.rooms.get(data.roomId);
+    if (!room) {
+      return false;
+    }
+
+    const player = room.getPlayers().getById(data.playerId);
+    if (!player) {
+      return false;
+    }
+
+    const socket = player.getSocket();
+    const message: GameSendDto = {
+      source: player.getPlayerId(),
+      timestamp: Date.now(),
+      chatMessage: data.chatMessage,
+    };
+
+    socket
+      .to(room.getRoomId())
+      .emit(TypeRoomEvent.gameFromServerChatMessage, { data: message });
   }
 
-  async setFromClientJoinRoom(data: GameReceiveDto, socketId: string) {
+  async setFromClientJoinRoom(data: GameReceiveDto, socket: Socket) {
     const room = this.rooms.get(data.roomId);
     if (!room) {
       const payload = {
         roomId: data.roomId,
-        socketId: socketId,
+        socketId: socket.id,
         playerId: data.playerId,
       };
       this.setFromServerJoinRoomFail(payload);
       return false;
     }
 
-    const player = new Player(
-      socketId,
-      data.playerId,
-      TypePlayerMember.Regular,
-    );
+    const player = new Player(socket, data.playerId, TypePlayerMember.Regular);
 
+    socket.join(room.getRoomId());
     room.joinRoom(player);
   }
 
@@ -87,6 +105,14 @@ export class GameService implements IGameService {
     if (!room) {
       return false;
     }
+
+    const player = room.getPlayers().getById(data.playerId);
+    if (!player) {
+      return false;
+    }
+    const socket = player.getSocket();
+    socket.leave(room.getRoomId());
+
     room.leaveRoom(data.playerId);
   }
 
