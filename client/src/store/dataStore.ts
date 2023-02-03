@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
+import { TypeSocketEvent } from '../types/TypeSocketEvent';
 import { SOCKET_IO_ENDPOINT } from '../app/config';
 
 type TypeHistoryItem = {
@@ -49,11 +50,11 @@ export const useDataStore = create<TypeDataState>((set) => {
     .on('disconnect', () => {
       set({ isOnline: false });
     })
-    .on('historyGetList', (state) => {
+    .on(TypeSocketEvent.HistoryGetList, (state) => {
       // Вот тут возможно нужно получить старый стейт и если оба пусты то пропустить обновление стейта
       set({ historyResults: state });
     })
-    .on('ratingGetList', (state) => {
+    .on(TypeSocketEvent.RatingGetList, (state) => {
       set({ ratingResults: state });
     });
 
@@ -64,10 +65,10 @@ export const useDataStore = create<TypeDataState>((set) => {
 
     actions: {
       setHistoryList() {
-        socket.emit('historyGetList');
+        socket.emit(TypeSocketEvent.HistoryGetList);
       },
       setRatingList() {
-        socket.emit('ratingGetList');
+        socket.emit(TypeSocketEvent.RatingGetList);
       },
     },
   };
