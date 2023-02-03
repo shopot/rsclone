@@ -35,5 +35,5 @@ const player4 = new Player(
 const players = new Players([player1, player2, player3, player4]);
 
 test('Test deepCopy', () => {
-  expect(players.nextPlayerInGame(player1)).toEqual(player3);
+  expect(players.next(player1)).toEqual(player3);
 });
