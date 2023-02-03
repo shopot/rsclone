@@ -66,9 +66,12 @@ export class GameGateway {
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientStartGame)
-  handleFromClientStartGame(@MessageBody('data') data: GameReceiveDto): void {
+  handleFromClientStartGame(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
     Logger.debug('gameFromClientStartGame');
-    this.gameService.setFromClientStartGame(data);
+    this.gameService.setFromClientStartGame(data, client.id);
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientAttackerOpen)

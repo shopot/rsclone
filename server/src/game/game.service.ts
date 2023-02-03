@@ -90,8 +90,13 @@ export class GameService implements IGameService {
     room.leaveRoom(data.playerId);
   }
 
-  async setFromClientStartGame(data: GameReceiveDto) {
+  async setFromClientStartGame(data: GameReceiveDto, socketId: string) {
     console.log('setStartGame', data);
+    const room = this.rooms.get(data.roomId);
+    if (!room || socketId !== room.getHostPlayer().getSocketId()) {
+      return false;
+    }
+    room.start();
   }
 
   async setFromClientAttackerOpen(data: GameReceiveDto) {
