@@ -1,6 +1,5 @@
 import { Card } from './Card';
-import { TypePlayerMember } from '../types/TypePlayerMember';
-import { TypePlayerStatus } from '../types';
+import { TypePlayerRole, TypePlayerStatus, TypePlayerMember } from '../types';
 import { CardDto } from '../dto';
 
 export class Player {
@@ -9,6 +8,7 @@ export class Player {
   cards: Card[];
   memberStatus: TypePlayerMember;
   playerStatus: TypePlayerStatus;
+  playerRole: TypePlayerRole;
 
   constructor(
     socketId: string,
@@ -21,6 +21,15 @@ export class Player {
     this.cards = [];
     this.memberStatus = memberStatus;
     this.playerStatus = playerStatus;
+    this.playerRole = TypePlayerRole.Waiting;
+  }
+
+  public setRole(role: TypePlayerRole): void {
+    this.playerRole = role;
+  }
+
+  public getRole(): TypePlayerRole {
+    return this.playerRole;
   }
 
   public getSocketId(): string {
