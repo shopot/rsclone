@@ -1,4 +1,7 @@
 export enum TypeRoomEvent {
+  gameFromClientGameStart = 'gameFromClientGameStart',
+
+  // From Server
   gameFromServerGameStart = 'gameFromServerGameStart',
   gameFromServerGameOver = 'gameFromServerGameOver',
 
