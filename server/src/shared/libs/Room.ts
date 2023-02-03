@@ -87,6 +87,10 @@ export class Room {
     return this.roomStatus;
   }
 
+  public getHostPlayer() {
+    return this.hostPlayer;
+  }
+
   /**
    * Start game room
    *

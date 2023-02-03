@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { io } from 'socket.io-client';
 import styles from './styles.m.scss';
 
+const socket = io('http://localhost:3000');
+
 const GamePage = () => {
-  const socket = io('http://localhost:3000');
   const [playerName, setPlayerName] = useState('');
   const [message, setMessage] = useState('');
   const [roomName, setRoomName] = useState('');
@@ -40,16 +41,12 @@ const GamePage = () => {
     socket.emit('gameFromClientCreateRoom', { data: { playerId: 'testbot' } });
   };
 
-  const handleJoinGame = () => {
-    socket.emit('gameFromClientJoinRoom', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
-  };
-
   const handleLeaveRoom = () => {
-    socket.emit('gameFromClientLeaveRoom', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
+    socket.emit('gameFromClientLeaveRoom', { data: { roomId: roomName, playerId: 'testbot2' } });
   };
 
   const handleStartGame = () => {
-    socket.emit('gameFromClientStartGame', { data: { roomId: 'k8Ne3Q05', playerId: 'testbot' } });
+    socket.emit('gameFromClientStartGame', { data: { roomId: roomName, playerId: 'testbot' } });
   };
 
   const handleAttack = () => {
@@ -128,22 +125,6 @@ const GamePage = () => {
           >
             Join Room
           </button>
-        </div>
-        <div className={styles.miscButtons}>
-          <button
-            className="btn"
-            type="button"
-            onClick={handleCreateGame}
-          >
-            Create game
-          </button>
-          <button
-            className="btn"
-            type="button"
-            onClick={handleJoinGame}
-          >
-            Join game
-          </button>
           <button
             className="btn"
             type="button"
@@ -157,6 +138,15 @@ const GamePage = () => {
             onClick={handleStartGame}
           >
             Start game
+          </button>
+        </div>
+        <div className={styles.miscButtons}>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleCreateGame}
+          >
+            Create game
           </button>
           <button
             className="btn"
