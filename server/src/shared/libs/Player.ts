@@ -3,7 +3,7 @@ import { TypePlayerRole, TypePlayerStatus, TypePlayerMember } from '../types';
 import { CardDto } from '../dto';
 
 export class Player {
-  socketId; // socket.id wtf string?
+  socketId: string;
   name: string;
   cards: Card[];
   memberStatus: TypePlayerMember;

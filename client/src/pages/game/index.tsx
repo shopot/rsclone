@@ -3,6 +3,9 @@ import { io } from 'socket.io-client';
 import styles from './styles.m.scss';
 
 const socket = io('http://localhost:3000');
+socket.on('gameFromServerChatMessage', (data) => {
+  console.log('gameFromServerChatMessage', data);
+});
 
 const GamePage = () => {
   const [playerName, setPlayerName] = useState('');
@@ -27,54 +30,54 @@ const GamePage = () => {
 
   const handleSendMessage = () => {
     socket.emit('gameFromClientChatMessage', {
-      data: { roomId: 'k8Ne3Q05', playerId: 'testbot', chatMessage: message },
+      data: { roomId: roomName, playerId: playerName, chatMessage: message },
     });
   };
 
   const handleJoinRoom = () => {
     socket.emit('gameFromClientJoinRoom', {
-      data: { roomId: roomName, playerId: 'testbot2' },
+      data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleCreateGame = () => {
-    socket.emit('gameFromClientCreateRoom', { data: { playerId: 'testbot' } });
+    socket.emit('gameFromClientCreateRoom', { data: { playerId: playerName } });
   };
 
   const handleLeaveRoom = () => {
-    socket.emit('gameFromClientLeaveRoom', { data: { roomId: roomName, playerId: 'testbot2' } });
+    socket.emit('gameFromClientLeaveRoom', { data: { roomId: roomName, playerId: playerName } });
   };
 
   const handleStartGame = () => {
-    socket.emit('gameFromClientStartGame', { data: { roomId: roomName, playerId: 'testbot' } });
+    socket.emit('gameFromClientStartGame', { data: { roomId: roomName, playerId: playerName } });
   };
 
   const handleAttack = () => {
     socket.emit('gameFromClientAttackerOpen', {
-      data: { roomId: 'k8Ne3Q05', playerId: 'testbot', card: { rank: 7, suit: 'hearts' } },
+      data: { roomId: 'k8Ne3Q05', playerId: playerName, card: { rank: 7, suit: 'hearts' } },
     });
   };
 
   const handlePass = () => {
     socket.emit('gameFromClientAttackerPass', {
-      data: { roomId: 'k8Ne3Q05', playerId: 'testbot' },
+      data: { roomId: 'k8Ne3Q05', playerId: playerName },
     });
   };
 
   const handleDefence = () => {
     socket.emit('gameFromClientDefenderClose', {
-      data: { roomId: 'k8Ne3Q05', playerId: 'testbot', card: { rank: 7, suit: 'hearts' } },
+      data: { roomId: 'k8Ne3Q05', playerId: playerName, card: { rank: 7, suit: 'hearts' } },
     });
   };
 
   const handleTake = () => {
     socket.emit('gameFromClientDefenderTake', {
-      data: { roomId: 'k8Ne3Q05', playerId: 'testbot' },
+      data: { roomId: 'k8Ne3Q05', playerId: playerName },
     });
   };
 
   const handleSettings = () => {
-    socket.emit('gameFromClientSettings', { data: { playerId: 'testbot' } });
+    socket.emit('gameFromClientSettings', { data: { playerId: playerName } });
   };
 
   return (

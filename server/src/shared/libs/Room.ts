@@ -84,6 +84,10 @@ export class Room {
     return this.players.totalCount();
   }
 
+  public getPlayers() {
+    return this.players;
+  }
+
   public getRoomStatus() {
     return this.roomStatus;
   }
