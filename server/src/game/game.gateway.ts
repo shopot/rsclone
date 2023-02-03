@@ -50,9 +50,12 @@ export class GameGateway {
   }
 
   @SubscribeMessage('gameFromClientJoinRoom')
-  handleFromClientJoinRoom(@MessageBody('data') data: GameReceiveDto): void {
+  handleFromClientJoinRoom(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
     Logger.debug('gameFromClientJoinRoom');
-    this.gameService.setFromClientJoinRoom(data);
+    this.gameService.setFromClientJoinRoom(data, client.id);
   }
 
   @SubscribeMessage('gameFromClientLeaveRoom')
