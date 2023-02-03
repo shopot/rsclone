@@ -379,13 +379,22 @@ export class Room {
       return;
     }
 
+    this.players.remove(leavePlayer);
+
     this.gameService.setFromServerLeaveRoomSuccess({
       socketId: leavePlayer.getSocketId(),
       roomId: this.roomId,
       playerId: leavePlayer.getPlayerId(),
     });
 
-    if (!this.isGameOver() && this.isPlayerInGame(leavePlayer)) {
+    if (
+      !this.isGameInProgress() &&
+      this.getPlayersCount() < MIN_NUMBER_OF_PLAYERS
+    ) {
+      this.roomStatus = TypeRoomStatus.WaitingForPlayers;
+    }
+
+    if (this.isGameInProgress() && this.isPlayerInGame(leavePlayer)) {
       this.roomStatus = TypeRoomStatus.GameIsOver;
 
       leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
@@ -423,6 +432,13 @@ export class Room {
     }
 
     return foundPlayer;
+  }
+
+  /**
+   * Check game in progress
+   */
+  private isGameInProgress(): boolean {
+    return this.roomStatus === TypeRoomStatus.GameInProgress;
   }
 
   /**

@@ -83,6 +83,11 @@ export class GameService implements IGameService {
 
   async setFromClientLeaveRoom(data: GameReceiveDto) {
     console.log('setLeaveRoom', data);
+    const room = this.rooms.get(data.roomId);
+    if (!room) {
+      return false;
+    }
+    room.leaveRoom(data.playerId);
   }
 
   async setFromClientStartGame(data: GameReceiveDto) {
