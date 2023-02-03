@@ -93,7 +93,10 @@ export class Room {
    * @returns
    */
   public start(): void {
-    if (this.roomStatus !== TypeRoomStatus.WaitingForStart) {
+    if (
+      this.roomStatus !== TypeRoomStatus.WaitingForStart ||
+      this.players.totalCount() < 2
+    ) {
       return;
     }
 
@@ -128,6 +131,7 @@ export class Room {
     // Send status open for attacker
     // На фронте делается логика для gameAttackerSetActive
     this.gameService.setFromServerAttackerSetActive({
+      socketId: this.attacker.getSocketId(),
       playerId: this.attacker.getPlayerId(),
     });
   }
@@ -140,10 +144,9 @@ export class Room {
       throw new Error('Players is invalid. Something went wrong.');
     }
 
-    const playerId = this.activePlayer.getPlayerId();
-
     const payload = {
-      playerId,
+      socketId: this.activePlayer.getSocketId(),
+      playerId: this.activePlayer.getPlayerId(),
       card: cardDto,
     };
 
@@ -181,6 +184,7 @@ export class Room {
     this.setActivePlayer(this.defender);
 
     this.gameService.setFromServerDefenderSetActive({
+      socketId: this.activePlayer.getSocketId(),
       playerId: this.activePlayer.getPlayerId(),
     });
   }
@@ -193,10 +197,9 @@ export class Room {
       throw new Error('Players is invalid. Something went wrong.');
     }
 
-    const playerId = this.activePlayer.getPlayerId();
-
     const payload = {
-      playerId,
+      socketId: this.activePlayer.getSocketId(),
+      playerId: this.activePlayer.getPlayerId(),
       card: cardDto,
     };
 
@@ -230,6 +233,7 @@ export class Room {
     this.activePlayer.addCards(this.round.getRoundCards());
 
     this.gameService.setFromServerDefenderPickUpCards({
+      socketId: this.activePlayer.getSocketId(),
       playerId: this.activePlayer.getPlayerId(),
     });
 
@@ -265,6 +269,7 @@ export class Room {
     player.setPlayerStatus(TypePlayerStatus.YouLoser);
 
     this.gameService.setFromServerSendPlayerStatus({
+      socketId: player.getSocketId(),
       playerId: player.getPlayerId(),
       playerStatus: TypePlayerStatus.YouLoser,
     });
@@ -277,6 +282,7 @@ export class Room {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
 
     this.gameService.setFromServerSendPlayerStatus({
+      socketId: player.getSocketId(),
       playerId: player.getPlayerId(),
       playerStatus: TypePlayerStatus.YouWinner,
     });
@@ -332,20 +338,40 @@ export class Room {
    * @returns {void}
    */
   public joinRoom(player: Player): void {
+    const payload = {
+      roomId: this.roomId,
+      socketId: player.getSocketId(),
+      playerId: player.getPlayerId(),
+    };
+
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
+      this.gameService.setFromServerJoinRoomFail(payload);
+
       return;
     }
 
     this.players.add(player);
+
+    this.gameService.setFromServerJoinRoomSuccess(payload);
 
     if (
       this.roomStatus === TypeRoomStatus.WaitingForPlayers &&
       this.players.totalCount() >= MIN_NUMBER_OF_PLAYERS
     ) {
       this.roomStatus = TypeRoomStatus.WaitingForStart;
+
+      this.gameService.setFromServerGameWaitingForStart({
+        roomId: this.roomId,
+        roomStatus: TypeRoomStatus.WaitingForStart,
+      });
     }
   }
 
+  /**
+   * Leave player from room, submit event
+   * @param {string} playerId
+   * @returns
+   */
   public leaveRoom(playerId: string): void {
     const leavePlayer = this.players.getById(playerId);
 
@@ -353,7 +379,13 @@ export class Room {
       return;
     }
 
-    if (!this.isGameOver()) {
+    this.gameService.setFromServerLeaveRoomSuccess({
+      socketId: leavePlayer.getSocketId(),
+      roomId: this.roomId,
+      playerId: leavePlayer.getPlayerId(),
+    });
+
+    if (!this.isGameOver() && this.isPlayerInGame(leavePlayer)) {
       this.roomStatus = TypeRoomStatus.GameIsOver;
 
       leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
@@ -409,6 +441,15 @@ export class Room {
     this.gameService.setFromServerGameOver({
       roomId: this.roomId,
     });
+  }
+
+  /**
+   * Returns true if a player in game
+   * @param {Player} player
+   * @returns
+   */
+  private isPlayerInGame(player: Player) {
+    return player.getPlayerStatus() === TypePlayerStatus.InGame;
   }
 
   /**

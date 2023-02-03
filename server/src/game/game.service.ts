@@ -95,9 +95,33 @@ export class GameService implements IGameService {
   async setFromServerGameStart(payload?: TypeGameResponse): Promise<void> {
     console.log('interface');
   }
+
   async setFromServerGameOver(payload?: TypeGameResponse): Promise<void> {
     console.log('interface');
   }
+
+  async setFromServerJoinRoomSuccess(
+    payload?: TypeGameResponse,
+  ): Promise<void> {
+    console.log('interface');
+  }
+
+  async setFromServerJoinRoomFail(payload?: TypeGameResponse): Promise<void> {
+    console.log('interface');
+  }
+
+  async setFromServerLeaveRoomSuccess(
+    payload?: TypeGameResponse,
+  ): Promise<void> {
+    console.log('interface');
+  }
+
+  async setFromServerGameWaitingForStart(
+    payload?: TypeGameResponse,
+  ): Promise<void> {
+    console.log('interface');
+  }
+
   async setFromServerAttackerSetActive(
     payload?: TypeGameResponse,
   ): Promise<void> {

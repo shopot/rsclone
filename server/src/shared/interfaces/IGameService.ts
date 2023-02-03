@@ -1,18 +1,22 @@
 import { TypeGameResponse } from '../types/TypeGameResponse';
 
 export interface IGameService {
-  setFromServerGameStart(payload?: TypeGameResponse): void;
-  setFromServerGameOver(payload?: TypeGameResponse): void;
+  setFromServerGameStart(payload?: TypeGameResponse): Promise<void>;
+  setFromServerGameOver(payload?: TypeGameResponse): Promise<void>;
+  setFromServerGameWaitingForStart(payload?: TypeGameResponse): Promise<void>;
 
-  setFromServerAttackerSetActive(payload?: TypeGameResponse): void;
-  setFromServerAttackerOpenSuccess(payload?: TypeGameResponse): void;
-  setFromServerAttackerOpenFail(payload?: TypeGameResponse): void;
-  setFromServerAttackerPass(payload?: TypeGameResponse): void;
+  setFromServerAttackerSetActive(payload?: TypeGameResponse): Promise<void>;
+  setFromServerAttackerOpenSuccess(payload?: TypeGameResponse): Promise<void>;
+  setFromServerAttackerOpenFail(payload?: TypeGameResponse): Promise<void>;
+  setFromServerAttackerPass(payload?: TypeGameResponse): Promise<void>;
 
-  setFromServerDefenderSetActive(payload?: TypeGameResponse): void;
-  setFromServerDefenderCloseSuccess(payload?: TypeGameResponse): void;
-  setFromServerDefenderCloseFail(payload?: TypeGameResponse): void;
-  setFromServerDefenderPickUpCards(payload?: TypeGameResponse): void;
+  setFromServerDefenderSetActive(payload?: TypeGameResponse): Promise<void>;
+  setFromServerDefenderCloseSuccess(payload?: TypeGameResponse): Promise<void>;
+  setFromServerDefenderCloseFail(payload?: TypeGameResponse): Promise<void>;
+  setFromServerDefenderPickUpCards(payload?: TypeGameResponse): Promise<void>;
 
-  setFromServerSendPlayerStatus(payload?: TypeGameResponse): void;
+  setFromServerSendPlayerStatus(payload?: TypeGameResponse): Promise<void>;
+  setFromServerJoinRoomSuccess(payload?: TypeGameResponse): Promise<void>;
+  setFromServerJoinRoomFail(payload?: TypeGameResponse): Promise<void>;
+  setFromServerLeaveRoomSuccess(payload?: TypeGameResponse): Promise<void>;
 }

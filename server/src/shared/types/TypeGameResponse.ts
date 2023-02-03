@@ -1,9 +1,12 @@
+import { TypeRoomStatus } from './TypeRoomStatus';
 import { CardDto } from '../dto';
 import { TypePlayerStatus } from './TypePlayerStatus';
 
 export type TypeGameResponse = {
+  socketId?: string;
   roomId?: string;
   playerId?: string;
   card?: CardDto;
   playerStatus?: TypePlayerStatus;
+  roomStatus?: TypeRoomStatus;
 };

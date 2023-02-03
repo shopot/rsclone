@@ -23,6 +23,10 @@ export class Player {
     this.playerStatus = playerStatus;
   }
 
+  public getSocketId(): string {
+    return this.socketId;
+  }
+
   public getPlayerId() {
     return this.name;
   }
