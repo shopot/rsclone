@@ -59,25 +59,25 @@ const GamePage = () => {
 
   const handleAttack = () => {
     socket.emit(TypeSocketEvent.GameFromClientAttackerOpen, {
-      data: { roomId: 'k8Ne3Q05', playerId: playerName, card: { rank: 7, suit: 'hearts' } },
+      data: { roomId: roomName, playerId: playerName, card: { rank: 7, suit: 'hearts' } },
     });
   };
 
   const handlePass = () => {
     socket.emit(TypeSocketEvent.GameFromClientAttackerPass, {
-      data: { roomId: 'k8Ne3Q05', playerId: playerName },
+      data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleDefence = () => {
     socket.emit(TypeSocketEvent.GameFromClientDefenderClose, {
-      data: { roomId: 'k8Ne3Q05', playerId: playerName, card: { rank: 7, suit: 'hearts' } },
+      data: { roomId: roomName, playerId: playerName, card: { rank: 7, suit: 'hearts' } },
     });
   };
 
   const handleTake = () => {
     socket.emit(TypeSocketEvent.GameFromClientDefenderTake, {
-      data: { roomId: 'k8Ne3Q05', playerId: playerName },
+      data: { roomId: roomName, playerId: playerName },
     });
   };
 
