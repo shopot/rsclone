@@ -1,9 +1,7 @@
 import { TypeServerResponse } from '../types/TypeServerResponse';
 
 export interface IGameService {
-  setFromServerGameIsStart(payload?: TypeServerResponse): Promise<void>;
-  setFromServerGameIsOver(payload?: TypeServerResponse): Promise<void>;
-  setFromServerGameWaitingForStart(payload?: TypeServerResponse): Promise<void>;
+  setFromServerRoomStatusChange(payload?: TypeServerResponse): Promise<void>;
 
   setFromServerAttackerSetActive(payload?: TypeServerResponse): Promise<void>;
   setFromServerAttackerOpenSuccess(payload?: TypeServerResponse): Promise<void>;

@@ -10,6 +10,7 @@ import { generateRoomName } from '../shared/utils/generateRoomName';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
 import { GameReceiveDto, GameSendDto } from './dto';
+import { MAX_NUMBER_OF_PLAYERS } from 'src/shared/constants';
 
 @Injectable()
 export class GameService implements IGameService {
@@ -152,27 +153,41 @@ export class GameService implements IGameService {
     console.log('setSettings', data);
   }
 
-  /**
-   * Emit event gameFromServerGameIsStart to client
-   *
+  async setFromClientRestartGame(data: GameReceiveDto, socketId: string) {
+    console.log('setFromClientRestartGame', data);
+    const room = this.rooms.get(data.roomId);
+    if (!room || socketId !== room.getHostPlayer().getSocketId()) {
+      return false;
+    }
+    room.restartGame();
+  }
+
+  async setFromClientOpenRoom(data: GameReceiveDto, socketId: string) {
+    console.log('setFromClientOpenRoom');
+    const room = this.rooms.get(data.roomId);
+    if (
+      !room ||
+      room.getPlayersCount() === MAX_NUMBER_OF_PLAYERS ||
+      socketId !== room.getHostPlayer().getSocketId()
+    ) {
+      return false;
+    }
+    room.openRoom();
+  }
+
+  /** Emit event gameFromServerRoomStatusChange to client
    * Type: Broadcast
    *
    * Sends data: {
-   *  roomId: string,
-   *  roomStatus: TypeRoomStatus
+   *   roomId: string;
+   *   roomStatus: TypeRoomStatus
    * }
    * @param {TypeServerResponse} payload Data for client sending
    */
-  async setFromServerGameIsStart(payload: TypeServerResponse): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerGameIsStart, payload);
-  }
-
-  /**
-   * Emit event gameFromServerGameIsOver to client
-   * @param {TypeServerResponse} payload Data for client sending
-   */
-  async setFromServerGameIsOver(payload: TypeServerResponse): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerGameIsOver, payload);
+  async setFromServerRoomStatusChange(
+    payload: TypeServerResponse,
+  ): Promise<void> {
+    this.emitEvent(TypeRoomEvent.gameFromServerRoomStatusChange, payload);
   }
 
   /**
@@ -201,16 +216,6 @@ export class GameService implements IGameService {
     payload: TypeServerResponse,
   ): Promise<void> {
     this.emitEvent(TypeRoomEvent.gameFromServerJoinRoomSuccess, payload);
-  }
-
-  /**
-   * Emit event gameFromServerGameWaitingForStart to client
-   * @param {TypeServerResponse} payload Data for client sending
-   */
-  async setFromServerGameWaitingForStart(
-    payload: TypeServerResponse,
-  ): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerGameWaitingForStart, payload);
   }
 
   async setFromServerDealtCardsToPlayers(

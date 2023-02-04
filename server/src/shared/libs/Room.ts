@@ -141,7 +141,7 @@ export class Room {
     this.gameTimeStart = Date.now();
 
     // Start the game
-    this.gameService.setFromServerGameIsStart(this.createPayload({}));
+    this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
 
     // Send status open for attacker
     // На фронте делается логика для gameAttackerSetActive
@@ -415,7 +415,7 @@ export class Room {
     ) {
       this.roomStatus = TypeRoomStatus.WaitingForStart;
 
-      this.gameService.setFromServerGameWaitingForStart(this.createPayload({}));
+      this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
     }
   }
 
@@ -465,6 +465,27 @@ export class Room {
   }
 
   /**
+   * Restarts game after current game session was finished
+   */
+  public restartGame(): void {
+    this.roomStatus = TypeRoomStatus.WaitingForStart;
+    this.start();
+  }
+
+  /**
+   * Sets room to 'open' state, so players from outside can possibly join
+   */
+  public openRoom(): void {
+    if (this.players.totalCount() >= MIN_NUMBER_OF_PLAYERS) {
+      this.roomStatus = TypeRoomStatus.WaitingForStart;
+    } else {
+      this.roomStatus = TypeRoomStatus.WaitingForPlayers;
+    }
+
+    this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
+  }
+
+  /**
    * Returns first attacker
    * @returns {Player} First attacker
    */
@@ -507,7 +528,7 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
-    this.gameService.setFromServerGameIsOver(this.createPayload({}));
+    this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
   }
 
   /**

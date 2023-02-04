@@ -14,6 +14,8 @@ export const enum TypeSocketEvent {
   GameFromClientDefenderClose = 'gameFromClientDefenderClose',
   GameFromClientDefenderTake = 'gameFromClientDefenderTake',
   GameFromClientSettings = 'gameFromClientSettings',
+  GameFromClientRestartGame = 'gameFromClientRestartGame',
+  GameFromClientOpenRoom = 'gameFromClientOpenRoom',
 
   // server events
   GameFromServerChatMessage = 'gameFromServerChatMessage',
