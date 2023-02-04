@@ -141,7 +141,9 @@ export class Room {
     this.gameTimeStart = Date.now();
 
     // Start the game
-    this.gameService.setFromServerGameIsStart(this.createPayload({}));
+    this.gameService.setFromServerRoomStatusChange(
+      this.createPayload({ roomStatus: this.getRoomStatus() }),
+    );
 
     // Send status open for attacker
     // На фронте делается логика для gameAttackerSetActive
@@ -415,7 +417,9 @@ export class Room {
     ) {
       this.roomStatus = TypeRoomStatus.WaitingForStart;
 
-      this.gameService.setFromServerGameWaitingForStart(this.createPayload({}));
+      this.gameService.setFromServerRoomStatusChange(
+        this.createPayload({ roomStatus: this.getRoomStatus() }),
+      );
     }
   }
 
@@ -507,7 +511,9 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
-    this.gameService.setFromServerGameIsOver(this.createPayload({}));
+    this.gameService.setFromServerRoomStatusChange(
+      this.createPayload({ roomStatus: this.getRoomStatus() }),
+    );
   }
 
   /**
