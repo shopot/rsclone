@@ -12,21 +12,17 @@ import { TypeRoomEvent } from '../shared/types/TypeRoomEvent';
 import { GameReceiveDto } from './dto';
 import { Server } from 'socket.io';
 import { GameService } from './game.service';
-import { SocketService } from 'src/socket/socket.service';
 
 @Injectable()
 @WebSocketGateway({ cors: true })
 export class GameGateway implements OnGatewayInit {
-  constructor(
-    private gameService: GameService,
-    private socketService: SocketService,
-  ) {}
+  constructor(private gameService: GameService) {}
 
   @WebSocketServer()
   public server: Server;
 
   afterInit(server: Server) {
-    this.socketService.server = server;
+    this.gameService.server = server;
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientCreatePlayer)
