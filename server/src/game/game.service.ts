@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { SocketService } from './../socket/socket.service';
+import { Injectable, Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Player } from '../shared/libs/Player';
 import {
@@ -10,17 +11,12 @@ import { generateRoomName } from '../shared/utils/generateRoomName';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
 import { GameReceiveDto, GameSendDto } from './dto';
-import { WebSocketServer } from '@nestjs/websockets';
-import { Server } from 'socket.io';
 
 @Injectable()
 export class GameService implements IGameService {
   private rooms: Map<string, Room>;
 
-  @WebSocketServer()
-  io: Server;
-
-  constructor() {
+  constructor(private readonly socketService: SocketService) {
     this.rooms = new Map();
   }
 
@@ -324,7 +320,9 @@ export class GameService implements IGameService {
   ): Promise<void> {
     const { roomId, ...payloadData } = payload;
 
-    this.io.to(roomId).emit(type, {
+    Logger.debug(payloadData);
+
+    this.socketService.socketIo.to(roomId).emit(type, {
       data: {
         ...payloadData,
       },
