@@ -22,6 +22,8 @@ export enum TypeRoomEvent {
   gameFromServerJoinRoomFail = 'gameFromServerJoinRoomFail',
   gameFromServerLeaveRoomSuccess = 'gameFromServerLeaveRoomSuccess',
 
+  gameFromServerDealtCardsToPlayers = 'gameFromServerDealtCardsToPlayers',
+
   gameFromServerAttackerSetActive = 'gameFromServerAttackerSetActive',
   gameFromServerAttackerOpenSuccess = 'gameFromServerAttackerOpenSuccess',
   gameFromServerAttackerOpenFail = 'gameFromServerAttackerOpenFail',

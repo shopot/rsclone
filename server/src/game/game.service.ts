@@ -213,6 +213,12 @@ export class GameService implements IGameService {
     this.emitEvent(TypeRoomEvent.gameFromServerGameWaitingForStart, payload);
   }
 
+  async setFromServerDealtCardsToPlayers(
+    payload: TypeServerResponse,
+  ): Promise<void> {
+    this.emitEvent(TypeRoomEvent.gameFromServerDealtCardsToPlayers, payload);
+  }
+
   /**
    * Emit event gameFromServerAttackerSetActive to client
    * @param {TypeServerResponse} payload Data for client sending

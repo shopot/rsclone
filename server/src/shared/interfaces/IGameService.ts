@@ -21,4 +21,6 @@ export interface IGameService {
   setFromServerJoinRoomSuccess(payload?: TypeServerResponse): Promise<void>;
   setFromServerJoinRoomFail(payload?: TypeServerResponse): Promise<void>;
   setFromServerLeaveRoomSuccess(payload?: TypeServerResponse): Promise<void>;
+
+  setFromServerDealtCardsToPlayers(payload?: TypeServerResponse): Promise<void>;
 }
