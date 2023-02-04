@@ -1,6 +1,6 @@
 import { SocketService } from './../socket/socket.service';
-import { Injectable, Logger } from '@nestjs/common';
-import { Socket } from 'socket.io';
+import { Injectable } from '@nestjs/common';
+import { Socket, Server } from 'socket.io';
 import { Player } from '../shared/libs/Player';
 import {
   TypePlayerMember,
@@ -29,11 +29,7 @@ export class GameService implements IGameService {
   }
 
   async setFromClientCreateRoom(data: GameReceiveDto, socket: Socket) {
-    const hostPlayer = new Player(
-      socket.id,
-      data.playerId,
-      TypePlayerMember.Host,
-    );
+    const hostPlayer = new Player(socket, data.playerId, TypePlayerMember.Host);
 
     const roomId = generateRoomName();
     socket.join(roomId);
@@ -94,18 +90,14 @@ export class GameService implements IGameService {
     if (!room) {
       const payload = {
         roomId: data.roomId,
-        socketId: socket.id,
+        socket: socket,
         playerId: data.playerId,
       };
       this.setFromServerJoinRoomFail(payload);
       return false;
     }
 
-    const player = new Player(
-      socket.id,
-      data.playerId,
-      TypePlayerMember.Regular,
-    );
+    const player = new Player(socket, data.playerId, TypePlayerMember.Regular);
 
     socket.join(room.getRoomId());
     room.joinRoom(player);
@@ -318,11 +310,15 @@ export class GameService implements IGameService {
     type: TypeRoomEvent,
     payload: TypeServerResponse,
   ): Promise<void> {
+    let adapter: Server | Socket = this.socketService.server;
+
+    if (payload.socket) {
+      adapter = payload.socket;
+    }
+
     const { roomId, ...payloadData } = payload;
 
-    Logger.debug(payloadData);
-
-    this.socketService.socketIo.to(roomId).emit(type, {
+    adapter.to(roomId).emit(type, {
       data: {
         ...payloadData,
       },
