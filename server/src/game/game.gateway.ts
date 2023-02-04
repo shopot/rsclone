@@ -123,4 +123,22 @@ export class GameGateway implements OnGatewayInit {
     Logger.debug('gameFromClientSettings');
     this.gameService.setFromClientSettings(data);
   }
+
+  @SubscribeMessage(TypeRoomEvent.gameFromClientRestartGame)
+  handleFromClientRestartGame(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    Logger.debug('gameFromClientRestartGame');
+    this.gameService.setFromClientRestartGame(data, client.id);
+  }
+
+  @SubscribeMessage(TypeRoomEvent.gameFromClientOpenRoom)
+  handleFromClientOpenRoom(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    Logger.debug('gameFromClientOpenRoom');
+    this.gameService.setFromClientOpenRoom(data, client.id);
+  }
 }

@@ -10,6 +10,7 @@ import { generateRoomName } from '../shared/utils/generateRoomName';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
 import { GameReceiveDto, GameSendDto } from './dto';
+import { MAX_NUMBER_OF_PLAYERS } from 'src/shared/constants';
 
 @Injectable()
 export class GameService implements IGameService {
@@ -150,6 +151,28 @@ export class GameService implements IGameService {
 
   async setFromClientSettings(data: GameReceiveDto) {
     console.log('setSettings', data);
+  }
+
+  async setFromClientRestartGame(data: GameReceiveDto, socketId: string) {
+    console.log('setFromClientRestartGame', data);
+    const room = this.rooms.get(data.roomId);
+    if (!room || socketId !== room.getHostPlayer().getSocketId()) {
+      return false;
+    }
+    room.restartGame();
+  }
+
+  async setFromClientOpenRoom(data: GameReceiveDto, socketId: string) {
+    console.log('setFromClientOpenRoom');
+    const room = this.rooms.get(data.roomId);
+    if (
+      !room ||
+      room.getPlayersCount() === MAX_NUMBER_OF_PLAYERS ||
+      socketId !== room.getHostPlayer().getSocketId()
+    ) {
+      return false;
+    }
+    room.openRoom();
   }
 
   /**

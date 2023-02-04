@@ -57,6 +57,18 @@ const GamePage = () => {
     });
   };
 
+  const handleRestartGame = () => {
+    socket.emit(TypeSocketEvent.GameFromClientRestartGame, {
+      data: { roomId: roomName, playerId: playerName },
+    });
+  };
+
+  const handleOpenRoom = () => {
+    socket.emit(TypeSocketEvent.GameFromClientOpenRoom, {
+      data: { roomId: roomName, playerId: playerName },
+    });
+  };
+
   const handleAttack = () => {
     socket.emit(TypeSocketEvent.GameFromClientAttackerOpen, {
       data: { roomId: roomName, playerId: playerName, card: { rank: 7, suit: 'hearts' } },
@@ -146,6 +158,20 @@ const GamePage = () => {
             onClick={handleStartGame}
           >
             Start game
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleRestartGame}
+          >
+            Restart game
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={handleOpenRoom}
+          >
+            Open room
           </button>
         </div>
         <div className={styles.miscButtons}>

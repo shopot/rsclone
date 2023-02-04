@@ -469,6 +469,29 @@ export class Room {
   }
 
   /**
+   * Restarts game after current game session was finished
+   */
+  public restartGame(): void {
+    this.roomStatus = TypeRoomStatus.WaitingForStart;
+    this.start();
+  }
+
+  /**
+   * Sets room to 'open' state, so players from outside can possibly join
+   */
+  public openRoom(): void {
+    if (this.players.totalCount() >= MIN_NUMBER_OF_PLAYERS) {
+      this.roomStatus = TypeRoomStatus.WaitingForStart;
+    } else {
+      this.roomStatus = TypeRoomStatus.WaitingForPlayers;
+    }
+
+    this.gameService.setFromServerRoomStatusChange(
+      this.createPayload({ roomStatus: this.getRoomStatus() }),
+    );
+  }
+
+  /**
    * Returns first attacker
    * @returns {Player} First attacker
    */
