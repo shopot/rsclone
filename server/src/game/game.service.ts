@@ -1,4 +1,3 @@
-import { SocketService } from './../socket/socket.service';
 import { Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { Player } from '../shared/libs/Player';
@@ -15,8 +14,9 @@ import { GameReceiveDto, GameSendDto } from './dto';
 @Injectable()
 export class GameService implements IGameService {
   private rooms: Map<string, Room>;
+  public server: Server;
 
-  constructor(private readonly socketService: SocketService) {
+  constructor() {
     this.rooms = new Map();
   }
 
@@ -310,7 +310,7 @@ export class GameService implements IGameService {
     type: TypeRoomEvent,
     payload: TypeServerResponse,
   ): Promise<void> {
-    let adapter: Server | Socket = this.socketService.server;
+    let adapter: Server | Socket = this.server;
 
     const { socket, ...data } = payload;
 
