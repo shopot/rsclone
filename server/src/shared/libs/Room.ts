@@ -1,4 +1,3 @@
-import { TypeRoomEvent } from './../types/TypeRoomEvent';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -8,7 +7,7 @@ import {
 } from '../constants';
 import { Logger } from '@nestjs/common';
 import { Round } from './Round';
-import { CardDto } from '../dto';
+import { CardDto, DealtDto } from '../dto';
 import {
   TypePlayerStatus,
   TypeServerResponse,
@@ -335,15 +334,29 @@ export class Room {
       return;
     }
 
+    const dealtCardsArray: DealtDto[] = [];
+
     this.players.getPlayersInGame().forEach((player) => {
       const balance = player.getCards().length;
 
       if (balance < STARTING_CARDS_NUMBER) {
-        player.addCards(
-          this.deck.getCardsFromDeck(STARTING_CARDS_NUMBER - balance),
+        const cards = this.deck.getCardsFromDeck(
+          STARTING_CARDS_NUMBER - balance,
         );
+
+        dealtCardsArray.push(DealtDto.create(player.getPlayerId(), cards));
+
+        player.addCards(cards);
       }
     });
+
+    if (dealtCardsArray.length) {
+      this.gameService.setFromServerDealtCardsToPlayers(
+        this.createPayload({
+          dealtCards: dealtCardsArray,
+        }),
+      );
+    }
   }
 
   private startNextRound() {

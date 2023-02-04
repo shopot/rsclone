@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
 import { TypeRoomStatus } from './TypeRoomStatus';
-import { CardDto } from '../dto';
+import { CardDto, DealtDto } from '../dto';
 import { TypePlayerStatus } from './TypePlayerStatus';
 
 export type TypeServerResponse = {
@@ -11,4 +11,5 @@ export type TypeServerResponse = {
   card?: CardDto;
   playerStatus?: TypePlayerStatus;
   roomStatus?: TypeRoomStatus;
+  dealtCards?: DealtDto[];
 };
