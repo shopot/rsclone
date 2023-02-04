@@ -2,6 +2,7 @@
 @use './styles/constants';
 @use './styles/buttons';
 @use './styles/table';
+@use 'sass:color';
 
 * {
   box-sizing: border-box;
@@ -41,6 +42,13 @@ input {
     border: 1px solid constants.$outline-color;
     outline: none;
   }
+}
+
+select {
+  padding: 0 10px;
+  border-radius: 5px;
+  appearance: menulist;
+  background-color: color.adjust(constants.$main-color, $lightness: -10%);
 }
 
 .heading {

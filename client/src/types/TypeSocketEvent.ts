@@ -9,6 +9,7 @@ export const enum TypeSocketEvent {
   // client events
   GameFromClientCreatePlayer = 'gameFromClientCreatePlayer',
   GameFromClientChatMessage = 'gameFromClientChatMessage',
+  GameFromClientGetRooms = 'gameFromClientGetRooms',
   GameFromClientJoinRoom = 'gameFromClientJoinRoom',
   GameFromClientCreateRoom = 'gameFromClientCreateRoom',
   GameFromClientLeaveRoom = 'gameFromClientLeaveRoom',
@@ -23,4 +24,5 @@ export const enum TypeSocketEvent {
 
   // server events
   GameFromServerChatMessage = 'gameFromServerChatMessage',
+  GameFromServerGetRooms = 'gameFromServerGetRooms',
 }
