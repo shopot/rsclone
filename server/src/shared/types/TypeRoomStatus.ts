@@ -1,6 +1,6 @@
 export enum TypeRoomStatus {
-  WaitingForPlayers,
-  WaitingForStart,
-  GameInProgress,
-  GameIsOver,
+  WaitingForPlayers = 'WaitingForPlayers',
+  WaitingForStart = 'WaitingForStart',
+  GameInProgress = 'GameInProgress',
+  GameIsOver = 'GameIsOver',
 }

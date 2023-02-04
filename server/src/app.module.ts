@@ -6,6 +6,7 @@ import { EntranceModule } from './entrance/entrance.module';
 import { HistoryModule } from './history/history.module';
 import { RatingModule } from './rating/rating.module';
 import { DatabaseModule } from './database';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { DatabaseModule } from './database';
     HistoryModule,
     RatingModule,
     DatabaseModule,
+    SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

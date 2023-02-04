@@ -1,5 +1,6 @@
+import { SocketService } from './../socket/socket.service';
 import { Injectable } from '@nestjs/common';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import { Player } from '../shared/libs/Player';
 import {
   TypePlayerMember,
@@ -10,17 +11,12 @@ import { generateRoomName } from '../shared/utils/generateRoomName';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
 import { GameReceiveDto, GameSendDto } from './dto';
-import { WebSocketServer } from '@nestjs/websockets';
-import { Server } from 'socket.io';
 
 @Injectable()
 export class GameService implements IGameService {
   private rooms: Map<string, Room>;
 
-  @WebSocketServer()
-  io: Server;
-
-  constructor() {
+  constructor(private readonly socketService: SocketService) {
     this.rooms = new Map();
   }
 
@@ -33,11 +29,7 @@ export class GameService implements IGameService {
   }
 
   async setFromClientCreateRoom(data: GameReceiveDto, socket: Socket) {
-    const hostPlayer = new Player(
-      socket.id,
-      data.playerId,
-      TypePlayerMember.Host,
-    );
+    const hostPlayer = new Player(socket, data.playerId, TypePlayerMember.Host);
 
     const roomId = generateRoomName();
     socket.join(roomId);
@@ -98,18 +90,14 @@ export class GameService implements IGameService {
     if (!room) {
       const payload = {
         roomId: data.roomId,
-        socketId: socket.id,
+        socket: socket,
         playerId: data.playerId,
       };
       this.setFromServerJoinRoomFail(payload);
       return false;
     }
 
-    const player = new Player(
-      socket.id,
-      data.playerId,
-      TypePlayerMember.Regular,
-    );
+    const player = new Player(socket, data.playerId, TypePlayerMember.Regular);
 
     socket.join(room.getRoomId());
     room.joinRoom(player);
@@ -322,11 +310,17 @@ export class GameService implements IGameService {
     type: TypeRoomEvent,
     payload: TypeServerResponse,
   ): Promise<void> {
-    const { roomId, ...payloadData } = payload;
+    let adapter: Server | Socket = this.socketService.server;
 
-    this.io.to(roomId).emit(type, {
+    const { socket, ...data } = payload;
+
+    if (socket) {
+      adapter = socket;
+    }
+
+    adapter.to(payload.roomId).emit(type, {
       data: {
-        ...payloadData,
+        ...data,
       },
     });
   }

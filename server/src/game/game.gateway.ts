@@ -1,23 +1,33 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   MessageBody,
   WebSocketServer,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { TypeRoomEvent } from '../shared/types/TypeRoomEvent';
 import { GameReceiveDto } from './dto';
 import { Server } from 'socket.io';
 import { GameService } from './game.service';
+import { SocketService } from 'src/socket/socket.service';
 
+@Injectable()
 @WebSocketGateway({ cors: true })
-export class GameGateway {
-  constructor(private gameService: GameService) {}
+export class GameGateway implements OnGatewayInit {
+  constructor(
+    private gameService: GameService,
+    private socketService: SocketService,
+  ) {}
 
   @WebSocketServer()
-  server: Server;
+  public server: Server;
+
+  afterInit(server: Server) {
+    this.socketService.server = server;
+  }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientCreatePlayer)
   handleFromClientCreatePlayer(
