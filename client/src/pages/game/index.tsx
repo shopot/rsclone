@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TypeSocketEvent } from '../../types/TypeSocketEvent';
 import { socketIOService } from '../../shared/api/socketio';
 import { ICardDto } from '../../shared/interfaces/ICardDto';
 import { TypeCardRank } from '../../shared/types/TypeCardRank';
 import { TypeCardSuit } from '../../shared/types/TypeCardSuit';
+import { TypeRoomStatus } from '../../shared/types/TypeRoomStatus';
 import styles from './styles.m.scss';
 
 socketIOService.listen(TypeSocketEvent.GameFromServerChatMessage, (data) => {
@@ -17,10 +18,33 @@ type TypeEventPayload = {
   card?: ICardDto;
 };
 
+type TypeRoomListPayload = {
+  roomId: string;
+  playersCount: number;
+  status: TypeRoomStatus;
+};
+
 const GamePage = () => {
   const [playerName, setPlayerName] = useState('');
   const [message, setMessage] = useState('');
-  const [roomName, setRoomName] = useState('');
+  const [selectedRoom, setSelectedRoom] = useState('');
+  const [rooms, setRooms] = useState<TypeRoomListPayload[]>([]);
+
+  useEffect(() => {
+    socketIOService.listen<TypeRoomListPayload[]>(
+      TypeSocketEvent.GameFromServerGetRooms,
+      (rooms) => {
+        if (!selectedRoom && rooms.length > 0) {
+          setSelectedRoom(rooms[0].roomId);
+        }
+        setRooms(rooms);
+      },
+    );
+  }, [selectedRoom]);
+
+  useEffect(() => {
+    socketIOService.emit(TypeSocketEvent.GameFromClientGetRooms, { data: {} });
+  }, []);
 
   const handlePlayerNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPlayerName(e.target.value);
@@ -28,10 +52,6 @@ const GamePage = () => {
 
   const handleMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
-  };
-
-  const handleRoomNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRoomName(e.target.value);
   };
 
   const handleCreatePlayer = () => {
@@ -42,13 +62,13 @@ const GamePage = () => {
 
   const handleSendMessage = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientChatMessage, {
-      data: { roomId: roomName, playerId: playerName, chatMessage: message },
+      data: { roomId: selectedRoom, playerId: playerName, chatMessage: message },
     });
   };
 
   const handleJoinRoom = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientJoinRoom, {
-      data: { roomId: roomName, playerId: playerName },
+      data: { roomId: selectedRoom, playerId: playerName },
     });
   };
 
@@ -60,32 +80,32 @@ const GamePage = () => {
 
   const handleLeaveRoom = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientLeaveRoom, {
-      data: { roomId: roomName, playerId: playerName },
+      data: { roomId: selectedRoom, playerId: playerName },
     });
   };
 
   const handleStartGame = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientStartGame, {
-      data: { roomId: roomName, playerId: playerName },
+      data: { roomId: selectedRoom, playerId: playerName },
     });
   };
 
   const handleRestartGame = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientRestartGame, {
-      data: { roomId: roomName, playerId: playerName },
+      data: { roomId: selectedRoom, playerId: playerName },
     });
   };
 
   const handleOpenRoom = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientOpenRoom, {
-      data: { roomId: roomName, playerId: playerName },
+      data: { roomId: selectedRoom, playerId: playerName },
     });
   };
 
   const handleAttack = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientAttackerOpen, {
       data: {
-        roomId: roomName,
+        roomId: selectedRoom,
         playerId: playerName,
         card: { rank: TypeCardRank.RANK_Q, suit: TypeCardSuit.Diamonds },
       },
@@ -94,14 +114,14 @@ const GamePage = () => {
 
   const handlePass = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientAttackerPass, {
-      data: { roomId: roomName, playerId: playerName },
+      data: { roomId: selectedRoom, playerId: playerName },
     });
   };
 
   const handleDefence = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientDefenderClose, {
       data: {
-        roomId: roomName,
+        roomId: selectedRoom,
         playerId: playerName,
         card: { rank: TypeCardRank.RANK_8, suit: TypeCardSuit.Hearts },
       },
@@ -110,7 +130,7 @@ const GamePage = () => {
 
   const handleTake = () => {
     socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientDefenderTake, {
-      data: { roomId: roomName, playerId: playerName },
+      data: { roomId: selectedRoom, playerId: playerName },
     });
   };
 
@@ -155,12 +175,21 @@ const GamePage = () => {
           </button>
         </div>
         <div className={styles.joinRoom}>
-          <input
-            type="text"
-            value={roomName}
-            placeholder="Name of the room"
-            onChange={handleRoomNameChange}
-          />
+          <select
+            value={selectedRoom}
+            onChange={(e) => {
+              setSelectedRoom(e.target.value);
+            }}
+          >
+            {rooms.map((room) => (
+              <option
+                key={room.roomId}
+                value={room.roomId}
+              >
+                {room.roomId} {room.playersCount} {room.status}
+              </option>
+            ))}
+          </select>
           <button
             className="btn"
             type="button"
