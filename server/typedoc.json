@@ -1,0 +1,15 @@
+{
+  "name": "Durak Online: Server Documentation",
+  "entryPoints": [
+    "src/game/**/*.ts",
+    "src/history/**/*.ts",
+    "src/rating/**/*.ts"
+  ],
+  "out": "docs",
+  "tsconfig": "./tsconfig.json",
+  "exclude": [
+    "**/*+(index|.spec|.e2e).ts"
+  ],
+  "cleanOutputDir": true,
+  "hideGenerator": true
+}
