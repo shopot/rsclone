@@ -3,17 +3,22 @@ import { Socket } from 'socket.io';
 import { Player } from '../shared/libs/Player';
 import {
   TypePlayerMember,
-  TypeGameResponse,
+  TypeServerResponse,
   TypeRoomEvent,
 } from '../shared/types';
 import { generateRoomName } from '../shared/utils/generateRoomName';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
-import { GameReceiveDto, GameSendDto, RoomDto } from './dto';
+import { GameReceiveDto, GameSendDto } from './dto';
+import { WebSocketServer } from '@nestjs/websockets';
+import { Server } from 'socket.io';
 
 @Injectable()
 export class GameService implements IGameService {
   private rooms: Map<string, Room>;
+
+  @WebSocketServer()
+  io: Server;
 
   constructor() {
     this.rooms = new Map();
@@ -159,82 +164,163 @@ export class GameService implements IGameService {
     console.log('setSettings', data);
   }
 
-  async setFromServerGameStart(payload?: TypeGameResponse): Promise<void> {
-    console.log('interface');
+  /**
+   * Emit event gameFromServerGameIsStart to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
+  async setFromServerGameIsStart(payload: TypeServerResponse): Promise<void> {
+    this.emitEvent(TypeRoomEvent.gameFromServerGameIsStart, payload);
   }
 
-  async setFromServerGameOver(payload?: TypeGameResponse): Promise<void> {
-    console.log('interface');
+  /**
+   * Emit event gameFromServerGameIsOver to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
+  async setFromServerGameIsOver(payload: TypeServerResponse): Promise<void> {
+    this.emitEvent(TypeRoomEvent.gameFromServerGameIsOver, payload);
   }
 
+  /**
+   * Emit event gameFromServerJoinRoomSuccess to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerJoinRoomSuccess(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerJoinRoomSuccess, payload);
   }
 
-  async setFromServerJoinRoomFail(payload?: TypeGameResponse): Promise<void> {
-    console.log('interface');
+  /**
+   * Emit event gameFromServerJoinRoomFail to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
+  async setFromServerJoinRoomFail(payload: TypeServerResponse): Promise<void> {
+    this.emitEvent(TypeRoomEvent.gameFromServerJoinRoomFail, payload);
   }
 
+  /**
+   * Emit event gameFromServerLeaveRoomSuccess to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerLeaveRoomSuccess(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerJoinRoomSuccess, payload);
   }
 
+  /**
+   * Emit event gameFromServerGameWaitingForStart to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerGameWaitingForStart(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerGameWaitingForStart, payload);
   }
 
+  /**
+   * Emit event gameFromServerAttackerSetActive to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerAttackerSetActive(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerAttackerSetActive, payload);
   }
+
+  /**
+   * Emit event gameFromServerAttackerOpenSuccess to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerAttackerOpenSuccess(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerAttackerOpenSuccess, payload);
   }
+
+  /**
+   * Emit event gameFromServerAttackerOpenFail to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerAttackerOpenFail(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
-  }
-  async setFromServerAttackerPass(payload?: TypeGameResponse): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerAttackerOpenFail, payload);
   }
 
+  /**
+   * Emit event gameFromServerAttackerPass to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
+  async setFromServerAttackerPass(payload: TypeServerResponse): Promise<void> {
+    this.emitEvent(TypeRoomEvent.gameFromServerAttackerPass, payload);
+  }
+
+  /**
+   * Emit event gameFromServerDefenderSetActive to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerDefenderSetActive(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerDefenderSetActive, payload);
   }
 
+  /**
+   * Emit event gameFromServerDefenderCloseSuccess to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerDefenderCloseSuccess(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerDefenderCloseSuccess, payload);
   }
 
+  /**
+   * Emit event gameFromServerDefenderCloseFail to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerDefenderCloseFail(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerDefenderCloseFail, payload);
   }
 
+  /**
+   * Emit event gameFromServerSendPlayerStatus to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerSendPlayerStatus(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerSendPlayerStatus, payload);
   }
 
+  /**
+   * Emit event gameFromServerDefenderPickUpCards to client
+   * @param {TypeServerResponse} payload Data for client sending
+   */
   async setFromServerDefenderPickUpCards(
-    payload?: TypeGameResponse,
+    payload: TypeServerResponse,
   ): Promise<void> {
-    console.log('interface');
+    this.emitEvent(TypeRoomEvent.gameFromServerDefenderPickUpCards, payload);
+  }
+
+  /**
+   * Send data to client
+   * @param {TypeRoomEvent} type Type of  gameFromServer* event
+   * @param {TypeServerResponse} payload Data for sending to client
+   */
+  async emitEvent(
+    type: TypeRoomEvent,
+    payload: TypeServerResponse,
+  ): Promise<void> {
+    const { roomId, ...payloadData } = payload;
+
+    this.io.to(roomId).emit(type, {
+      data: {
+        ...payloadData,
+      },
+    });
   }
 }
