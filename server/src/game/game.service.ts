@@ -175,27 +175,19 @@ export class GameService implements IGameService {
     room.openRoom();
   }
 
-  /**
-   * Emit event gameFromServerGameIsStart to client
-   *
+  /** Emit event gameFromServerRoomStatusChange to client
    * Type: Broadcast
    *
    * Sends data: {
-   *  roomId: string,
-   *  roomStatus: TypeRoomStatus
+   *   roomId: string;
+   *   roomStatus: TypeRoomStatus
    * }
    * @param {TypeServerResponse} payload Data for client sending
    */
-  async setFromServerGameIsStart(payload: TypeServerResponse): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerGameIsStart, payload);
-  }
-
-  /**
-   * Emit event gameFromServerGameIsOver to client
-   * @param {TypeServerResponse} payload Data for client sending
-   */
-  async setFromServerGameIsOver(payload: TypeServerResponse): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerGameIsOver, payload);
+  async setFromServerRoomStatusChange(
+    payload: TypeServerResponse,
+  ): Promise<void> {
+    this.emitEvent(TypeRoomEvent.gameFromServerRoomStatusChange, payload);
   }
 
   /**
@@ -224,16 +216,6 @@ export class GameService implements IGameService {
     payload: TypeServerResponse,
   ): Promise<void> {
     this.emitEvent(TypeRoomEvent.gameFromServerJoinRoomSuccess, payload);
-  }
-
-  /**
-   * Emit event gameFromServerGameWaitingForStart to client
-   * @param {TypeServerResponse} payload Data for client sending
-   */
-  async setFromServerGameWaitingForStart(
-    payload: TypeServerResponse,
-  ): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerGameWaitingForStart, payload);
   }
 
   async setFromServerDealtCardsToPlayers(
