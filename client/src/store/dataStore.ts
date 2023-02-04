@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import { io, Socket } from 'socket.io-client';
+import { socketIOService } from '../shared/api/socketio';
 import { TypeSocketEvent } from '../types/TypeSocketEvent';
-import { SOCKET_IO_ENDPOINT } from '../app/config';
 
 type TypeHistoryItem = {
   id: number;
@@ -30,33 +29,23 @@ type TypeDataState = {
   };
 };
 
-interface ServerToClientEvents {
-  historyGetList: (state: TypeHistoryItem[]) => void;
-  ratingGetList: (state: TypeRatingItem[]) => void;
-}
-
-interface ClientToServerEvents {
-  historyGetList: () => void;
-  ratingGetList: () => void;
-}
-
 export const useDataStore = create<TypeDataState>((set) => {
-  const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SOCKET_IO_ENDPOINT);
+  socketIOService.listen(TypeSocketEvent.Connect, () => {
+    set({ isOnline: true });
+  });
 
-  socket
-    .on('connect', () => {
-      set({ isOnline: true });
-    })
-    .on('disconnect', () => {
-      set({ isOnline: false });
-    })
-    .on(TypeSocketEvent.HistoryGetList, (state) => {
-      // Вот тут возможно нужно получить старый стейт и если оба пусты то пропустить обновление стейта
-      set({ historyResults: state });
-    })
-    .on(TypeSocketEvent.RatingGetList, (state) => {
-      set({ ratingResults: state });
-    });
+  socketIOService.listen(TypeSocketEvent.Disconnect, () => {
+    set({ isOnline: false });
+  });
+
+  socketIOService.listen<TypeHistoryItem[]>(TypeSocketEvent.HistoryGetList, (state) => {
+    // Вот тут возможно нужно получить старый стейт и если оба пусты то пропустить обновление стейта
+    set({ historyResults: state });
+  });
+
+  socketIOService.listen<TypeRatingItem[]>(TypeSocketEvent.RatingGetList, (state) => {
+    set({ ratingResults: state });
+  });
 
   return {
     historyResults: [],
@@ -65,10 +54,10 @@ export const useDataStore = create<TypeDataState>((set) => {
 
     actions: {
       setHistoryList() {
-        socket.emit(TypeSocketEvent.HistoryGetList);
+        socketIOService.emit(TypeSocketEvent.HistoryGetList, { data: {} });
       },
       setRatingList() {
-        socket.emit(TypeSocketEvent.RatingGetList);
+        socketIOService.emit(TypeSocketEvent.RatingGetList, { data: {} });
       },
     },
   };

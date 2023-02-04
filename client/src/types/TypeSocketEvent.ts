@@ -1,4 +1,8 @@
 export const enum TypeSocketEvent {
+  // built-in events
+  Connect = 'connect',
+  Disconnect = 'disconnect',
+
   HistoryGetList = 'historyGetList',
   RatingGetList = 'ratingGetList',
 
