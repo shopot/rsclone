@@ -167,6 +167,8 @@ export class GameService implements IGameService {
   /**
    * Emit event gameFromServerGameIsStart to client
    *
+   * Type: Broadcast
+   *
    * Sends data: {
    *  roomId: string,
    *  roomStatus: TypeRoomStatus
