@@ -26,7 +26,7 @@ export class GameGateway implements OnGatewayInit {
   public server: Server;
 
   afterInit(server: Server) {
-    this.socketService.socketIo = server;
+    this.socketService.server = server;
   }
 
   @SubscribeMessage(TypeRoomEvent.gameFromClientCreatePlayer)
