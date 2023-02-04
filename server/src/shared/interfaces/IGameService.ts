@@ -1,22 +1,24 @@
-import { TypeGameResponse } from '../types/TypeGameResponse';
+import { TypeServerResponse } from '../types/TypeServerResponse';
 
 export interface IGameService {
-  setFromServerGameStart(payload?: TypeGameResponse): Promise<void>;
-  setFromServerGameOver(payload?: TypeGameResponse): Promise<void>;
-  setFromServerGameWaitingForStart(payload?: TypeGameResponse): Promise<void>;
+  setFromServerGameIsStart(payload?: TypeServerResponse): Promise<void>;
+  setFromServerGameIsOver(payload?: TypeServerResponse): Promise<void>;
+  setFromServerGameWaitingForStart(payload?: TypeServerResponse): Promise<void>;
 
-  setFromServerAttackerSetActive(payload?: TypeGameResponse): Promise<void>;
-  setFromServerAttackerOpenSuccess(payload?: TypeGameResponse): Promise<void>;
-  setFromServerAttackerOpenFail(payload?: TypeGameResponse): Promise<void>;
-  setFromServerAttackerPass(payload?: TypeGameResponse): Promise<void>;
+  setFromServerAttackerSetActive(payload?: TypeServerResponse): Promise<void>;
+  setFromServerAttackerOpenSuccess(payload?: TypeServerResponse): Promise<void>;
+  setFromServerAttackerOpenFail(payload?: TypeServerResponse): Promise<void>;
+  setFromServerAttackerPass(payload?: TypeServerResponse): Promise<void>;
 
-  setFromServerDefenderSetActive(payload?: TypeGameResponse): Promise<void>;
-  setFromServerDefenderCloseSuccess(payload?: TypeGameResponse): Promise<void>;
-  setFromServerDefenderCloseFail(payload?: TypeGameResponse): Promise<void>;
-  setFromServerDefenderPickUpCards(payload?: TypeGameResponse): Promise<void>;
+  setFromServerDefenderSetActive(payload?: TypeServerResponse): Promise<void>;
+  setFromServerDefenderCloseSuccess(
+    payload?: TypeServerResponse,
+  ): Promise<void>;
+  setFromServerDefenderCloseFail(payload?: TypeServerResponse): Promise<void>;
+  setFromServerDefenderPickUpCards(payload?: TypeServerResponse): Promise<void>;
 
-  setFromServerSendPlayerStatus(payload?: TypeGameResponse): Promise<void>;
-  setFromServerJoinRoomSuccess(payload?: TypeGameResponse): Promise<void>;
-  setFromServerJoinRoomFail(payload?: TypeGameResponse): Promise<void>;
-  setFromServerLeaveRoomSuccess(payload?: TypeGameResponse): Promise<void>;
+  setFromServerSendPlayerStatus(payload?: TypeServerResponse): Promise<void>;
+  setFromServerJoinRoomSuccess(payload?: TypeServerResponse): Promise<void>;
+  setFromServerJoinRoomFail(payload?: TypeServerResponse): Promise<void>;
+  setFromServerLeaveRoomSuccess(payload?: TypeServerResponse): Promise<void>;
 }
