@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
-import { io } from 'socket.io-client';
 import { TypeSocketEvent } from '../../types/TypeSocketEvent';
+import { socketIOService } from '../../shared/api/socketio';
+import { ICardDto } from '../../shared/interfaces/ICardDto';
+import { TypeCardRank } from '../../shared/types/TypeCardRank';
+import { TypeCardSuit } from '../../shared/types/TypeCardSuit';
 import styles from './styles.m.scss';
 
-const socket = io('http://localhost:3000');
-socket.on(TypeSocketEvent.GameFromServerChatMessage, (data) => {
+socketIOService.listen(TypeSocketEvent.GameFromServerChatMessage, (data) => {
   console.log('gameFromServerChatMessage', data);
 });
+
+type TypeEventPayload = {
+  playerId: string;
+  roomId?: string;
+  chatMessage?: string;
+  card?: ICardDto;
+};
 
 const GamePage = () => {
   const [playerName, setPlayerName] = useState('');
@@ -26,75 +35,89 @@ const GamePage = () => {
   };
 
   const handleCreatePlayer = () => {
-    socket.emit(TypeSocketEvent.GameFromClientCreatePlayer, { data: { playerId: playerName } });
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientCreatePlayer, {
+      data: { playerId: playerName },
+    });
   };
 
   const handleSendMessage = () => {
-    socket.emit(TypeSocketEvent.GameFromClientChatMessage, {
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientChatMessage, {
       data: { roomId: roomName, playerId: playerName, chatMessage: message },
     });
   };
 
   const handleJoinRoom = () => {
-    socket.emit(TypeSocketEvent.GameFromClientJoinRoom, {
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientJoinRoom, {
       data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleCreateGame = () => {
-    socket.emit(TypeSocketEvent.GameFromClientCreateRoom, { data: { playerId: playerName } });
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientCreateRoom, {
+      data: { playerId: playerName },
+    });
   };
 
   const handleLeaveRoom = () => {
-    socket.emit(TypeSocketEvent.GameFromClientLeaveRoom, {
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientLeaveRoom, {
       data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleStartGame = () => {
-    socket.emit(TypeSocketEvent.GameFromClientStartGame, {
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientStartGame, {
       data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleRestartGame = () => {
-    socket.emit(TypeSocketEvent.GameFromClientRestartGame, {
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientRestartGame, {
       data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleOpenRoom = () => {
-    socket.emit(TypeSocketEvent.GameFromClientOpenRoom, {
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientOpenRoom, {
       data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleAttack = () => {
-    socket.emit(TypeSocketEvent.GameFromClientAttackerOpen, {
-      data: { roomId: roomName, playerId: playerName, card: { rank: 7, suit: 'hearts' } },
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientAttackerOpen, {
+      data: {
+        roomId: roomName,
+        playerId: playerName,
+        card: { rank: TypeCardRank.RANK_Q, suit: TypeCardSuit.Diamonds },
+      },
     });
   };
 
   const handlePass = () => {
-    socket.emit(TypeSocketEvent.GameFromClientAttackerPass, {
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientAttackerPass, {
       data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleDefence = () => {
-    socket.emit(TypeSocketEvent.GameFromClientDefenderClose, {
-      data: { roomId: roomName, playerId: playerName, card: { rank: 7, suit: 'hearts' } },
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientDefenderClose, {
+      data: {
+        roomId: roomName,
+        playerId: playerName,
+        card: { rank: TypeCardRank.RANK_8, suit: TypeCardSuit.Hearts },
+      },
     });
   };
 
   const handleTake = () => {
-    socket.emit(TypeSocketEvent.GameFromClientDefenderTake, {
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientDefenderTake, {
       data: { roomId: roomName, playerId: playerName },
     });
   };
 
   const handleSettings = () => {
-    socket.emit(TypeSocketEvent.GameFromClientSettings, { data: { playerId: playerName } });
+    socketIOService.emit<TypeEventPayload>(TypeSocketEvent.GameFromClientSettings, {
+      data: { playerId: playerName },
+    });
   };
 
   return (
