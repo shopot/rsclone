@@ -312,15 +312,15 @@ export class GameService implements IGameService {
   ): Promise<void> {
     let adapter: Server | Socket = this.socketService.server;
 
-    if (payload.socket) {
-      adapter = payload.socket;
+    const { socket, ...data } = payload;
+
+    if (socket) {
+      adapter = socket;
     }
 
-    const { roomId, ...payloadData } = payload;
-
-    adapter.to(roomId).emit(type, {
+    adapter.to(payload.roomId).emit(type, {
       data: {
-        ...payloadData,
+        ...data,
       },
     });
   }
