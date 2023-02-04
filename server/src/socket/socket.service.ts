@@ -3,5 +3,5 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SocketService {
-  public socketIo: Server;
+  public server: Server;
 }
