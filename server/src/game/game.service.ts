@@ -166,6 +166,11 @@ export class GameService implements IGameService {
 
   /**
    * Emit event gameFromServerGameIsStart to client
+   *
+   * Sends data: {
+   *  roomId: string,
+   *  roomStatus: TypeRoomStatus
+   * }
    * @param {TypeServerResponse} payload Data for client sending
    */
   async setFromServerGameIsStart(payload: TypeServerResponse): Promise<void> {
