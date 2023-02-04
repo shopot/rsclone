@@ -1,4 +1,4 @@
-import { TypePlayerRole } from './../types/TypePlayerRole';
+import { TypeRoomEvent } from './../types/TypeRoomEvent';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -8,12 +8,15 @@ import {
 } from '../constants';
 import { Logger } from '@nestjs/common';
 import { Round } from './Round';
-import { TypeRoomStatus } from '../types/TypeRoomStatus';
 import { CardDto } from '../dto';
-import { TypePlayerStatus } from '../types';
+import {
+  TypePlayerStatus,
+  TypeServerResponse,
+  TypeRoomStatus,
+  TypeCardRank,
+} from '../types';
 import { Players } from './Players';
 import { IGameService } from '../interfaces';
-import { TypeCardRank } from '../types/TypeCardRank';
 
 /**
  * Class Room
@@ -139,16 +142,16 @@ export class Room {
     this.gameTimeStart = Date.now();
 
     // Start the game
-    this.gameService.setFromServerGameStart({
-      roomId: this.roomId,
-    });
+    this.gameService.setFromServerGameIsStart(this.createPayload({}));
 
     // Send status open for attacker
     // На фронте делается логика для gameAttackerSetActive
-    this.gameService.setFromServerAttackerSetActive({
-      socketId: this.attacker.getSocketId(),
-      playerId: this.attacker.getPlayerId(),
-    });
+    this.gameService.setFromServerAttackerSetActive(
+      this.createPayload({
+        socketId: this.attacker.getSocketId(),
+        playerId: this.attacker.getPlayerId(),
+      }),
+    );
   }
 
   /**
@@ -168,7 +171,9 @@ export class Room {
     // Add the card & check it
     if (!this.round.attack(cardDto)) {
       // Something went wrong, motherfucker
-      this.gameService.setFromServerAttackerOpenFail(payload);
+      this.gameService.setFromServerAttackerOpenFail(
+        this.createPayload({ ...payload }),
+      );
 
       return;
     }
@@ -180,7 +185,9 @@ export class Room {
     this.passCounter = 0;
 
     // Card added successfully, send message to client
-    this.gameService.setFromServerAttackerOpenSuccess(payload);
+    this.gameService.setFromServerAttackerOpenSuccess(
+      this.createPayload({ ...payload }),
+    );
 
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
@@ -198,10 +205,12 @@ export class Room {
   public setAttackerDone(): void {
     this.setActivePlayer(this.defender);
 
-    this.gameService.setFromServerDefenderSetActive({
-      socketId: this.activePlayer.getSocketId(),
-      playerId: this.activePlayer.getPlayerId(),
-    });
+    this.gameService.setFromServerDefenderSetActive(
+      this.createPayload({
+        socketId: this.activePlayer.getSocketId(),
+        playerId: this.activePlayer.getPlayerId(),
+      }),
+    );
   }
 
   /**
@@ -221,7 +230,9 @@ export class Room {
     // Add the card
     if (!this.round.defend(cardDto)) {
       // Something went wrong, motherfucker
-      this.gameService.setFromServerDefenderCloseFail(payload);
+      this.gameService.setFromServerDefenderCloseFail(
+        this.createPayload({ ...payload }),
+      );
 
       return;
     }
@@ -230,7 +241,9 @@ export class Room {
     this.activePlayer.lostCard(cardDto);
 
     // Card added successfully, send message to client
-    this.gameService.setFromServerDefenderCloseSuccess(payload);
+    this.gameService.setFromServerDefenderCloseSuccess(
+      this.createPayload({ ...payload }),
+    );
 
     // Check game is finish for defender
     if (this.isActivePlayerWin()) {
@@ -247,10 +260,12 @@ export class Room {
 
     this.activePlayer.addCards(this.round.getRoundCards());
 
-    this.gameService.setFromServerDefenderPickUpCards({
-      socketId: this.activePlayer.getSocketId(),
-      playerId: this.activePlayer.getPlayerId(),
-    });
+    this.gameService.setFromServerDefenderPickUpCards(
+      this.createPayload({
+        socketId: this.activePlayer.getSocketId(),
+        playerId: this.activePlayer.getPlayerId(),
+      }),
+    );
 
     // Go to next attacker
   }
@@ -288,11 +303,13 @@ export class Room {
   private setPlayerAsLoser(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouLoser);
 
-    this.gameService.setFromServerSendPlayerStatus({
-      socketId: player.getSocketId(),
-      playerId: player.getPlayerId(),
-      playerStatus: TypePlayerStatus.YouLoser,
-    });
+    this.gameService.setFromServerSendPlayerStatus(
+      this.createPayload({
+        socketId: player.getSocketId(),
+        playerId: player.getPlayerId(),
+        playerStatus: TypePlayerStatus.YouLoser,
+      }),
+    );
   }
 
   /**
@@ -301,11 +318,13 @@ export class Room {
   private setPlayerAsWinner(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
 
-    this.gameService.setFromServerSendPlayerStatus({
-      socketId: player.getSocketId(),
-      playerId: player.getPlayerId(),
-      playerStatus: TypePlayerStatus.YouWinner,
-    });
+    this.gameService.setFromServerSendPlayerStatus(
+      this.createPayload({
+        socketId: player.getSocketId(),
+        playerId: player.getPlayerId(),
+        playerStatus: TypePlayerStatus.YouWinner,
+      }),
+    );
   }
 
   /**
@@ -359,20 +378,23 @@ export class Room {
    */
   public joinRoom(player: Player): void {
     const payload = {
-      roomId: this.roomId,
       socketId: player.getSocketId(),
       playerId: player.getPlayerId(),
     };
 
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
-      this.gameService.setFromServerJoinRoomFail(payload);
+      this.gameService.setFromServerJoinRoomFail(
+        this.createPayload({ ...payload }),
+      );
 
       return;
     }
 
     this.players.add(player);
 
-    this.gameService.setFromServerJoinRoomSuccess(payload);
+    this.gameService.setFromServerJoinRoomSuccess(
+      this.createPayload({ ...payload }),
+    );
 
     if (
       this.roomStatus === TypeRoomStatus.WaitingForPlayers &&
@@ -380,10 +402,7 @@ export class Room {
     ) {
       this.roomStatus = TypeRoomStatus.WaitingForStart;
 
-      this.gameService.setFromServerGameWaitingForStart({
-        roomId: this.roomId,
-        roomStatus: TypeRoomStatus.WaitingForStart,
-      });
+      this.gameService.setFromServerGameWaitingForStart(this.createPayload({}));
     }
   }
 
@@ -401,11 +420,12 @@ export class Room {
 
     this.players.remove(leavePlayer);
 
-    this.gameService.setFromServerLeaveRoomSuccess({
-      socketId: leavePlayer.getSocketId(),
-      roomId: this.roomId,
-      playerId: leavePlayer.getPlayerId(),
-    });
+    this.gameService.setFromServerLeaveRoomSuccess(
+      this.createPayload({
+        socketId: leavePlayer.getSocketId(),
+        playerId: leavePlayer.getPlayerId(),
+      }),
+    );
 
     if (
       !this.isGameInProgress() &&
@@ -474,9 +494,7 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
-    this.gameService.setFromServerGameOver({
-      roomId: this.roomId,
-    });
+    this.gameService.setFromServerGameIsOver(this.createPayload({}));
   }
 
   /**
@@ -504,6 +522,19 @@ export class Room {
    */
   private validateActivePlayer(player: Player): boolean {
     return this.activePlayer === player && this.attacker !== this.defender;
+  }
+
+  /**
+   * Returns payload data
+   * @param {Partial<TypeServerResponse>} data
+   * @returns {TypeServerResponse} payload for send data to client
+   */
+  createPayload(data: Partial<TypeServerResponse>): TypeServerResponse {
+    return {
+      ...data,
+      roomId: this.roomId,
+      roomStatus: this.roomStatus,
+    };
   }
 
   private log(message: string) {

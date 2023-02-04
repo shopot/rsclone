@@ -14,8 +14,13 @@ export enum TypeRoomEvent {
   gameFromClientSettings = 'gameFromClientSettings',
 
   // From Server
-  gameFromServerGameStart = 'gameFromServerGameStart',
-  gameFromServerGameOver = 'gameFromServerGameOver',
+  gameFromServerGameWaitingForStart = 'gameFromServerGameWaitingForStart',
+  gameFromServerGameIsStart = 'gameFromServerGameIsStart',
+  gameFromServerGameIsOver = 'gameFromServerGameIsOver',
+
+  gameFromServerJoinRoomSuccess = 'gameFromServerJoinRoomSuccess',
+  gameFromServerJoinRoomFail = 'gameFromServerJoinRoomFail',
+  gameFromServerLeaveRoomSuccess = 'gameFromServerLeaveRoomSuccess',
 
   gameFromServerAttackerSetActive = 'gameFromServerAttackerSetActive',
   gameFromServerAttackerOpenSuccess = 'gameFromServerAttackerOpenSuccess',
@@ -25,6 +30,7 @@ export enum TypeRoomEvent {
   gameFromServerDefenderSetActive = 'gameFromServerDefenderSetActive',
   gameFromServerDefenderCloseSuccess = 'gameFromServerDefenderCloseSuccess',
   gameFromServerDefenderCloseFail = 'gameFromServerDefenderCloseFail',
+  gameFromServerDefenderPickUpCards = 'gameFromServerDefenderPickUpCards',
 
   gameFromServerSendPlayerStatus = 'gameFromServerSendPlayerStatus',
 
