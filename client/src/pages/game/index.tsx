@@ -11,6 +11,10 @@ socketIOService.listen(TypeSocketEvent.GameFromServerChatMessage, (data) => {
   console.log('gameFromServerChatMessage', data);
 });
 
+socketIOService.listen(TypeSocketEvent.GameFromServerRoomStatusChange, (data) => {
+  console.log('gameFromServerRoomStatusChange', data);
+});
+
 type TypeEventPayload = {
   playerId: string;
   roomId?: string;

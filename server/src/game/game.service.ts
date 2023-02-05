@@ -40,7 +40,12 @@ export class GameService implements IGameService {
     this.rooms.set(roomId, room);
 
     console.log(room);
-    // Send to client message: Game is created
+
+    // Send to client message: Room is created
+    socket.emit(TypeRoomEvent.gameFromServerRoomStatusChange, {
+      roomId: room.roomId,
+      roomStatus: room.roomStatus,
+    });
   }
 
   async setFromClientGetRooms(data: GameReceiveDto) {
