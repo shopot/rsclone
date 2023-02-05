@@ -6,6 +6,7 @@ import {
   MessageBody,
   WebSocketServer,
   OnGatewayInit,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { TypeRoomEvent } from '../shared/types';
@@ -15,11 +16,19 @@ import { GameService } from './game.service';
 
 @Injectable()
 @WebSocketGateway({ cors: true })
-export class GameGateway implements OnGatewayInit {
+export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   constructor(private gameService: GameService) {}
 
   @WebSocketServer()
   public server: Server;
+
+  handleConnection(client: Socket) {
+    Logger.debug(`Client connect ${client.id}`);
+  }
+
+  handleDisconnect(client: Socket) {
+    Logger.debug(`Client disconnect  ${client.id}`);
+  }
 
   afterInit(server: Server) {
     this.gameService.server = server;
