@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { socketIOService } from '../shared/api/socketio';
-import { TypeSocketEvent } from '../types/TypeSocketEvent';
+import { TypeSocketEvent } from '../shared/types/TypeSocketEvent';
 
 type TypeHistoryItem = {
   id: number;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { socketIOService } from '../../shared/api/socketio';
-import { TypeSocketEvent } from '../../types/TypeSocketEvent';
+import { TypeSocketEvent } from '../../shared/types/TypeSocketEvent';
 import { TypeRoomStatus } from '../../shared/types/TypeRoomStatus';
 import { MAX_NUMBER_OF_PLAYERS } from '../../shared/constants';
 import featherSprite from 'feather-icons/dist/feather-sprite.svg';
