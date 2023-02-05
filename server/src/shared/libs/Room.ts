@@ -13,6 +13,7 @@ import {
   TypeServerResponse,
   TypeRoomStatus,
   TypeCardRank,
+  TypeServerError,
 } from '../types';
 import { Players } from './Players';
 import { IGameService } from '../interfaces';
@@ -165,7 +166,8 @@ export class Room {
     // Add the card & check it
     if (!this.round.attack(cardDto)) {
       // Something went wrong, motherfucker
-      this.gameService.setFromServerAttackerOpenFail(
+      this.gameService.setFromServerError(
+        TypeServerError.SetOpenCardFailed,
         this.createPayload({ ...payload }),
       );
 
@@ -244,7 +246,9 @@ export class Room {
     // Add the card
     if (!this.round.defend(cardDto)) {
       // Something went wrong, motherfucker
-      this.gameService.setFromServerDefenderCloseFail(
+
+      this.gameService.setFromServerError(
+        TypeServerError.SetCloseCardFailed,
         this.createPayload({ ...payload }),
       );
 
@@ -382,7 +386,8 @@ export class Room {
     };
 
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
-      this.gameService.setFromServerJoinRoomFail(
+      this.gameService.setFromServerError(
+        TypeServerError.JoinRoomFailed,
         this.createPayload({ ...payload }),
       );
 
