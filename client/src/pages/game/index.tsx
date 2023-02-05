@@ -7,7 +7,7 @@ export const config = {
   type: Phaser.AUTO,
   width: 1280,
   height: 720,
-  backgroundColor: '#4682B4',
+  backgroundColor: '0x000000',
   tableColor: [0x000000, 0x00ff00],
   tableBorderColor: [0xffff00, 0x00ff00],
   parent: 'game-content',

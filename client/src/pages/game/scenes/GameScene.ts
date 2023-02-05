@@ -258,4 +258,8 @@ export class GameScene extends Phaser.Scene {
   // setAlive(value: boolean) {
   // в конце игры - скрыть текстуру, деактивировать объекты карт, если они будут улетать на пределы экрана. если в кучке битых, то не нужно.
   // }
+
+  // onExit() {
+  //   this.playersCardsSprites.flat().forEach((card) => card.destroy());
+  // }
 }
