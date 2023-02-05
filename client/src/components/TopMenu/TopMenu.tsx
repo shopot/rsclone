@@ -1,4 +1,5 @@
-import styles from './TopMenu.module.scss';
+import React from 'react';
+import styles from './TopMenu.m.scss';
 import { NavLink, useParams } from 'react-router-dom';
 
 export const TopMenu = () => {
