@@ -27,12 +27,14 @@ const HomePage = () => {
     socketIOService.listen<TypeRoomDto[]>(TypeSocketEvent.GameFromServerGetRooms, (rooms) => {
       setRooms(rooms);
     });
-    socketIOService.listen<TypeRoomStatusChangeDto>(
+
+    socketIOService.listen<{ data: TypeRoomStatusChangeDto }>(
       TypeSocketEvent.GameFromServerRoomStatusChange,
-      (roomStatusChange) => {
-        navigate(`/game/${roomStatusChange.roomId}`);
+      ({ data }) => {
+        navigate(`/game/${data.roomId}`);
       },
     );
+
     socketIOService.emit(TypeSocketEvent.GameFromClientGetRooms, { data: {} });
   }, [navigate]);
 
@@ -71,7 +73,6 @@ const HomePage = () => {
               key={room.roomId}
             >
               <span>room-{room.roomId}</span>
-              <span>{room.status}</span>
               <span className={styles.playersSpan}>
                 <svg className="feather">
                   <use href={`${featherSprite}#${room.playersCount === 1 ? 'user' : 'users'}`} />
