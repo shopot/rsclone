@@ -7,3 +7,4 @@ export * from './TypeSortOrder';
 export * from './TypeRoomStatus';
 export * from './TypeCardRank';
 export * from './TypeServerError';
+export * from './TypeCardSuit';

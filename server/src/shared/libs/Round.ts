@@ -1,13 +1,8 @@
-import { TypeCardSuit } from '../types/TypeCardSuit';
+import { TypeCardSuit } from '../types';
 import { MAX_ATTACKER_ROUND_SLOT } from '../constants';
 import { Card } from './Card';
-import { CardDto } from '../dto/card.dto';
+import { CardDto } from '../dto';
 import { Deck } from './Deck';
-
-type TypeRoundCards = {
-  attackerCards: CardDto[];
-  defenderCards: CardDto[];
-};
 
 export class Round {
   attackersCards: Card[];
