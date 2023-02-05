@@ -29,6 +29,10 @@
   }
 }
 
+.roomEntryDisabled span {
+  opacity: 0.3;
+}
+
 .playersSpan {
   display: flex;
   gap: 5px;

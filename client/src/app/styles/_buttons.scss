@@ -12,7 +12,8 @@
   }
 
   &:disabled {
-    filter: sepia(80%);
+    filter: sepia(90%);
+    opacity: 0.4;
     cursor: default;
     pointer-events: none;
   }

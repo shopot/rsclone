@@ -69,32 +69,35 @@ const HomePage = () => {
           />
         </label>
         <ul className={styles.roomList}>
-          {rooms.map((room) => (
-            <li
-              className={styles.roomEntry}
-              key={room.roomId}
-            >
-              <span>room-{room.roomId}</span>
-              <span className={styles.playersSpan}>
-                <svg className="feather">
-                  <use href={`${featherSprite}#${room.playersCount === 1 ? 'user' : 'users'}`} />
-                </svg>
-                {room.playersCount}/{MAX_NUMBER_OF_PLAYERS}
-              </span>
-              <button
-                className="btn"
-                type="button"
-                disabled={
-                  !playerName ||
-                  room.playersCount === MAX_NUMBER_OF_PLAYERS ||
-                  room.status === TypeRoomStatus.GameInProgress
-                }
-                onClick={() => handleJoinRoom(room.roomId)}
+          {rooms.map((room) => {
+            const disabled =
+              !playerName ||
+              room.playersCount === MAX_NUMBER_OF_PLAYERS ||
+              room.status === TypeRoomStatus.GameInProgress;
+
+            return (
+              <li
+                className={`${styles.roomEntry} ${disabled ? styles.roomEntryDisabled : ''}`}
+                key={room.roomId}
               >
-                join
-              </button>
-            </li>
-          ))}
+                <span>room-{room.roomId}</span>
+                <span className={styles.playersSpan}>
+                  <svg className="feather">
+                    <use href={`${featherSprite}#${room.playersCount === 1 ? 'user' : 'users'}`} />
+                  </svg>
+                  {room.playersCount}/{MAX_NUMBER_OF_PLAYERS}
+                </span>
+                <button
+                  className="btn"
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => handleJoinRoom(room.roomId)}
+                >
+                  join
+                </button>
+              </li>
+            );
+          })}
         </ul>
         <button
           className="btn"
