@@ -78,23 +78,23 @@ export class Room {
     this.logger = new Logger(`Room #${roomId}`);
   }
 
-  public getRoomId() {
+  public getRoomId(): string {
     return this.roomId;
   }
 
-  public getPlayersCount() {
+  public getPlayersCount(): number {
     return this.players.totalCount();
   }
 
-  public getPlayers() {
+  public getPlayers(): Players {
     return this.players;
   }
 
-  public getRoomStatus() {
+  public getRoomStatus(): TypeRoomStatus {
     return this.roomStatus;
   }
 
-  public getHostPlayer() {
+  public getHostPlayer(): Player {
     return this.hostPlayer;
   }
 
@@ -210,7 +210,7 @@ export class Room {
   /**
    * Event gameAttackerPass
    */
-  public attackerPass() {
+  public attackerPass(): void {
     this.passCounter += 1;
 
     if (this.passCounter === this.passCounterMaxValue) {
@@ -276,7 +276,7 @@ export class Room {
     }
   }
 
-  public defenderPickUpCards() {
+  public defenderPickUpCards(): void {
     if (!this.validateActivePlayer(this.defender)) {
       throw new Error('Players is invalid. Something went wrong.');
     }
@@ -295,8 +295,8 @@ export class Room {
     this.startNextRound();
   }
 
-  private startNextRound() {
-    // dealt cards to user
+  private startNextRound(): void {
+    // Dealt cards to user
     this.dealtCards();
 
     this.attacker = this.activePlayer;
@@ -340,7 +340,7 @@ export class Room {
   /**
    *  Each player is dealt six cards
    */
-  private dealtCards() {
+  private dealtCards(): void {
     if (this.deck.isEmpty()) {
       return;
     }
@@ -499,7 +499,7 @@ export class Room {
    * Returns next player? if not found returns error
    * @returns {Player} Next player after current active player
    */
-  private getNextPlayer() {
+  private getNextPlayer(): Player {
     const nextPlayer = this.players.next(this.activePlayer);
 
     if (nextPlayer === null) {
@@ -545,7 +545,7 @@ export class Room {
    * @param {Player} player
    * @returns
    */
-  private isPlayerInGame(player: Player) {
+  private isPlayerInGame(player: Player): boolean {
     return player.getPlayerStatus() === TypePlayerStatus.InGame;
   }
 
@@ -593,11 +593,11 @@ export class Room {
     );
   }
 
-  private sendGameStatus() {
+  private sendGameStatus(): void {
     this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
   }
 
-  private log(message: string) {
+  private log(message: string): void {
     this.logger.log(message);
   }
 }
