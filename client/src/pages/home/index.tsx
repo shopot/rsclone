@@ -81,7 +81,7 @@ const HomePage = () => {
               <button
                 className="btn"
                 type="button"
-                disabled={!playerName}
+                disabled={!playerName || room.playersCount === MAX_NUMBER_OF_PLAYERS}
                 onClick={() => handleJoinRoom(room.roomId)}
               >
                 join
