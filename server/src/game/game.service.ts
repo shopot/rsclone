@@ -1,3 +1,4 @@
+import { TypeServerError } from './../shared/types';
 import { Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { Player } from '../shared/libs/Player';
@@ -91,7 +92,16 @@ export class GameService implements IGameService {
       .emit(TypeRoomEvent.gameFromServerChatMessage, { data: message });
   }
 
-  async setFromClientJoinRoom(data: GameReceiveDto, socket: Socket) {
+  /**
+   * Join player to room
+   * @param {GameReceiveDto} data
+   * @param {Socket} socket
+   * @returns {void}
+   */
+  async setFromClientJoinRoom(
+    data: GameReceiveDto,
+    socket: Socket,
+  ): Promise<void> {
     const room = this.rooms.get(data.roomId);
     if (!room) {
       const payload = {
@@ -99,13 +109,16 @@ export class GameService implements IGameService {
         socket: socket,
         playerId: data.playerId,
       };
-      this.setFromServerJoinRoomFail(payload);
-      return false;
+
+      this.setFromServerError(TypeServerError.JoinRoomFailed, payload);
+
+      return;
     }
 
     const player = new Player(socket, data.playerId, TypePlayerMember.Regular);
 
     socket.join(room.getRoomId());
+
     room.joinRoom(player);
   }
 
@@ -206,14 +219,6 @@ export class GameService implements IGameService {
   }
 
   /**
-   * Emit event gameFromServerJoinRoomFail to client
-   * @param {TypeServerResponse} payload Data for client sending
-   */
-  async setFromServerJoinRoomFail(payload: TypeServerResponse): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerJoinRoomFail, payload);
-  }
-
-  /**
    * Emit event gameFromServerLeaveRoomSuccess to client
    * @param {TypeServerResponse} payload Data for client sending
    */
@@ -250,16 +255,6 @@ export class GameService implements IGameService {
   }
 
   /**
-   * Emit event gameFromServerAttackerOpenFail to client
-   * @param {TypeServerResponse} payload Data for client sending
-   */
-  async setFromServerAttackerOpenFail(
-    payload: TypeServerResponse,
-  ): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerAttackerOpenFail, payload);
-  }
-
-  /**
    * Emit event gameFromServerAttackerPass to client
    * @param {TypeServerResponse} payload Data for client sending
    */
@@ -288,16 +283,6 @@ export class GameService implements IGameService {
   }
 
   /**
-   * Emit event gameFromServerDefenderCloseFail to client
-   * @param {TypeServerResponse} payload Data for client sending
-   */
-  async setFromServerDefenderCloseFail(
-    payload: TypeServerResponse,
-  ): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerDefenderCloseFail, payload);
-  }
-
-  /**
    * Emit event gameFromServerSendPlayerStatus to client
    * @param {TypeServerResponse} payload Data for client sending
    */
@@ -315,6 +300,16 @@ export class GameService implements IGameService {
     payload: TypeServerResponse,
   ): Promise<void> {
     this.emitEvent(TypeRoomEvent.gameFromServerDefenderPickUpCards, payload);
+  }
+
+  async setFromServerError(
+    errorType: TypeServerError,
+    payload: TypeServerResponse,
+  ) {
+    this.emitEvent(TypeRoomEvent.gameFromServerError, {
+      ...payload,
+      errorType,
+    });
   }
 
   /**

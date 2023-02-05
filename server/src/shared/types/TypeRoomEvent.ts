@@ -1,4 +1,5 @@
 export enum TypeRoomEvent {
+  // From Client
   gameFromClientCreatePlayer = 'gameFromClientCreatePlayer',
   gameFromClientChatMessage = 'gameFromClientChatMessage',
   gameFromClientCreateRoom = 'gameFromClientCreateRoom',
@@ -16,25 +17,17 @@ export enum TypeRoomEvent {
   gameFromClientOpenRoom = 'gameFromClientOpenRoom',
 
   // From Server
+  gameFromServerError = 'gameFromServerError ',
   gameFromServerRoomStatusChange = 'gameFromServerRoomStatusChange',
-
   gameFromServerJoinRoomSuccess = 'gameFromServerJoinRoomSuccess',
-  gameFromServerJoinRoomFail = 'gameFromServerJoinRoomFail',
   gameFromServerLeaveRoomSuccess = 'gameFromServerLeaveRoomSuccess',
-
   gameFromServerDealtCardsToPlayers = 'gameFromServerDealtCardsToPlayers',
-
   gameFromServerAttackerSetActive = 'gameFromServerAttackerSetActive',
   gameFromServerAttackerOpenSuccess = 'gameFromServerAttackerOpenSuccess',
-  gameFromServerAttackerOpenFail = 'gameFromServerAttackerOpenFail',
   gameFromServerAttackerPass = 'gameFromServerAttackerPass',
-
   gameFromServerDefenderSetActive = 'gameFromServerDefenderSetActive',
   gameFromServerDefenderCloseSuccess = 'gameFromServerDefenderCloseSuccess',
-  gameFromServerDefenderCloseFail = 'gameFromServerDefenderCloseFail',
   gameFromServerDefenderPickUpCards = 'gameFromServerDefenderPickUpCards',
-
   gameFromServerSendPlayerStatus = 'gameFromServerSendPlayerStatus',
-
   gameFromServerChatMessage = 'gameFromServerChatMessage',
 }
