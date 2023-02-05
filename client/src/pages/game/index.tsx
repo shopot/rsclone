@@ -47,6 +47,12 @@ const GamePage = () => {
   }, [selectedRoom]);
 
   useEffect(() => {
+    socketIOService.listen(TypeSocketEvent.GameFromServerDealtCardsToPlayers, (data) => {
+      console.log(data);
+    });
+  }, []);
+
+  useEffect(() => {
     socketIOService.emit(TypeSocketEvent.GameFromClientGetRooms, { data: {} });
   }, []);
 
