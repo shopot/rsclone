@@ -8,7 +8,7 @@ import {
   OnGatewayInit,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { TypeRoomEvent } from '../shared/types/TypeRoomEvent';
+import { TypeRoomEvent } from '../shared/types';
 import { GameReceiveDto } from './dto';
 import { Server } from 'socket.io';
 import { GameService } from './game.service';

@@ -1,4 +1,4 @@
-import { CardDto } from 'src/shared/dto';
+import { CardDto } from '../../shared/dto';
 
 export class GameReceiveDto {
   readonly roomId: string;

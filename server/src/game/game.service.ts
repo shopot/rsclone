@@ -11,7 +11,7 @@ import { generateRoomId } from '../shared/utils/generateRoomId';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
 import { GameReceiveDto, GameSendDto } from './dto';
-import { MAX_NUMBER_OF_PLAYERS } from 'src/shared/constants';
+import { MAX_NUMBER_OF_PLAYERS } from '../shared/constants';
 
 @Injectable()
 export class GameService implements IGameService {
