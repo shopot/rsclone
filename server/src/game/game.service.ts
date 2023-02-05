@@ -21,12 +21,16 @@ export class GameService implements IGameService {
     this.rooms = new Map();
   }
 
-  private getRoom(roomId: string) {
-    if (!this.rooms.has(roomId)) {
-      throw new Error(`Room #${roomId} not found.`);
-    }
+  private getRoomById(roomId: string): Room | null {
+    const room = this.rooms.get(roomId) ?? null;
 
-    return this.rooms.get(roomId);
+    return room;
+  }
+
+  private closeRoomById(roomId: string): void {
+    if (this.rooms.has(roomId)) {
+      this.rooms.delete(roomId);
+    }
   }
 
   async setFromClientCreateRoom(data: GameReceiveDto, socket: Socket) {
@@ -224,7 +228,13 @@ export class GameService implements IGameService {
   async setFromServerLeaveRoomSuccess(
     payload: TypeServerResponse,
   ): Promise<void> {
-    this.emitEvent(TypeRoomEvent.gameFromServerJoinRoomSuccess, payload);
+    const room = this.getRoomById(payload.roomId);
+
+    if (room && room.getPlayersCount() === 0) {
+      this.closeRoomById(payload.roomId);
+    }
+
+    this.emitEvent(TypeRoomEvent.gameFromServerLeaveRoomSuccess, payload);
   }
 
   async setFromServerDealtCardsToPlayers(
