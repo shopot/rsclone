@@ -6,7 +6,7 @@ export class Deck extends Phaser.GameObjects.Sprite {
     this.scene = scene;
     // this.value = value;
     this.scene.add.existing(this);
-    this.setInteractive();
+    // this.setInteractive();
     // this.opened = false;
     //temporary using random
 

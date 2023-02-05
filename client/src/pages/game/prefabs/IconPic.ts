@@ -1,4 +1,4 @@
-export class Icon extends Phaser.GameObjects.Sprite {
+export class IconPic extends Phaser.GameObjects.Sprite {
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame: string) {
     super(scene, x, y, texture, frame);
     this.scene = scene;

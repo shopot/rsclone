@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { config } from '../index';
 import { Table } from '../prefabs/Table';
-import { Icon } from '../prefabs/Icon';
+import { IconPic } from '../prefabs/IconPic';
 import { IconBorder } from '../prefabs/IconBorder';
 import { Nickname } from '../prefabs/Nickname';
 import { CardsText } from '../prefabs/CardsText';
 import { Card } from '../prefabs/Card';
 import { Suit } from '../prefabs/Suit';
+import { Button } from '../classes/Button';
 
 export class GameScene extends Phaser.Scene {
   deckText!: Phaser.GameObjects.Text;
@@ -21,7 +22,6 @@ export class GameScene extends Phaser.Scene {
   players = 4;
   attack: boolean[];
   myTable!: Phaser.GameObjects.Graphics;
-  buttonStates = ['Start', 'Take', '?']; // какие названия по англ?
   piles: Card[][] = []; // стопочек на столе
   playersCardsSprites: Card[][] = [];
   tableSizes: { width: number; height: number; startX: number }[] = [];
@@ -64,28 +64,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   createButton() {
-    const buttonText = this.add
-      .text(
-        config.playersTables[1][0].startX + config.playersTables[1][0].width + 50,
-        config.height - 100,
-        `${this.buttonStates[0]}`,
-        {
-          font: '30px',
-          color: '#000000',
-          strokeThickness: 1,
-          stroke: '#000000',
-          backgroundColor: '#00ff00',
-        },
-      )
-      .setPadding(30, 10, 30, 10)
-      // .setStroke('##0eff00', 2)
-      .setInteractive()
-      .on('pointerdown', () => {
-        console.log('click');
-      });
-    // .on('pointerdown', () => callback())
-    // .on('pointerover', () => button.setStyle({ fill: '#f39c12' }))
-    // .on('pointerout', () => button.setStyle({ fill: '#FFF' }));
+    const button = new Button(this);
   }
 
   createIcons() {
@@ -93,7 +72,7 @@ export class GameScene extends Phaser.Scene {
       const startX = this.tableSizes[i].startX;
       const spriteY = i === 0 ? config.height - config.cardSize.h + 25 : 82;
       //поменять на конркетную иконку
-      new Icon(this, startX - 40, spriteY, 'icons', config.icons[i]);
+      new IconPic(this, startX - 40, spriteY, 'icons', config.icons[i]);
 
       //должен меняться цвет рамки на зеленый, когда ходит и на серый после
       new IconBorder(this, startX - 68, spriteY - 27, 55, 55, 5);
