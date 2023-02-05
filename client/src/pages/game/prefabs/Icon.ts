@@ -1,6 +1,6 @@
 export class Icon extends Phaser.GameObjects.Sprite {
-  constructor(scene: Phaser.Scene, x: number, y: number, atlas: string, texture: string) {
-    super(scene, x, y, atlas, texture);
+  constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame: string) {
+    super(scene, x, y, texture, frame);
     this.scene = scene;
     this.scene.add.existing(this);
     this.setScale(0.3);
