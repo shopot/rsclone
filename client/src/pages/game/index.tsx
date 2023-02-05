@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TypeSocketEvent } from '../../types/TypeSocketEvent';
+import { TypeSocketEvent } from '../../shared/types/TypeSocketEvent';
 import { socketIOService } from '../../shared/api/socketio';
 import { ICardDto } from '../../shared/interfaces/ICardDto';
 import { TypeCardRank } from '../../shared/types/TypeCardRank';
@@ -45,6 +45,12 @@ const GamePage = () => {
       },
     );
   }, [selectedRoom]);
+
+  useEffect(() => {
+    socketIOService.listen(TypeSocketEvent.GameFromServerDealtCardsToPlayers, (data) => {
+      console.log(data);
+    });
+  }, []);
 
   useEffect(() => {
     socketIOService.emit(TypeSocketEvent.GameFromClientGetRooms, { data: {} });

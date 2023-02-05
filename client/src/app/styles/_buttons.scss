@@ -10,4 +10,12 @@
   &:hover {
     background-color: constants.$main-color;
   }
+
+  &:disabled {
+    // filter: sepia(90%);
+    opacity: 0.9;
+    background-color: color.adjust(constants.$disabled-color, $lightness: -10%);
+    cursor: default;
+    pointer-events: none;
+  }
 }

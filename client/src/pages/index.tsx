@@ -23,7 +23,7 @@ const PageRouting = () => {
         element={<AboutPage />}
       />
       <Route
-        path="/game"
+        path="/game/:roomId"
         element={<GamePage />}
       />
       <Route
