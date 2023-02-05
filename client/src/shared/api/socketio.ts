@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { TypeSocketEvent } from '../../types/TypeSocketEvent';
+import { TypeSocketEvent } from '../types';
 import { SOCKET_IO_ENDPOINT } from '../../app/config';
 
 class SocketIOService {
