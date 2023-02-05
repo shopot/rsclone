@@ -6,7 +6,7 @@ import {
   TypeServerResponse,
   TypeRoomEvent,
 } from '../shared/types';
-import { generateRoomName } from '../shared/utils/generateRoomName';
+import { generateRoomId } from '../shared/utils/generateRoomId';
 import { IGameService } from '../shared/interfaces';
 import { Room } from '../shared/libs/Room';
 import { GameReceiveDto, GameSendDto } from './dto';
@@ -32,7 +32,11 @@ export class GameService implements IGameService {
   async setFromClientCreateRoom(data: GameReceiveDto, socket: Socket) {
     const hostPlayer = new Player(socket, data.playerId, TypePlayerMember.Host);
 
-    const roomId = generateRoomName();
+    let roomId = '';
+    do {
+      roomId = generateRoomId();
+    } while (this.rooms.has(roomId));
+
     socket.join(roomId);
 
     const room = new Room(roomId, hostPlayer, this);
