@@ -1,0 +1,27 @@
+.roomInterface {
+  width: fit-content;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.playerName {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.playerNameInput {
+  width: 100%;
+}
+
+.roomEntry {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+.playersSpan {
+  display: flex;
+}
