@@ -25,4 +25,5 @@ export const enum TypeSocketEvent {
   // server events
   GameFromServerChatMessage = 'gameFromServerChatMessage',
   GameFromServerGetRooms = 'gameFromServerGetRooms',
+  GameFromServerRoomStatusChange = 'gameFromServerRoomStatusChange',
 }
