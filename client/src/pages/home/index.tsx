@@ -35,6 +35,8 @@ const HomePage = () => {
       },
     );
 
+    socketIOService.listen(TypeSocketEvent.GameFromServerError, (data) => console.log(data));
+
     socketIOService.emit(TypeSocketEvent.GameFromClientGetRooms, { data: {} });
   }, [navigate]);
 
