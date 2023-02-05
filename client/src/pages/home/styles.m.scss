@@ -17,11 +17,19 @@
 }
 
 .roomEntry {
+  width: 100%;
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 1em;
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
 }
 
 .playersSpan {
   display: flex;
+  gap: 5px;
 }
