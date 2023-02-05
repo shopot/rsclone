@@ -123,15 +123,10 @@ export class Room {
 
     // Set attacker as player with lowest trump
     this.attacker = this.findPlayerWithLowestTrump();
+
     this.activePlayer = this.attacker;
 
-    const nextPlayer = this.players.next(this.attacker);
-
-    if (nextPlayer === null) {
-      throw new Error('Player not found. Something went wrong.');
-    }
-
-    this.defender = nextPlayer;
+    this.defender = this.getNextPlayer();
 
     this.round = new Round(this.deck);
 
