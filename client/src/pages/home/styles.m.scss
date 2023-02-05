@@ -23,6 +23,7 @@
   align-items: center;
   flex-wrap: nowrap;
   gap: 1em;
+  padding: 6px 10px;
 
   &:not(:last-child) {
     margin-bottom: 10px;
@@ -36,4 +37,8 @@
 .playersSpan {
   display: flex;
   gap: 5px;
+}
+
+.roomEntryJoin {
+  background-color: #343a46;
 }

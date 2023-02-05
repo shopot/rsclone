@@ -70,6 +70,9 @@ const HomePage = () => {
         </label>
         <ul className={styles.roomList}>
           {rooms.map((room) => {
+            const playing =
+              room.playersCount === MAX_NUMBER_OF_PLAYERS ||
+              room.status === TypeRoomStatus.GameInProgress;
             const disabled =
               !playerName ||
               room.playersCount === MAX_NUMBER_OF_PLAYERS ||
@@ -77,7 +80,9 @@ const HomePage = () => {
 
             return (
               <li
-                className={`${styles.roomEntry} ${disabled ? styles.roomEntryDisabled : ''}`}
+                className={`${styles.roomEntry} ${!playing ? styles.roomEntryJoin : ''} ${
+                  disabled ? styles.roomEntryDisabled : ''
+                }`}
                 key={room.roomId}
               >
                 <span>room-{room.roomId}</span>
@@ -93,7 +98,7 @@ const HomePage = () => {
                   disabled={disabled}
                   onClick={() => handleJoinRoom(room.roomId)}
                 >
-                  join
+                  {playing ? 'Playing' : 'Join'}
                 </button>
               </li>
             );
