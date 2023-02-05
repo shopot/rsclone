@@ -78,23 +78,23 @@ export class Room {
     this.logger = new Logger(`Room #${roomId}`);
   }
 
-  public getRoomId() {
+  public getRoomId(): string {
     return this.roomId;
   }
 
-  public getPlayersCount() {
+  public getPlayersCount(): number {
     return this.players.totalCount();
   }
 
-  public getPlayers() {
+  public getPlayers(): Players {
     return this.players;
   }
 
-  public getRoomStatus() {
+  public getRoomStatus(): TypeRoomStatus {
     return this.roomStatus;
   }
 
-  public getHostPlayer() {
+  public getHostPlayer(): Player {
     return this.hostPlayer;
   }
 
@@ -111,6 +111,9 @@ export class Room {
       return;
     }
 
+    // Game is started
+    this.roomStatus = TypeRoomStatus.GameInProgress;
+
     // Start new deck
     this.deck = new Deck(this.players.totalCount());
 
@@ -120,18 +123,10 @@ export class Room {
 
     // Set attacker as player with lowest trump
     this.attacker = this.findPlayerWithLowestTrump();
+
     this.activePlayer = this.attacker;
 
-    const nextPlayer = this.players.next(this.attacker);
-
-    if (nextPlayer === null) {
-      throw new Error('Player not found. Something went wrong.');
-    }
-
-    this.defender = nextPlayer;
-
-    // Game is started
-    this.roomStatus = TypeRoomStatus.GameInProgress;
+    this.defender = this.getNextPlayer();
 
     this.round = new Round(this.deck);
 
@@ -140,8 +135,8 @@ export class Room {
     // Save start time
     this.gameTimeStart = Date.now();
 
-    // Start the game
-    this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
+    // Send game status for all players
+    this.sendGameStatus();
 
     // Send status open for attacker
     // На фронте делается логика для gameAttackerSetActive
@@ -213,9 +208,29 @@ export class Room {
   }
 
   /**
+   * Event gameAttackerPass
+   */
+  public attackerPass(): void {
+    this.passCounter += 1;
+
+    if (this.passCounter === this.passCounterMaxValue) {
+      // Start active player as new attacker
+      this.setActivePlayer(this.defender);
+
+      this.startNextRound();
+    } else {
+      this.attacker = this.getNextPlayer();
+
+      this.setActivePlayer(this.attacker);
+
+      this.gameService.setFromServerAttackerSetActive(this.createPayload({}));
+    }
+  }
+
+  /**
    * Give one card from defender
    */
-  public setDefenderClose(cardDto: CardDto) {
+  public setDefenderClose(cardDto: CardDto): void {
     if (!this.validateActivePlayer(this.defender)) {
       throw new Error('Players is invalid. Something went wrong.');
     }
@@ -248,11 +263,20 @@ export class Room {
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
 
+      this.updateGameStatus();
+
+      // Game is over
+      if (this.isGameOver()) {
+        return this.sendGameStatus();
+      }
+
+      this.setActivePlayer(this.getNextPlayer());
+
       this.startNextRound();
     }
   }
 
-  public defenderPickUpCards() {
+  public defenderPickUpCards(): void {
     if (!this.validateActivePlayer(this.defender)) {
       throw new Error('Players is invalid. Something went wrong.');
     }
@@ -266,20 +290,21 @@ export class Room {
       }),
     );
 
-    // Go to next attacker
+    this.setActivePlayer(this.getNextPlayer());
+
+    this.startNextRound();
   }
 
-  /**
-   * Event gameAttackerPass
-   */
-  public attackerPass() {
-    this.passCounter += 1;
+  private startNextRound(): void {
+    // Dealt cards to user
+    this.dealtCards();
 
-    if (this.passCounter === this.passCounterMaxValue) {
-      this.startNextRound();
-    } else {
-      this.startNextRoundStep();
-    }
+    this.attacker = this.activePlayer;
+    this.defender = this.getNextPlayer();
+
+    this.gameService.setFromServerAttackerSetActive(this.createPayload({}));
+
+    this.log(`Room #${this.roomId} - Start next round`);
   }
 
   /**
@@ -294,42 +319,28 @@ export class Room {
     this.activePlayer = player;
   }
 
-  private setNextPlayer() {
-    if (this.activePlayer.getPlayerStatus() === TypePlayerStatus.InGame) {
-    }
-  }
-
+  /**
+   * Set player as loser and send event message
+   */
   private setPlayerAsLoser(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouLoser);
 
-    this.gameService.setFromServerSendPlayerStatus(
-      this.createPayload({
-        socketId: player.getSocketId(),
-        playerId: player.getPlayerId(),
-        playerStatus: TypePlayerStatus.YouLoser,
-      }),
-    );
+    this.sendPlayerStatus(player, TypePlayerStatus.YouLoser);
   }
 
   /**
-   * Set active player as winner
+   * Set player as winner and send event message
    */
   private setPlayerAsWinner(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
 
-    this.gameService.setFromServerSendPlayerStatus(
-      this.createPayload({
-        socketId: player.getSocketId(),
-        playerId: player.getPlayerId(),
-        playerStatus: TypePlayerStatus.YouWinner,
-      }),
-    );
+    this.sendPlayerStatus(player, TypePlayerStatus.YouWinner);
   }
 
   /**
    *  Each player is dealt six cards
    */
-  private dealtCards() {
+  private dealtCards(): void {
     if (this.deck.isEmpty()) {
       return;
     }
@@ -357,31 +368,6 @@ export class Room {
         }),
       );
     }
-  }
-
-  private startNextRound() {
-    // dealt cards to user
-    this.dealtCards();
-
-    this.log(`Room #${this.roomId} - Start next round`);
-  }
-
-  private startNextRoundStep(): void {
-    if (this.isGameOver()) {
-      // Game is over nothing to do
-      return;
-    }
-
-    // Если двое переход хода старт нового раунда
-    if (this.players.totalCountInGame() === 2) {
-      const oldAttacker = this.attacker;
-      this.attacker = this.defender;
-      this.defender = oldAttacker;
-
-      return this.startNextRound();
-    }
-
-    this.log(`Room #${this.roomId} - Start next round step`);
   }
 
   /**
@@ -415,7 +401,7 @@ export class Room {
     ) {
       this.roomStatus = TypeRoomStatus.WaitingForStart;
 
-      this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
+      this.sendGameStatus();
     }
   }
 
@@ -448,20 +434,20 @@ export class Room {
     }
 
     if (this.isGameInProgress() && this.isPlayerInGame(leavePlayer)) {
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+      this.setPlayerAsLoser(leavePlayer);
 
-      leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.updateGameStatus();
 
+      // Set all players as winner
       for (const player of this.players) {
-        if (player !== leavePlayer) {
+        if (player.getPlayerStatus() !== TypePlayerStatus.YouLoser) {
           this.setPlayerAsWinner(player);
         }
       }
-
-      this.setGameIsOver();
     }
 
-    return;
+    // Update room status for all players
+    return this.sendGameStatus();
   }
 
   /**
@@ -469,6 +455,7 @@ export class Room {
    */
   public restartGame(): void {
     this.roomStatus = TypeRoomStatus.WaitingForStart;
+
     this.start();
   }
 
@@ -482,7 +469,7 @@ export class Room {
       this.roomStatus = TypeRoomStatus.WaitingForPlayers;
     }
 
-    this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
+    this.sendGameStatus();
   }
 
   /**
@@ -509,6 +496,37 @@ export class Room {
   }
 
   /**
+   * Returns next player? if not found returns error
+   * @returns {Player} Next player after current active player
+   */
+  private getNextPlayer(): Player {
+    const nextPlayer = this.players.next(this.activePlayer);
+
+    if (nextPlayer === null) {
+      throw new Error('Player not found. Something went wrong.');
+    }
+
+    return nextPlayer;
+  }
+
+  /**
+   * Update game status, set game over if exists
+   */
+  private updateGameStatus(): void {
+    for (const player of this.players) {
+      if (player.getPlayerStatus() === TypePlayerStatus.YouLoser) {
+        this.roomStatus = TypeRoomStatus.GameIsOver;
+
+        break;
+      }
+    }
+
+    if (this.players.totalCountInGame() <= 1) {
+      this.roomStatus = TypeRoomStatus.GameIsOver;
+    }
+  }
+
+  /**
    * Check game in progress
    */
   private isGameInProgress(): boolean {
@@ -523,20 +541,11 @@ export class Room {
   }
 
   /**
-   * Set game over
-   */
-  private setGameIsOver(): void {
-    this.roomStatus = TypeRoomStatus.GameIsOver;
-
-    this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
-  }
-
-  /**
    * Returns true if a player in game
    * @param {Player} player
    * @returns
    */
-  private isPlayerInGame(player: Player) {
+  private isPlayerInGame(player: Player): boolean {
     return player.getPlayerStatus() === TypePlayerStatus.InGame;
   }
 
@@ -563,7 +572,7 @@ export class Room {
    * @param {Partial<TypeServerResponse>} data
    * @returns {TypeServerResponse} payload for send data to client
    */
-  createPayload(data: Partial<TypeServerResponse>): TypeServerResponse {
+  private createPayload(data: Partial<TypeServerResponse>): TypeServerResponse {
     return {
       ...data,
       roomId: this.roomId,
@@ -571,7 +580,24 @@ export class Room {
     };
   }
 
-  private log(message: string) {
+  private sendPlayerStatus(
+    player: Player,
+    playerStatus: TypePlayerStatus,
+  ): void {
+    this.gameService.setFromServerSendPlayerStatus(
+      this.createPayload({
+        socketId: player.getSocketId(),
+        playerId: player.getPlayerId(),
+        playerStatus,
+      }),
+    );
+  }
+
+  private sendGameStatus(): void {
+    this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
+  }
+
+  private log(message: string): void {
     this.logger.log(message);
   }
 }
