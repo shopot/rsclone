@@ -46,6 +46,13 @@ export class GameScene extends Phaser.Scene {
     this.createBeaten();
   }
 
+  highlightCards(status: boolean) {
+    //вызвать, когда мой статут фолс и кинута карта (pile имеет нечетные подмассивы)
+    //подсветит, чем можно бить по возрастанию
+    //когда мой статус тру и у меня есть карты того же значения, что и на столе
+    //подсветит такие же карты, чтобы подкинуть
+  }
+
   createBg() {
     const bg = this.add.sprite(config.width / 2, config.height / 2, 'bgDark');
     bg.depth = -5;
@@ -135,20 +142,20 @@ export class GameScene extends Phaser.Scene {
 
     //расположение карты в зависимости от того, кто нападает + сколько кучек уже на столе
     if (indexOfPlayer != undefined) {
-      const attack = this.attack[indexOfPlayer];
+      const params = { attack: this.attack[indexOfPlayer], place: -1 };
 
       const indexOfCard = this.playersCards[indexOfPlayer].indexOf(card.value);
 
-      let place = 0;
-      //если нападаю, то след кучку начинаю, иначе ту же продолжаю
-      if (attack) {
-        place = this.piles.length + 1;
+      //если нападаю, то след кучку начинаю, иначе последнюю нечетную
+      if (params.attack) {
+        params.place = this.piles.length + 1;
         this.piles.push([card]);
       } else {
-        place = this.piles.length;
-        this.piles[this.piles.length - 1].push(card);
+        const oddSet = this.piles.find((set) => set.length === 1) || [];
+        params.place = this.piles.indexOf(oddSet);
+        this.piles[this.piles.length].push(card);
       }
-      card.move(attack, place);
+      card.move(params);
 
       //временно удаляю вручную, потом будет с сервера приходить массив обновленный
       this.playersCards[indexOfPlayer].splice(indexOfCard, 1);

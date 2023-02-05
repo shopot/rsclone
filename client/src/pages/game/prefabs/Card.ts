@@ -63,7 +63,7 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.moveAnimation(pileIndex, isAttacking, piles);
   }
 
-  move(attack: boolean, pile: number) {
+  move(params: { attack: boolean; place: number }) {
     //если вызван для карт других игроков, то переворачиваем перед ходом
     //если для главного игрока, то убираем возможность клика после попадения на стол
     if (!this.active) {
@@ -71,6 +71,6 @@ export class Card extends Phaser.GameObjects.Sprite {
     } else {
       this.removeInteractive();
     }
-    this.moveAnimation(pile - 1, attack, pile);
+    this.moveAnimation(params.place - 1, params.attack, params.place);
   }
 }

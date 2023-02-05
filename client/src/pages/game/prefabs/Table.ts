@@ -13,10 +13,10 @@ export class Table extends Phaser.GameObjects.Graphics {
     super(scene);
     this.scene = scene;
 
-    this.fillRoundedRect(params.x, params.y, params.width, params.height, params.rounded)
-      .strokeRoundedRect(params.x, params.y, params.width, params.height, params.rounded)
-      .fillStyle(config.tableColor[0], 0.6)
-      .lineStyle(0.5, config.tableBorderColor[0], 0.5);
+    this.fillStyle(config.tableColor[0], 0.6)
+      .lineStyle(0.5, config.tableBorderColor[0], 0.5)
+      .fillRoundedRect(params.x, params.y, params.width, params.height, params.rounded)
+      .strokeRoundedRect(params.x, params.y, params.width, params.height, params.rounded);
 
     this.scene.add.existing(this);
   }
