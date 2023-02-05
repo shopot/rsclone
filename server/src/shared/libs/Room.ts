@@ -496,8 +496,8 @@ export class Room {
   }
 
   /**
-   * Returns next player or errror
-   * @returns
+   * Returns next player? if not found returns error
+   * @returns {Player} Next player after current active player
    */
   private getNextPlayer() {
     const nextPlayer = this.players.next(this.activePlayer);
@@ -538,14 +538,6 @@ export class Room {
    */
   private isGameOver(): boolean {
     return this.roomStatus === TypeRoomStatus.GameIsOver;
-  }
-
-  // TODO: Can remove it?
-  /**
-   * Set game over
-   */
-  private setGameIsOver(): void {
-    this.roomStatus = TypeRoomStatus.GameIsOver;
   }
 
   /**
