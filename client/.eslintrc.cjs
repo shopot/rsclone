@@ -7,6 +7,9 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:react/recommended',
@@ -18,7 +21,7 @@ module.exports = {
   parserOptions: {
     project: ['./tsconfig.json'],
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['import', '@typescript-eslint'],
   settings: {
     react: {
       version: 'detect',
