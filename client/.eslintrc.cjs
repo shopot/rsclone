@@ -29,5 +29,6 @@ module.exports = {
   },
   rules: {
     'no-debugger': 'off',
+    "react/react-in-jsx-scope": "off"
   },
 };
