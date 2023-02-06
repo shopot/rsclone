@@ -65,7 +65,7 @@ const GamePage = () => {
   }, [actions]);
 
   const handleMakeMove = (card: TypeCard) => {
-    console.log(card);
+    actions.makeAttackingMove(card);
   };
 
   const handleStartGame = () => {
