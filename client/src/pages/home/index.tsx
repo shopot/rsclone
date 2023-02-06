@@ -104,7 +104,7 @@ const HomePage = () => {
           })}
         </ul>
         <button
-          className="btn"
+          className="btn btn-lg"
           type="button"
           disabled={!playerName}
           onClick={handleCreateRoom}
