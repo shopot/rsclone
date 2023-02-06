@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { socketIOService } from '../../shared/api/socketio';
 import { TypeCard, TypeCardRank, TypeCardSuit } from '../../shared/types';
 import styles from './styles.m.scss';
 
@@ -47,8 +48,7 @@ const GamePage = () => {
     isOnline,
     roomId,
     roomStatus,
-    playerId,
-    hostPlayerId,
+    hostSocketId,
     activePlayerId,
     deckCounter,
     trumpCard,
@@ -57,6 +57,8 @@ const GamePage = () => {
     placedCards,
     error,
   } = useGameStore();
+
+  const socketId = socketIOService.getSocketId();
 
   useEffect(() => {
     actions.setGameState();
@@ -74,8 +76,8 @@ const GamePage = () => {
         {error && <p>Error: {error}</p>}
         <p>Room ID: {roomId}</p>
         <p>Room status: {roomStatus}</p>
-        <p>Your player ID: {playerId}</p>
-        <p>Host player ID: {hostPlayerId}</p>
+        <p>Your socket ID: {socketId}</p>
+        <p>Host socket ID: {hostSocketId}</p>
         <p>Active player ID: {activePlayerId}</p>
         <p>Trump card: {cardToString(trumpCard)}</p>
         <p>Cards in the deck: {deckCounter}</p>
@@ -86,12 +88,12 @@ const GamePage = () => {
         <div className={styles.player}>
           {players.map((player) => (
             <>
-              <h3>{player.playerId}</h3>
+              <h3>{player.socketId}</h3>
               <p>player role: {player.playerRole}</p>
               <p>player status: {player.playerStatus}</p>
               <p>Cards:</p>
               <div>
-                <h4>cards of ${player.playerId}</h4>
+                <h4>cards of ${player.socketId}</h4>
                 <div className={styles.playerCards}>
                   {player.cards.map((card, idx) => (
                     <button
@@ -114,7 +116,7 @@ const GamePage = () => {
         <h2>dealt cards</h2>
         {dealt.map((player, idx) => (
           <p key={idx}>
-            {player.playerId}: {player.count}
+            {player.socketId}: {player.count}
           </p>
         ))}
       </section>

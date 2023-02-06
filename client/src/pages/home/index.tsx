@@ -45,7 +45,7 @@ const HomePage = () => {
 
   const handleJoinRoom = (roomId: string) => {
     socketIOService.emit(TypeSocketEvent.GameJoinRoom, {
-      data: { roomId, playerId: playerName },
+      data: { roomId, playerName },
     });
   };
 
