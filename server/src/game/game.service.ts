@@ -53,9 +53,9 @@ export class GameService {
    * @returns {TypeServerResponse} - Data for send as a payload to client
    */
   public createRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { playerId } = data;
+    const { playerName } = data;
 
-    const hostPlayer = new Player(socket, playerId, TypePlayerMember.Host);
+    const hostPlayer = new Player(socket, playerName, TypePlayerMember.Host);
 
     let roomId = '';
 
@@ -71,7 +71,7 @@ export class GameService {
 
     return this.createResponseObject({
       roomId,
-      hostPlayerId: playerId,
+      hostSocketId: socket.id,
       roomStatus: room.getRoomStatus(),
       players: room.getPlayersAsDto(),
     });
@@ -84,81 +84,47 @@ export class GameService {
    * @returns {void}
    */
   public joinRoom(data: GameReceiveDto, socket: Socket) {
-    const { roomId, playerId } = data;
+    const { roomId, playerName } = data;
 
     const room = this.rooms.get(roomId);
 
-    const payload = {
-      roomId: roomId,
-      playerId: playerId,
-    };
-
     if (!room) {
       return this.createResponseObject({
-        ...payload,
+        roomId,
         error: TypeGameError.JoinRoomFailed,
       });
     }
 
-    const player = new Player(socket, data.playerId, TypePlayerMember.Regular);
+    const player = new Player(socket, playerName, TypePlayerMember.Regular);
 
     socket.join(room.getRoomId());
 
     if (room.joinRoom(player) === false) {
       return this.createResponseObject({
-        ...payload,
+        roomId,
         error: TypeGameError.JoinRoomFailed,
       });
     }
 
-    return this.createResponseObject(payload);
+    return this.createResponseObject({ roomId });
   }
 
   public getRoomState(client: Socket): TypeServerResponse {
-    let roomId = '',
-      playerId = '';
+    let roomId = '';
 
-    loop1: for (const [key, room] of this.rooms.entries()) {
+    loop1: for (const room of this.rooms.values()) {
       const players = room.getPlayers();
 
       for (const player of players) {
-        if (player.socket === client) {
+        if (player.getSocketId() === client.id) {
           roomId = room.getRoomId();
-          playerId = key;
+
           break loop1;
         }
       }
     }
 
-    return this.createResponseObject({
-      roomId,
-      playerId,
-    });
-  }
-
-  private getRoomData(roomId: string): TypeServerResponse {
-    if (!this.rooms.has(roomId)) {
-      return {};
-    }
-
-    const room = this.rooms.get(roomId);
-
-    if (room) {
-      return {
-        roomId: room.roomId,
-        roomStatus: room.roomStatus,
-        hostPlayerId: room.getHostPlayer().getPlayerId(),
-        activePlayerId: room.getHostPlayerId(),
-        players: room.players.getPlayersAsDto(),
-        trumpCard: room.getDeck().getTrumpCard().getCardDto(),
-        placedCards: [],
-        dealt: [],
-        deckCounter: room.getDeck().size,
-        error: '',
-      };
-    }
-
-    return {};
+    return this.createResponseObject({ roomId });
   }
 
   /**
@@ -169,25 +135,29 @@ export class GameService {
   private createResponseObject(
     payload: TypeServerResponse,
   ): TypeServerResponse {
-    let initialState: TypeServerResponse = {
-      roomId: '',
-      roomStatus: TypeRoomStatus.WaitingForPlayers,
-      hostPlayerId: '',
-      activePlayerId: '',
-      players: [],
-      trumpCard: {
+    const { roomId } = payload;
+
+    let room: Room | undefined;
+
+    if (roomId && this.rooms.has(roomId)) {
+      room = this.rooms.get(roomId);
+    }
+
+    const initialState: TypeServerResponse = {
+      roomId: room?.roomId || '',
+      roomStatus: room?.roomStatus || TypeRoomStatus.WaitingForPlayers,
+      hostSocketId: room?.hostPlayer.getSocketId() || '',
+      activeSocketId: room?.activePlayer.getSocketId() || '',
+      players: room?.players.getPlayersAsDto() || [],
+      trumpCard: room?.getDeck().getTrumpCard().getCardDto() || {
         rank: TypeCardRank.RANK_6,
         suit: TypeCardSuit.Clubs,
       },
       placedCards: [],
       dealt: [],
-      deckCounter: 0,
+      deckCounter: room?.getDeck().size || 0,
       error: '',
     };
-
-    if (payload.roomId) {
-      initialState = this.getRoomData(payload.roomId);
-    }
 
     return { ...initialState, ...payload };
   }
@@ -202,7 +172,7 @@ export class GameService {
   //     return false;
   //   }
 
-  //   const player = room.getPlayers().getById(data.playerId);
+  //   const player = room.getPlayers().getById(data.socketId);
   //   if (!player) {
   //     return false;
   //   }
@@ -237,7 +207,7 @@ export class GameService {
   //     const payload = {
   //       roomId: data.roomId,
   //       socket: socket,
-  //       playerId: data.playerId,
+  //       socketId: data.socketId,
   //     };
 
   //     this.setFromServerError(TypeServerError.JoinRoomFailed, payload);
@@ -245,7 +215,7 @@ export class GameService {
   //     return;
   //   }
 
-  //   const player = new Player(socket, data.playerId, TypePlayerMember.Regular);
+  //   const player = new Player(socket, data.socketId, TypePlayerMember.Regular);
 
   //   socket.join(room.getRoomId());
 
@@ -259,7 +229,7 @@ export class GameService {
   //     return false;
   //   }
 
-  //   const player = room.getPlayers().getById(data.playerId);
+  //   const player = room.getPlayers().getById(data.socketId);
   //   if (!player) {
   //     return false;
   //   }
@@ -269,7 +239,7 @@ export class GameService {
 
   //   socket.leave(room.getRoomId());
 
-  //   room.leaveRoom(data.playerId);
+  //   room.leaveRoom(data.socketId);
   // }
 
   // async setFromClientStartGame(data: GameReceiveDto, socketId: string) {
