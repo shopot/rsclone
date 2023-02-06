@@ -47,7 +47,7 @@ const GamePage = () => {
     isOnline,
     roomId,
     roomStatus,
-    playerId,
+    socketId,
     hostPlayerId,
     activePlayerId,
     deckCounter,
@@ -74,7 +74,7 @@ const GamePage = () => {
         {error && <p>Error: {error}</p>}
         <p>Room ID: {roomId}</p>
         <p>Room status: {roomStatus}</p>
-        <p>Your player ID: {playerId}</p>
+        <p>Your socket ID: {socketId}</p>
         <p>Host player ID: {hostPlayerId}</p>
         <p>Active player ID: {activePlayerId}</p>
         <p>Trump card: {cardToString(trumpCard)}</p>
@@ -86,12 +86,12 @@ const GamePage = () => {
         <div className={styles.player}>
           {players.map((player) => (
             <>
-              <h3>{player.playerId}</h3>
+              <h3>{player.socketId}</h3>
               <p>player role: {player.playerRole}</p>
               <p>player status: {player.playerStatus}</p>
               <p>Cards:</p>
               <div>
-                <h4>cards of ${player.playerId}</h4>
+                <h4>cards of ${player.socketId}</h4>
                 <div className={styles.playerCards}>
                   {player.cards.map((card, idx) => (
                     <button
@@ -114,7 +114,7 @@ const GamePage = () => {
         <h2>dealt cards</h2>
         {dealt.map((player, idx) => (
           <p key={idx}>
-            {player.playerId}: {player.count}
+            {player.socketId}: {player.count}
           </p>
         ))}
       </section>

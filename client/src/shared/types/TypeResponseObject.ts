@@ -14,12 +14,13 @@ export type TypeRoomDto = {
 export type TypeResponseRoomList = TypeRoomDto[];
 
 export type TypeDealt = {
-  playerId: string;
+  socketId: string;
   count: number;
 };
 
 export type TypePlayerDto = {
-  playerId: string;
+  socketId: string;
+  playerName: string;
   playerRole: TypePlayerRole;
   playerStatus: TypePlayerStatus;
   cards: TypeCard[];
@@ -28,9 +29,9 @@ export type TypePlayerDto = {
 export type TypeResponseRoomData = {
   roomId: string;
   roomStatus: TypeRoomStatus;
-  hostPlayerId: string; // playerId
-  players: TypePlayerDto[];
+  hostPlayerId: string;
   activePlayerId: string;
+  players: TypePlayerDto[];
   trumpCard?: TypeCard;
   placedCards: TypePlacedCard[];
   dealt: TypeDealt[];

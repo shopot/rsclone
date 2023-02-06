@@ -16,7 +16,7 @@ type TypeGameState = {
   isOnline: boolean;
   roomId: string;
   roomStatus: TypeRoomStatus;
-  playerId?: string | '';
+  socketId: string;
   hostPlayerId: string;
   activePlayerId: string;
   players: TypePlayer[];
@@ -50,7 +50,7 @@ export const useGameStore = create<TypeGameState>((set, get) => {
     isOnline: false,
     roomId: '',
     roomStatus: TypeRoomStatus.WaitingForPlayers,
-    playerId: '',
+    socketId: '',
     hostPlayerId: '',
     activePlayerId: '',
     players: [],
@@ -64,11 +64,11 @@ export const useGameStore = create<TypeGameState>((set, get) => {
     error: '',
 
     getPlayerCards: (): TypeCard[] => {
-      const playerId = get().playerId;
+      const socketId = get().socketId;
       const players = get().players;
 
       for (const player of players) {
-        if (player.playerId === playerId) {
+        if (player.socketId === socketId) {
           return player.cards;
         }
       }
