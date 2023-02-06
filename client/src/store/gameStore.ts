@@ -24,6 +24,7 @@ type TypeGameState = {
   deckCounter: number;
   dealt: TypeDealt[];
   error: TypeServerError | '';
+  isFirstAttackInRound: boolean;
 
   actions: {
     setGameState: () => void;
@@ -61,6 +62,9 @@ export const useGameStore = create<TypeGameState>((set, get) => {
     deckCounter: 0,
     dealt: [],
     error: '',
+    get isFirstAttackInRound() {
+      return get().placedCards.length === 0;
+    },
 
     getPlayerCards: (): TypeCard[] => {
       const socketId = socketIOService.getSocketId();
