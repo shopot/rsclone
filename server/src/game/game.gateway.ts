@@ -104,6 +104,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   //   this.gameService.setFromClientLeaveRoom(data, client);
   // }
 
+  private emitToRoom(
+    roomId: string,
+    type: TypeRoomEvent,
+    payload: TypeServerResponse,
+  ): void {
+    this.server.to(roomId).emit(type, { data: payload });
+  }
+
   /**
    * Emit event, send data to client
    * @param {TypeRoomEvent} type
