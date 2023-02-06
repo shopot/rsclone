@@ -6,38 +6,30 @@ import { TypeRoomStatus } from '../../shared/types/TypeRoomStatus';
 import { MAX_NUMBER_OF_PLAYERS } from '../../shared/constants';
 import featherSprite from 'feather-icons/dist/feather-sprite.svg';
 import styles from './styles.m.scss';
-
-type TypeRoomDto = {
-  roomId: string;
-  playersCount: number;
-  status: TypeRoomStatus;
-};
-
-type TypeRoomStatusChangeDto = {
-  roomId: string;
-  roomStatus: TypeRoomStatus;
-};
+import { TypeResponseObject, TypeResponseRoomList } from '../../shared/types';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState('');
-  const [rooms, setRooms] = useState<TypeRoomDto[]>([]);
+  const [rooms, setRooms] = useState<TypeResponseRoomList>([]);
 
   useEffect(() => {
-    socketIOService.listen<TypeRoomDto[]>(TypeSocketEvent.GameFromServerGetRooms, (rooms) => {
-      setRooms(rooms);
+    // Subscribe to GameRooms event
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameRooms, ({ data }) => {
+      setRooms(data as TypeResponseRoomList);
     });
 
-    socketIOService.listen<{ data: TypeRoomStatusChangeDto }>(
-      TypeSocketEvent.GameFromServerRoomStatusChange,
-      ({ data }) => {
-        navigate(`/game/${data.roomId}`);
-      },
-    );
+    // Subscribe to GameCreateRoom event
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, ({ data }) => {
+      // navigate(`/game/${data.roomId}`);
+      console.log(data);
+    });
 
-    socketIOService.listen(TypeSocketEvent.GameFromServerError, (data) => console.log(data));
+    // Subscribe to game errors
+    socketIOService.listen(TypeSocketEvent.GameServerError, (data) => console.log(data));
 
-    socketIOService.emit(TypeSocketEvent.GameFromClientGetRooms, { data: {} });
+    // Get rooms list
+    socketIOService.emit(TypeSocketEvent.GameRooms, { data: {} });
   }, [navigate]);
 
   const handleChangePlayerName = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,11 +37,11 @@ const HomePage = () => {
   };
 
   const handleCreateRoom = () => {
-    socketIOService.emit(TypeSocketEvent.GameFromClientCreateRoom, { data: {} });
+    socketIOService.emit(TypeSocketEvent.GameCreateRoom, { data: {} });
   };
 
   const handleJoinRoom = (roomId: string) => {
-    socketIOService.emit(TypeSocketEvent.GameFromClientJoinRoom, {
+    socketIOService.emit(TypeSocketEvent.GameJoinRoom, {
       data: { roomId, playerId: playerName },
     });
   };

@@ -1,4 +1,4 @@
-import { TypePlayerStatus } from '../types';
+import { TypePlayerDto, TypePlayerStatus } from '../types';
 import { Player } from './Player';
 
 export class Players {
@@ -79,6 +79,17 @@ export class Players {
     }
 
     return foundPlayer;
+  }
+
+  public getPlayersAsDto(): TypePlayerDto[] {
+    return this.players.map((player) => {
+      return {
+        playerId: player.getPlayerId(),
+        playerRole: player.getPlayerRole(),
+        playerStatus: player.getPlayerStatus(),
+        cards: player.getCardsAsDto(),
+      };
+    });
   }
 
   /**

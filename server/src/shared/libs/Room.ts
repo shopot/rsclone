@@ -1,3 +1,4 @@
+import { TypePlayerDto } from '../types/TypePlayerDto';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -8,15 +9,9 @@ import {
 import { Logger } from '@nestjs/common';
 import { Round } from './Round';
 import { CardDto, DealtDto } from '../dto';
-import {
-  TypePlayerStatus,
-  TypeServerResponse,
-  TypeRoomStatus,
-  TypeCardRank,
-  TypeServerError,
-} from '../types';
+import { TypePlayerStatus, TypeRoomStatus, TypeCardRank } from '../types';
 import { Players } from './Players';
-import { IGameService } from '../interfaces';
+import { GameService } from '../../game/game.service';
 
 /**
  * Class Room
@@ -25,7 +20,7 @@ export class Room {
   /** Is a unique string value */
   roomId: string;
   /** Is a object GameService */
-  gameService: IGameService;
+  gameService: GameService;
   /** Who create this room (game) */
   hostPlayer: Player;
   /** Players list in this room */
@@ -53,7 +48,7 @@ export class Room {
 
   logger: Logger;
 
-  constructor(roomId: string, hostPlayer: Player, gameService: IGameService) {
+  constructor(roomId: string, hostPlayer: Player, gameService: GameService) {
     this.roomId = roomId;
 
     // For send actions
@@ -83,6 +78,10 @@ export class Room {
     return this.roomId;
   }
 
+  public getDeck(): Deck {
+    return this.deck;
+  }
+
   public getPlayersCount(): number {
     return this.players.totalCount();
   }
@@ -91,12 +90,31 @@ export class Room {
     return this.players;
   }
 
+  public getPlayersAsDto(): TypePlayerDto[] {
+    const players: TypePlayerDto[] = [];
+
+    for (const player of this.players) {
+      players.push({
+        playerId: player.getPlayerId(),
+        playerRole: player.getPlayerRole(),
+        playerStatus: player.getPlayerStatus(),
+        cards: player.getCardsAsDto(),
+      });
+    }
+
+    return players;
+  }
+
   public getRoomStatus(): TypeRoomStatus {
     return this.roomStatus;
   }
 
   public getHostPlayer(): Player {
     return this.hostPlayer;
+  }
+
+  public getHostPlayerId(): string {
+    return this.hostPlayer.getPlayerId();
   }
 
   /**
@@ -141,12 +159,12 @@ export class Room {
 
     // Send status open for attacker
     // На фронте делается логика для gameAttackerSetActive
-    this.gameService.setFromServerAttackerSetActive(
-      this.createPayload({
-        socketId: this.attacker.getSocketId(),
-        playerId: this.attacker.getPlayerId(),
-      }),
-    );
+    // this.gameService.setFromServerAttackerSetActive(
+    //   this.createPayload({
+    //     socketId: this.attacker.getSocketId(),
+    //     playerId: this.attacker.getPlayerId(),
+    //   }),
+    // );
   }
 
   /**
@@ -166,10 +184,10 @@ export class Room {
     // Add the card & check it
     if (!this.round.attack(cardDto)) {
       // Something went wrong, motherfucker
-      this.gameService.setFromServerError(
-        TypeServerError.SetOpenCardFailed,
-        this.createPayload({ ...payload }),
-      );
+      // this.gameService.setFromServerError(
+      //   TypeServerError.OpenCardFailed,
+      //   this.createPayload({ ...payload }),
+      // );
 
       return;
     }
@@ -181,9 +199,9 @@ export class Room {
     this.passCounter = 0;
 
     // Card added successfully, send message to client
-    this.gameService.setFromServerAttackerOpenSuccess(
-      this.createPayload({ ...payload }),
-    );
+    // this.gameService.setFromServerAttackerOpenSuccess(
+    //   this.createPayload({ ...payload }),
+    // );
 
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
@@ -201,12 +219,12 @@ export class Room {
   public setAttackerDone(): void {
     this.setActivePlayer(this.defender);
 
-    this.gameService.setFromServerDefenderSetActive(
-      this.createPayload({
-        socketId: this.activePlayer.getSocketId(),
-        playerId: this.activePlayer.getPlayerId(),
-      }),
-    );
+    // this.gameService.setFromServerDefenderSetActive(
+    // this.createPayload({
+    //   socketId: this.activePlayer.getSocketId(),
+    //   playerId: this.activePlayer.getPlayerId(),
+    // }),
+    // );
   }
 
   /**
@@ -225,7 +243,7 @@ export class Room {
 
       this.setActivePlayer(this.attacker);
 
-      this.gameService.setFromServerAttackerSetActive(this.createPayload({}));
+      // this.gameService.setFromServerAttackerSetActive(this.createPayload({}));
     }
   }
 
@@ -247,10 +265,10 @@ export class Room {
     if (!this.round.defend(cardDto)) {
       // Something went wrong, motherfucker
 
-      this.gameService.setFromServerError(
-        TypeServerError.SetCloseCardFailed,
-        this.createPayload({ ...payload }),
-      );
+      // this.gameService.setFromServerError(
+      //   TypeServerError.CloseCardFailed,
+      //   this.createPayload({ ...payload }),
+      // );
 
       return;
     }
@@ -259,9 +277,9 @@ export class Room {
     this.activePlayer.lostCard(cardDto);
 
     // Card added successfully, send message to client
-    this.gameService.setFromServerDefenderCloseSuccess(
-      this.createPayload({ ...payload }),
-    );
+    // this.gameService.setFromServerDefenderCloseSuccess(
+    //   this.createPayload({ ...payload }),
+    // );
 
     // Check game is finish for defender
     if (this.isActivePlayerWin()) {
@@ -287,12 +305,12 @@ export class Room {
 
     this.activePlayer.addCards(this.round.getRoundCards());
 
-    this.gameService.setFromServerDefenderPickUpCards(
-      this.createPayload({
-        socketId: this.activePlayer.getSocketId(),
-        playerId: this.activePlayer.getPlayerId(),
-      }),
-    );
+    // this.gameService.setFromServerDefenderPickUpCards(
+    //   this.createPayload({
+    //     socketId: this.activePlayer.getSocketId(),
+    //     playerId: this.activePlayer.getPlayerId(),
+    //   }),
+    // );
 
     this.setActivePlayer(this.getNextPlayer());
 
@@ -306,7 +324,7 @@ export class Room {
     this.attacker = this.activePlayer;
     this.defender = this.getNextPlayer();
 
-    this.gameService.setFromServerAttackerSetActive(this.createPayload({}));
+    // this.gameService.setFromServerAttackerSetActive(this.createPayload({}));
 
     this.log(`Room #${this.roomId} - Start next round`);
   }
@@ -366,11 +384,11 @@ export class Room {
     });
 
     if (dealtCardsArray.length) {
-      this.gameService.setFromServerDealtCardsToPlayers(
-        this.createPayload({
-          dealtCards: dealtCardsArray,
-        }),
-      );
+      // this.gameService.setFromServerDealtCardsToPlayers(
+      //   this.createPayload({
+      //     dealtCards: dealtCardsArray,
+      //   }),
+      // );
     }
   }
 
@@ -379,35 +397,26 @@ export class Room {
    * @param {Player} player
    * @returns {void}
    */
-  public joinRoom(player: Player): void {
+  public joinRoom(player: Player): boolean {
     const payload = {
       socketId: player.getSocketId(),
       playerId: player.getPlayerId(),
     };
 
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
-      this.gameService.setFromServerError(
-        TypeServerError.JoinRoomFailed,
-        this.createPayload({ ...payload }),
-      );
-
-      return;
+      return false;
     }
 
     this.players.add(player);
-
-    this.gameService.setFromServerJoinRoomSuccess(
-      this.createPayload({ ...payload }),
-    );
 
     if (
       this.roomStatus === TypeRoomStatus.WaitingForPlayers &&
       this.players.totalCount() >= MIN_NUMBER_OF_PLAYERS
     ) {
       this.roomStatus = TypeRoomStatus.WaitingForStart;
-
-      this.sendGameStatus();
     }
+
+    return true;
   }
 
   /**
@@ -424,12 +433,12 @@ export class Room {
 
     this.players.remove(leavePlayer);
 
-    this.gameService.setFromServerLeaveRoomSuccess(
-      this.createPayload({
-        socketId: leavePlayer.getSocketId(),
-        playerId: leavePlayer.getPlayerId(),
-      }),
-    );
+    // this.gameService.setFromServerLeaveRoomSuccess(
+    //   this.createPayload({
+    //     socketId: leavePlayer.getSocketId(),
+    //     playerId: leavePlayer.getPlayerId(),
+    //   }),
+    // );
 
     if (
       !this.isGameInProgress() &&
@@ -577,29 +586,29 @@ export class Room {
    * @param {Partial<TypeServerResponse>} data
    * @returns {TypeServerResponse} payload for send data to client
    */
-  private createPayload(data: Partial<TypeServerResponse>): TypeServerResponse {
-    return {
-      ...data,
-      roomId: this.roomId,
-      roomStatus: this.roomStatus,
-    };
-  }
+  // private createPayload(data: Partial<TypeServerResponse>): TypeServerResponse {
+  //   return {
+  //     ...data,
+  //     roomId: this.roomId,
+  //     roomStatus: this.roomStatus,
+  //   };
+  // }
 
   private sendPlayerStatus(
     player: Player,
     playerStatus: TypePlayerStatus,
   ): void {
-    this.gameService.setFromServerSendPlayerStatus(
-      this.createPayload({
-        socketId: player.getSocketId(),
-        playerId: player.getPlayerId(),
-        playerStatus,
-      }),
-    );
+    // this.gameService.setFromServerSendPlayerStatus(
+    //   this.createPayload({
+    //     socketId: player.getSocketId(),
+    //     playerId: player.getPlayerId(),
+    //     playerStatus,
+    //   }),
+    // );
   }
 
   private sendGameStatus(): void {
-    this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
+    // this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
   }
 
   private log(message: string): void {

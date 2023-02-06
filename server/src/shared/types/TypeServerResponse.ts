@@ -1,17 +1,19 @@
-import { Socket } from 'socket.io';
 import { TypeRoomStatus } from './TypeRoomStatus';
-import { CardDto, DealtDto } from '../dto';
-import { TypePlayerStatus } from './TypePlayerStatus';
-import { TypeServerError } from './TypeServerError';
+import { CardDto } from '../dto';
+import { TypeGameError } from './TypeGameError';
+import { TypePlayerDto } from './TypePlayerDto';
+import { TypePlacedCard } from './TypePlacedCard';
+import { TypeDealt } from './TypeDealt';
 
 export type TypeServerResponse = {
-  roomId: string;
-  socketId?: string;
-  socket?: Socket;
-  playerId?: string;
-  card?: CardDto;
-  playerStatus?: TypePlayerStatus;
+  roomId?: string;
   roomStatus?: TypeRoomStatus;
-  dealtCards?: DealtDto[];
-  errorType?: TypeServerError;
+  hostPlayerId?: string; // playerId
+  players?: TypePlayerDto[];
+  activePlayerId?: string;
+  trumpCard?: CardDto;
+  placedCards?: TypePlacedCard[];
+  dealt?: TypeDealt[];
+  deckCounter?: number;
+  error?: TypeGameError | '';
 };

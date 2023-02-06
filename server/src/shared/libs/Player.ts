@@ -25,11 +25,11 @@ export class Player {
     this.playerRole = TypePlayerRole.Waiting;
   }
 
-  public setRole(role: TypePlayerRole): void {
+  public setPlayerRole(role: TypePlayerRole): void {
     this.playerRole = role;
   }
 
-  public getRole(): TypePlayerRole {
+  public getPlayerRole(): TypePlayerRole {
     return this.playerRole;
   }
 
@@ -55,6 +55,10 @@ export class Player {
 
   public getCards() {
     return this.cards;
+  }
+
+  public getCardsAsDto() {
+    return this.cards.map((card) => card.getCardDto());
   }
 
   public setPlayerStatus(status: TypePlayerStatus) {
