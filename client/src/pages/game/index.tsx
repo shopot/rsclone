@@ -69,7 +69,7 @@ const GamePage = () => {
   };
 
   const handleStartGame = () => {
-    console.log('TODO: actually start game');
+    actions.startGame();
   };
 
   return (

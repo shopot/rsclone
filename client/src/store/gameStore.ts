@@ -27,6 +27,7 @@ type TypeGameState = {
 
   actions: {
     setGameState: () => void;
+    startGame: () => void;
   };
 };
 
@@ -77,6 +78,9 @@ export const useGameStore = create<TypeGameState>((set, get) => {
     actions: {
       setGameState() {
         socketIOService.emit(TypeSocketEvent.GameUpdateState, { data: {} });
+      },
+      startGame() {
+        socketIOService.emit(TypeSocketEvent.GameStart, { data: {} });
       },
     },
   };
