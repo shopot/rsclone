@@ -114,8 +114,26 @@ export class GameService {
     return this.createResponseObject(payload);
   }
 
-  public getRoomState(roomId: string): TypeServerResponse {
-    return this.createResponseObject({ roomId });
+  public getRoomState(client: Socket): TypeServerResponse {
+    let roomId = '',
+      playerId = '';
+
+    loop1: for (const [key, room] of this.rooms.entries()) {
+      const players = room.getPlayers();
+
+      for (const player of players) {
+        if (player.socket === client) {
+          roomId = room.getRoomId();
+          playerId = key;
+          break loop1;
+        }
+      }
+    }
+
+    return this.createResponseObject({
+      roomId,
+      playerId,
+    });
   }
 
   private getRoomData(roomId: string): TypeServerResponse {
