@@ -45,9 +45,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    const results = this.gameService.getRoomState(data.roomId);
+    const { roomId, playerId } = data;
 
-    this.emitEvent(TypeRoomEvent.GameRooms, results, client);
+    const results = this.gameService.getRoomState(roomId);
+
+    this.emitEvent(TypeRoomEvent.GameRooms, { ...results, playerId }, client);
   }
 
   /**

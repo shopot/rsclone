@@ -16,9 +16,10 @@ type TypeGameState = {
   isOnline: boolean;
   roomId: string;
   roomStatus: TypeRoomStatus;
+  playerId?: string | '';
   hostPlayerId: string;
+  activePlayerId: string;
   players: TypePlayer[];
-  activePlayer: string;
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
   deckCounter: number;
@@ -49,9 +50,10 @@ export const useGameStore = create<TypeGameState>((set) => {
     isOnline: false,
     roomId: '',
     roomStatus: TypeRoomStatus.WaitingForPlayers,
+    playerId: '',
     hostPlayerId: '',
+    activePlayerId: '',
     players: [],
-    activePlayer: '',
     trumpCard: {
       rank: TypeCardRank.RANK_6,
       suit: TypeCardSuit.Clubs,
