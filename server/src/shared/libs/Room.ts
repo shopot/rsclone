@@ -9,7 +9,12 @@ import {
 import { Logger } from '@nestjs/common';
 import { Round } from './Round';
 import { CardDto, DealtDto } from '../dto';
-import { TypePlayerStatus, TypeRoomStatus, TypeCardRank } from '../types';
+import {
+  TypePlayerStatus,
+  TypeRoomStatus,
+  TypeCardRank,
+  TypePlayerRole,
+} from '../types';
 import { Players } from './Players';
 import { GameService } from '../../game/game.service';
 
@@ -135,10 +140,12 @@ export class Room {
 
     // Set attacker as player with lowest trump
     this.attacker = this.findPlayerWithLowestTrump();
+    this.attacker.setPlayerRole(TypePlayerRole.Attacker);
 
     this.activePlayer = this.attacker;
 
     this.defender = this.getNextPlayer();
+    this.defender.setPlayerRole(TypePlayerRole.Defender);
 
     this.round = new Round(this.deck);
 
