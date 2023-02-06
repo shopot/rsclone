@@ -17,7 +17,7 @@ type TypeGameState = {
   roomId: string;
   roomStatus: TypeRoomStatus;
   hostSocketId: string;
-  activePlayerId: string;
+  activeSocketId: string;
   players: TypePlayer[];
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
@@ -51,7 +51,7 @@ export const useGameStore = create<TypeGameState>((set, get) => {
     roomId: '',
     roomStatus: TypeRoomStatus.WaitingForPlayers,
     hostSocketId: '',
-    activePlayerId: '',
+    activeSocketId: '',
     players: [],
     trumpCard: {
       rank: TypeCardRank.RANK_6,

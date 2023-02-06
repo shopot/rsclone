@@ -49,7 +49,7 @@ const GamePage = () => {
     roomId,
     roomStatus,
     hostSocketId,
-    activePlayerId,
+    activeSocketId,
     deckCounter,
     trumpCard,
     players,
@@ -82,7 +82,7 @@ const GamePage = () => {
         <p>Room status: {roomStatus}</p>
         <p>Your socket ID: {socketId}</p>
         <p>Host socket ID: {hostSocketId}</p>
-        <p>Active player ID: {activePlayerId}</p>
+        <p>Active socket ID: {activeSocketId}</p>
         <p>Trump card: {cardToString(trumpCard)}</p>
         <p>Cards in the deck: {deckCounter}</p>
       </section>
