@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import Table from 'rc-table';
 import listify from 'listify';
 import prettyMs from 'pretty-ms';

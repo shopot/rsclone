@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import Table from 'rc-table';
 import { useDataStore } from '../../store/dataStore';
 
