@@ -16,3 +16,16 @@
   flex-wrap: wrap;
   gap: 1em;
 }
+
+.section:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.player:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+.playerCards {
+  display: flex;
+  gap: 5px;
+}
