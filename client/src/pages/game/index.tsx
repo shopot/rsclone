@@ -95,18 +95,18 @@ const GamePage = () => {
               <h3>{player.socketId}</h3>
               <p>player role: {player.playerRole}</p>
               <p>player status: {player.playerStatus}</p>
-              <p>Cards:</p>
               <div>
-                <h4>cards of {player.socketId}</h4>
+                <h4>Cards of {player.socketId}</h4>
                 <div className={styles.playerCards}>
                   {player.cards.map((card, idx) => (
                     <button
                       className="btn"
                       type="button"
                       key={idx}
+                      disabled={activeSocketId !== socketId || activeSocketId !== player.socketId}
                       onClick={() => handleMakeMove(card)}
                     >
-                      {cardToString(card)}
+                      {socketId === player.socketId ? cardToString(card) : '?'}
                     </button>
                   ))}
                 </div>
