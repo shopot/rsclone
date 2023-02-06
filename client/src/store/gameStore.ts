@@ -31,7 +31,7 @@ type TypeGameState = {
   };
 };
 
-export const useGameStore = create<TypeGameState>((set) => {
+export const useGameStore = create<TypeGameState>((set, get) => {
   socketIOService.listen(TypeSocketEvent.Connect, () => {
     set({ isOnline: true });
   });
@@ -62,6 +62,19 @@ export const useGameStore = create<TypeGameState>((set) => {
     deckCounter: 0,
     dealt: [],
     error: '',
+
+    getPlayerCards: (): TypeCard[] => {
+      const playerId = get().playerId;
+      const players = get().players;
+
+      for (const player of players) {
+        if (player.playerId === playerId) {
+          return player.cards;
+        }
+      }
+
+      return [];
+    },
 
     actions: {
       setGameState() {
