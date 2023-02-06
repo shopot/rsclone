@@ -8,7 +8,6 @@ export * from './TypeRoomStatus';
 export * from './TypeCardRank';
 export * from './TypeGameError';
 export * from './TypeCardSuit';
-export * from './TypeGameState';
 export * from './TypePlayerDto';
 export * from './TypePlacedCard';
 export * from './TypeDealt';

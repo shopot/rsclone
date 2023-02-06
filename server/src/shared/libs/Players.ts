@@ -26,13 +26,13 @@ export class Players {
 
   public remove(player: Player): void {
     this.players = this.players.filter((plr) => {
-      return plr.getPlayerId() !== player.getPlayerId();
+      return plr.getSocketId() !== player.getSocketId();
     });
   }
 
-  public getById(playerId: string): Player | undefined {
+  public getById(socketId: string): Player | undefined {
     const player = this.players.find((player) => {
-      return player.getPlayerId() === playerId;
+      return player.getSocketId() === socketId;
     });
 
     return player;
@@ -54,7 +54,7 @@ export class Players {
     }
 
     const idx = this.players.findIndex((plr) => {
-      return plr.getPlayerId() === fromPlayer.getPlayerId();
+      return plr.getSocketId() === fromPlayer.getSocketId();
     });
 
     if (idx === -1) {
@@ -84,7 +84,8 @@ export class Players {
   public getPlayersAsDto(): TypePlayerDto[] {
     return this.players.map((player) => {
       return {
-        playerId: player.getPlayerId(),
+        socketId: player.getSocketId(),
+        playerName: player.getPlayerName(),
         playerRole: player.getPlayerRole(),
         playerStatus: player.getPlayerStatus(),
         cards: player.getCardsAsDto(),

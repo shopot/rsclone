@@ -8,9 +8,8 @@ import { TypeDealt } from './TypeDealt';
 export type TypeServerResponse = {
   roomId?: string;
   roomStatus?: TypeRoomStatus;
-  playerId?: string | '';
-  hostPlayerId?: string; // playerId
-  activePlayerId?: string | '';
+  hostSocketId?: string; // socketId
+  activeSocketId?: string | '';
   players?: TypePlayerDto[];
   trumpCard?: CardDto;
   placedCards?: TypePlacedCard[];

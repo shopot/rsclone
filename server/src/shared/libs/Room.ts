@@ -95,7 +95,8 @@ export class Room {
 
     for (const player of this.players) {
       players.push({
-        playerId: player.getPlayerId(),
+        socketId: player.getSocketId(),
+        playerName: player.getPlayerName(),
         playerRole: player.getPlayerRole(),
         playerStatus: player.getPlayerStatus(),
         cards: player.getCardsAsDto(),
@@ -107,14 +108,6 @@ export class Room {
 
   public getRoomStatus(): TypeRoomStatus {
     return this.roomStatus;
-  }
-
-  public getHostPlayer(): Player {
-    return this.hostPlayer;
-  }
-
-  public getHostPlayerId(): string {
-    return this.hostPlayer.getPlayerId();
   }
 
   /**
@@ -162,7 +155,7 @@ export class Room {
     // this.gameService.setFromServerAttackerSetActive(
     //   this.createPayload({
     //     socketId: this.attacker.getSocketId(),
-    //     playerId: this.attacker.getPlayerId(),
+    //     socketId: this.attacker.getSocketId(),
     //   }),
     // );
   }
@@ -177,7 +170,6 @@ export class Room {
 
     const payload = {
       socketId: this.activePlayer.getSocketId(),
-      playerId: this.activePlayer.getPlayerId(),
       card: cardDto,
     };
 
@@ -222,7 +214,7 @@ export class Room {
     // this.gameService.setFromServerDefenderSetActive(
     // this.createPayload({
     //   socketId: this.activePlayer.getSocketId(),
-    //   playerId: this.activePlayer.getPlayerId(),
+    //   socketId: this.activePlayer.getSocketId(),
     // }),
     // );
   }
@@ -257,7 +249,6 @@ export class Room {
 
     const payload = {
       socketId: this.activePlayer.getSocketId(),
-      playerId: this.activePlayer.getPlayerId(),
       card: cardDto,
     };
 
@@ -308,7 +299,7 @@ export class Room {
     // this.gameService.setFromServerDefenderPickUpCards(
     //   this.createPayload({
     //     socketId: this.activePlayer.getSocketId(),
-    //     playerId: this.activePlayer.getPlayerId(),
+    //     socketId: this.activePlayer.getSocketId(),
     //   }),
     // );
 
@@ -377,7 +368,7 @@ export class Room {
           STARTING_CARDS_NUMBER - balance,
         );
 
-        dealtCardsArray.push(DealtDto.create(player.getPlayerId(), cards));
+        dealtCardsArray.push(DealtDto.create(player.getSocketId(), cards));
 
         player.addCards(cards);
       }
@@ -400,7 +391,6 @@ export class Room {
   public joinRoom(player: Player): boolean {
     const payload = {
       socketId: player.getSocketId(),
-      playerId: player.getPlayerId(),
     };
 
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
@@ -421,11 +411,11 @@ export class Room {
 
   /**
    * Leave player from room, submit event
-   * @param {string} playerId
+   * @param {string} socketId
    * @returns
    */
-  public leaveRoom(playerId: string): void {
-    const leavePlayer = this.players.getById(playerId);
+  public leaveRoom(socketId: string): void {
+    const leavePlayer = this.players.getById(socketId);
 
     if (!leavePlayer) {
       return;
@@ -436,7 +426,7 @@ export class Room {
     // this.gameService.setFromServerLeaveRoomSuccess(
     //   this.createPayload({
     //     socketId: leavePlayer.getSocketId(),
-    //     playerId: leavePlayer.getPlayerId(),
+    //     socketId: leavePlayer.getSocketId(),
     //   }),
     // );
 
@@ -601,7 +591,7 @@ export class Room {
     // this.gameService.setFromServerSendPlayerStatus(
     //   this.createPayload({
     //     socketId: player.getSocketId(),
-    //     playerId: player.getPlayerId(),
+    //     socketId: player.getSocketId(),
     //     playerStatus,
     //   }),
     // );
