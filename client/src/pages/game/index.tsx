@@ -99,11 +99,11 @@ const GamePage = () => {
               <div>
                 <h4>cards of {player.socketId}</h4>
                 <div className={styles.playerCards}>
-                  {player.cards.map((card) => (
+                  {player.cards.map((card, idx) => (
                     <button
                       className="btn"
                       type="button"
-                      key={player.socketId}
+                      key={idx}
                       onClick={() => handleMakeMove(card)}
                     >
                       {cardToString(card)}
