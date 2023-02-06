@@ -1,5 +1,6 @@
 .roomInterface {
   width: fit-content;
+  min-width: 480px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -18,10 +19,11 @@
 
 .roomEntry {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr 90px;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: nowrap;
   gap: 1em;
   padding: 6px 10px;
 
@@ -41,4 +43,15 @@
 
 .roomEntryJoin {
   background-color: #343a46;
+
+  span {
+    color: #fff;
+    opacity: 0.7;
+  }
+
+  &:not(.roomEntryDisabled) {
+    span {
+      opacity: 1;
+    }
+  }
 }

@@ -29,7 +29,7 @@ const RatingPage = () => {
   ];
 
   return (
-    <div>
+    <div className="container">
       <h1 className="heading">Rating Page</h1>
       {isOnline ? (
         <Table

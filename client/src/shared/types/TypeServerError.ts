@@ -1,4 +1,4 @@
-export enum TypeServerError {
+export const enum TypeServerError {
   JoinRoomFailed = 'JoinRoomFailed',
   CreateRoomFailed = 'CreateRoomFailed',
   ChangeNextPlayerFailed = 'ChangeNextPlayerFailed',

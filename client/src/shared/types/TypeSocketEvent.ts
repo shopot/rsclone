@@ -29,4 +29,5 @@ export const enum TypeSocketEvent {
   GameFromServerDealtCardsToPlayers = 'gameFromServerDealtCardsToPlayers',
   GameFromServerJoinRoomSuccess = 'gameFromServerJoinRoomSuccess',
   GameFromServerError = 'gameFromServerError',
+  GameUpdateState = 'GameUpdateState',
 }

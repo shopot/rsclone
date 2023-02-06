@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './TopMenu.m.scss';
 import { NavLink, useParams } from 'react-router-dom';
+import { TypeRoute } from '../../shared/types';
 
 export const TopMenu = () => {
   const params = useParams();
@@ -15,9 +16,9 @@ export const TopMenu = () => {
             className={({ isActive }) =>
               isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
             }
-            to="/"
+            to={TypeRoute.Home}
           >
-            Home page
+            Home
           </NavLink>
         </li>
         <li>
@@ -25,9 +26,9 @@ export const TopMenu = () => {
             className={({ isActive }) =>
               isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
             }
-            to="about"
+            to={TypeRoute.Rating}
           >
-            About page
+            Rating
           </NavLink>
         </li>
         <li>
@@ -35,9 +36,9 @@ export const TopMenu = () => {
             className={({ isActive }) =>
               isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
             }
-            to="game"
+            to={TypeRoute.History}
           >
-            Game page
+            History
           </NavLink>
         </li>
         <li>
@@ -45,29 +46,9 @@ export const TopMenu = () => {
             className={({ isActive }) =>
               isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
             }
-            to="history"
+            to={TypeRoute.About}
           >
-            History page
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            className={({ isActive }) =>
-              isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
-            }
-            to="rating"
-          >
-            Rating page
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            className={({ isActive }) =>
-              isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
-            }
-            to="nothing-here"
-          >
-            Nothing Here
+            About
           </NavLink>
         </li>
       </ul>

@@ -55,8 +55,7 @@ const HomePage = () => {
   };
 
   return (
-    <div>
-      <h1 className="heading">Home Page</h1>
+    <div className="container">
       <div className={styles.roomInterface}>
         <label className={styles.playerName}>
           <span>Player&nbsp;name:</span>
@@ -105,7 +104,7 @@ const HomePage = () => {
           })}
         </ul>
         <button
-          className="btn"
+          className="btn btn-lg"
           type="button"
           disabled={!playerName}
           onClick={handleCreateRoom}
