@@ -26,7 +26,7 @@ export type TypePlayerDto = {
 };
 
 export type TypeResponseRoomData = {
-  roomId?: string;
+  roomId: string;
   roomStatus?: TypeRoomStatus;
   hostPlayerId?: string; // playerId
   players?: TypePlayerDto[];
@@ -38,4 +38,4 @@ export type TypeResponseRoomData = {
   error?: TypeServerError | '';
 };
 
-export type TypeResponseObject = { data: TypeResponseRoomData } | { data: TypeResponseRoomList };
+export type TypeResponseObject = { data: TypeResponseRoomData };

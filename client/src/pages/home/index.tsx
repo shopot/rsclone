@@ -6,21 +6,25 @@ import { TypeRoomStatus } from '../../shared/types/TypeRoomStatus';
 import { MAX_NUMBER_OF_PLAYERS } from '../../shared/constants';
 import featherSprite from 'feather-icons/dist/feather-sprite.svg';
 import styles from './styles.m.scss';
-import { TypeResponseObject, TypeResponseRoomList } from '../../shared/types';
+import { TypeResponseObject } from '../../shared/types';
 import { useRoomsStore } from '../../store/roomsStore';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState('');
   const { rooms, actions } = useRoomsStore();
-  // const [rooms, setRooms] = useState<TypeResponseRoomList>([]);
 
   useEffect(() => {
     // Subscribe to GameCreateRoom event
     socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, ({ data }) => {
       actions.setRooms();
+      navigate(`/game/${data.roomId}`);
+      console.log(data);
+    });
 
-      // navigate(`/game/${data.roomId}`);
+    // Subscribe to GameJoinRoom event
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, ({ data }) => {
+      navigate(`/game/${data.roomId}`);
       console.log(data);
     });
 
