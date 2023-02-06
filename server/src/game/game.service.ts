@@ -83,7 +83,7 @@ export class GameService {
    * @param {Socket} socket
    * @returns {void}
    */
-  public joinRoom(data: GameReceiveDto, socket: Socket) {
+  public joinRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
     const { roomId, playerName } = data;
 
     const room = this.rooms.get(roomId);
@@ -109,7 +109,28 @@ export class GameService {
     return this.createResponseObject({ roomId });
   }
 
+  public startGame(client: Socket): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (room && room.start()) {
+      return this.createResponseObject({ roomId });
+    }
+
+    return this.createResponseObject({
+      roomId,
+      error: TypeGameError.GameStartFailed,
+    });
+  }
+
   public getRoomState(client: Socket): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    return this.createResponseObject({ roomId });
+  }
+
+  private getRoomIdByClientSocket(client: Socket) {
     let roomId = '';
 
     loop1: for (const room of this.rooms.values()) {
@@ -124,7 +145,7 @@ export class GameService {
       }
     }
 
-    return this.createResponseObject({ roomId });
+    return roomId;
   }
 
   /**

@@ -115,12 +115,12 @@ export class Room {
    *
    * @returns
    */
-  public start(): void {
+  public start(): boolean {
     if (
       this.roomStatus !== TypeRoomStatus.WaitingForStart ||
       this.players.totalCount() < 2
     ) {
-      return;
+      return false;
     }
 
     // Game is started
@@ -148,16 +148,7 @@ export class Room {
     this.gameTimeStart = Date.now();
 
     // Send game status for all players
-    this.sendGameStatus();
-
-    // Send status open for attacker
-    // На фронте делается логика для gameAttackerSetActive
-    // this.gameService.setFromServerAttackerSetActive(
-    //   this.createPayload({
-    //     socketId: this.attacker.getSocketId(),
-    //     socketId: this.attacker.getSocketId(),
-    //   }),
-    // );
+    return true;
   }
 
   /**

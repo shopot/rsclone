@@ -42,14 +42,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    */
   @SubscribeMessage(TypeRoomEvent.GameUpdateState)
   handleUpdateState(@ConnectedSocket() client: Socket): void {
-    const results = this.gameService.getRoomState(client);
-
-    const { roomId } = results;
-
-    // Send to all client by roomId
-    if (roomId) {
-      this.emitToRoom(roomId, TypeRoomEvent.GameUpdateState, results);
-    }
+    this.sendStateToClient(client);
   }
 
   /**
@@ -99,6 +92,40 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   // ): void {
   //   this.gameService.setFromClientLeaveRoom(data, client);
   // }
+
+  /**
+   * Start game
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameStart)
+  handleGameStart(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const result = this.gameService.startGame(client);
+
+    this.sendStateToClient(client, result);
+  }
+
+  /**
+   * Send state to client by roomId
+   * @param {Socket} client
+   */
+  private sendStateToClient(
+    client: Socket,
+    payload: TypeServerResponse | null = null,
+  ) {
+    const results = this.gameService.getRoomState(client);
+
+    const { roomId } = results;
+
+    // Send to all client by roomId
+    if (roomId) {
+      this.server.to(roomId).emit(TypeRoomEvent.GameUpdateState, {
+        data: { ...results, ...(payload || {}) },
+      });
+    }
+  }
 
   private emitToRoom(
     roomId: string,

@@ -36,4 +36,5 @@ export enum TypeRoomEvent {
   GameCreateRoom = 'GameCreateRoom',
   GameJoinRoom = 'GameJoinRoom',
   GameLeaveRoom = 'GameLeaveRoom',
+  GameStart = 'GameStart',
 }
