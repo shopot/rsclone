@@ -7,20 +7,19 @@ import { MAX_NUMBER_OF_PLAYERS } from '../../shared/constants';
 import featherSprite from 'feather-icons/dist/feather-sprite.svg';
 import styles from './styles.m.scss';
 import { TypeResponseObject, TypeResponseRoomList } from '../../shared/types';
+import { useRoomsStore } from '../../store/roomsStore';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState('');
-  const [rooms, setRooms] = useState<TypeResponseRoomList>([]);
+  const { rooms, actions } = useRoomsStore();
+  // const [rooms, setRooms] = useState<TypeResponseRoomList>([]);
 
   useEffect(() => {
-    // Subscribe to GameRooms event
-    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameRooms, ({ data }) => {
-      setRooms(data as TypeResponseRoomList);
-    });
-
     // Subscribe to GameCreateRoom event
     socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, ({ data }) => {
+      actions.setRooms();
+
       // navigate(`/game/${data.roomId}`);
       console.log(data);
     });
