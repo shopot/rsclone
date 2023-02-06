@@ -2,6 +2,7 @@ import {
   TypeCardSuit,
   TypeCardRank,
   TypePlayer,
+  TypePlayerRole,
   TypeSocketEvent,
   TypePlacedCard,
   TypeRoomStatus,
@@ -25,10 +26,13 @@ type TypeGameState = {
   dealt: TypeDealt[];
   error: TypeServerError | '';
   isFirstAttackInRound: boolean;
+  activePlayerRole: TypePlayerRole;
 
   actions: {
     setGameState: () => void;
     startGame: () => void;
+    makeAttackingMove: (card: TypeCard) => void;
+    makeDefensiveMove: (card: TypeCard) => void;
   };
 };
 
@@ -65,6 +69,11 @@ export const useGameStore = create<TypeGameState>((set, get) => {
     get isFirstAttackInRound() {
       return get().placedCards.length === 0;
     },
+    get activePlayerRole() {
+      const activePlayer = get().players.find((plr) => plr.socketId === this.activeSocketId);
+
+      return activePlayer ? activePlayer.playerRole : TypePlayerRole.Unknown;
+    },
 
     getPlayerCards: (): TypeCard[] => {
       const socketId = socketIOService.getSocketId();
@@ -85,6 +94,12 @@ export const useGameStore = create<TypeGameState>((set, get) => {
       },
       startGame() {
         socketIOService.emit(TypeSocketEvent.GameStart, { data: {} });
+      },
+      makeAttackingMove(card: TypeCard) {
+        socketIOService.emit(TypeSocketEvent.GameCardOpen, { data: { card } });
+      },
+      makeDefensiveMove(card: TypeCard) {
+        socketIOService.emit(TypeSocketEvent.GameCardClose, { data: { card } });
       },
     },
   };

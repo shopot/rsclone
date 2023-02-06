@@ -1,7 +1,13 @@
 import React, { useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { socketIOService } from '../../shared/api/socketio';
-import { TypeCard, TypeCardRank, TypeCardSuit, TypeRoomStatus } from '../../shared/types';
+import {
+  TypeCard,
+  TypeCardRank,
+  TypeCardSuit,
+  TypeRoomStatus,
+  TypePlayerRole,
+} from '../../shared/types';
 import styles from './styles.m.scss';
 
 const cardToString = (card: TypeCard) => {
@@ -56,6 +62,7 @@ const GamePage = () => {
     dealt,
     placedCards,
     error,
+    activePlayerRole,
   } = useGameStore();
 
   const socketId = socketIOService.getSocketId();
@@ -65,7 +72,11 @@ const GamePage = () => {
   }, [actions]);
 
   const handleMakeMove = (card: TypeCard) => {
-    console.log(card);
+    if (activePlayerRole === TypePlayerRole.Attacker) {
+      actions.makeAttackingMove(card);
+    } else if (activePlayerRole === TypePlayerRole.Defender) {
+      actions.makeDefensiveMove(card);
+    }
   };
 
   const handleStartGame = () => {
@@ -95,18 +106,18 @@ const GamePage = () => {
               <h3>{player.socketId}</h3>
               <p>player role: {player.playerRole}</p>
               <p>player status: {player.playerStatus}</p>
-              <p>Cards:</p>
               <div>
-                <h4>cards of {player.socketId}</h4>
+                <h4>Cards of {player.socketId}</h4>
                 <div className={styles.playerCards}>
                   {player.cards.map((card, idx) => (
                     <button
                       className="btn"
                       type="button"
                       key={idx}
+                      disabled={activeSocketId !== socketId || activeSocketId !== player.socketId}
                       onClick={() => handleMakeMove(card)}
                     >
-                      {cardToString(card)}
+                      {socketId === player.socketId ? cardToString(card) : '?'}
                     </button>
                   ))}
                 </div>
