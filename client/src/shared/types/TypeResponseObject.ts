@@ -27,15 +27,15 @@ export type TypePlayerDto = {
 
 export type TypeResponseRoomData = {
   roomId: string;
-  roomStatus?: TypeRoomStatus;
-  hostPlayerId?: string; // playerId
-  players?: TypePlayerDto[];
-  activePlayerId?: string;
+  roomStatus: TypeRoomStatus;
+  hostPlayerId: string; // playerId
+  players: TypePlayerDto[];
+  activePlayerId: string;
   trumpCard?: TypeCard;
-  placedCards?: TypePlacedCard[];
-  dealt?: TypeDealt[];
-  deckCounter?: number;
-  error?: TypeServerError | '';
+  placedCards: TypePlacedCard[];
+  dealt: TypeDealt[];
+  deckCounter: number;
+  error: TypeServerError | '';
 };
 
 export type TypeResponseObject = { data: TypeResponseRoomData };
