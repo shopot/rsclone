@@ -6,33 +6,36 @@ import GamePage from './game';
 import HistoryPage from './history';
 import HomePage from './home';
 import RatingPage from './rating';
+import { Layout } from '../components/Layout';
 
 const PageRouting = () => {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<HomePage />}
-      />
-      <Route
-        index
-        element={<HomePage />}
-      />
-      <Route
-        path="/about"
-        element={<AboutPage />}
-      />
+      <Route element={<Layout />}>
+        <Route
+          path="/"
+          element={<HomePage />}
+        />
+        <Route
+          index
+          element={<HomePage />}
+        />
+        <Route
+          path="/about"
+          element={<AboutPage />}
+        />
+        <Route
+          path="/history"
+          element={<HistoryPage />}
+        />
+        <Route
+          path="/rating"
+          element={<RatingPage />}
+        />
+      </Route>
       <Route
         path="/game/:roomId"
         element={<GamePage />}
-      />
-      <Route
-        path="/history"
-        element={<HistoryPage />}
-      />
-      <Route
-        path="/rating"
-        element={<RatingPage />}
       />
       <Route
         path="/*"
