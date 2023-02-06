@@ -97,7 +97,7 @@ const GamePage = () => {
               <p>player status: {player.playerStatus}</p>
               <p>Cards:</p>
               <div>
-                <h4>cards of ${player.socketId}</h4>
+                <h4>cards of {player.socketId}</h4>
                 <div className={styles.playerCards}>
                   {player.cards.map((card) => (
                     <button
