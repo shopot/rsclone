@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { socketIOService } from '../../shared/api/socketio';
-import { TypeCard, TypeCardRank, TypeCardSuit } from '../../shared/types';
+import { TypeCard, TypeCardRank, TypeCardSuit, TypeRoomStatus } from '../../shared/types';
 import styles from './styles.m.scss';
 
 const cardToString = (card: TypeCard) => {
@@ -66,6 +66,10 @@ const GamePage = () => {
 
   const handleMakeMove = (card: TypeCard) => {
     console.log(card);
+  };
+
+  const handleStartGame = () => {
+    console.log('TODO: actually start game');
   };
 
   return (
@@ -135,6 +139,20 @@ const GamePage = () => {
             </p>
           </div>
         ))}
+      </section>
+
+      <section className={styles.section}>
+        <div>
+          {roomStatus === TypeRoomStatus.WaitingForStart && socketId === hostSocketId && (
+            <button
+              className="btn"
+              type="button"
+              onClick={handleStartGame}
+            >
+              start game
+            </button>
+          )}
+        </div>
       </section>
     </div>
   );
