@@ -40,10 +40,10 @@ export const useGameStore = create<TypeGameState>((set) => {
     set({ isOnline: false });
   });
 
-  socketIOService.listen<Partial<TypeGameState>>(TypeSocketEvent.GameUpdateState, (state) => {
-    console.log(state);
+  socketIOService.listen<{ data: TypeGameState }>(TypeSocketEvent.GameUpdateState, ({ data }) => {
+    console.log(data);
 
-    set({ ...state });
+    set({ ...data });
   });
 
   return {
