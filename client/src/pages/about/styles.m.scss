@@ -1,0 +1,18 @@
+@use '../../app/styles/constants';
+
+.rulesList {
+  padding: 10px;
+
+  li {
+    padding-inline-start: 1ch;
+  }
+
+  li:not(:last-child) {
+    margin-bottom: 5px;
+  }
+
+  li::marker {
+    content: '•';
+    color: constants.$main-color;
+  }
+}
