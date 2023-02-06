@@ -1,4 +1,4 @@
 export type TypeDealt = {
-  playerId: string;
+  socketId: string;
   count: number;
 };

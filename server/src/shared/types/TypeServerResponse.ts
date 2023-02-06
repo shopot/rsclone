@@ -8,7 +8,7 @@ import { TypeDealt } from './TypeDealt';
 export type TypeServerResponse = {
   roomId?: string;
   roomStatus?: TypeRoomStatus;
-  hostSocketId?: string; // playerId
+  hostSocketId?: string; // socketId
   activeSocketId?: string | '';
   players?: TypePlayerDto[];
   trumpCard?: CardDto;
