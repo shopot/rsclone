@@ -68,7 +68,7 @@ const GamePage = () => {
         {error && <p>Error: {error}</p>}
         <p>Room ID: {roomId}</p>
         <p>Room status: {roomStatus}</p>
-        <p>Host played ID: {hostPlayerId}</p>
+        <p>Host player ID: {hostPlayerId}</p>
         <p>Active player ID: {activePlayerId}</p>
         <p>Trump card: {cardToString(trumpCard)}</p>
         <p>Cards in the deck: {deckCounter}</p>
