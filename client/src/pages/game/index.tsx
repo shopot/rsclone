@@ -87,7 +87,7 @@ const GamePage = () => {
         <h2>players</h2>
         <div className={styles.player}>
           {players.map((player) => (
-            <>
+            <div key={player.socketId}>
               <h3>{player.socketId}</h3>
               <p>player role: {player.playerRole}</p>
               <p>player status: {player.playerStatus}</p>
@@ -95,11 +95,11 @@ const GamePage = () => {
               <div>
                 <h4>cards of ${player.socketId}</h4>
                 <div className={styles.playerCards}>
-                  {player.cards.map((card, idx) => (
+                  {player.cards.map((card) => (
                     <button
                       className="btn"
                       type="button"
-                      key={idx}
+                      key={player.socketId}
                       onClick={() => handleMakeMove(card)}
                     >
                       {cardToString(card)}
@@ -107,15 +107,15 @@ const GamePage = () => {
                   ))}
                 </div>
               </div>
-            </>
+            </div>
           ))}
         </div>
       </section>
 
       <section className={styles.section}>
         <h2>dealt cards</h2>
-        {dealt.map((player, idx) => (
-          <p key={idx}>
+        {dealt.map((player) => (
+          <p key={player.socketId}>
             {player.socketId}: {player.count}
           </p>
         ))}
