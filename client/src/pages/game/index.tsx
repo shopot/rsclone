@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { TypeCard, TypeCardRank, TypeCardSuit } from '../../shared/types';
 import styles from './styles.m.scss';
@@ -43,6 +43,7 @@ const cardToString = (card: TypeCard) => {
 
 const GamePage = () => {
   const {
+    actions,
     isOnline,
     roomId,
     roomStatus,
@@ -56,6 +57,10 @@ const GamePage = () => {
     placedCards,
     error,
   } = useGameStore();
+
+  useEffect(() => {
+    actions.setGameState();
+  }, [actions]);
 
   const handleMakeMove = (card: TypeCard) => {
     console.log(card);
