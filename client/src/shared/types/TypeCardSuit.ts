@@ -1,4 +1,4 @@
-export enum TypeCardSuit {
+export const enum TypeCardSuit {
   Clubs = 'clubs', // ♣
   Spades = 'spades', // ♠
   Hearts = 'hearts', // ♥
