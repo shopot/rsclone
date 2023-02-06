@@ -60,7 +60,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const results = this.gameService.createRoom(data, client);
 
-    this.emitEvent(TypeRoomEvent.GameCreateRoom, results);
+    this.emitEvent(TypeRoomEvent.GameCreateRoom, results, client);
   }
 
   /**
@@ -74,7 +74,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const results = this.gameService.joinRoom(data, client);
 
-    this.emitEvent(TypeRoomEvent.GameJoinRoom, results);
+    this.emitEvent(TypeRoomEvent.GameJoinRoom, results, client);
   }
 
   // @SubscribeMessage(TypeRoomEvent.GameLeaveRoom)
@@ -93,12 +93,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   private emitEvent(
     type: TypeRoomEvent,
     payload: TypeServerResponse | TypeRoomList,
+    client: Socket | null = null,
   ): void {
     const response = { data: payload };
 
     Logger.debug(type);
     Logger.debug(response);
 
-    this.server.emit(type, response);
+    if (client !== null) {
+      client.emit(type, response);
+    } else {
+      this.server.emit(type, response);
+    }
   }
 }
