@@ -29,7 +29,7 @@ export type TypePlayerDto = {
 export type TypeResponseRoomData = {
   roomId: string;
   roomStatus: TypeRoomStatus;
-  hostPlayerId: string;
+  hostSocketId: string;
   activePlayerId: string;
   players: TypePlayerDto[];
   trumpCard?: TypeCard;

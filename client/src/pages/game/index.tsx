@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { socketIOService } from '../../shared/api/socketio';
 import { TypeCard, TypeCardRank, TypeCardSuit } from '../../shared/types';
 import styles from './styles.m.scss';
 
@@ -47,8 +48,7 @@ const GamePage = () => {
     isOnline,
     roomId,
     roomStatus,
-    socketId,
-    hostPlayerId,
+    hostSocketId,
     activePlayerId,
     deckCounter,
     trumpCard,
@@ -57,6 +57,8 @@ const GamePage = () => {
     placedCards,
     error,
   } = useGameStore();
+
+  const socketId = socketIOService.getSocketId();
 
   useEffect(() => {
     actions.setGameState();
@@ -75,7 +77,7 @@ const GamePage = () => {
         <p>Room ID: {roomId}</p>
         <p>Room status: {roomStatus}</p>
         <p>Your socket ID: {socketId}</p>
-        <p>Host player ID: {hostPlayerId}</p>
+        <p>Host socket ID: {hostSocketId}</p>
         <p>Active player ID: {activePlayerId}</p>
         <p>Trump card: {cardToString(trumpCard)}</p>
         <p>Cards in the deck: {deckCounter}</p>
