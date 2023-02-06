@@ -8,3 +8,4 @@ export * from './TypePlayerStatus';
 export * from './TypeRoomStatus';
 export * from './TypeServerError';
 export * from './TypeSocketEvent';
+export * from './TypeRoute';

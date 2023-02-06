@@ -7,13 +7,14 @@ import HistoryPage from './history';
 import HomePage from './home';
 import RatingPage from './rating';
 import { Layout } from '../components/Layout';
+import { TypeRoute } from '../shared/types';
 
 const PageRouting = () => {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route
-          path="/"
+          path={TypeRoute.Home}
           element={<HomePage />}
         />
         <Route
@@ -21,24 +22,24 @@ const PageRouting = () => {
           element={<HomePage />}
         />
         <Route
-          path="/about"
+          path={TypeRoute.About}
           element={<AboutPage />}
         />
         <Route
-          path="/history"
+          path={TypeRoute.History}
           element={<HistoryPage />}
         />
         <Route
-          path="/rating"
+          path={TypeRoute.Rating}
           element={<RatingPage />}
         />
       </Route>
       <Route
-        path="/game/:roomId"
+        path={TypeRoute.Game}
         element={<GamePage />}
       />
       <Route
-        path="/*"
+        path={TypeRoute.All}
         element={<NotFound />}
       />
     </Routes>
