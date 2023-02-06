@@ -49,7 +49,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
 
     const results = this.gameService.getRoomState(roomId);
 
-    this.emitEvent(TypeRoomEvent.GameRooms, { ...results, playerId }, client);
+    this.emitEvent(
+      TypeRoomEvent.GameUpdateState,
+      { ...results, playerId },
+      client,
+    );
   }
 
   /**
