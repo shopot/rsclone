@@ -161,25 +161,10 @@ export class Room {
   /**
    * Give one card from attacker
    */
-  public setAttackerOpen(cardDto: CardDto): void {
-    if (!this.validateActivePlayer(this.attacker)) {
-      throw new Error('Players is invalid. Something went wrong.');
-    }
-
-    const payload = {
-      socketId: this.activePlayer.getSocketId(),
-      card: cardDto,
-    };
-
+  public setAttackerOpen(cardDto: CardDto): boolean {
     // Add the card & check it
     if (!this.round.attack(cardDto)) {
-      // Something went wrong, motherfucker
-      // this.gameService.setFromServerError(
-      //   TypeServerError.OpenCardFailed,
-      //   this.createPayload({ ...payload }),
-      // );
-
-      return;
+      return false;
     }
 
     // Remove card from player cards array
@@ -188,33 +173,17 @@ export class Room {
     // Reset pass counter
     this.passCounter = 0;
 
-    // Card added successfully, send message to client
-    // this.gameService.setFromServerAttackerOpenSuccess(
-    //   this.createPayload({ ...payload }),
-    // );
-
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
 
-      // Move turn to defender
-      return this.setAttackerDone();
+      // TODO: set next attacker there
     }
-  }
 
-  /**
-   * Move turn to defender from attacker
-   * Emit event: gameFromServerDefenderSetActive
-   */
-  public setAttackerDone(): void {
+    // Move turn to defender from attacker
     this.setActivePlayer(this.defender);
 
-    // this.gameService.setFromServerDefenderSetActive(
-    // this.createPayload({
-    //   socketId: this.activePlayer.getSocketId(),
-    //   socketId: this.activePlayer.getSocketId(),
-    // }),
-    // );
+    return true;
   }
 
   /**

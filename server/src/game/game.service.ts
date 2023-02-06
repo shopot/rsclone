@@ -1,3 +1,4 @@
+import { CardDto } from './../shared/dto/card.dto';
 import { TypeGameError } from './../shared/types/TypeGameError';
 import { TypeRoomList } from './../shared/types/TypeRoomList';
 import {
@@ -6,6 +7,7 @@ import {
   TypeRoomStatus,
   TypeCardRank,
   TypeCardSuit,
+  TypeCardDto,
 } from './../shared/types';
 import { Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
@@ -121,6 +123,21 @@ export class GameService {
     return this.createResponseObject({
       roomId,
       error: TypeGameError.GameStartFailed,
+    });
+  }
+
+  public setCardOpen(client: Socket, card: TypeCardDto): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (room && room.setAttackerOpen(card)) {
+      return this.createResponseObject({ roomId });
+    }
+
+    return this.createResponseObject({
+      roomId,
+      error: TypeGameError.OpenCardFailed,
     });
   }
 
