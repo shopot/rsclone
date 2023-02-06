@@ -21,7 +21,6 @@ export class GameScene extends Phaser.Scene {
   deckCards = 36 - this.playersCards.flat().length - this.beaten;
   players = 4;
   attack: boolean[];
-  myTable!: Phaser.GameObjects.Graphics;
   piles: Card[][] = []; // стопочек на столе
   playersCardsSprites: Card[][] = [];
   tableSizes: { width: number; height: number; startX: number }[] = [];
@@ -46,11 +45,14 @@ export class GameScene extends Phaser.Scene {
     this.createBeaten();
   }
 
-  highlightCards(status: boolean) {
+  highlightCards() {
     //вызвать, когда мой статут фолс и кинута карта (pile имеет нечетные подмассивы)
     //подсветит, чем можно бить по возрастанию
     //когда мой статус тру и у меня есть карты того же значения, что и на столе
     //подсветит такие же карты, чтобы подкинуть
+    [...this.playersCardsSprites].flat().forEach((card) => card.removeHighlight());
+    const targets = [this.playersCardsSprites[0][5], this.playersCardsSprites[0][10]];
+    targets.forEach((card) => card.highlight());
   }
 
   createBg() {
@@ -124,6 +126,9 @@ export class GameScene extends Phaser.Scene {
     });
     // eslint-disable-next-line @typescript-eslint/unbound-method
     this.input.on('gameobjectdown', this.onCardClick, this);
+
+    //временно подсвечиваю
+    this.highlightCards();
   }
 
   onCardClick(pointer: PointerEvent, card: Card) {
@@ -172,6 +177,7 @@ export class GameScene extends Phaser.Scene {
         pile.forEach((card, cardInd) => card.redrawTable(cardInd, piledInd, this.piles.length));
       });
     }
+    // this.highlightCards();
   }
 
   createCardsText() {

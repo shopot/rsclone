@@ -1,24 +1,22 @@
 import { config } from '../index';
 
 export class Button {
-  width: number;
-  height: number;
-  rounded: number;
-  coordX: number;
-  coordY: number;
-  bgColors: { active: number; inactive: number; focus: number };
   scene: Phaser.Scene;
   btnShape: Phaser.GameObjects.Graphics;
   btnText: Phaser.GameObjects.Text;
+  bgColors: { active: number; inactive: number; focus: number };
   text: string[];
   textColors: { active: number; inactive: number };
+  params: { x: number; y: number; width: number; height: number; rounded: number };
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
-    this.coordX = config.playersTables[1][0].startX + config.playersTables[1][0].width + 30;
-    this.coordY = config.height - 100;
-    this.width = 200;
-    this.height = 60;
-    this.rounded = 30;
+    this.params = {
+      x: config.playersTables[1][0].startX + config.playersTables[1][0].width + 30,
+      y: config.height - 100,
+      width: 200,
+      height: 60,
+      rounded: 30,
+    };
     this.bgColors = { active: 0x68ff00, inactive: 0x666666, focus: 0xcdff00 };
     this.textColors = { active: 0xfff, inactive: 0x000000 };
     this.text = ['Start', 'Take', '?']; // какие названия по англ?
@@ -27,7 +25,7 @@ export class Button {
     this.drawButtonShape(this.bgColors.active);
 
     this.btnText = this.scene.add
-      .text(this.coordX + 100, this.coordY + 30, this.text[0], {
+      .text(this.params.x + 100, this.params.y + 30, this.text[0], {
         font: '30px',
         color: '#fff',
         strokeThickness: 1,
@@ -50,8 +48,20 @@ export class Button {
       .clear()
       .fillStyle(color, 0.3)
       .lineStyle(3, color, 1)
-      .fillRoundedRect(this.coordX, this.coordY, this.width, this.height, this.rounded)
-      .strokeRoundedRect(this.coordX, this.coordY, this.width, this.height, this.rounded);
+      .fillRoundedRect(
+        this.params.x,
+        this.params.y,
+        this.params.width,
+        this.params.height,
+        this.params.rounded,
+      )
+      .strokeRoundedRect(
+        this.params.x,
+        this.params.y,
+        this.params.width,
+        this.params.height,
+        this.params.rounded,
+      );
   }
 
   changeText(color: number, text: string) {

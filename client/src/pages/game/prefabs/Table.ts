@@ -10,13 +10,14 @@ type TableParams = {
 
 export class Table extends Phaser.GameObjects.Graphics {
   constructor(scene: Phaser.Scene, params: TableParams) {
+    const { x, y, width, height, rounded } = params;
     super(scene);
     this.scene = scene;
 
     this.fillStyle(config.tableColor[0], 0.6)
       .lineStyle(0.5, config.tableBorderColor[0], 0.5)
-      .fillRoundedRect(params.x, params.y, params.width, params.height, params.rounded)
-      .strokeRoundedRect(params.x, params.y, params.width, params.height, params.rounded);
+      .fillRoundedRect(x, y, width, height, rounded)
+      .strokeRoundedRect(x, y, width, height, rounded);
 
     this.scene.add.existing(this);
   }

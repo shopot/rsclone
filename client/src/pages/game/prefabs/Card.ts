@@ -3,11 +3,18 @@ import { config } from '../index';
 
 export class Card extends Phaser.GameObjects.Sprite {
   value: string;
+  colors: { primaryColor: Phaser.Display.Color; secondaryColor: Phaser.Display.Color };
+  highlighted: boolean;
   constructor(scene: Phaser.Scene, x: number, y: number, texture = 'cards', value: string) {
     super(scene, x, y, texture, 'cardBack');
     this.scene = scene;
     this.value = value;
+    this.highlighted = false;
     this.init();
+    this.colors = {
+      primaryColor: Phaser.Display.Color.ValueToColor(0xffffff),
+      secondaryColor: Phaser.Display.Color.ValueToColor(0xeeee76),
+    };
   }
   init() {
     this.scene.add.existing(this);
@@ -30,6 +37,31 @@ export class Card extends Phaser.GameObjects.Sprite {
       delay: 300,
       duration: 500,
     });
+  }
+
+  highlight() {
+    this.highlighted = true;
+    this.scene.tweens.addCounter({
+      from: 1,
+      to: 100,
+      ease: 'Linear',
+      duration: 500,
+      onUpdate: (tween) => {
+        const value = tween.getValue();
+        const colorObj = Phaser.Display.Color.Interpolate.ColorWithColor(
+          this.colors.primaryColor,
+          this.colors.secondaryColor,
+          100,
+          value,
+        );
+        const color = Phaser.Display.Color.GetColor(colorObj.r, colorObj.g, colorObj.b);
+        this.setTint(color);
+      },
+    });
+  }
+
+  removeHighlight() {
+    this.setTint(0xffffff);
   }
 
   // setAlive(value: boolean) {
