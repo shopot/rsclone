@@ -33,7 +33,7 @@ const HistoryPage = () => {
   ];
 
   return (
-    <div>
+    <div className="container">
       <h1 className="heading">History Page</h1>
       {isOnline ? (
         <Table
