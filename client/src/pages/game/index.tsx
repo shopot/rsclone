@@ -47,11 +47,11 @@ const GamePage = () => {
     roomId,
     roomStatus,
     hostPlayerId,
-    activePlayerId,
+    activePlayer,
     deckCounter,
     trumpCard,
     players,
-    dealt
+    dealt,
     placedCards,
     error,
   } = useGameStore();
@@ -69,7 +69,7 @@ const GamePage = () => {
         <p>Room ID: {roomId}</p>
         <p>Room status: {roomStatus}</p>
         <p>Host played ID: {hostPlayerId}</p>
-        <p>Active player ID: {activePlayerId}</p>
+        <p>Active player ID: {activePlayer}</p>
         <p>Trump card: {cardToString(trumpCard)}</p>
         <p>Cards in the deck: {deckCounter}</p>
       </section>
@@ -105,8 +105,10 @@ const GamePage = () => {
 
       <section className={styles.section}>
         <h2>dealt cards</h2>
-        {dealt.map((player) => (
-          <p>{player.playerId}: {player.count}</p>
+        {dealt.map((player, idx) => (
+          <p key={idx}>
+            {player.playerId}: {player.count}
+          </p>
         ))}
       </section>
 

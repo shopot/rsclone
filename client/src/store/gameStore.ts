@@ -6,18 +6,24 @@ import {
   TypePlacedCard,
   TypeRoomStatus,
   TypeCard,
+  TypeDealt,
+  TypeServerError,
 } from '../shared/types';
 import { create } from 'zustand';
 import { socketIOService } from '../shared/api/socketio';
 
 type TypeGameState = {
   isOnline: boolean;
+  roomId: string;
   roomStatus: TypeRoomStatus;
   hostPlayerId: string;
   players: TypePlayer[];
   activePlayer: string;
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
+  deckCounter: number;
+  dealt: TypeDealt[];
+  error: TypeServerError | '';
 
   actions: {
     setGameState: () => void;
@@ -41,6 +47,7 @@ export const useGameStore = create<TypeGameState>((set) => {
 
   return {
     isOnline: false,
+    roomId: '',
     roomStatus: TypeRoomStatus.WaitingForPlayers,
     hostPlayerId: '',
     players: [],
@@ -50,6 +57,9 @@ export const useGameStore = create<TypeGameState>((set) => {
       suit: TypeCardSuit.Clubs,
     },
     placedCards: [],
+    deckCounter: 0,
+    dealt: [],
+    error: '',
 
     actions: {
       setGameState() {
