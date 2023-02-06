@@ -114,6 +114,10 @@ export class GameService {
     return this.createResponseObject(payload);
   }
 
+  public getRoomState(roomId: string): TypeServerResponse {
+    return this.createResponseObject({ roomId });
+  }
+
   private getRoomData(roomId: string): TypeServerResponse {
     if (!this.rooms.has(roomId)) {
       return {};
