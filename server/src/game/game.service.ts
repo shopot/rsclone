@@ -111,6 +111,25 @@ export class GameService {
     return this.createResponseObject({ roomId });
   }
 
+  public setLeaveRoom(client: Socket): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: TypeGameError.JoinRoomFailed,
+      });
+    }
+
+    client.leave(roomId);
+
+    room.leaveRoom(client.id);
+
+    return this.createResponseObject({ roomId });
+  }
+
   public startGame(client: Socket): TypeServerResponse {
     const roomId = this.getRoomIdByClientSocket(client);
 
@@ -260,26 +279,6 @@ export class GameService {
   //   socket
   //     .to(room.getRoomId())
   //     .emit(TypeRoomEvent.gameFromServerChatMessage, { data: message });
-  // }
-
-  // async setFromClientLeaveRoom(data: GameReceiveDto, socket: Socket) {
-  //   console.log('setLeaveRoom', data);
-  //   const room = this.rooms.get(data.roomId);
-  //   if (!room) {
-  //     return false;
-  //   }
-
-  //   const player = room.getPlayers().getById(data.socketId);
-  //   if (!player) {
-  //     return false;
-  //   }
-  //   if (socket.id !== player.getSocketId()) {
-  //     return false;
-  //   }
-
-  //   socket.leave(room.getRoomId());
-
-  //   room.leaveRoom(data.socketId);
   // }
 
   // async setFromClientOpenRoom(data: GameReceiveDto, socketId: string) {
