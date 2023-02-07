@@ -108,7 +108,7 @@ export class GameService {
     return this.createResponseObject({ roomId });
   }
 
-  public setLeaveRoom(client: Socket): TypeServerResponse {
+  public setLeaveRoom(client: Socket): TypeServerResponse | null {
     const roomId = this.getRoomIdByClientSocket(client);
 
     const room = this.getRoomById(roomId);
@@ -123,6 +123,12 @@ export class GameService {
     client.leave(roomId);
 
     room.leaveRoom(client.id);
+
+    if (room.getPlayersCount() === 0) {
+      this.rooms.delete(roomId);
+
+      return null;
+    }
 
     return this.createResponseObject({ roomId });
   }
