@@ -71,7 +71,7 @@ export class Player {
 
   public lostCard(cardDto: CardDto) {
     this.cards = this.cards.filter(
-      (card) => card.rank !== cardDto.rank && card.suit !== cardDto.suit,
+      (card) => card.rank !== cardDto.rank || card.suit !== cardDto.suit,
     );
   }
 }
