@@ -30,6 +30,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
+    if (this.gameService.hasPlayerInRoomByClientSocket(client)) {
+      this.handleGameLeaveRoom(client);
+    }
+
     Logger.debug(`Client disconnect  ${client.id}`);
   }
 
