@@ -127,7 +127,7 @@ const GamePage = () => {
         <div className={styles.player}>
           {players.map((player) => (
             <div key={player.socketId}>
-              <h3 className={socketId === activeSocketId ? styles.playerActive : ''}>
+              <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
                 {player.socketId}
               </h3>
               <p>player role: {player.playerRole}</p>
@@ -166,13 +166,9 @@ const GamePage = () => {
         <h2>placed cards</h2>
         {placedCards.map((placedCard, idx) => (
           <div key={idx}>
-            <p>placed attacker card {idx}: cardToString(placedCard.attacker)</p>
             <p>
-              {placedCard.defender && (
-                <>
-                  placed defender card {idx}: {cardToString(placedCard.defender)}
-                </>
-              )}
+              placed card pair {idx + 1}: {cardToString(placedCard.attacker)}
+              {placedCard.defender && ` ${cardToString(placedCard.defender)}`}
             </p>
           </div>
         ))}
