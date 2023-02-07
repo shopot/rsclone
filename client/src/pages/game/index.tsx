@@ -113,7 +113,9 @@ const GamePage = () => {
         {error && <p>Error: {error}</p>}
         <p>Room ID: {roomId}</p>
         <p>Room status: {roomStatus}</p>
-        <p>Your socket ID: {socketId}</p>
+        <p className={socketId === activeSocketId ? styles.playerActive : ''}>
+          Your socket ID: {socketId}
+        </p>
         <p>Host socket ID: {hostSocketId}</p>
         <p>Active socket ID: {activeSocketId}</p>
         <p>Trump card: {cardToString(trumpCard)}</p>
@@ -125,7 +127,9 @@ const GamePage = () => {
         <div className={styles.player}>
           {players.map((player) => (
             <div key={player.socketId}>
-              <h3>{player.socketId}</h3>
+              <h3 className={socketId === activeSocketId ? styles.playerActive : ''}>
+                {player.socketId}
+              </h3>
               <p>player role: {player.playerRole}</p>
               <p>player status: {player.playerStatus}</p>
               <div>

@@ -1,3 +1,5 @@
+@use '../../app/styles/constants';
+
 .buttonsDiv {
   display: flex;
   flex-direction: column;
@@ -33,4 +35,8 @@
 .uiButtons {
   display: flex;
   gap: 0.5em;
+}
+
+.playerActive {
+  color: constants.$main-color;
 }
