@@ -16,7 +16,6 @@ import {
   TypeCardRank,
   TypePlayerRole,
   TypePlacedCard,
-  TypePlayerDto,
   TypeCardSuit,
 } from '../types';
 import { Players } from './Players';
@@ -100,22 +99,6 @@ export class Room {
 
   public getPlayers(): Players {
     return this.players;
-  }
-
-  public getPlayersAsDto(): TypePlayerDto[] {
-    const players: TypePlayerDto[] = [];
-
-    for (const player of this.players) {
-      players.push({
-        socketId: player.getSocketId(),
-        playerName: player.getPlayerName(),
-        playerRole: player.getPlayerRole(),
-        playerStatus: player.getPlayerStatus(),
-        cards: player.getCardsAsDto(),
-      });
-    }
-
-    return players;
   }
 
   public getRoomStatus(): TypeRoomStatus {
