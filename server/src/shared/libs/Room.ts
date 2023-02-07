@@ -155,6 +155,8 @@ export class Room {
    * Give one card from attacker
    */
   public setAttackerOpen(cardDto: TypeCard): boolean {
+    this.isDealtEnabled = false;
+
     // Add the card & check it
     if (!this.round.attack(cardDto)) {
       return false;
