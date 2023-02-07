@@ -41,7 +41,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    * Send room state to client
    */
   @SubscribeMessage(TypeRoomEvent.GameUpdateState)
-  handleUpdateState(@ConnectedSocket() client: Socket): void {
+  handleGameUpdateState(@ConnectedSocket() client: Socket): void {
     this.sendStateToClient(client);
   }
 
@@ -62,7 +62,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    * @returns
    */
   @SubscribeMessage(TypeRoomEvent.GameCreateRoom)
-  handleCreateRoom(
+  handleGameCreateRoom(
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
@@ -76,7 +76,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    * @param {GameReceiveDto} data
    */
   @SubscribeMessage(TypeRoomEvent.GameJoinRoom)
-  handleFromClientJoinRoom(
+  handleGameJoinRoom(
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
@@ -85,13 +85,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     this.emitEvent(TypeRoomEvent.GameJoinRoom, results, client);
   }
 
-  // @SubscribeMessage(TypeRoomEvent.GameLeaveRoom)
-  // handleFromClientLeaveRoom(
-  //   @MessageBody('data') data: GameReceiveDto,
-  //   @ConnectedSocket() client: Socket,
-  // ): void {
-  //   this.gameService.setFromClientLeaveRoom(data, client);
-  // }
+  @SubscribeMessage(TypeRoomEvent.GameLeaveRoom)
+  handleGameLeaveRoom(@ConnectedSocket() client: Socket): void {
+    const results = this.gameService.setLeaveRoom(client);
+
+    this.sendStateToClient(client, results);
+  }
 
   /**
    * Start game
@@ -102,9 +101,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    const result = this.gameService.startGame(client);
+    const results = this.gameService.startGame(client);
 
-    this.sendStateToClient(client, result);
+    this.sendStateToClient(client, results);
   }
 
   /**
@@ -116,9 +115,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     @MessageBody('data') { card }: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    const result = this.gameService.setCardOpen(client, card);
+    const results = this.gameService.setCardOpen(client, card);
 
-    this.sendStateToClient(client, result);
+    this.sendStateToClient(client, results);
   }
 
   /**
@@ -130,16 +129,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     @MessageBody('data') { card }: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    const result = this.gameService.setCardClose(client, card);
+    const results = this.gameService.setCardClose(client, card);
 
-    this.sendStateToClient(client, result);
+    this.sendStateToClient(client, results);
   }
 
   @SubscribeMessage(TypeRoomEvent.GameAttackerPass)
   handlerGameAttackerPass(@ConnectedSocket() client: Socket): void {
-    const result = this.gameService.setAttackerPass(client);
+    const results = this.gameService.setAttackerPass(client);
 
-    this.sendStateToClient(client, result);
+    this.sendStateToClient(client, results);
   }
 
   /**
