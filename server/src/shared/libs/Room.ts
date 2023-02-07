@@ -478,7 +478,11 @@ export class Room {
    * @returns {Array<TypePlacedCard>}
    */
   public getPlacedCards(): TypePlacedCard[] {
-    return this.round.getRoundCardsAsPlaced();
+    if (this.round instanceof Round) {
+      return this.round.getRoundCardsAsPlaced();
+    }
+
+    return [];
   }
 
   /**
