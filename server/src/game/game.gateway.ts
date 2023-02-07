@@ -42,7 +42,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    */
   @SubscribeMessage(TypeRoomEvent.GameUpdateState)
   handleGameUpdateState(@ConnectedSocket() client: Socket): void {
-    this.sendStateToClient(client);
+    this.sendStateToClientByClientSocket(client);
   }
 
   /**
@@ -99,7 +99,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     const results = this.gameService.setLeaveRoom(client);
 
     if (results !== null) {
-      this.sendStateToClient(client, results);
+      const { roomId } = results;
+      this.sendStateToClientByRoomId(roomId, results);
     }
 
     this.handleGetRooms();
@@ -116,7 +117,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const results = this.gameService.startGame(client);
 
-    this.sendStateToClient(client, results);
+    this.sendStateToClientByClientSocket(client, results);
   }
 
   /**
@@ -130,7 +131,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const results = this.gameService.setCardOpen(client, card);
 
-    this.sendStateToClient(client, results);
+    this.sendStateToClientByClientSocket(client, results);
   }
 
   /**
@@ -144,32 +145,46 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const results = this.gameService.setCardClose(client, card);
 
-    this.sendStateToClient(client, results);
+    this.sendStateToClientByClientSocket(client, results);
   }
 
   @SubscribeMessage(TypeRoomEvent.GameAttackerPass)
   handlerGameAttackerPass(@ConnectedSocket() client: Socket): void {
     const results = this.gameService.setAttackerPass(client);
 
-    this.sendStateToClient(client, results);
+    this.sendStateToClientByClientSocket(client, results);
+  }
+
+  @SubscribeMessage(TypeRoomEvent.GamePickUpCards)
+  handlerGamePickUpCards(@ConnectedSocket() client: Socket): void {
+    const results = this.gameService.setDefenderPickUpCards(client);
+
+    this.sendStateToClientByClientSocket(client, results);
+  }
+
+  private sendStateToClientByClientSocket(
+    client: Socket,
+    payload: TypeServerResponse | null = null,
+  ): void {
+    const roomId = this.gameService.getRoomIdByClientSocket(client);
+
+    return this.sendStateToClientByRoomId(roomId, payload);
   }
 
   /**
    * Send state to client by roomId
    * @param {Socket} client
    */
-  private sendStateToClient(
-    client: Socket,
+  private sendStateToClientByRoomId(
+    roomId: string,
     payload: TypeServerResponse | null = null,
-  ) {
-    const results = this.gameService.getRoomState(client);
-
-    const { roomId } = results;
-
+  ): void {
     // Send to all client by roomId
     if (roomId) {
+      const roomState = this.gameService.getRoomState(roomId);
+
       const response = {
-        data: { ...results, ...(payload || {}) },
+        data: { ...roomState, ...(payload || {}) },
       };
 
       this.server.to(roomId).emit(TypeRoomEvent.GameUpdateState, response);
@@ -177,14 +192,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
       Logger.debug(TypeRoomEvent.GameUpdateState);
       Logger.debug(response);
     }
-  }
-
-  private emitToRoom(
-    roomId: string,
-    type: TypeRoomEvent,
-    payload: TypeServerResponse,
-  ): void {
-    this.server.to(roomId).emit(type, { data: payload });
   }
 
   /**
@@ -207,5 +214,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     } else {
       this.server.emit(type, response);
     }
+  }
+
+  private getRoomIdByClientSocket(client: Socket): string {
+    return this.gameService.getRoomIdByClientSocket(client);
   }
 }

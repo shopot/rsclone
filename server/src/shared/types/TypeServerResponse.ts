@@ -6,7 +6,7 @@ import { TypePlacedCard } from './TypePlacedCard';
 import { TypeRoomStatus } from './TypeRoomState';
 
 export type TypeServerResponse = {
-  roomId?: string;
+  roomId: string;
   roomStatus?: TypeRoomStatus;
   hostSocketId?: string; // socketId
   activeSocketId?: string | '';

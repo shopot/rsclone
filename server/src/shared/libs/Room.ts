@@ -214,6 +214,7 @@ export class Room {
       this.updateGameStatus();
 
       this.setActivePlayer(this.getNextPlayer());
+
       this.startNextRound();
     }
 
@@ -231,25 +232,27 @@ export class Room {
 
     if (this.passCounter === this.passCounterMaxValue) {
       // Defender becomes attacker
-      this.attacker = this.defender;
-      this.attacker.setPlayerRole(TypePlayerRole.Attacker);
-      this.setActivePlayer(this.attacker);
-      this.defender = this.getNextPlayer();
-      this.defender.setPlayerRole(TypePlayerRole.Defender);
+      this.setActivePlayer(this.defender);
 
       this.startNextRound();
     } else {
       do {
         this.attacker = this.getNextPlayer();
+
         this.setActivePlayer(this.attacker);
       } while (this.attacker.getPlayerRole() === TypePlayerRole.Defender);
+
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     }
 
     return true;
   }
 
-  public defenderPickUpCards(): void {
+  /**
+   * Defender as the active player get all cards
+   * Start next round with next player
+   */
+  public setDefenderPickUpCards(): void {
     this.activePlayer.addCards(this.round.getRoundCards());
 
     this.setActivePlayer(this.getNextPlayer());
@@ -258,11 +261,13 @@ export class Room {
   }
 
   private startNextRound(): void {
+    this.setNewAttackerAndRoles();
+
     // Dealt cards to user
     this.dealtCards();
 
-    this.attacker = this.activePlayer;
-    this.defender = this.getNextPlayer();
+    // Restart round
+    this.round.restart();
 
     this.log(`Room #${this.roomId} - Start next round`);
   }
@@ -277,6 +282,18 @@ export class Room {
     }
 
     this.activePlayer = player;
+  }
+
+  /**
+   * Set new attacker from activePlayer.
+   * Set new roles for defender and attacker
+   */
+  private setNewAttackerAndRoles(): void {
+    this.attacker = this.activePlayer;
+    this.attacker.setPlayerRole(TypePlayerRole.Attacker);
+
+    this.defender = this.getNextPlayer();
+    this.defender.setPlayerRole(TypePlayerRole.Defender);
   }
 
   /**
