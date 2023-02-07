@@ -41,4 +41,5 @@ export const enum TypeSocketEvent {
   GameCardOpen = 'GameCardOpen',
   GameCardClose = 'GameCardClose',
   GameAttackerPass = 'GameAttackerPass',
+  GamePickupCards = 'GamePickupCards',
 }

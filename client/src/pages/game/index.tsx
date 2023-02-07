@@ -101,6 +101,10 @@ const GamePage = () => {
     actions.attackerPass();
   };
 
+  const handleDefenderTake = () => {
+    actions.defenderTake();
+  };
+
   return (
     <div>
       <section className={styles.section}>
@@ -190,6 +194,7 @@ const GamePage = () => {
           </button>
           {roomStatus === TypeRoomStatus.GameInProgress &&
             socketId === activeSocketId &&
+            !isFirstAttackInRound &&
             activePlayerRole === TypePlayerRole.Attacker && (
               <button
                 className="btn"
@@ -197,6 +202,17 @@ const GamePage = () => {
                 onClick={handleAttackerPass}
               >
                 pass
+              </button>
+            )}
+          {roomStatus === TypeRoomStatus.GameInProgress &&
+            socketId === activeSocketId &&
+            activePlayerRole === TypePlayerRole.Defender && (
+              <button
+                className="btn"
+                type="button"
+                onClick={handleDefenderTake}
+              >
+                take
               </button>
             )}
         </div>
