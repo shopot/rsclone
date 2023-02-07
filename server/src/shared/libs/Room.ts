@@ -293,6 +293,7 @@ export class Room {
    */
   private setPlayerAsWinner(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
+    this.passCounterMaxValue -= 1;
   }
 
   /**
