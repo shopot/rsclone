@@ -220,6 +220,7 @@ export class Room {
       this.startNextRound();
     } else {
       do {
+        this.attacker.setPlayerRole(TypePlayerRole.Waiting);
         this.attacker = this.getNextPlayer();
 
         this.setActivePlayer(this.attacker);
