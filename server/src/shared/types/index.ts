@@ -12,3 +12,4 @@ export * from './TypePlayerDto';
 export * from './TypeDealt';
 export * from './TypeRoomList';
 export * from './TypeCardDto';
+export * from './TypePlacedCard';

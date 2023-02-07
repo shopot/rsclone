@@ -13,7 +13,7 @@ import {
   TypeRoomStatus,
   TypeCardRank,
   TypePlayerRole,
-  TypeCardDto,
+  TypePlacedCard,
   TypePlayerDto,
 } from '../types';
 import { Players } from './Players';
@@ -475,12 +475,10 @@ export class Room {
 
   /**
    * Returns placed cards
-   * @returns {Array<TypeCardDto>}
+   * @returns {Array<TypePlacedCard>}
    */
-  public getPlacedCards(): TypeCardDto[] {
-    const cards = this.round.getRoundCards();
-
-    return cards.map((card) => card.getCardDto());
+  public getPlacedCards(): TypePlacedCard[] {
+    return this.round.getRoundCardsAsPlaced();
   }
 
   /**
