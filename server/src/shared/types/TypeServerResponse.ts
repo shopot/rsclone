@@ -1,8 +1,8 @@
+import { TypeCardDto } from './TypeCardDto';
 import { TypeRoomStatus } from './TypeRoomStatus';
 import { CardDto } from '../dto';
 import { TypeGameError } from './TypeGameError';
 import { TypePlayerDto } from './TypePlayerDto';
-import { TypePlacedCard } from './TypePlacedCard';
 import { TypeDealt } from './TypeDealt';
 
 export type TypeServerResponse = {
@@ -12,7 +12,7 @@ export type TypeServerResponse = {
   activeSocketId?: string | '';
   players?: TypePlayerDto[];
   trumpCard?: CardDto;
-  placedCards?: TypePlacedCard[];
+  placedCards?: TypeCardDto[];
   dealt?: TypeDealt[];
   deckCounter?: number;
   error?: TypeGameError | '';

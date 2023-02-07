@@ -9,7 +9,6 @@ export * from './TypeCardRank';
 export * from './TypeGameError';
 export * from './TypeCardSuit';
 export * from './TypePlayerDto';
-export * from './TypePlacedCard';
 export * from './TypeDealt';
 export * from './TypeRoomList';
 export * from './TypeCardDto';

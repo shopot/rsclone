@@ -242,7 +242,7 @@ export class GameService {
         rank: TypeCardRank.RANK_6,
         suit: TypeCardSuit.Clubs,
       },
-      placedCards: [],
+      placedCards: room?.getPlacedCards() || [],
       dealt: [],
       deckCounter: room?.getDeck().size || 0,
       error: '',
