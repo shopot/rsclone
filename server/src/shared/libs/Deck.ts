@@ -1,6 +1,5 @@
 import { Card } from './Card';
-import { TypeCardRank } from '../types/TypeCardRank';
-import { TypeCardSuit } from '../types/TypeCardSuit';
+import { TypeCardRank, TypeCardSuit } from '../types';
 
 export class Deck {
   cards: Card[];
