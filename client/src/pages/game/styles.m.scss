@@ -23,6 +23,12 @@
   margin-bottom: 20px;
 }
 
+.players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em;
+}
+
 .player:not(:last-child) {
   margin-bottom: 20px;
 }
@@ -39,4 +45,8 @@
 
 .playerActive {
   color: constants.$main-color;
+}
+
+.cardName {
+  font-size: 36px;
 }
