@@ -171,10 +171,6 @@ const GamePage = () => {
         <h2>placed cards</h2>
         {placedCards.map((placedCard, idx) => (
           <div key={idx}>
-            {/* <p>
-              placed card pair {idx + 1}: {cardToString(placedCard.attacker)}
-              {placedCard.defender && ` ${cardToString(placedCard.defender)}`}
-            </p> */}
             <p>placed card pair {idx + 1}</p>
             <div>
               <button
