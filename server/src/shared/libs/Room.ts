@@ -54,6 +54,8 @@ export class Room {
   /** Time of start game */
   gameTimeStart: number;
 
+  isDealtEnabled: boolean;
+
   dealt: TypeDealt[];
 
   logger: Logger;
@@ -80,6 +82,7 @@ export class Room {
     this.passCounter = 0;
     this.passCounterMaxValue = 1;
     this.dealt = [];
+    this.isDealtEnabled = false;
 
     // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
@@ -152,6 +155,8 @@ export class Room {
    * Give one card from attacker
    */
   public setAttackerOpen(cardDto: TypeCard): boolean {
+    this.isDealtEnabled = false;
+
     // Add the card & check it
     if (!this.round.attack(cardDto)) {
       return false;
@@ -252,6 +257,8 @@ export class Room {
 
     // Restart round
     this.round.restart();
+
+    this.isDealtEnabled = true;
 
     this.log(`Room #${this.roomId} - Start next round`);
   }
@@ -468,15 +475,6 @@ export class Room {
   }
 
   /**
-   * Returns true if a player in game
-   * @param {Player} player
-   * @returns
-   */
-  private isPlayerInGame(player: Player): boolean {
-    return player.getPlayerStatus() === TypePlayerStatus.InGame;
-  }
-
-  /**
    * Check player is finish this game   *
    */
   private isActivePlayerWin(): boolean {
@@ -512,6 +510,7 @@ export class Room {
       },
       placedCards: this.getPlacedCards() || [],
       dealt: this.dealt,
+      isDealtEnabled: this.isDealtEnabled,
       deckCounter: this.deck.getSize(),
     };
   }
