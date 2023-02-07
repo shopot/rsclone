@@ -21,6 +21,10 @@ export class Deck {
     }
   }
 
+  public getSize(): number {
+    return this.cards.length;
+  }
+
   public getTrumpCard() {
     return this.trump;
   }

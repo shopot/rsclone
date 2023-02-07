@@ -1,9 +1,9 @@
-import { TypeRoomStatus } from './TypeRoomStatus';
 import { CardDto } from '../dto';
 import { TypeGameError } from './TypeGameError';
 import { TypePlayerDto } from './TypePlayerDto';
 import { TypeDealt } from './TypeDealt';
 import { TypePlacedCard } from './TypePlacedCard';
+import { TypeRoomStatus } from './TypeRoomState';
 
 export type TypeServerResponse = {
   roomId?: string;

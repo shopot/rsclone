@@ -1,3 +1,5 @@
+import { TypeDealt } from './../types/TypeDealt';
+import { TypeRoomState } from './../types/TypeRoomState';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -15,6 +17,7 @@ import {
   TypePlayerRole,
   TypePlacedCard,
   TypePlayerDto,
+  TypeCardSuit,
 } from '../types';
 import { Players } from './Players';
 import { GameService } from '../../game/game.service';
@@ -52,6 +55,8 @@ export class Room {
   /** Time of start game */
   gameTimeStart: number;
 
+  dealt: TypeDealt[];
+
   logger: Logger;
 
   constructor(roomId: string, hostPlayer: Player, gameService: GameService) {
@@ -75,6 +80,7 @@ export class Room {
     this.activePlayer = this.hostPlayer;
     this.passCounter = 0;
     this.passCounterMaxValue = 1;
+    this.dealt = [];
 
     // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
@@ -288,10 +294,12 @@ export class Room {
       return;
     }
 
-    const dealtCardsArray: DealtDto[] = [];
+    this.dealt = [];
 
     this.players.getPlayersInGame().forEach((player) => {
       const balance = player.getCards().length;
+
+      const dealtCardsArray: DealtDto[] = [];
 
       if (balance < STARTING_CARDS_NUMBER) {
         const cards = this.deck.getCardsFromDeck(
@@ -302,15 +310,12 @@ export class Room {
 
         player.addCards(cards);
       }
-    });
 
-    if (dealtCardsArray.length) {
-      // this.gameService.setFromServerDealtCardsToPlayers(
-      //   this.createPayload({
-      //     dealtCards: dealtCardsArray,
-      //   }),
-      // );
-    }
+      this.dealt.push({
+        socketId: player.getSocketId(),
+        count: dealtCardsArray.length,
+      });
+    });
   }
 
   /**
@@ -486,6 +491,27 @@ export class Room {
     }
 
     return [];
+  }
+
+  /**
+   * Returns room state
+   * @returns {TypeRoomState}  - Room state
+   */
+  public getState(): TypeRoomState {
+    return {
+      roomId: this.roomId,
+      roomStatus: this.roomStatus || TypeRoomStatus.WaitingForPlayers,
+      hostSocketId: this.hostPlayer.getSocketId(),
+      activeSocketId: this.activePlayer.getSocketId(),
+      players: this.players.getPlayersAsDto(),
+      trumpCard: this.getDeck().getTrumpCard().getCardDto() || {
+        rank: TypeCardRank.RANK_6,
+        suit: TypeCardSuit.Clubs,
+      },
+      placedCards: this.getPlacedCards() || [],
+      dealt: this.dealt,
+      deckCounter: this.deck.getSize(),
+    };
   }
 
   /**

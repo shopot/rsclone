@@ -1,14 +1,11 @@
-import { CardDto } from './../shared/dto/card.dto';
-import { TypeGameError } from './../shared/types/TypeGameError';
-import { TypeRoomList } from './../shared/types/TypeRoomList';
 import {
   TypePlayerMember,
   TypeServerResponse,
-  TypeRoomStatus,
-  TypeCardRank,
-  TypeCardSuit,
+  TypeRoomList,
+  TypeGameError,
   TypeCardDto,
 } from './../shared/types';
+
 import { Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { Player } from '../shared/libs/Player';
@@ -224,31 +221,15 @@ export class GameService {
   private createResponseObject(
     payload: TypeServerResponse,
   ): TypeServerResponse {
-    const { roomId } = payload;
+    const room = this.getRoomById(payload.roomId || '');
 
-    let room: Room | undefined;
+    if (room) {
+      const roomState = room.getState();
 
-    if (roomId && this.rooms.has(roomId)) {
-      room = this.rooms.get(roomId);
+      return { ...roomState, ...payload };
     }
 
-    const initialState: TypeServerResponse = {
-      roomId: room?.roomId || '',
-      roomStatus: room?.roomStatus || TypeRoomStatus.WaitingForPlayers,
-      hostSocketId: room?.hostPlayer.getSocketId() || '',
-      activeSocketId: room?.activePlayer.getSocketId() || '',
-      players: room?.players.getPlayersAsDto() || [],
-      trumpCard: room?.getDeck().getTrumpCard().getCardDto() || {
-        rank: TypeCardRank.RANK_6,
-        suit: TypeCardSuit.Clubs,
-      },
-      placedCards: room?.getPlacedCards() || [],
-      dealt: [],
-      deckCounter: room?.getDeck().size || 0,
-      error: '',
-    };
-
-    return { ...initialState, ...payload };
+    throw new Error('Room not found. Something went wrong.');
   }
 
   // async setFromClientCreatePlayer(data: GameReceiveDto) {
