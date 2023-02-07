@@ -1,7 +1,6 @@
-import { TypePlacedCard, TypeCardSuit } from './../types';
+import { TypePlacedCard, TypeCardSuit, TypeCard } from './../types';
 import { MAX_ATTACKER_ROUND_SLOT } from '../constants';
 import { Card } from './Card';
-import { CardDto } from '../dto';
 import { Deck } from './Deck';
 
 export class Round {
@@ -22,7 +21,7 @@ export class Round {
     this.defenderCards = [];
   }
 
-  public attack(cardDto: CardDto) {
+  public attack(cardDto: TypeCard) {
     // Has limit, can't add new card
     if (this.attackersCards.length >= this.maxRoundSlots) {
       return false;
@@ -52,7 +51,7 @@ export class Round {
     return false;
   }
 
-  public defend(cardDto: CardDto) {
+  public defend(cardDto: TypeCard) {
     // Check is beating or not, check card, etc.
     // If is beating then returns true;
     const lastAttackCard = this.attackersCards[this.attackersCards.length - 1];
@@ -99,7 +98,7 @@ export class Round {
     });
   }
 
-  getAttackerCards(): CardDto[] {
+  getAttackerCards(): TypeCard[] {
     return this.attackersCards.map((card) => card.getCardDto());
   }
 

@@ -1,12 +1,11 @@
 import { Card } from './Card';
-import { TypeCardRank } from '../types/TypeCardRank';
-import { TypeCardSuit } from '../types/TypeCardSuit';
+import { TypeCardRank, TypeCardSuit } from '../types';
 
 export class Deck {
   cards: Card[];
   trump: Card;
 
-  constructor(numberOfPlayers = 2) {
+  constructor() {
     this.cards = [];
 
     // Initial deck

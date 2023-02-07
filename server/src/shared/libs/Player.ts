@@ -1,7 +1,7 @@
+import { TypeCard } from './../types/TypeCard';
 import { Socket } from 'socket.io';
 import { Card } from './Card';
 import { TypePlayerRole, TypePlayerStatus, TypePlayerMember } from '../types';
-import { CardDto } from '../dto';
 
 export class Player {
   socket: Socket;
@@ -69,7 +69,7 @@ export class Player {
     return this.playerStatus;
   }
 
-  public lostCard(cardDto: CardDto) {
+  public lostCard(cardDto: TypeCard) {
     this.cards = this.cards.filter(
       (card) => card.rank !== cardDto.rank || card.suit !== cardDto.suit,
     );

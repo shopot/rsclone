@@ -1,4 +1,4 @@
-import { TypeCardDto } from './TypeCardDto';
+import { TypeCard } from './TypeCard';
 import { TypeDealt } from './TypeDealt';
 import { TypePlacedCard } from './TypePlacedCard';
 import { TypePlayerDto } from './TypePlayerDto';
@@ -9,7 +9,7 @@ export type TypeRoomState = {
   hostSocketId: string;
   activeSocketId: string;
   players: TypePlayerDto[];
-  trumpCard: TypeCardDto;
+  trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
   dealt: TypeDealt[];
   deckCounter: number;

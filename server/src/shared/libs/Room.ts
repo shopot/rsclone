@@ -1,5 +1,3 @@
-import { TypeDealt } from './../types/TypeDealt';
-import { TypeRoomState } from './../types/TypeRoomState';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -9,7 +7,6 @@ import {
 } from '../constants';
 import { Logger } from '@nestjs/common';
 import { Round } from './Round';
-import { CardDto, DealtDto } from '../dto';
 import {
   TypePlayerStatus,
   TypeRoomStatus,
@@ -17,6 +14,9 @@ import {
   TypePlayerRole,
   TypePlacedCard,
   TypeCardSuit,
+  TypeDealt,
+  TypeRoomState,
+  TypeCard,
 } from '../types';
 import { Players } from './Players';
 import { GameService } from '../../game/game.service';
@@ -122,7 +122,7 @@ export class Room {
     this.roomStatus = TypeRoomStatus.GameInProgress;
 
     // Start new deck
-    this.deck = new Deck(this.players.totalCount());
+    this.deck = new Deck();
 
     this.dealtCards();
 
@@ -151,7 +151,7 @@ export class Room {
   /**
    * Give one card from attacker
    */
-  public setAttackerOpen(cardDto: CardDto): boolean {
+  public setAttackerOpen(cardDto: TypeCard): boolean {
     // Add the card & check it
     if (!this.round.attack(cardDto)) {
       return false;
@@ -182,7 +182,7 @@ export class Room {
   /**
    * Give one card from defender
    */
-  public setDefenderClose(cardDto: CardDto): boolean {
+  public setDefenderClose(cardDto: TypeCard): boolean {
     // Add the card
     if (!this.round.defend(cardDto)) {
       return false;
@@ -220,9 +220,7 @@ export class Room {
       this.startNextRound();
     } else {
       do {
-        if (this.attacker.getPlayerRole() !== TypePlayerRole.Defender) {
-          this.attacker.setPlayerRole(TypePlayerRole.Waiting);
-        }
+        this.attacker.setPlayerRole(TypePlayerRole.Waiting);
         this.attacker = this.getNextPlayer();
 
         this.setActivePlayer(this.attacker);
@@ -240,7 +238,6 @@ export class Room {
    */
   public setDefenderPickUpCards(): void {
     this.activePlayer.addCards(this.round.getRoundCards());
-    this.activePlayer.setPlayerRole(TypePlayerRole.Waiting);
 
     this.setActivePlayer(this.getNextPlayer());
 
@@ -276,16 +273,22 @@ export class Room {
    * Set new roles for defender and attacker
    */
   private setNewAttackerAndRoles(): void {
-    // Set players as Waiting
-    for (const player of this.players) {
-      player.setPlayerRole(TypePlayerRole.Waiting);
-    }
-
     this.attacker = this.activePlayer;
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
 
     this.defender = this.getNextPlayer();
     this.defender.setPlayerRole(TypePlayerRole.Defender);
+
+    // Set players as Waiting
+    for (const player of this.players) {
+      if (
+        ![TypePlayerRole.Attacker, TypePlayerRole.Defender].includes(
+          player.getPlayerRole(),
+        )
+      ) {
+        player.setPlayerRole(TypePlayerRole.Waiting);
+      }
+    }
   }
 
   /**
@@ -309,22 +312,24 @@ export class Room {
     this.players.getPlayersInGame().forEach((player) => {
       const balance = player.getCards().length;
 
-      const dealtCardsArray: DealtDto[] = [];
+      const playerDealt: TypeDealt = {
+        socketId: player.getSocketId(),
+        cards: [],
+        count: 0,
+      };
 
       if (balance < STARTING_CARDS_NUMBER) {
         const cards = this.deck.getCardsFromDeck(
           STARTING_CARDS_NUMBER - balance,
         );
 
-        dealtCardsArray.push(DealtDto.create(player.getSocketId(), cards));
+        playerDealt.cards = cards.map((card) => card.getCardDto());
+        playerDealt.count = cards.length;
 
         player.addCards(cards);
       }
 
-      this.dealt.push({
-        socketId: player.getSocketId(),
-        count: dealtCardsArray.length,
-      });
+      this.dealt.push(playerDealt);
     });
   }
 

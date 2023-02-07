@@ -3,7 +3,7 @@ import {
   TypeServerResponse,
   TypeRoomList,
   TypeGameError,
-  TypeCardDto,
+  TypeCard,
 } from './../shared/types';
 
 import { Injectable } from '@nestjs/common';
@@ -147,7 +147,7 @@ export class GameService {
     });
   }
 
-  public setCardOpen(client: Socket, card: TypeCardDto): TypeServerResponse {
+  public setCardOpen(client: Socket, card: TypeCard): TypeServerResponse {
     const roomId = this.getRoomIdByClientSocket(client);
 
     const room = this.getRoomById(roomId);
@@ -162,7 +162,7 @@ export class GameService {
     });
   }
 
-  public setCardClose(client: Socket, card: TypeCardDto): TypeServerResponse {
+  public setCardClose(client: Socket, card: TypeCard): TypeServerResponse {
     const roomId = this.getRoomIdByClientSocket(client);
 
     const room = this.getRoomById(roomId);

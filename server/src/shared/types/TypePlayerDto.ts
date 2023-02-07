@@ -1,11 +1,11 @@
-import { CardDto } from '../dto/card.dto';
+import { TypeCard } from './TypeCard';
 
 export type TypePlayerDto = {
   readonly socketId: string;
   readonly playerName: string;
   readonly playerRole: TypePlayerRole;
   readonly playerStatus: TypePlayerStatus;
-  readonly cards: CardDto[];
+  readonly cards: TypeCard[];
 };
 
 export enum TypePlayerMember {

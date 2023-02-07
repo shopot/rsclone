@@ -1,6 +1,6 @@
-import { TypeCardDto } from './TypeCardDto';
+import { TypeCard } from './TypeCard';
 
 export type TypePlacedCard = {
-  attacker: TypeCardDto;
-  defender: TypeCardDto | null;
+  attacker: TypeCard;
+  defender: TypeCard | null;
 };

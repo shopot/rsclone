@@ -1,10 +1,6 @@
-import { TypeCardRank } from '../types/TypeCardRank';
-import { TypeCardSuit } from '../types/TypeCardSuit';
-import { CardDto } from '../dto';
-import { ICard } from '../interfaces';
-import { ICardDto } from '../interfaces/ICardDto';
+import { TypeCard, TypeCardRank, TypeCardSuit } from './../types';
 
-export class Card implements ICard, ICardDto {
+export class Card {
   rank: TypeCardRank;
   suit: TypeCardSuit;
   isTrump: boolean;
@@ -29,11 +25,14 @@ export class Card implements ICard, ICardDto {
     return this.suit === otherCard.suit && this.rank > otherCard.rank;
   }
 
-  getCardDto(): ICardDto {
-    return CardDto.create(this.rank, this.suit);
+  getCardDto(): TypeCard {
+    return {
+      rank: this.rank,
+      suit: this.suit,
+    };
   }
 
-  static create(cardDto: ICardDto, trumpSuit: TypeCardSuit): Card {
+  static create(cardDto: TypeCard, trumpSuit: TypeCardSuit): Card {
     const card = new Card(cardDto.rank, cardDto.suit);
 
     card.setTrump(card.suit === trumpSuit);
