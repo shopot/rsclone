@@ -118,40 +118,44 @@ const GamePage = () => {
         </p>
         <p>Host socket ID: {hostSocketId}</p>
         <p>Active socket ID: {activeSocketId}</p>
-        <p>Trump card: {cardToString(trumpCard)}</p>
+        <p>
+          Trump card: <span className={styles.cardName}>{cardToString(trumpCard)}</span>
+        </p>
         <p>Cards in the deck: {deckCounter}</p>
       </section>
 
       <section className={styles.section}>
         <h2>players</h2>
-        {players.map((player) => (
-          <div
-            className={styles.player}
-            key={player.socketId}
-          >
-            <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
-              {player.socketId}
-            </h3>
-            <p>player role: {player.playerRole}</p>
-            <p>player status: {player.playerStatus}</p>
-            <div>
-              <h4>Cards of {player.socketId}</h4>
-              <div className={styles.playerCards}>
-                {player.cards.map((card, idx) => (
-                  <button
-                    className="btn"
-                    type="button"
-                    key={idx}
-                    disabled={activeSocketId !== socketId || activeSocketId !== player.socketId}
-                    onClick={() => handleMakeMove(card)}
-                  >
-                    {socketId === player.socketId ? cardToString(card) : '?'}
-                  </button>
-                ))}
+        <div className={styles.players}>
+          {players.map((player) => (
+            <div
+              className={styles.player}
+              key={player.socketId}
+            >
+              <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
+                {player.socketId}
+              </h3>
+              <p>player role: {player.playerRole}</p>
+              <p>player status: {player.playerStatus}</p>
+              <div>
+                <h4>Cards of {player.socketId}</h4>
+                <div className={styles.playerCards}>
+                  {player.cards.map((card, idx) => (
+                    <button
+                      className="btn btnCard"
+                      type="button"
+                      key={idx}
+                      disabled={activeSocketId !== socketId || activeSocketId !== player.socketId}
+                      onClick={() => handleMakeMove(card)}
+                    >
+                      {socketId === player.socketId ? cardToString(card) : '?'}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </section>
 
       <section className={styles.section}>
@@ -167,10 +171,27 @@ const GamePage = () => {
         <h2>placed cards</h2>
         {placedCards.map((placedCard, idx) => (
           <div key={idx}>
-            <p>
-              placed card pair {idx + 1}: {cardToString(placedCard.attacker)}
-              {placedCard.defender && ` ${cardToString(placedCard.defender)}`}
-            </p>
+            <p>placed card pair {idx + 1}</p>
+            <div>
+              <button
+                className="btn btnCard"
+                type="button"
+                key={idx}
+                disabled={true}
+              >
+                {cardToString(placedCard.attacker)}
+              </button>
+              {placedCard.defender && (
+                <button
+                  className="btn btnCard"
+                  type="button"
+                  key={idx}
+                  disabled={true}
+                >
+                  {cardToString(placedCard.defender)}
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </section>
