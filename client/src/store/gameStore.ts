@@ -106,7 +106,7 @@ export const useGameStore = create<TypeGameState>((set, get) => {
       },
 
       defenderTake() {
-        socketIOService.emit(TypeSocketEvent.GamePickupCards, { data: {} });
+        socketIOService.emit(TypeSocketEvent.GamePickUpCards, { data: {} });
       },
     },
   };
