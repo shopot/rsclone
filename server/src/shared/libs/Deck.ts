@@ -13,7 +13,7 @@ export class Deck {
     this.fill();
     this.shuffle();
 
-    this.trump = this.cards[numberOfPlayers * 6];
+    this.trump = this.cards[0];
 
     // Set trump
     for (const card of this.cards) {
