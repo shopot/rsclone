@@ -28,8 +28,11 @@ type TypeGameState = {
   actions: {
     setGameState: () => void;
     startGame: () => void;
+    leaveRoom: () => void;
     makeAttackingMove: (card: TypeCard) => void;
     makeDefensiveMove: (card: TypeCard) => void;
+    attackerPass: () => void;
+    defenderTake: () => void;
   };
 };
 
@@ -86,12 +89,24 @@ export const useGameStore = create<TypeGameState>((set, get) => {
         socketIOService.emit(TypeSocketEvent.GameStart, { data: {} });
       },
 
+      leaveRoom() {
+        socketIOService.emit(TypeSocketEvent.GameLeaveRoom, { data: {} });
+      },
+
       makeAttackingMove(card: TypeCard) {
         socketIOService.emit(TypeSocketEvent.GameCardOpen, { data: { card } });
       },
 
       makeDefensiveMove(card: TypeCard) {
         socketIOService.emit(TypeSocketEvent.GameCardClose, { data: { card } });
+      },
+
+      attackerPass() {
+        socketIOService.emit(TypeSocketEvent.GameAttackerPass, { data: {} });
+      },
+
+      defenderTake() {
+        socketIOService.emit(TypeSocketEvent.GamePickupCards, { data: {} });
       },
     },
   };

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import { useGameStore } from '../../store/gameStore';
 import { socketIOService } from '../../shared/api/socketio';
 import {
@@ -49,6 +50,7 @@ const cardToString = (card: TypeCard) => {
 };
 
 const GamePage = () => {
+  const navigate = useNavigate();
   const {
     actions,
     isOnline,
@@ -88,6 +90,19 @@ const GamePage = () => {
 
   const handleStartGame = () => {
     actions.startGame();
+  };
+
+  const handleLeaveRoom = () => {
+    actions.leaveRoom();
+    navigate('/');
+  };
+
+  const handleAttackerPass = () => {
+    actions.attackerPass();
+  };
+
+  const handleDefenderTake = () => {
+    actions.defenderTake();
   };
 
   return (
@@ -160,7 +175,7 @@ const GamePage = () => {
       </section>
 
       <section className={styles.section}>
-        <div>
+        <div className={styles.uiButtons}>
           {roomStatus === TypeRoomStatus.WaitingForStart && socketId === hostSocketId && (
             <button
               className="btn"
@@ -170,6 +185,36 @@ const GamePage = () => {
               start game
             </button>
           )}
+          <button
+            className="btn"
+            type="button"
+            onClick={handleLeaveRoom}
+          >
+            leave room
+          </button>
+          {roomStatus === TypeRoomStatus.GameInProgress &&
+            socketId === activeSocketId &&
+            !isFirstAttackInRound &&
+            activePlayerRole === TypePlayerRole.Attacker && (
+              <button
+                className="btn"
+                type="button"
+                onClick={handleAttackerPass}
+              >
+                pass
+              </button>
+            )}
+          {roomStatus === TypeRoomStatus.GameInProgress &&
+            socketId === activeSocketId &&
+            activePlayerRole === TypePlayerRole.Defender && (
+              <button
+                className="btn"
+                type="button"
+                onClick={handleDefenderTake}
+              >
+                take
+              </button>
+            )}
         </div>
       </section>
     </div>
