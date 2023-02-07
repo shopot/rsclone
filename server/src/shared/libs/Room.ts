@@ -1,4 +1,3 @@
-import { TypePlayerDto } from '../types/TypePlayerDto';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -14,6 +13,8 @@ import {
   TypeRoomStatus,
   TypeCardRank,
   TypePlayerRole,
+  TypePlacedCard,
+  TypePlayerDto,
 } from '../types';
 import { Players } from './Players';
 import { GameService } from '../../game/game.service';
@@ -267,8 +268,6 @@ export class Room {
    */
   private setPlayerAsLoser(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouLoser);
-
-    this.sendPlayerStatus(player, TypePlayerStatus.YouLoser);
   }
 
   /**
@@ -276,8 +275,6 @@ export class Room {
    */
   private setPlayerAsWinner(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
-
-    this.sendPlayerStatus(player, TypePlayerStatus.YouWinner);
   }
 
   /**
@@ -390,8 +387,6 @@ export class Room {
     } else {
       this.roomStatus = TypeRoomStatus.WaitingForPlayers;
     }
-
-    this.sendGameStatus();
   }
 
   /**
@@ -458,9 +453,9 @@ export class Room {
   /**
    * Check game is finish
    */
-  private isGameOver(): boolean {
-    return this.roomStatus === TypeRoomStatus.GameIsOver;
-  }
+  // private isGameOver(): boolean {
+  //   return this.roomStatus === TypeRoomStatus.GameIsOver;
+  // }
 
   /**
    * Returns true if a player in game
@@ -479,45 +474,23 @@ export class Room {
   }
 
   /**
+   * Returns placed cards
+   * @returns {Array<TypePlacedCard>}
+   */
+  public getPlacedCards(): TypePlacedCard[] {
+    return this.round.getRoundCardsAsPlaced();
+  }
+
+  /**
    * Validate active player
    * Check attacker === defender
    *
    * @param {Player} player Current active player
    * @returns {boolean}
    */
-  private validateActivePlayer(player: Player): boolean {
-    return this.activePlayer === player && this.attacker !== this.defender;
-  }
-
-  /**
-   * Returns payload data
-   * @param {Partial<TypeServerResponse>} data
-   * @returns {TypeServerResponse} payload for send data to client
-   */
-  // private createPayload(data: Partial<TypeServerResponse>): TypeServerResponse {
-  //   return {
-  //     ...data,
-  //     roomId: this.roomId,
-  //     roomStatus: this.roomStatus,
-  //   };
+  // private validateActivePlayer(player: Player): boolean {
+  //   return this.activePlayer === player && this.attacker !== this.defender;
   // }
-
-  private sendPlayerStatus(
-    player: Player,
-    playerStatus: TypePlayerStatus,
-  ): void {
-    // this.gameService.setFromServerSendPlayerStatus(
-    //   this.createPayload({
-    //     socketId: player.getSocketId(),
-    //     socketId: player.getSocketId(),
-    //     playerStatus,
-    //   }),
-    // );
-  }
-
-  private sendGameStatus(): void {
-    // this.gameService.setFromServerRoomStatusChange(this.createPayload({}));
-  }
 
   private log(message: string): void {
     this.logger.log(message);

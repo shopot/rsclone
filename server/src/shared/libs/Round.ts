@@ -1,4 +1,4 @@
-import { TypeCardSuit } from '../types';
+import { TypePlacedCard, TypeCardSuit } from './../types';
 import { MAX_ATTACKER_ROUND_SLOT } from '../constants';
 import { Card } from './Card';
 import { CardDto } from '../dto';
@@ -75,6 +75,23 @@ export class Round {
    */
   public getRoundCards(): Card[] {
     return this.attackersCards.concat(this.defenderCards);
+  }
+
+  public getRoundCardsAsPlaced(): TypePlacedCard[] {
+    if (this.attackersCards.length === 0) {
+      return [];
+    }
+
+    return this.attackersCards.map((card, idx) => {
+      const placedCard: TypePlacedCard = {
+        attacker: card.getCardDto(),
+        defender: this.defenderCards[idx]
+          ? this.defenderCards[idx].getCardDto()
+          : null,
+      };
+
+      return placedCard;
+    });
   }
 
   getAttackerCards(): CardDto[] {
