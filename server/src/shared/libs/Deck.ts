@@ -21,6 +21,10 @@ export class Deck {
     }
   }
 
+  public getTrumpCard() {
+    return this.trump;
+  }
+
   getTrumpSuit() {
     return this.trump.suit;
   }

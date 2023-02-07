@@ -1,4 +1,4 @@
-import { TypeServerError } from '../types';
+import { TypeGameError } from '../types';
 import { TypeServerResponse } from '../types/TypeServerResponse';
 
 export interface IGameService {
@@ -21,7 +21,7 @@ export interface IGameService {
   setFromServerDealtCardsToPlayers(payload?: TypeServerResponse): Promise<void>;
 
   setFromServerError(
-    error: TypeServerError,
+    error: TypeGameError,
     payload?: TypeServerResponse,
   ): Promise<void>;
 }

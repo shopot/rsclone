@@ -1,11 +1,11 @@
-import { TypeCard } from './TypeCard';
+import { CardDto } from '../dto/card.dto';
 import { TypePlayerRole } from './TypePlayerRole';
 import { TypePlayerStatus } from './TypePlayerStatus';
 
-export type TypePlayer = {
+export type TypePlayerDto = {
   socketId: string;
   playerName: string;
   playerRole: TypePlayerRole;
   playerStatus: TypePlayerStatus;
-  cards: TypeCard[];
+  cards: CardDto[];
 };

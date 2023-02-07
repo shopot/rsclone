@@ -1,4 +1,4 @@
-import { TypePlayerStatus } from '../types';
+import { TypePlayerDto, TypePlayerStatus } from '../types';
 import { Player } from './Player';
 
 export class Players {
@@ -26,13 +26,13 @@ export class Players {
 
   public remove(player: Player): void {
     this.players = this.players.filter((plr) => {
-      return plr.getPlayerId() !== player.getPlayerId();
+      return plr.getSocketId() !== player.getSocketId();
     });
   }
 
-  public getById(playerId: string): Player | undefined {
+  public getPlayerBySocketId(socketId: string): Player | undefined {
     const player = this.players.find((player) => {
-      return player.getPlayerId() === playerId;
+      return player.getSocketId() === socketId;
     });
 
     return player;
@@ -54,7 +54,7 @@ export class Players {
     }
 
     const idx = this.players.findIndex((plr) => {
-      return plr.getPlayerId() === fromPlayer.getPlayerId();
+      return plr.getSocketId() === fromPlayer.getSocketId();
     });
 
     if (idx === -1) {
@@ -79,6 +79,18 @@ export class Players {
     }
 
     return foundPlayer;
+  }
+
+  public getPlayersAsDto(): TypePlayerDto[] {
+    return this.players.map((player) => {
+      return {
+        socketId: player.getSocketId(),
+        playerName: player.getPlayerName(),
+        playerRole: player.getPlayerRole(),
+        playerStatus: player.getPlayerStatus(),
+        cards: player.getCardsAsDto(),
+      };
+    });
   }
 
   /**

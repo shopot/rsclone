@@ -8,10 +8,13 @@ import {
   OnGatewayInit,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
-import { TypeRoomEvent } from '../shared/types';
+import { Socket, Server } from 'socket.io';
+import {
+  TypeRoomEvent,
+  TypeRoomList,
+  TypeServerResponse,
+} from '../shared/types';
 import { GameReceiveDto } from './dto';
-import { Server } from 'socket.io';
 import { GameService } from './game.service';
 
 @Injectable()
@@ -34,120 +37,162 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     this.gameService.server = server;
   }
 
-  @SubscribeMessage(TypeRoomEvent.gameFromClientCreatePlayer)
-  handleFromClientCreatePlayer(
-    @MessageBody('data') data: GameReceiveDto,
-  ): void {
-    Logger.debug('gameFromClientCreatePlayer');
-    this.gameService.setFromClientCreatePlayer(data);
+  /**
+   * Send room state to client
+   */
+  @SubscribeMessage(TypeRoomEvent.GameUpdateState)
+  handleGameUpdateState(@ConnectedSocket() client: Socket): void {
+    this.sendStateToClient(client);
   }
 
-  @SubscribeMessage(TypeRoomEvent.gameFromClientChatMessage)
-  handleFromClientChatMessage(
-    @MessageBody('data') data: GameReceiveDto,
-    @ConnectedSocket() client: Socket,
-  ): void {
-    Logger.debug('gameFromClientChatMessage');
-    this.gameService.setFromClientChatMessage(data, client);
+  /**
+   * Send rooms list to client
+   */
+  @SubscribeMessage(TypeRoomEvent.GameRooms)
+  handleGetRooms(): void {
+    const results = this.gameService.getRooms();
+
+    this.emitEvent(TypeRoomEvent.GameRooms, results);
   }
 
-  @SubscribeMessage(TypeRoomEvent.gameFromClientCreateRoom)
-  handleFromClientCreateRoom(
-    @MessageBody('data') data: GameReceiveDto,
-    @ConnectedSocket() client: Socket,
-  ): void {
-    Logger.debug('gameFromClientCreateRoom');
-    this.gameService.setFromClientCreateRoom(data, client);
-  }
-
-  @SubscribeMessage(TypeRoomEvent.gameFromClientGetRooms)
-  handleFromClientGetRooms(@MessageBody('data') data: GameReceiveDto): void {
-    Logger.debug('gameFromClientGetRooms');
-    this.gameService.setFromClientGetRooms(data).then((results) => {
-      this.server.emit('gameFromServerGetRooms', results);
-    });
-  }
-
-  @SubscribeMessage(TypeRoomEvent.gameFromClientJoinRoom)
-  handleFromClientJoinRoom(
+  /**
+   * Create room event
+   * @param {GameReceiveDto} data
+   * @param {Socket} client
+   * @returns
+   */
+  @SubscribeMessage(TypeRoomEvent.GameCreateRoom)
+  handleGameCreateRoom(
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    Logger.debug('gameFromClientJoinRoom');
-    this.gameService.setFromClientJoinRoom(data, client);
+    const results = this.gameService.createRoom(data, client);
+
+    this.emitEvent(TypeRoomEvent.GameCreateRoom, results, client);
   }
 
-  @SubscribeMessage(TypeRoomEvent.gameFromClientLeaveRoom)
-  handleFromClientLeaveRoom(
+  /**
+   * Join to room
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameJoinRoom)
+  handleGameJoinRoom(
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    Logger.debug('gameFromClientLeaveRoom');
-    this.gameService.setFromClientLeaveRoom(data, client);
+    const results = this.gameService.joinRoom(data, client);
+
+    this.emitEvent(TypeRoomEvent.GameJoinRoom, results, client);
   }
 
-  @SubscribeMessage(TypeRoomEvent.gameFromClientStartGame)
-  handleFromClientStartGame(
+  @SubscribeMessage(TypeRoomEvent.GameLeaveRoom)
+  handleGameLeaveRoom(@ConnectedSocket() client: Socket): void {
+    const results = this.gameService.setLeaveRoom(client);
+
+    this.sendStateToClient(client, results);
+  }
+
+  /**
+   * Start game
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameStart)
+  handleGameStart(
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    Logger.debug('gameFromClientStartGame');
-    this.gameService.setFromClientStartGame(data, client.id);
+    const results = this.gameService.startGame(client);
+
+    this.sendStateToClient(client, results);
   }
 
-  @SubscribeMessage(TypeRoomEvent.gameFromClientAttackerOpen)
-  handleFromClientAttackerOpen(
-    @MessageBody('data') data: GameReceiveDto,
-  ): void {
-    Logger.debug('gameFromClientAttackerOpen');
-    this.gameService.setFromClientAttackerOpen(data);
-  }
-
-  @SubscribeMessage(TypeRoomEvent.gameFromClientAttackerPass)
-  handleFromClientAttackerPass(
-    @MessageBody('data') data: GameReceiveDto,
-  ): void {
-    Logger.debug('gameFromClientAttackerPass');
-    this.gameService.setFromClientAttackerPass(data);
-  }
-
-  @SubscribeMessage(TypeRoomEvent.gameFromClientDefenderClose)
-  handleFromClientDefenderClose(
-    @MessageBody('data') data: GameReceiveDto,
-  ): void {
-    Logger.debug('gameFromClientDefenderClose');
-    this.gameService.setFromClientDefenderClose(data);
-  }
-
-  @SubscribeMessage(TypeRoomEvent.gameFromClientDefenderTake)
-  handleFromClientDefenderTake(
-    @MessageBody('data') data: GameReceiveDto,
-  ): void {
-    Logger.debug('gameFromClientDefenderTake');
-    this.gameService.setFromClientDefenderTake(data);
-  }
-
-  @SubscribeMessage(TypeRoomEvent.gameFromClientSettings)
-  handleFromClientSettings(@MessageBody('data') data: GameReceiveDto): void {
-    Logger.debug('gameFromClientSettings');
-    this.gameService.setFromClientSettings(data);
-  }
-
-  @SubscribeMessage(TypeRoomEvent.gameFromClientRestartGame)
-  handleFromClientRestartGame(
-    @MessageBody('data') data: GameReceiveDto,
+  /**
+   * Open Card by attacker
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameCardOpen)
+  handleGameCardOpen(
+    @MessageBody('data') { card }: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    Logger.debug('gameFromClientRestartGame');
-    this.gameService.setFromClientRestartGame(data, client.id);
+    const results = this.gameService.setCardOpen(client, card);
+
+    this.sendStateToClient(client, results);
   }
 
-  @SubscribeMessage(TypeRoomEvent.gameFromClientOpenRoom)
-  handleFromClientOpenRoom(
-    @MessageBody('data') data: GameReceiveDto,
+  /**
+   * Close card by defender
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameCardClose)
+  handleGameCardClose(
+    @MessageBody('data') { card }: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    Logger.debug('gameFromClientOpenRoom');
-    this.gameService.setFromClientOpenRoom(data, client.id);
+    const results = this.gameService.setCardClose(client, card);
+
+    this.sendStateToClient(client, results);
+  }
+
+  @SubscribeMessage(TypeRoomEvent.GameAttackerPass)
+  handlerGameAttackerPass(@ConnectedSocket() client: Socket): void {
+    const results = this.gameService.setAttackerPass(client);
+
+    this.sendStateToClient(client, results);
+  }
+
+  /**
+   * Send state to client by roomId
+   * @param {Socket} client
+   */
+  private sendStateToClient(
+    client: Socket,
+    payload: TypeServerResponse | null = null,
+  ) {
+    const results = this.gameService.getRoomState(client);
+
+    const { roomId } = results;
+
+    // Send to all client by roomId
+    if (roomId) {
+      const response = {
+        data: { ...results, ...(payload || {}) },
+      };
+
+      this.server.to(roomId).emit(TypeRoomEvent.GameUpdateState, response);
+
+      Logger.debug(TypeRoomEvent.GameUpdateState);
+      Logger.debug(response);
+    }
+  }
+
+  private emitToRoom(
+    roomId: string,
+    type: TypeRoomEvent,
+    payload: TypeServerResponse,
+  ): void {
+    this.server.to(roomId).emit(type, { data: payload });
+  }
+
+  /**
+   * Emit event, send data to client
+   * @param {TypeRoomEvent} type
+   * @param {TypeServerResponse} payload
+   */
+  private emitEvent(
+    type: TypeRoomEvent,
+    payload: TypeServerResponse | TypeRoomList,
+    client: Socket | null = null,
+  ): void {
+    const response = { data: payload };
+
+    Logger.debug(type);
+    Logger.debug(response);
+
+    if (client !== null) {
+      client.emit(type, response);
+    } else {
+      this.server.emit(type, response);
+    }
   }
 }

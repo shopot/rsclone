@@ -5,7 +5,7 @@ import { CardDto } from '../dto';
 
 export class Player {
   socket: Socket;
-  name: string;
+  playerName: string;
   cards: Card[];
   memberStatus: TypePlayerMember;
   playerStatus: TypePlayerStatus;
@@ -13,23 +13,23 @@ export class Player {
 
   constructor(
     socket: Socket,
-    name: string,
+    playerName: string,
     memberStatus: TypePlayerMember = TypePlayerMember.Regular,
     playerStatus: TypePlayerStatus = TypePlayerStatus.InGame,
   ) {
     this.socket = socket;
-    this.name = name;
+    this.playerName = playerName;
     this.cards = [];
     this.memberStatus = memberStatus;
     this.playerStatus = playerStatus;
     this.playerRole = TypePlayerRole.Waiting;
   }
 
-  public setRole(role: TypePlayerRole): void {
+  public setPlayerRole(role: TypePlayerRole): void {
     this.playerRole = role;
   }
 
-  public getRole(): TypePlayerRole {
+  public getPlayerRole(): TypePlayerRole {
     return this.playerRole;
   }
 
@@ -41,8 +41,8 @@ export class Player {
     return this.socket.id;
   }
 
-  public getPlayerId() {
-    return this.name;
+  public getPlayerName() {
+    return this.playerName;
   }
 
   public getCardsCount() {
@@ -55,6 +55,10 @@ export class Player {
 
   public getCards() {
     return this.cards;
+  }
+
+  public getCardsAsDto() {
+    return this.cards.map((card) => card.getCardDto());
   }
 
   public setPlayerStatus(status: TypePlayerStatus) {

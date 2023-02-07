@@ -6,25 +6,34 @@ import {
   TypePlacedCard,
   TypeRoomStatus,
   TypeCard,
+  TypeDealt,
+  TypeServerError,
 } from '../shared/types';
 import { create } from 'zustand';
 import { socketIOService } from '../shared/api/socketio';
 
 type TypeGameState = {
   isOnline: boolean;
+  roomId: string;
   roomStatus: TypeRoomStatus;
-  hostPlayerId: string;
+  hostSocketId: string;
+  activeSocketId: string;
   players: TypePlayer[];
-  activePlayer: string;
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
+  deckCounter: number;
+  dealt: TypeDealt[];
+  error: TypeServerError | '';
 
   actions: {
     setGameState: () => void;
+    startGame: () => void;
+    makeAttackingMove: (card: TypeCard) => void;
+    makeDefensiveMove: (card: TypeCard) => void;
   };
 };
 
-export const useGameStore = create<TypeGameState>((set) => {
+export const useGameStore = create<TypeGameState>((set, get) => {
   socketIOService.listen(TypeSocketEvent.Connect, () => {
     set({ isOnline: true });
   });
@@ -33,27 +42,56 @@ export const useGameStore = create<TypeGameState>((set) => {
     set({ isOnline: false });
   });
 
-  socketIOService.listen<Partial<TypeGameState>>(TypeSocketEvent.GameUpdateState, (state) => {
-    console.log(state);
+  socketIOService.listen<{ data: TypeGameState }>(TypeSocketEvent.GameUpdateState, ({ data }) => {
+    console.log(data);
 
-    set({ ...state });
+    set({ ...data });
   });
 
   return {
     isOnline: false,
+    roomId: '',
     roomStatus: TypeRoomStatus.WaitingForPlayers,
-    hostPlayerId: '',
+    hostSocketId: '',
+    activeSocketId: '',
     players: [],
-    activePlayer: '',
     trumpCard: {
       rank: TypeCardRank.RANK_6,
       suit: TypeCardSuit.Clubs,
     },
     placedCards: [],
+    deckCounter: 0,
+    dealt: [],
+    error: '',
+
+    getPlayerCards: (): TypeCard[] => {
+      const socketId = socketIOService.getSocketId();
+      const players = get().players;
+
+      for (const player of players) {
+        if (player.socketId === socketId) {
+          return player.cards;
+        }
+      }
+
+      return [];
+    },
 
     actions: {
       setGameState() {
         socketIOService.emit(TypeSocketEvent.GameUpdateState, { data: {} });
+      },
+
+      startGame() {
+        socketIOService.emit(TypeSocketEvent.GameStart, { data: {} });
+      },
+
+      makeAttackingMove(card: TypeCard) {
+        socketIOService.emit(TypeSocketEvent.GameCardOpen, { data: { card } });
+      },
+
+      makeDefensiveMove(card: TypeCard) {
+        socketIOService.emit(TypeSocketEvent.GameCardClose, { data: { card } });
       },
     },
   };

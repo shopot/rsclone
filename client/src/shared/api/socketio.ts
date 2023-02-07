@@ -16,6 +16,10 @@ class SocketIOService {
   listen<T>(event: TypeSocketEvent, callback: (data: T) => void) {
     this.socket.on(event, callback);
   }
+
+  public getSocketId() {
+    return this.socket.id;
+  }
 }
 
 export const socketIOService = new SocketIOService();

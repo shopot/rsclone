@@ -30,4 +30,14 @@ export enum TypeRoomEvent {
   gameFromServerDefenderPickUpCards = 'gameFromServerDefenderPickUpCards',
   gameFromServerSendPlayerStatus = 'gameFromServerSendPlayerStatus',
   gameFromServerChatMessage = 'gameFromServerChatMessage',
+
+  GameRooms = 'GameRooms',
+  GameUpdateState = 'GameUpdateState',
+  GameCreateRoom = 'GameCreateRoom',
+  GameJoinRoom = 'GameJoinRoom',
+  GameLeaveRoom = 'GameLeaveRoom',
+  GameStart = 'GameStart',
+  GameCardOpen = 'GameCardOpen',
+  GameCardClose = 'GameCardClose',
+  GameAttackerPass = 'GameAttackerPass',
 }
