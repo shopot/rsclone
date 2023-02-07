@@ -6,7 +6,7 @@ export class Deck {
   cards: Card[];
   trump: Card;
 
-  constructor(numberOfPlayers = 2) {
+  constructor() {
     this.cards = [];
 
     // Initial deck

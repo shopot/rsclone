@@ -6,6 +6,6 @@ export * from './TypeGameError';
 export * from './TypeCardSuit';
 export * from './TypePlayerDto';
 export * from './TypeDealt';
-export * from './TypeCardDto';
+export * from './TypeCard';
 export * from './TypePlacedCard';
 export * from './TypeRoomState';

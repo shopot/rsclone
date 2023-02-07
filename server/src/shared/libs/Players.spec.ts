@@ -1,6 +1,5 @@
 import { expect, test } from '@jest/globals';
-import { TypePlayerStatus } from './../types/TypePlayerStatus';
-import { TypePlayerMember } from './../types/TypePlayerMember';
+import { TypePlayerStatus, TypePlayerMember } from './../types';
 import { Players } from './Players';
 import { Player } from './Player';
 

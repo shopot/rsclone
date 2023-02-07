@@ -1,7 +1,7 @@
 import { TypeCardRank } from './TypeCardRank';
 import { TypeCardSuit } from './TypeCardSuit';
 
-export type TypeCardDto = {
+export type TypeCard = {
   readonly rank: TypeCardRank;
   readonly suit: TypeCardSuit;
 };
