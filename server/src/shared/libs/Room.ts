@@ -319,10 +319,6 @@ export class Room {
    * @returns {void}
    */
   public joinRoom(player: Player): boolean {
-    const payload = {
-      socketId: player.getSocketId(),
-    };
-
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
       return false;
     }
@@ -344,21 +340,14 @@ export class Room {
    * @param {string} socketId
    * @returns
    */
-  public leaveRoom(socketId: string): void {
-    const leavePlayer = this.players.getById(socketId);
+  public leaveRoom(socketId: string): boolean {
+    const leavePlayer = this.players.getPlayerBySocketId(socketId);
 
     if (!leavePlayer) {
-      return;
+      return true;
     }
 
     this.players.remove(leavePlayer);
-
-    // this.gameService.setFromServerLeaveRoomSuccess(
-    //   this.createPayload({
-    //     socketId: leavePlayer.getSocketId(),
-    //     socketId: leavePlayer.getSocketId(),
-    //   }),
-    // );
 
     if (
       !this.isGameInProgress() &&
@@ -380,8 +369,7 @@ export class Room {
       }
     }
 
-    // Update room status for all players
-    return this.sendGameStatus();
+    return true;
   }
 
   /**
