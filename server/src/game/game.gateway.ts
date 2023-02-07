@@ -69,11 +69,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     const results = this.gameService.createRoom(data, client);
 
     this.emitEvent(TypeRoomEvent.GameCreateRoom, results, client);
+
+    this.handleGetRooms();
   }
 
   /**
    * Join to room
    * @param {GameReceiveDto} data
+   * @param {Socket} client
    */
   @SubscribeMessage(TypeRoomEvent.GameJoinRoom)
   handleGameJoinRoom(
@@ -83,13 +86,23 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     const results = this.gameService.joinRoom(data, client);
 
     this.emitEvent(TypeRoomEvent.GameJoinRoom, results, client);
+
+    this.handleGetRooms();
   }
 
+  /**
+   * Player leave room
+   * @param {Socket} client
+   */
   @SubscribeMessage(TypeRoomEvent.GameLeaveRoom)
   handleGameLeaveRoom(@ConnectedSocket() client: Socket): void {
     const results = this.gameService.setLeaveRoom(client);
 
-    this.sendStateToClient(client, results);
+    if (results !== null) {
+      this.sendStateToClient(client, results);
+    }
+
+    this.handleGetRooms();
   }
 
   /**

@@ -12,7 +12,8 @@ import { useRoomsStore } from '../../store/roomsStore';
 const HomePage = () => {
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState('');
-  const { rooms, actions } = useRoomsStore();
+  const { actions } = useRoomsStore();
+  const rooms = useRoomsStore((state) => state.rooms);
 
   useEffect(() => {
     // Subscribe to GameCreateRoom event
