@@ -41,7 +41,7 @@ const HomePage = () => {
   };
 
   const handleCreateRoom = () => {
-    socketIOService.emit(TypeSocketEvent.GameCreateRoom, { data: {} });
+    socketIOService.emit(TypeSocketEvent.GameCreateRoom, { data: { playerName } });
   };
 
   const handleJoinRoom = (roomId: string) => {

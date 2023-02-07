@@ -76,6 +76,12 @@ const GamePage = () => {
 
   const socketId = socketIOService.getSocketId();
 
+  const myPlayerName = useGameStore((state) => {
+    const me = state.players.find((plr) => plr.socketId === socketId);
+
+    return me?.playerName || 'John Doe';
+  });
+
   useEffect(() => {
     actions.setGameState();
   }, [actions]);
@@ -114,8 +120,9 @@ const GamePage = () => {
         <p>Room ID: {roomId}</p>
         <p>Room status: {roomStatus}</p>
         <p className={socketId === activeSocketId ? styles.playerActive : ''}>
-          Your socket ID: {socketId}
+          Your player name: {myPlayerName}
         </p>
+        <p>Your socked ID: {socketId}</p>
         <p>Host socket ID: {hostSocketId}</p>
         <p>Active socket ID: {activeSocketId}</p>
         <p>
@@ -133,8 +140,9 @@ const GamePage = () => {
               key={player.socketId}
             >
               <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
-                {player.socketId}
+                {player.playerName}
               </h3>
+              <p>player socketId: {player.socketId}</p>
               <p>player role: {player.playerRole}</p>
               <p>player status: {player.playerStatus}</p>
               <div>
