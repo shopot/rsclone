@@ -215,8 +215,4 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
       this.server.emit(type, response);
     }
   }
-
-  private getRoomIdByClientSocket(client: Socket): string {
-    return this.gameService.getRoomIdByClientSocket(client);
-  }
 }
