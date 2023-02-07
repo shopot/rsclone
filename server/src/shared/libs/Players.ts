@@ -30,7 +30,7 @@ export class Players {
     });
   }
 
-  public getById(socketId: string): Player | undefined {
+  public getPlayerBySocketId(socketId: string): Player | undefined {
     const player = this.players.find((player) => {
       return player.getSocketId() === socketId;
     });
