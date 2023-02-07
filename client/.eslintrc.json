@@ -19,14 +19,9 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": [
-      "./tsconfig.json"
-    ]
+    "project": ["./tsconfig.json"]
   },
-  "plugins": [
-    "import",
-    "@typescript-eslint"
-  ],
+  "plugins": ["import", "@typescript-eslint"],
   "settings": {
     "react": {
       "version": "detect"
@@ -34,6 +29,12 @@
   },
   "rules": {
     "no-debugger": "off",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "import/no-unresolved": [
+      "error",
+      {
+        "ignore": [".svg"]
+      }
+    ]
   }
 }

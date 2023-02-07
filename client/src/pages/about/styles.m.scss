@@ -1,0 +1,52 @@
+@use 'sass:color';
+@use '../../app/styles/constants';
+
+.rulesList {
+  padding: 10px;
+
+  li {
+    padding-inline-start: 1ch;
+  }
+
+  li:not(:last-child) {
+    margin-bottom: 5px;
+  }
+
+  li::marker {
+    content: '•';
+    color: constants.$main-color;
+  }
+}
+
+.rulesSection {
+  margin-bottom: 20px;
+}
+
+.SVGIcon {
+  width: auto;
+  height: 24px;
+  transition: color 0.3s ease-in-out;
+}
+
+.creditsSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+}
+
+.iconLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: constants.$text-color;
+  transition: color 0.3s ease-in-out;
+
+  &:hover {
+    color: color.adjust(constants.$text-color, $lightness: -25%);
+
+    .SVGIcon {
+      color: color.adjust(constants.$text-color, $lightness: -25%);
+    }
+  }
+}
