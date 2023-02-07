@@ -201,6 +201,12 @@ export class Room {
       this.startNextRound();
     }
 
+    if (this.round.isRoundFinished()) {
+      this.setActivePlayer(this.defender);
+
+      this.startNextRound();
+    }
+
     // Move turn back to attacker
     this.setActivePlayer(this.attacker);
 
