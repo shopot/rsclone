@@ -18,7 +18,7 @@ const AboutPage = () => {
           <li>a trump card of any rank beats all cards in the other three suits</li>
           <li>the player who has the lowest trump card will be the first attacker</li>
           <li>the player to the attacker&apos;s left is always the defender</li>
-          <li>there cannot be more than six attacks in each round</li>
+          <li>there cannot be more than six attacks (five in the first round) in each round</li>
           <li>
             the attacker opens their turn by playing a card face up on the table as an attacking
             card
