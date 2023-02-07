@@ -23,7 +23,11 @@ export class GameService {
   }
 
   private getRoomById(roomId: string): Room | null {
-    const room = this.rooms.get(roomId) ?? null;
+    const room = this.rooms.get(roomId);
+
+    if (room === undefined) {
+      return null;
+    }
 
     return room;
   }
@@ -113,7 +117,7 @@ export class GameService {
 
     const room = this.getRoomById(roomId);
 
-    if (!room) {
+    if (room === null) {
       return this.createResponseObject({
         roomId,
         error: TypeGameError.JoinRoomFailed,
@@ -125,7 +129,7 @@ export class GameService {
     room.leaveRoom(client.id);
 
     if (room.getPlayersCount() === 0) {
-      this.rooms.delete(roomId);
+      this.closeRoomById(roomId);
 
       return null;
     }
@@ -195,13 +199,32 @@ export class GameService {
     });
   }
 
-  public getRoomState(client: Socket): TypeServerResponse {
+  /**
+   * Event GamePickUpCards
+   * @param {Socket} client - Socket client owner emitter
+   */
+  public setDefenderPickUpCards(client: Socket): TypeServerResponse {
     const roomId = this.getRoomIdByClientSocket(client);
 
+    const room = this.getRoomById(roomId);
+
+    if (room) {
+      room.setDefenderPickUpCards();
+
+      return this.createResponseObject({ roomId });
+    }
+
+    return this.createResponseObject({
+      roomId,
+      error: TypeGameError.GameRoomNotFound,
+    });
+  }
+
+  public getRoomState(roomId: string): TypeServerResponse {
     return this.createResponseObject({ roomId });
   }
 
-  private getRoomIdByClientSocket(client: Socket) {
+  public getRoomIdByClientSocket(client: Socket) {
     let roomId = '';
 
     loop1: for (const room of this.rooms.values()) {
@@ -227,12 +250,15 @@ export class GameService {
   private createResponseObject(
     payload: TypeServerResponse,
   ): TypeServerResponse {
-    const room = this.getRoomById(payload.roomId || '');
+    const { roomId } = payload;
+
+    const room = this.getRoomById(roomId);
 
     if (room) {
-      const roomState = room.getState();
-
-      return { ...roomState, ...payload };
+      return {
+        ...room.getState(),
+        ...payload,
+      };
     }
 
     throw new Error('Room not found. Something went wrong.');
@@ -301,15 +327,5 @@ export class GameService {
   //   payload: TypeServerResponse,
   // ): Promise<void> {
   //   this.emitEvent(TypeRoomEvent.gameFromServerDealtCardsToPlayers, payload);
-  // }
-
-  // /**
-  //  * Emit event gameFromServerDefenderPickUpCards to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerDefenderPickUpCards(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerDefenderPickUpCards, payload);
   // }
 }
