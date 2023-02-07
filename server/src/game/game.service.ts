@@ -259,68 +259,7 @@ export class GameService {
     throw new Error('Room not found. Something went wrong.');
   }
 
-  // async setFromClientCreatePlayer(data: GameReceiveDto) {
-  //   console.log('setCreatePlayer', data);
-  // }
-
-  // async setFromClientChatMessage(data: GameReceiveDto, socket: Socket) {
-  //   const room = this.rooms.get(data.roomId);
-  //   if (!room) {
-  //     return false;
-  //   }
-
-  //   const player = room.getPlayers().getById(data.socketId);
-  //   if (!player) {
-  //     return false;
-  //   }
-
-  //   if (socket.id !== player.getSocketId()) {
-  //     return false;
-  //   }
-
-  //   const message: GameSendDto = {
-  //     source: player.getPlayerId(),
-  //     timestamp: Date.now(),
-  //     chatMessage: data.chatMessage,
-  //   };
-
-  //   socket
-  //     .to(room.getRoomId())
-  //     .emit(TypeRoomEvent.gameFromServerChatMessage, { data: message });
-  // }
-
-  // async setFromClientOpenRoom(data: GameReceiveDto, socketId: string) {
-  //   console.log('setFromClientOpenRoom');
-  //   const room = this.rooms.get(data.roomId);
-  //   if (
-  //     !room ||
-  //     room.getPlayersCount() === MAX_NUMBER_OF_PLAYERS ||
-  //     socketId !== room.getHostPlayer().getSocketId()
-  //   ) {
-  //     return false;
-  //   }
-  //   room.openRoom();
-  // }
-
-  // /**
-  //  * Emit event gameFromServerLeaveRoomSuccess to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerLeaveRoomSuccess(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   const room = this.getRoomById(payload.roomId);
-
-  //   if (room && room.getPlayersCount() === 0) {
-  //     this.closeRoomById(payload.roomId);
-  //   }
-
-  //   this.emitEvent(TypeRoomEvent.gameFromServerLeaveRoomSuccess, payload);
-  // }
-
-  // async setFromServerDealtCardsToPlayers(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerDealtCardsToPlayers, payload);
-  // }
+  public hasPlayerInRoomByClientSocket(client: Socket): boolean {
+    return !!this.getRoomIdByClientSocket(client);
+  }
 }
