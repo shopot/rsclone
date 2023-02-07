@@ -220,7 +220,9 @@ export class Room {
       this.startNextRound();
     } else {
       do {
-        this.attacker.setPlayerRole(TypePlayerRole.Waiting);
+        if (this.attacker.getPlayerRole() !== TypePlayerRole.Defender) {
+          this.attacker.setPlayerRole(TypePlayerRole.Waiting);
+        }
         this.attacker = this.getNextPlayer();
 
         this.setActivePlayer(this.attacker);
@@ -238,6 +240,7 @@ export class Room {
    */
   public setDefenderPickUpCards(): void {
     this.activePlayer.addCards(this.round.getRoundCards());
+    this.activePlayer.setPlayerRole(TypePlayerRole.Waiting);
 
     this.setActivePlayer(this.getNextPlayer());
 
@@ -273,22 +276,16 @@ export class Room {
    * Set new roles for defender and attacker
    */
   private setNewAttackerAndRoles(): void {
+    // Set players as Waiting
+    for (const player of this.players) {
+      player.setPlayerRole(TypePlayerRole.Waiting);
+    }
+
     this.attacker = this.activePlayer;
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
 
     this.defender = this.getNextPlayer();
     this.defender.setPlayerRole(TypePlayerRole.Defender);
-
-    // Set players as Waiting
-    for (const player of this.players) {
-      if (
-        ![TypePlayerRole.Attacker, TypePlayerRole.Defender].includes(
-          player.getPlayerRole(),
-        )
-      ) {
-        player.setPlayerRole(TypePlayerRole.Waiting);
-      }
-    }
   }
 
   /**
