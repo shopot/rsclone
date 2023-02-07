@@ -72,12 +72,7 @@ export class GameService {
 
     this.rooms.set(roomId, room);
 
-    return this.createResponseObject({
-      roomId,
-      hostSocketId: socket.id,
-      roomStatus: room.getRoomStatus(),
-      players: room.getPlayersAsDto(),
-    });
+    return this.createResponseObject({ roomId });
   }
 
   /**
