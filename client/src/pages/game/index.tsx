@@ -97,6 +97,10 @@ const GamePage = () => {
     navigate('/');
   };
 
+  const handleAttackerPass = () => {
+    actions.attackerPass();
+  };
+
   return (
     <div>
       <section className={styles.section}>
@@ -184,6 +188,17 @@ const GamePage = () => {
           >
             leave room
           </button>
+          {roomStatus === TypeRoomStatus.GameInProgress &&
+            socketId === activeSocketId &&
+            activePlayerRole === TypePlayerRole.Attacker && (
+              <button
+                className="btn"
+                type="button"
+                onClick={handleAttackerPass}
+              >
+                pass
+              </button>
+            )}
         </div>
       </section>
     </div>
