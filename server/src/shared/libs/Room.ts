@@ -230,13 +230,20 @@ export class Room {
     this.passCounter += 1;
 
     if (this.passCounter === this.passCounterMaxValue) {
-      // Start active player as new attacker
-      this.setActivePlayer(this.defender);
+      // Defender becomes attacker
+      this.attacker = this.defender;
+      this.attacker.setPlayerRole(TypePlayerRole.Attacker);
+      this.setActivePlayer(this.attacker);
+      this.defender = this.getNextPlayer();
+      this.defender.setPlayerRole(TypePlayerRole.Defender);
 
       this.startNextRound();
     } else {
-      this.attacker = this.getNextPlayer();
-      this.setActivePlayer(this.attacker);
+      do {
+        this.attacker = this.getNextPlayer();
+        this.setActivePlayer(this.attacker);
+      } while (this.attacker.getPlayerRole() === TypePlayerRole.Defender);
+      this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     }
 
     return true;
