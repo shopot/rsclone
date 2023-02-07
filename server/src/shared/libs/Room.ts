@@ -285,7 +285,7 @@ export class Room {
           player.getPlayerRole(),
         )
       ) {
-        this.defender.setPlayerRole(TypePlayerRole.Waiting);
+        player.setPlayerRole(TypePlayerRole.Waiting);
       }
     }
   }
