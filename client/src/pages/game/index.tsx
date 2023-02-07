@@ -184,7 +184,7 @@ const GamePage = () => {
               <button
                 className="btn btnCard"
                 type="button"
-                key={idx}
+                key={`a-${idx}`}
                 disabled={true}
               >
                 {cardToString(placedCard.attacker)}
@@ -193,7 +193,7 @@ const GamePage = () => {
                 <button
                   className="btn btnCard"
                   type="button"
-                  key={idx}
+                  key={`d-${idx}`}
                   disabled={true}
                 >
                   {cardToString(placedCard.defender)}
