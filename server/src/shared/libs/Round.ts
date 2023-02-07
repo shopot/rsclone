@@ -17,6 +17,11 @@ export class Round {
     this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
   }
 
+  public restart(): void {
+    this.attackersCards = [];
+    this.defenderCards = [];
+  }
+
   public attack(cardDto: CardDto) {
     // Has limit, can't add new card
     if (this.attackersCards.length >= this.maxRoundSlots) {
