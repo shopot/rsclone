@@ -62,8 +62,15 @@ const GamePage = () => {
     dealt,
     placedCards,
     error,
-    activePlayerRole,
   } = useGameStore();
+
+  const isFirstAttackInRound = useGameStore((state) => state.placedCards.length === 0);
+
+  const activePlayerRole = useGameStore((state) => {
+    const activePlayer = state.players.find((plr) => plr.socketId === state.activeSocketId);
+
+    return activePlayer?.playerRole || TypePlayerRole.Unknown;
+  });
 
   const socketId = socketIOService.getSocketId();
 
