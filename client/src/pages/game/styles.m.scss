@@ -1,3 +1,5 @@
+@use '../../app/styles/constants';
+
 .buttonsDiv {
   display: flex;
   flex-direction: column;
@@ -22,7 +24,7 @@
 }
 
 .player:not(:last-child) {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .playerCards {
@@ -33,4 +35,8 @@
 .uiButtons {
   display: flex;
   gap: 0.5em;
+}
+
+.playerActive {
+  color: constants.$main-color;
 }
