@@ -359,19 +359,9 @@ export class Room {
       return true;
     }
 
-    this.players.remove(leavePlayer);
-
-    if (
-      !this.isGameInProgress() &&
-      this.getPlayersCount() < MIN_NUMBER_OF_PLAYERS
-    ) {
-      this.roomStatus = TypeRoomStatus.WaitingForPlayers;
-    }
-
-    if (this.isGameInProgress() && this.isPlayerInGame(leavePlayer)) {
-      this.setPlayerAsLoser(leavePlayer);
-
-      this.updateGameStatus();
+    // Game over
+    if (this.isGameInProgress()) {
+      leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
 
       // Set all players as winner
       for (const player of this.players) {
@@ -379,7 +369,11 @@ export class Room {
           this.setPlayerAsWinner(player);
         }
       }
+
+      this.roomStatus = TypeRoomStatus.GameIsOver;
     }
+
+    this.players.remove(leavePlayer);
 
     return true;
   }
@@ -466,13 +460,6 @@ export class Room {
   }
 
   /**
-   * Check game is finish
-   */
-  // private isGameOver(): boolean {
-  //   return this.roomStatus === TypeRoomStatus.GameIsOver;
-  // }
-
-  /**
    * Returns true if a player in game
    * @param {Player} player
    * @returns
@@ -520,17 +507,6 @@ export class Room {
       deckCounter: this.deck.getSize(),
     };
   }
-
-  /**
-   * Validate active player
-   * Check attacker === defender
-   *
-   * @param {Player} player Current active player
-   * @returns {boolean}
-   */
-  // private validateActivePlayer(player: Player): boolean {
-  //   return this.activePlayer === player && this.attacker !== this.defender;
-  // }
 
   private log(message: string): void {
     this.logger.log(message);
