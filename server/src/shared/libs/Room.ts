@@ -277,13 +277,17 @@ export class Room {
 
     this.defender = this.getNextPlayer();
     this.defender.setPlayerRole(TypePlayerRole.Defender);
-  }
 
-  /**
-   * Set player as loser and send event message
-   */
-  private setPlayerAsLoser(player: Player): void {
-    player.setPlayerStatus(TypePlayerStatus.YouLoser);
+    // Set players as Waiting
+    for (const player of this.players) {
+      if (
+        ![TypePlayerRole.Attacker, TypePlayerRole.Defender].includes(
+          player.getPlayerRole(),
+        )
+      ) {
+        this.defender.setPlayerRole(TypePlayerRole.Waiting);
+      }
+    }
   }
 
   /**
