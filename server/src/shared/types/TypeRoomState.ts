@@ -12,6 +12,7 @@ export type TypeRoomState = {
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
   dealt: TypeDealt[];
+  isDealtEnabled: boolean;
   deckCounter: number;
 };
 
