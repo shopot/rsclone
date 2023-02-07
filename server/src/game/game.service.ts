@@ -141,6 +141,38 @@ export class GameService {
     });
   }
 
+  public setCardClose(client: Socket, card: TypeCardDto): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (room && room.setDefenderClose(card)) {
+      return this.createResponseObject({ roomId });
+    }
+
+    return this.createResponseObject({
+      roomId,
+      error: TypeGameError.CloseCardFailed,
+    });
+  }
+
+  public setAttackerPass(client: Socket): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (room) {
+      room.setAttackerPass();
+
+      return this.createResponseObject({ roomId });
+    }
+
+    return this.createResponseObject({
+      roomId,
+      error: TypeGameError.GameRoomNotFound,
+    });
+  }
+
   public getRoomState(client: Socket): TypeServerResponse {
     const roomId = this.getRoomIdByClientSocket(client);
 
@@ -230,36 +262,6 @@ export class GameService {
   //     .emit(TypeRoomEvent.gameFromServerChatMessage, { data: message });
   // }
 
-  // /**
-  //  * Join player to room
-  //  * @param {GameReceiveDto} data
-  //  * @param {Socket} socket
-  //  * @returns {void}
-  //  */
-  // async setFromClientJoinRoom(
-  //   data: GameReceiveDto,
-  //   socket: Socket,
-  // ): Promise<void> {
-  //   const room = this.rooms.get(data.roomId);
-  //   if (!room) {
-  //     const payload = {
-  //       roomId: data.roomId,
-  //       socket: socket,
-  //       socketId: data.socketId,
-  //     };
-
-  //     this.setFromServerError(TypeServerError.JoinRoomFailed, payload);
-
-  //     return;
-  //   }
-
-  //   const player = new Player(socket, data.socketId, TypePlayerMember.Regular);
-
-  //   socket.join(room.getRoomId());
-
-  //   room.joinRoom(player);
-  // }
-
   // async setFromClientLeaveRoom(data: GameReceiveDto, socket: Socket) {
   //   console.log('setLeaveRoom', data);
   //   const room = this.rooms.get(data.roomId);
@@ -280,44 +282,6 @@ export class GameService {
   //   room.leaveRoom(data.socketId);
   // }
 
-  // async setFromClientStartGame(data: GameReceiveDto, socketId: string) {
-  //   console.log('setStartGame', data);
-  //   const room = this.rooms.get(data.roomId);
-  //   if (!room || socketId !== room.getHostPlayer().getSocketId()) {
-  //     return false;
-  //   }
-  //   room.start();
-  // }
-
-  // async setFromClientAttackerOpen(data: GameReceiveDto) {
-  //   console.log('setAttackerOpen', data);
-  // }
-
-  // async setFromClientAttackerPass(data: GameReceiveDto) {
-  //   console.log('setAttackerPass', data);
-  // }
-
-  // async setFromClientDefenderClose(data: GameReceiveDto) {
-  //   console.log('setDefenderClose', data);
-  // }
-
-  // async setFromClientDefenderTake(data: GameReceiveDto) {
-  //   console.log('setDefenderTake', data);
-  // }
-
-  // async setFromClientSettings(data: GameReceiveDto) {
-  //   console.log('setSettings', data);
-  // }
-
-  // async setFromClientRestartGame(data: GameReceiveDto, socketId: string) {
-  //   console.log('setFromClientRestartGame', data);
-  //   const room = this.rooms.get(data.roomId);
-  //   if (!room || socketId !== room.getHostPlayer().getSocketId()) {
-  //     return false;
-  //   }
-  //   room.restartGame();
-  // }
-
   // async setFromClientOpenRoom(data: GameReceiveDto, socketId: string) {
   //   console.log('setFromClientOpenRoom');
   //   const room = this.rooms.get(data.roomId);
@@ -329,31 +293,6 @@ export class GameService {
   //     return false;
   //   }
   //   room.openRoom();
-  // }
-
-  // /** Emit event gameFromServerRoomStatusChange to client
-  //  * Type: Broadcast
-  //  *
-  //  * Sends data: {
-  //  *   roomId: string;
-  //  *   roomStatus: TypeRoomStatus
-  //  * }
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerRoomStatusChange(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerRoomStatusChange, payload);
-  // }
-
-  // /**
-  //  * Emit event gameFromServerJoinRoomSuccess to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerJoinRoomSuccess(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerJoinRoomSuccess, payload);
   // }
 
   // /**
@@ -379,64 +318,6 @@ export class GameService {
   // }
 
   // /**
-  //  * Emit event gameFromServerAttackerSetActive to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerAttackerSetActive(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerAttackerSetActive, payload);
-  // }
-
-  // /**
-  //  * Emit event gameFromServerAttackerOpenSuccess to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerAttackerOpenSuccess(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerAttackerOpenSuccess, payload);
-  // }
-
-  // /**
-  //  * Emit event gameFromServerAttackerPass to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerAttackerPass(payload: TypeServerResponse): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerAttackerPass, payload);
-  // }
-
-  // /**
-  //  * Emit event gameFromServerDefenderSetActive to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerDefenderSetActive(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerDefenderSetActive, payload);
-  // }
-
-  // /**
-  //  * Emit event gameFromServerDefenderCloseSuccess to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerDefenderCloseSuccess(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerDefenderCloseSuccess, payload);
-  // }
-
-  // /**
-  //  * Emit event gameFromServerSendPlayerStatus to client
-  //  * @param {TypeServerResponse} payload Data for client sending
-  //  */
-  // async setFromServerSendPlayerStatus(
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerSendPlayerStatus, payload);
-  // }
-
-  // /**
   //  * Emit event gameFromServerDefenderPickUpCards to client
   //  * @param {TypeServerResponse} payload Data for client sending
   //  */
@@ -444,39 +325,5 @@ export class GameService {
   //   payload: TypeServerResponse,
   // ): Promise<void> {
   //   this.emitEvent(TypeRoomEvent.gameFromServerDefenderPickUpCards, payload);
-  // }
-
-  // async setFromServerError(
-  //   errorType: TypeServerError,
-  //   payload: TypeServerResponse,
-  // ) {
-  //   this.emitEvent(TypeRoomEvent.gameFromServerError, {
-  //     ...payload,
-  //     errorType,
-  //   });
-  // }
-
-  // /**
-  //  * Send data to client
-  //  * @param {TypeRoomEvent} type Type of  gameFromServer* event
-  //  * @param {TypeServerResponse} payload Data for sending to client
-  //  */
-  // async emitEvent(
-  //   type: TypeRoomEvent,
-  //   payload: TypeServerResponse,
-  // ): Promise<void> {
-  //   let adapter: Server | Socket = this.server;
-
-  //   const { socket, ...data } = payload;
-
-  //   if (socket) {
-  //     adapter = socket;
-  //   }
-
-  //   adapter.to(payload.roomId).emit(type, {
-  //     data: {
-  //       ...data,
-  //     },
-  //   });
   // }
 }

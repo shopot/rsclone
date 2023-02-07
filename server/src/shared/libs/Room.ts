@@ -177,7 +177,10 @@ export class Room {
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
 
-      // TODO: set next attacker there
+      this.updateGameStatus();
+
+      this.setActivePlayer(this.getNextPlayer());
+      this.startNextRound();
     }
 
     // Move turn to defender from attacker
@@ -187,9 +190,33 @@ export class Room {
   }
 
   /**
-   * Event gameAttackerPass
+   * Give one card from defender
    */
-  public attackerPass(): void {
+  public setDefenderClose(cardDto: CardDto): boolean {
+    // Add the card
+    if (!this.round.defend(cardDto)) {
+      return false;
+    }
+
+    // Remove card from player cards array
+    this.activePlayer.lostCard(cardDto);
+
+    if (this.isActivePlayerWin()) {
+      this.setPlayerAsWinner(this.activePlayer);
+
+      this.updateGameStatus();
+
+      this.setActivePlayer(this.getNextPlayer());
+      this.startNextRound();
+    }
+
+    return true;
+  }
+
+  /**
+   * Event GameAttackerPass
+   */
+  public setAttackerPass(): boolean {
     this.passCounter += 1;
 
     if (this.passCounter === this.passCounterMaxValue) {
@@ -199,76 +226,14 @@ export class Room {
       this.startNextRound();
     } else {
       this.attacker = this.getNextPlayer();
-
       this.setActivePlayer(this.attacker);
-
-      // this.gameService.setFromServerAttackerSetActive(this.createPayload({}));
-    }
-  }
-
-  /**
-   * Give one card from defender
-   */
-  public setDefenderClose(cardDto: CardDto): void {
-    if (!this.validateActivePlayer(this.defender)) {
-      throw new Error('Players is invalid. Something went wrong.');
     }
 
-    const payload = {
-      socketId: this.activePlayer.getSocketId(),
-      card: cardDto,
-    };
-
-    // Add the card
-    if (!this.round.defend(cardDto)) {
-      // Something went wrong, motherfucker
-
-      // this.gameService.setFromServerError(
-      //   TypeServerError.CloseCardFailed,
-      //   this.createPayload({ ...payload }),
-      // );
-
-      return;
-    }
-
-    // Remove card from player cards array
-    this.activePlayer.lostCard(cardDto);
-
-    // Card added successfully, send message to client
-    // this.gameService.setFromServerDefenderCloseSuccess(
-    //   this.createPayload({ ...payload }),
-    // );
-
-    // Check game is finish for defender
-    if (this.isActivePlayerWin()) {
-      this.setPlayerAsWinner(this.activePlayer);
-
-      this.updateGameStatus();
-
-      // Game is over
-      if (this.isGameOver()) {
-        return this.sendGameStatus();
-      }
-
-      this.setActivePlayer(this.getNextPlayer());
-
-      this.startNextRound();
-    }
+    return true;
   }
 
   public defenderPickUpCards(): void {
-    if (!this.validateActivePlayer(this.defender)) {
-      throw new Error('Players is invalid. Something went wrong.');
-    }
-
     this.activePlayer.addCards(this.round.getRoundCards());
-
-    // this.gameService.setFromServerDefenderPickUpCards(
-    //   this.createPayload({
-    //     socketId: this.activePlayer.getSocketId(),
-    //     socketId: this.activePlayer.getSocketId(),
-    //   }),
-    // );
 
     this.setActivePlayer(this.getNextPlayer());
 
@@ -281,8 +246,6 @@ export class Room {
 
     this.attacker = this.activePlayer;
     this.defender = this.getNextPlayer();
-
-    // this.gameService.setFromServerAttackerSetActive(this.createPayload({}));
 
     this.log(`Room #${this.roomId} - Start next round`);
   }

@@ -130,8 +130,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     @MessageBody('data') { card }: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    // const result = this.gameService.startGame(client);
-    // this.sendStateToClient(client, result);
+    const result = this.gameService.setCardClose(client, card);
+
+    this.sendStateToClient(client, result);
+  }
+
+  @SubscribeMessage(TypeRoomEvent.GameAttackerPass)
+  handlerGameAttackerPass(@ConnectedSocket() client: Socket): void {
+    const result = this.gameService.setAttackerPass(client);
+
+    this.sendStateToClient(client, result);
   }
 
   /**
@@ -148,9 +156,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
 
     // Send to all client by roomId
     if (roomId) {
-      this.server.to(roomId).emit(TypeRoomEvent.GameUpdateState, {
+      const response = {
         data: { ...results, ...(payload || {}) },
-      });
+      };
+
+      this.server.to(roomId).emit(TypeRoomEvent.GameUpdateState, response);
+
+      Logger.debug(TypeRoomEvent.GameUpdateState);
+      Logger.debug(response);
     }
   }
 
