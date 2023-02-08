@@ -387,7 +387,7 @@ export class Room {
       this.round.getStartPlayerSocketId(),
     );
 
-    const playersAll = this.players.getAll();
+    const playersAll = this.players.getPlayersInGame();
 
     let players = [
       ...playersAll.slice(startIndex + 1),
