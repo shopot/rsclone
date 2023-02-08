@@ -404,18 +404,31 @@ export class Room {
       this.round.getStartPlayerSocketId(),
     );
 
-    let players = [
+    const players = [
       ...playersAll.slice(startIndex),
       ...playersAll.slice(0, startIndex),
-    ].filter((player) => player.getPlayerStatus() === TypePlayerStatus.InGame);
+    ].filter(
+      (player) =>
+        player.getPlayerStatus() === TypePlayerStatus.InGame &&
+        player !== this.lastDefender,
+    );
 
-    if (this.lastDefender === this.activePlayer) {
-      players = players.filter(
-        (player) => player.getSocketId() !== this.activePlayer.getSocketId(),
-      );
-
-      players.push(this.activePlayer);
+    if (this.lastDefender.getPlayerStatus() === TypePlayerStatus.InGame) {
+      players.push(this.lastDefender);
     }
+
+    // let players = [
+    //   ...playersAll.slice(startIndex),
+    //   ...playersAll.slice(0, startIndex),
+    // ].filter((player) => player.getPlayerStatus() === TypePlayerStatus.InGame);
+
+    // if (this.lastDefender === this.activePlayer) {
+    //   players = players.filter(
+    //     (player) => player.getSocketId() !== this.activePlayer.getSocketId(),
+    //   );
+
+    //   players.push(this.activePlayer);
+    // }
 
     return players;
   }
