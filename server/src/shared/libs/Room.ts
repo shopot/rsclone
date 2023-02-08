@@ -278,6 +278,13 @@ export class Room {
    * Event GameAttackerPass
    */
   public setAttackerPass(): boolean {
+    // For twi players
+    if (this.isTwoPlayersInGame()) {
+      this.activePlayer = this.defender;
+      this.startNextRound();
+      return true;
+    }
+
     this.passCounter += 1;
 
     if (this.passCounter === this.passCounterMaxValue) {
@@ -294,6 +301,10 @@ export class Room {
     this.attacker = this.getNextAttacker2(this.activePlayer);
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     this.activePlayer = this.attacker;
+
+    if (this.attacker === this.defender) {
+      this.startNextRound();
+    }
 
     return true;
   }
@@ -378,21 +389,23 @@ export class Room {
     this.passCounterMaxValue -= 1;
   }
 
+  private isTwoPlayersInGame(): boolean {
+    return this.players.totalCountInGame() === 2;
+  }
+
   private getPlayersForDealt(): Player[] {
     if (!this.round) {
       return this.players.getPlayersInGame();
     }
 
+    const playersStart = this.players.getAll();
+
     const startIndex = this.players.getPlayerIndexBySocketId(
       this.round.getStartPlayerSocketId(),
     );
 
-    const playersAll = this.players.getPlayersInGame();
-
-    let players = [
-      ...playersAll.slice(startIndex + 1),
-      ...playersAll.slice(0, startIndex),
-    ];
+    const playersEnd = playersStart.slice(startIndex);
+    let players = [...playersStart.slice(0, startIndex), ...playersEnd];
 
     if (this.lastDefender === this.activePlayer) {
       players = players.filter(
@@ -551,17 +564,15 @@ export class Room {
         : playersInGame[0];
     }
 
-    const playersEnd = this.players.getAll();
-
     const startIndex = this.players.getPlayerIndexBySocketId(
       currentAttacker.getSocketId(),
     );
 
-    const playersStart = playersEnd.slice(startIndex);
+    const playersAll = this.players.getAll();
 
     const players = [
-      ...playersStart,
-      ...playersEnd.slice(0, startIndex + 1),
+      ...playersAll.slice(startIndex + 1),
+      ...playersAll.slice(0, startIndex),
     ].filter(
       (player) =>
         player.getPlayerStatus() === TypePlayerStatus.InGame &&
