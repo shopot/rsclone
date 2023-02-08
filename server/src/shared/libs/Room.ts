@@ -278,7 +278,7 @@ export class Room {
     }
 
     // Next after active player (defender)
-    this.setActivePlayer(this.getNextAttacker(this.activePlayer));
+    this.setActivePlayer(this.getNextPlayer());
 
     this.startNextRound();
   }
