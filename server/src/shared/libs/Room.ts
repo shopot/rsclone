@@ -142,7 +142,8 @@ export class Room {
     this.attacker = this.activePlayer;
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
 
-    this.defender = this.getNextPlayer();
+    // this.defender = this.getNextPlayer();
+    this.defender = this.getNextPlayer2(this.attacker);
     this.defender.setPlayerRole(TypePlayerRole.Defender);
 
     this.round = new Round(this.deck);
@@ -246,7 +247,8 @@ export class Room {
         return true;
       }
 
-      this.setActivePlayer(this.getNextPlayer());
+      // this.setActivePlayer(this.getNextPlayer());
+      this.activePlayer = this.getNextPlayer2(this.activePlayer);
       this.startNextRound();
       return true;
     }
@@ -323,7 +325,8 @@ export class Room {
     }
 
     // Next after active player (defender)
-    this.setActivePlayer(this.getNextPlayer());
+    // this.setActivePlayer(this.getNextPlayer());
+    this.activePlayer = this.getNextPlayer2(this.activePlayer);
 
     this.startNextRound();
   }
@@ -340,7 +343,8 @@ export class Room {
     this.attacker = this.activePlayer;
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
 
-    this.defender = this.getNextPlayer(); // Can returns error!
+    // this.defender = this.getNextPlayer(); // Can returns error!
+    this.defender = this.getNextPlayer2(this.attacker);
 
     if (this.defender === this.attacker) {
       this.log(`Room #${this.roomId} - Can't set next defender`);
@@ -666,6 +670,19 @@ export class Room {
     Logger.error('Room::getNextAttacker(): Returns player not found');
 
     return currentAttacker;
+  }
+
+  getNextPlayer2(current: Player): Player {
+    const index = this.players.getPlayerIndexBySocketId(current.getSocketId());
+
+    const playersAll = this.players.getAll();
+
+    const players = [
+      ...playersAll.slice(index + 1),
+      ...playersAll.slice(0, index),
+    ].filter((player) => player.getPlayerStatus() === TypePlayerStatus.InGame);
+
+    return players[0];
   }
 
   /**
