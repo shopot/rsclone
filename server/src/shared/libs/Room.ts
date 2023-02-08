@@ -473,6 +473,15 @@ export class Room {
    * @returns {void}
    */
   public joinRoom(player: Player): boolean {
+    if (
+      ![
+        TypeRoomStatus.WaitingForPlayers,
+        TypeRoomStatus.WaitingForStart,
+      ].includes(this.getRoomStatus())
+    ) {
+      return false;
+    }
+
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
       return false;
     }
