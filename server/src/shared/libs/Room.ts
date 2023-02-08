@@ -558,9 +558,11 @@ export class Room {
     );
 
     const playersStart = playersEnd.slice(startIndex);
-    let players = [...playersStart, ...playersEnd.slice(0, startIndex + 1)];
 
-    players = players.filter(
+    const players = [
+      ...playersStart,
+      ...playersEnd.slice(0, startIndex + 1),
+    ].filter(
       (player) =>
         player.getPlayerStatus() === TypePlayerStatus.InGame &&
         player.getPlayerRole() !== TypePlayerRole.Defender,
