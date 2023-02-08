@@ -172,6 +172,8 @@ export class Room {
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
 
+      this.activePlayer.setPlayerRole(TypePlayerRole.Waiting);
+
       this.attacker = this.getNextAttacker(this.activePlayer);
     }
 
