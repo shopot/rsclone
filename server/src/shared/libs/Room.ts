@@ -390,7 +390,11 @@ export class Room {
     );
 
     const playersEnd = playersStart.slice(startIndex);
-    let players = [...playersStart.slice(0, startIndex), ...playersEnd];
+
+    let players = [
+      ...playersStart.slice(0, Math.max(0, startIndex - 1)),
+      ...playersEnd,
+    ];
 
     if (this.lastDefender === this.activePlayer) {
       players = players.filter(
@@ -556,7 +560,10 @@ export class Room {
     );
 
     const playersStart = playersEnd.slice(startIndex);
-    let players = [...playersStart, ...playersEnd.slice(0, startIndex)];
+    let players = [
+      ...playersStart,
+      ...playersEnd.slice(0, Math.max(0, startIndex - 1)),
+    ];
 
     players = players.filter(
       (player) =>
