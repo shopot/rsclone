@@ -45,6 +45,8 @@ export class Room {
   attacker: Player;
   /** Who defense */
   defender: Player;
+  /** Who last defense */
+  lastDefender: Player;
   /** Active player on the current step */
   activePlayer: Player;
   /** Total number of pass */
@@ -80,6 +82,7 @@ export class Room {
     this.currentRound = 0;
     this.attacker = this.hostPlayer;
     this.defender = this.hostPlayer;
+    this.lastDefender = this.hostPlayer;
     this.activePlayer = this.hostPlayer;
     this.passCounter = 0;
     this.passCounterMaxValue = 1;
@@ -177,8 +180,6 @@ export class Room {
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
 
-      this.activePlayer.setPlayerRole(TypePlayerRole.Waiting);
-
       this.attacker = this.getNextAttacker(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     }
@@ -193,6 +194,8 @@ export class Room {
    * Give one card from defender
    */
   public setDefenderClose(card: TypeCard): boolean {
+    this.lastDefender = this.activePlayer;
+
     // Add the card
     if (!this.round.defend(card)) {
       return false;
@@ -351,18 +354,24 @@ export class Room {
    */
   private setPlayerAsWinner(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
+    player.setPlayerRole(TypePlayerRole.Waiting);
     this.passCounterMaxValue -= 1;
   }
 
   private getPlayersForDealt() {
     const lastPlayerSocketId = this.round.getStartPlayerSocketId();
 
-    const lastPlayerIndex =
-      this.players.getPlayerIndexBySocketId(lastPlayerSocketId);
+    // const lastPlayerIndex =
+    // this.players.getPlayerIndexBySocketId(lastPlayerSocketId);
 
-    const playersInGame = this.players.getPlayersInGame().filter((player) => {
-      return player.getSocketId() !== lastPlayerSocketId;
-    });
+    // let playersEnd: Player = [];
+
+    // if (this.lastDefender !== this.activePlayer) {
+    //   playersEnd = this.players.getPlayersInGame().slice();
+    // }
+    // const playersInGame = this.players.getPlayersInGame().filter((player) => {
+    //   return player.getSocketId() !== lastPlayerSocketId;
+    // });
   }
 
   /**
