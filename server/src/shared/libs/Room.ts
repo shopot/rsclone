@@ -165,8 +165,15 @@ export class Room {
   public setAttackerOpen(card: TypeCard): boolean {
     this.isDealtEnabled = false;
 
-    // Add the card & check it
+    // Автоматический останов игры если у защищающегося одна карта, но эта карта не может побить атакующую карту
+    if (!this.round.attack(card) && this.players.totalCountInGame() === 1) {
+      this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.roomStatus = TypeRoomStatus.GameIsOver;
+      return false;
+    }
+
     if (!this.round.attack(card)) {
+      // Add the card & check it
       return false;
     }
 
