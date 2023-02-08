@@ -140,7 +140,17 @@ const GamePage = () => {
       </div>
 
       <section className={styles.section}>
-        <h2 className={styles.title}>players</h2>
+        <h2 className={styles.title}>
+          players
+          <button
+            style={{ marginLeft: '30px' }}
+            className="btn"
+            type="button"
+            onClick={handleLeaveRoom}
+          >
+            leave room
+          </button>
+        </h2>
         <div className={styles.players}>
           {players.map((player) => (
             <div
@@ -223,13 +233,6 @@ const GamePage = () => {
               start game
             </button>
           )}
-          <button
-            className="btn"
-            type="button"
-            onClick={handleLeaveRoom}
-          >
-            leave room
-          </button>
           {roomStatus === TypeRoomStatus.GameInProgress &&
             socketId === activeSocketId &&
             !isFirstAttackInRound &&
