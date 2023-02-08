@@ -14,7 +14,7 @@ export class Round {
     this.attackersCards = [];
     this.defenderCards = [];
     this.trumpSuit = deck.getTrumpSuit();
-    this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
+    this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT - 1;
     this.startPlayerSocketId = '';
   }
 
@@ -29,6 +29,7 @@ export class Round {
   public restart(): void {
     this.attackersCards = [];
     this.defenderCards = [];
+    this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
   }
 
   public attack(cardDto: TypeCard) {
