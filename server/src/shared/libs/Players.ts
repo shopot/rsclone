@@ -104,7 +104,7 @@ export class Players {
   }
 
   public totalCountInGame() {
-    return this.players.length;
+    return this.getPlayersInGame().length;
   }
 
   public totalCount() {
