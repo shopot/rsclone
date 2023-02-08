@@ -201,7 +201,6 @@ export class Room {
 
       this.attacker = this.getNextAttacker2(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
-      return true;
     }
 
     // Move turn to defender from attacker
@@ -583,7 +582,7 @@ export class Room {
 
     // When has two players
     if (playersInGame.length === 2) {
-      return currentAttacker === playersInGame[0]
+      return playersInGame[0].getPlayerRole() === TypePlayerRole.Defender
         ? playersInGame[1]
         : playersInGame[0];
     }
