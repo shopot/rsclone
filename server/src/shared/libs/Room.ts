@@ -406,7 +406,7 @@ export class Room {
 
     let players = [
       ...playersAll.slice(startIndex),
-      ...playersAll.slice(0, startIndex - 1),
+      ...playersAll.slice(0, startIndex),
     ].filter((player) => player.getPlayerStatus() === TypePlayerStatus.InGame);
 
     if (this.lastDefender === this.activePlayer) {
