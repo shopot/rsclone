@@ -182,8 +182,8 @@ export class Room {
 
       // Check game is finish for defender
       if (
-        this.players.totalCountInGame() > 1 &&
-        this.defender.getCardsCount() > 0
+        this.players.totalCountInGame() === 1 &&
+        this.defender.getCardsCount() > 1
       ) {
         this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
         this.roomStatus = TypeRoomStatus.GameIsOver;
