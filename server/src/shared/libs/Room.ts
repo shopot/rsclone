@@ -383,15 +383,16 @@ export class Room {
       return this.players.getPlayersInGame();
     }
 
-    const playersStart = this.players.getAll();
-
     const startIndex = this.players.getPlayerIndexBySocketId(
       this.round.getStartPlayerSocketId(),
     );
 
-    const playersEnd = playersStart.slice(startIndex);
+    const playersAll = this.players.getAll();
 
-    let players = [...playersStart.slice(0, startIndex), ...playersEnd];
+    let players = [
+      ...playersAll.slice(startIndex + 1),
+      ...playersAll.slice(0, startIndex),
+    ];
 
     if (this.lastDefender === this.activePlayer) {
       players = players.filter(
