@@ -378,6 +378,10 @@ export class Room {
   }
 
   private getPlayersForDealt(): Player[] {
+    if (!this.round) {
+      return this.players.getPlayersInGame();
+    }
+
     const playersStart = this.players.getAll();
 
     const startIndex = this.players.getPlayerIndexBySocketId(
