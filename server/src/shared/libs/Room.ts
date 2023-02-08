@@ -377,38 +377,31 @@ export class Room {
     this.passCounterMaxValue -= 1;
   }
 
-  private getPlayersForDealt() {
-    // let playersInGame = this.players.getPlayersInGame();
-    // const startPlayerSocketId = this.round.getStartPlayerSocketId();
-    // let playersEnd: Player[];
-    // let playersStart: Player[] = [];
-    // if (this.lastDefender === this.activePlayer) {
-    //   playersInGame = playersInGame.filter(player => player.getSocketId() !== this.activePlayer.getSocketId());
-    // }
-    // playersStart = playersEnd.splice(
-    //   startIndex,
-    //   playersEnd.length - startIndex + 1,
-    // );
-    // if (this.lastDefender === this.activePlayer) {
-    //   playersEnd = playersInGame.filter((player) => {
-    //     return player.getSocketId() !== this.activePlayer.getSocketId();
-    //   });
-    // } else {
-    //   playersEnd = playersInGame;
-    // }
-    // let playersStart: Player[] = [];
-    // const startIndex = this.players.getPlayerIndexBySocketId(
-    //   this.activePlayer.getSocketId(),
-    // );
-    // playersStart = playersEnd.splice(
-    //   startIndex,
-    //   playersEnd.length - startIndex + 1,
-    // );
-    //   if
-    // const players = [...playersStart, ...playersEnd];
-    // const playersInGame = this.players.getPlayersInGame().filter((player) => {
-    //   return player.getSocketId() !== lastPlayerSocketId;
-    // });
+  private getPlayersForDealt(): Player[] {
+    const playersStart = this.players.getAll();
+
+    const startIndex = this.players.getPlayerIndexBySocketId(
+      this.round.getStartPlayerSocketId(),
+    );
+
+    const playersEnd = playersStart.splice(
+      startIndex,
+      playersStart.length - startIndex + 1,
+    );
+
+    let players = [...playersStart, ...playersEnd].filter((player) => {
+      player.getPlayerStatus() === TypePlayerStatus.InGame;
+    });
+
+    if (this.lastDefender === this.activePlayer) {
+      players = players.filter(
+        (player) => player.getSocketId() !== this.activePlayer.getSocketId(),
+      );
+
+      players.push(this.activePlayer);
+    }
+
+    return players;
   }
 
   /**
@@ -421,7 +414,7 @@ export class Room {
 
     this.dealt = [];
 
-    this.players.getPlayersInGame().forEach((player) => {
+    this.getPlayersForDealt().forEach((player) => {
       const balance = player.getCards().length;
 
       const playerDealt: TypeDealt = {
