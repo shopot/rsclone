@@ -8,17 +8,28 @@ export class Round {
   defenderCards: Card[];
   trumpSuit: TypeCardSuit;
   maxRoundSlots: number;
+  startPlayerSocketId: string;
 
   constructor(deck: Deck) {
     this.attackersCards = [];
     this.defenderCards = [];
     this.trumpSuit = deck.getTrumpSuit();
-    this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
+    this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT - 1;
+    this.startPlayerSocketId = '';
+  }
+
+  public getStartPlayerSocketId(): string {
+    return this.startPlayerSocketId;
+  }
+
+  public setStartPlayerSocketId(socketId: string): void {
+    this.startPlayerSocketId = socketId;
   }
 
   public restart(): void {
     this.attackersCards = [];
     this.defenderCards = [];
+    this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
   }
 
   public attack(cardDto: TypeCard) {
@@ -66,13 +77,6 @@ export class Round {
     return false;
   }
 
-  isRoundFinished(): boolean {
-    return (
-      this.attackersCards.length === this.maxRoundSlots &&
-      this.defenderCards.length === this.maxRoundSlots
-    );
-  }
-
   /**
    * Returns all cards from the round
    * @returns {Array<Card>} Round cards array
@@ -98,11 +102,7 @@ export class Round {
     });
   }
 
-  getAttackerCards(): TypeCard[] {
-    return this.attackersCards.map((card) => card.getCardDto());
-  }
-
-  getDefenderCards(): Card[] {
-    return this.defenderCards;
+  public isFinished(): boolean {
+    return this.attackersCards.length === this.maxRoundSlots;
   }
 }

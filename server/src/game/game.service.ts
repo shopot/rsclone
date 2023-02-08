@@ -95,14 +95,14 @@ export class GameService {
 
     const player = new Player(socket, playerName, TypePlayerMember.Regular);
 
-    socket.join(room.getRoomId());
-
     if (room.joinRoom(player) === false) {
       return this.createResponseObject({
         roomId,
         error: TypeGameError.JoinRoomFailed,
       });
     }
+
+    socket.join(room.getRoomId());
 
     return this.createResponseObject({ roomId });
   }

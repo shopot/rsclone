@@ -15,7 +15,7 @@ export class Players {
   }
 
   public getAll() {
-    return this.players;
+    return [...this.players];
   }
 
   public add(player: Player): void {
@@ -30,55 +30,20 @@ export class Players {
     });
   }
 
+  public getPlayerIndexBySocketId(socketId: string): number {
+    const index = this.players.findIndex((player) => {
+      return player.getSocketId() === socketId;
+    });
+
+    return index;
+  }
+
   public getPlayerBySocketId(socketId: string): Player | undefined {
     const player = this.players.find((player) => {
       return player.getSocketId() === socketId;
     });
 
     return player;
-  }
-
-  public next(fromPlayer: Player): Player | null {
-    const playersInGame = this.getPlayersInGame();
-
-    if (playersInGame.length < 2) {
-      // Something went wrong.
-      return null;
-    }
-
-    // When has two players
-    if (playersInGame.length === 2) {
-      return fromPlayer === playersInGame[0]
-        ? playersInGame[1]
-        : playersInGame[0];
-    }
-
-    const idx = this.players.findIndex((plr) => {
-      return plr.getSocketId() === fromPlayer.getSocketId();
-    });
-
-    if (idx === -1) {
-      // Player not found. Something went wrong.
-      return null;
-    }
-
-    let foundPlayer = null;
-    const endIndex = this.totalCount();
-    let counter = 0; // Max value is equal endIndex
-
-    for (let i = idx; counter < endIndex; counter += 1) {
-      i = i < endIndex - 1 ? i + 1 : 0;
-
-      if (
-        this.players[i].getPlayerStatus() === TypePlayerStatus.InGame &&
-        i !== idx
-      ) {
-        foundPlayer = this.players[i];
-        break;
-      }
-    }
-
-    return foundPlayer;
   }
 
   public getPlayersAsDto(): TypePlayerDto[] {
@@ -104,7 +69,7 @@ export class Players {
   }
 
   public totalCountInGame() {
-    return this.players.length;
+    return this.getPlayersInGame().length;
   }
 
   public totalCount() {

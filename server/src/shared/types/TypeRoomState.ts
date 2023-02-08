@@ -14,6 +14,7 @@ export type TypeRoomState = {
   dealt: TypeDealt[];
   isDealtEnabled: boolean;
   deckCounter: number;
+  currentRound: number;
 };
 
 export enum TypeRoomStatus {
