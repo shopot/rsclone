@@ -9,6 +9,7 @@ import {
   TypeRoomStatus,
   TypePlayerRole,
 } from '../../shared/types';
+import { UNKNOWN_PLAYER_NAME } from '../../shared/constants';
 import styles from './styles.m.scss';
 
 const cardToString = (card: TypeCard) => {
@@ -79,8 +80,14 @@ const GamePage = () => {
   const myPlayerName = useGameStore((state) => {
     const me = state.players.find((plr) => plr.socketId === socketId);
 
-    return me?.playerName || 'John Doe';
+    return me?.playerName || UNKNOWN_PLAYER_NAME;
   });
+
+  const playerNameBySocketId = (socketId: string) => {
+    return (
+      players.find((player) => player.socketId === socketId)?.playerName ?? UNKNOWN_PLAYER_NAME
+    );
+  };
 
   useEffect(() => {
     actions.setGameState();
@@ -169,9 +176,24 @@ const GamePage = () => {
       <section className={styles.section}>
         <h2>dealt cards</h2>
         {dealt.map((player) => (
-          <p key={player.socketId}>
-            {player.socketId}: {player.count}
-          </p>
+          <div
+            className={styles.player}
+            key={player.socketId}
+          >
+            <p>{playerNameBySocketId(player.socketId)}</p>
+            <div>
+              {player.cards.map((card, idx) => (
+                <button
+                  className="btn btnCard"
+                  type="button"
+                  key={`${player.socketId}-${idx}`}
+                  disabled={true}
+                >
+                  {cardToString(card)}
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
       </section>
 
