@@ -165,14 +165,16 @@ export class Room {
   public setAttackerOpen(card: TypeCard): boolean {
     this.isDealtEnabled = false;
 
+    const isAttackSuccess = this.round.attack(card);
+
     // Автоматический останов игры если у защищающегося одна карта, но эта карта не может побить атакующую карту
-    if (!this.round.attack(card) && this.players.totalCountInGame() === 1) {
+    if (!isAttackSuccess && this.players.totalCountInGame() === 1) {
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
       this.roomStatus = TypeRoomStatus.GameIsOver;
       return false;
     }
 
-    if (!this.round.attack(card)) {
+    if (!isAttackSuccess) {
       // Add the card & check it
       return false;
     }
@@ -376,14 +378,17 @@ export class Room {
   }
 
   private getPlayersForDealt() {
-    // const lastPlayerSocketId = this.round.getStartPlayerSocketId();
     // let playersInGame = this.players.getPlayersInGame();
+    // const startPlayerSocketId = this.round.getStartPlayerSocketId();
+    // let playersEnd: Player[];
+    // let playersStart: Player[] = [];
     // if (this.lastDefender === this.activePlayer) {
     //   playersInGame = playersInGame.filter(player => player.getSocketId() !== this.activePlayer.getSocketId());
     // }
-    // // const lastPlayerIndex =
-    // // this.players.getPlayerIndexBySocketId(lastPlayerSocketId);
-    // let playersEnd: Player[];
+    // playersStart = playersEnd.splice(
+    //   startIndex,
+    //   playersEnd.length - startIndex + 1,
+    // );
     // if (this.lastDefender === this.activePlayer) {
     //   playersEnd = playersInGame.filter((player) => {
     //     return player.getSocketId() !== this.activePlayer.getSocketId();
