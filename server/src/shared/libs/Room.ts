@@ -201,6 +201,7 @@ export class Room {
 
       this.attacker = this.getNextAttacker(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
+      return true;
     }
 
     // Move turn to defender from attacker
