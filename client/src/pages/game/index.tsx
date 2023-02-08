@@ -161,7 +161,16 @@ const GamePage = () => {
                 {player.playerName}
               </h3>
               <p>player socketId: {player.socketId}</p>
-              <p>player role: {player.playerRole}</p>
+              <p>
+                player role:{' '}
+                <span
+                  className={`${player.playerRole === 'Attacker' ? styles.attacker : ''}${
+                    player.playerRole === 'Defender' ? styles.defender : ''
+                  }`}
+                >
+                  {player.playerRole}
+                </span>
+              </p>
               <p>player status: {player.playerStatus}</p>
               <div>
                 <h4>Cards of {player.socketId}</h4>
