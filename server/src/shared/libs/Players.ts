@@ -30,6 +30,14 @@ export class Players {
     });
   }
 
+  public getPlayerIndexBySocketId(socketId: string): number {
+    const index = this.players.findIndex((player) => {
+      return player.getSocketId() === socketId;
+    });
+
+    return index;
+  }
+
   public getPlayerBySocketId(socketId: string): Player | undefined {
     const player = this.players.find((player) => {
       return player.getSocketId() === socketId;

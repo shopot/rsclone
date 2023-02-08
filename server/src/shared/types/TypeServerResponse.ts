@@ -16,5 +16,6 @@ export type TypeServerResponse = {
   dealt?: TypeDealt[];
   isDealtEnabled?: boolean;
   deckCounter?: number;
+  currentRound?: number;
   error?: TypeGameError | '';
 };

@@ -101,4 +101,8 @@ export class Round {
       return placedCard;
     });
   }
+
+  public isFinished(): boolean {
+    return this.attackersCards.length === this.maxRoundSlots;
+  }
 }

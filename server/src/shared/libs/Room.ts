@@ -40,7 +40,7 @@ export class Room {
   /** Room status */
   roomStatus: TypeRoomStatus;
   /** Number of rounds played in the game */
-  roundNumber: number;
+  currentRound: number;
   /** Who attack */
   attacker: Player;
   /** Who defense */
@@ -57,6 +57,8 @@ export class Room {
   isDealtEnabled: boolean;
 
   dealt: TypeDealt[];
+
+  errorMessage: string;
 
   logger: Logger;
 
@@ -75,7 +77,7 @@ export class Room {
 
     // Initial data
     this.roomStatus = TypeRoomStatus.WaitingForPlayers;
-    this.roundNumber = 0;
+    this.currentRound = 0;
     this.attacker = this.hostPlayer;
     this.defender = this.hostPlayer;
     this.activePlayer = this.hostPlayer;
@@ -83,7 +85,7 @@ export class Room {
     this.passCounterMaxValue = 1;
     this.dealt = [];
     this.isDealtEnabled = false;
-
+    this.errorMessage = '';
     // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
   }
@@ -129,7 +131,7 @@ export class Room {
 
     this.dealtCards();
 
-    this.roundNumber = 1;
+    this.currentRound = 1;
 
     // Set attacker as player with lowest trump
     this.activePlayer = this.findPlayerWithLowestTrump();
@@ -146,6 +148,9 @@ export class Room {
 
     // Save start time
     this.gameTimeStart = Date.now();
+
+    // Save first player socketId in this round
+    this.round.setStartPlayerSocketId(this.activePlayer.getSocketId());
 
     // Send game status for all players
     return true;
@@ -236,6 +241,12 @@ export class Room {
     // Move turn back to attacker
     this.setActivePlayer(this.attacker);
 
+    if (this.round.isFinished()) {
+      this.setActivePlayer(this.defender);
+
+      this.startNextRound();
+    }
+
     return true;
   }
 
@@ -284,6 +295,8 @@ export class Room {
   }
 
   private startNextRound(): void {
+    this.currentRound += 1;
+
     // Reset all roles for players in game
     this.players.getPlayersInGame().forEach((player) => {
       player.setPlayerRole(TypePlayerRole.Waiting);
@@ -307,6 +320,10 @@ export class Room {
 
     // Dealt cards to user
     this.dealtCards();
+
+    // Save first player socketId in this round,
+    // after dealt only
+    this.round.setStartPlayerSocketId(this.activePlayer.getSocketId());
 
     // Restart round
     this.round.restart();
@@ -334,6 +351,15 @@ export class Room {
   private setPlayerAsWinner(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
     this.passCounterMaxValue -= 1;
+  }
+
+  private getPlayersForDealt() {
+    const lastPlayerSocketId = this.round.getStartPlayerSocketId();
+
+    const lastPlayerIndex =
+      this.players.getPlayerIndexBySocketId(lastPlayerSocketId);
+
+    const playersInGame = this.players.getPlayersInGame();
   }
 
   /**
@@ -588,7 +614,16 @@ export class Room {
       dealt: this.dealt,
       isDealtEnabled: this.isDealtEnabled,
       deckCounter: this.deck.getSize(),
+      currentRound: this.currentRound,
     };
+  }
+
+  private getErrorMessage(): string {
+    const message = this.errorMessage;
+
+    this.errorMessage = '';
+
+    return message;
   }
 
   private log(message: string): void {
