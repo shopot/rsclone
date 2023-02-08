@@ -533,15 +533,13 @@ export class Room {
   }
 
   private getNextAttacker(currentAttacker: Player): Player {
-    // Check when has two players
-    const playersInGame = this.players.getPlayersInGame();
-
-    if (playersInGame.length < 2) {
-      // Something went wrong.
+    if (this.players.totalCountInGame() < 2) {
       Logger.error(`Room::getNextAttacker(): playersInGame < 2`);
-
       return currentAttacker;
     }
+
+    // Check when has two players
+    const playersInGame = this.players.getPlayersInGame();
 
     // When has two players
     if (playersInGame.length === 2) {
