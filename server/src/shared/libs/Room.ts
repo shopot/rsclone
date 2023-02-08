@@ -180,6 +180,16 @@ export class Room {
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
 
+      // Check game is finish for defender
+      if (
+        this.players.totalCountInGame() === 1 &&
+        this.defender.getCardsCount() > 0
+      ) {
+        this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
+        this.roomStatus = TypeRoomStatus.GameIsOver;
+        return true;
+      }
+
       this.attacker = this.getNextAttacker(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     }
@@ -359,16 +369,31 @@ export class Room {
   }
 
   private getPlayersForDealt() {
-    const lastPlayerSocketId = this.round.getStartPlayerSocketId();
-
-    // const lastPlayerIndex =
-    // this.players.getPlayerIndexBySocketId(lastPlayerSocketId);
-
-    // let playersEnd: Player = [];
-
-    // if (this.lastDefender !== this.activePlayer) {
-    //   playersEnd = this.players.getPlayersInGame().slice();
+    // const lastPlayerSocketId = this.round.getStartPlayerSocketId();
+    // let playersInGame = this.players.getPlayersInGame();
+    // if (this.lastDefender === this.activePlayer) {
+    //   playersInGame = playersInGame.filter(player => player.getSocketId() !== this.activePlayer.getSocketId());
     // }
+    // // const lastPlayerIndex =
+    // // this.players.getPlayerIndexBySocketId(lastPlayerSocketId);
+    // let playersEnd: Player[];
+    // if (this.lastDefender === this.activePlayer) {
+    //   playersEnd = playersInGame.filter((player) => {
+    //     return player.getSocketId() !== this.activePlayer.getSocketId();
+    //   });
+    // } else {
+    //   playersEnd = playersInGame;
+    // }
+    // let playersStart: Player[] = [];
+    // const startIndex = this.players.getPlayerIndexBySocketId(
+    //   this.activePlayer.getSocketId(),
+    // );
+    // playersStart = playersEnd.splice(
+    //   startIndex,
+    //   playersEnd.length - startIndex + 1,
+    // );
+    //   if
+    // const players = [...playersStart, ...playersEnd];
     // const playersInGame = this.players.getPlayersInGame().filter((player) => {
     //   return player.getSocketId() !== lastPlayerSocketId;
     // });
