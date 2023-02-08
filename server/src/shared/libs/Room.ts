@@ -388,14 +388,8 @@ export class Room {
       this.round.getStartPlayerSocketId(),
     );
 
-    const playersEnd = playersStart.splice(
-      startIndex,
-      playersStart.length - startIndex + 1,
-    );
-
-    let players = [...playersStart, ...playersEnd].filter((player) => {
-      player.getPlayerStatus() === TypePlayerStatus.InGame;
-    });
+    const playersEnd = playersStart.slice(startIndex);
+    let players = [...playersStart.slice(0, startIndex), ...playersEnd];
 
     if (this.lastDefender === this.activePlayer) {
       players = players.filter(
