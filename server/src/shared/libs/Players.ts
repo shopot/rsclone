@@ -15,7 +15,7 @@ export class Players {
   }
 
   public getAll() {
-    return this.players;
+    return [...this.players];
   }
 
   public add(player: Player): void {
