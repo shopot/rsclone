@@ -15,6 +15,7 @@ export type TypeResponseRoomList = TypeRoomDto[];
 
 export type TypeDealt = {
   socketId: string;
+  cards: TypeCard[];
   count: number;
 };
 
