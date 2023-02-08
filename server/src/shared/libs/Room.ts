@@ -544,23 +544,6 @@ export class Room {
   }
 
   /**
-   * Update game status, set game over if exists
-   */
-  private updateGameStatus(): void {
-    for (const player of this.players) {
-      if (player.getPlayerStatus() === TypePlayerStatus.YouLoser) {
-        this.roomStatus = TypeRoomStatus.GameIsOver;
-
-        break;
-      }
-    }
-
-    if (this.players.totalCountInGame() <= 1) {
-      this.roomStatus = TypeRoomStatus.GameIsOver;
-    }
-  }
-
-  /**
    * Check game in progress
    */
   private isGameInProgress(): boolean {
