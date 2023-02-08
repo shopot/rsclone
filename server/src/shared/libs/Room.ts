@@ -199,7 +199,7 @@ export class Room {
         return true;
       }
 
-      this.attacker = this.getNextAttacker(this.activePlayer);
+      this.attacker = this.getNextAttacker2(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
       return true;
     }
@@ -291,7 +291,7 @@ export class Room {
 
     this.activePlayer.setPlayerRole(TypePlayerRole.Waiting);
 
-    this.attacker = this.getNextAttacker(this.activePlayer);
+    this.attacker = this.getNextAttacker2(this.activePlayer);
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     this.activePlayer = this.attacker;
 
@@ -531,6 +531,44 @@ export class Room {
     }
 
     return foundPlayer;
+  }
+
+  getNextAttacker2(currentAttacker: Player): Player {
+    if (this.players.totalCountInGame() < 2) {
+      Logger.error(`Room::getNextAttacker(): playersInGame < 2`);
+      return currentAttacker;
+    }
+
+    // Check when has two players
+    const playersInGame = this.players.getPlayersInGame();
+
+    // When has two players
+    if (playersInGame.length === 2) {
+      return currentAttacker === playersInGame[0]
+        ? playersInGame[1]
+        : playersInGame[0];
+    }
+
+    const playersEnd = this.players.getAll();
+
+    const startIndex = this.players.getPlayerIndexBySocketId(
+      currentAttacker.getSocketId(),
+    );
+
+    const playersStart = playersEnd.slice(startIndex);
+    let players = [...playersStart, ...playersEnd.slice(0, startIndex)];
+
+    players = players.filter(
+      (player) =>
+        player.getPlayerStatus() === TypePlayerStatus.InGame &&
+        player.getPlayerRole() !== TypePlayerRole.Defender,
+    );
+
+    if (players.length < 1) {
+      throw new Error('Room::getNextAttacker(): Returns player not found');
+    }
+
+    return players[0];
   }
 
   private getNextAttacker(currentAttacker: Player): Player {
