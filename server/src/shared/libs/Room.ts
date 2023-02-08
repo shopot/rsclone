@@ -60,8 +60,6 @@ export class Room {
 
   dealt: TypeDealt[];
 
-  errorMessage: string;
-
   logger: Logger;
 
   constructor(roomId: string, hostPlayer: Player, gameService: GameService) {
@@ -88,7 +86,7 @@ export class Room {
     this.passCounterMaxValue = 1;
     this.dealt = [];
     this.isDealtEnabled = false;
-    this.errorMessage = '';
+
     // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
   }
@@ -143,7 +141,7 @@ export class Room {
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
 
     // this.defender = this.getNextPlayer();
-    this.defender = this.getNextPlayer2(this.attacker);
+    this.defender = this.getNextPlayer(this.attacker);
     this.defender.setPlayerRole(TypePlayerRole.Defender);
 
     this.round = new Round(this.deck);
@@ -248,7 +246,7 @@ export class Room {
       }
 
       // this.setActivePlayer(this.getNextPlayer());
-      this.activePlayer = this.getNextPlayer2(this.activePlayer);
+      this.activePlayer = this.getNextPlayer(this.activePlayer);
       this.startNextRound();
       return true;
     }
@@ -326,7 +324,7 @@ export class Room {
 
     // Next after active player (defender)
     // this.setActivePlayer(this.getNextPlayer());
-    this.activePlayer = this.getNextPlayer2(this.activePlayer);
+    this.activePlayer = this.getNextPlayer(this.activePlayer);
 
     this.startNextRound();
   }
@@ -344,7 +342,7 @@ export class Room {
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
 
     // this.defender = this.getNextPlayer(); // Can returns error!
-    this.defender = this.getNextPlayer2(this.attacker);
+    this.defender = this.getNextPlayer(this.attacker);
 
     if (this.defender === this.attacker) {
       this.log(`Room #${this.roomId} - Can't set next defender`);
@@ -419,19 +417,6 @@ export class Room {
     if (this.lastDefender.getPlayerStatus() === TypePlayerStatus.InGame) {
       players.push(this.lastDefender);
     }
-
-    // let players = [
-    //   ...playersAll.slice(startIndex),
-    //   ...playersAll.slice(0, startIndex),
-    // ].filter((player) => player.getPlayerStatus() === TypePlayerStatus.InGame);
-
-    // if (this.lastDefender === this.activePlayer) {
-    //   players = players.filter(
-    //     (player) => player.getSocketId() !== this.activePlayer.getSocketId(),
-    //   );
-
-    //   players.push(this.activePlayer);
-    // }
 
     return players;
   }
@@ -672,7 +657,7 @@ export class Room {
     return currentAttacker;
   }
 
-  getNextPlayer2(current: Player): Player {
+  getNextPlayer(current: Player): Player {
     const index = this.players.getPlayerIndexBySocketId(current.getSocketId());
 
     const playersAll = this.players.getAll();
@@ -683,22 +668,6 @@ export class Room {
     ].filter((player) => player.getPlayerStatus() === TypePlayerStatus.InGame);
 
     return players[0];
-  }
-
-  /**
-   * Returns next player? if not found returns error
-   * @returns {Player} Next player after current active player
-   */
-  private getNextPlayer(): Player {
-    const nextPlayer = this.players.next(this.activePlayer);
-
-    if (nextPlayer === null) {
-      Logger.error('Player not found. Something went wrong.');
-
-      return this.activePlayer;
-    }
-
-    return nextPlayer;
   }
 
   /**
@@ -748,14 +717,6 @@ export class Room {
       deckCounter: this.deck.getSize(),
       currentRound: this.currentRound,
     };
-  }
-
-  private getErrorMessage(): string {
-    const message = this.errorMessage;
-
-    this.errorMessage = '';
-
-    return message;
   }
 
   private log(message: string): void {
