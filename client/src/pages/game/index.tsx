@@ -113,26 +113,34 @@ const GamePage = () => {
 
   return (
     <div>
-      <section className={styles.section}>
-        <h2>stats</h2>
-        <p>Online status: {isOnline ? 'online' : 'offline'}</p>
-        {error && <p>Error: {error}</p>}
-        <p>Room ID: {roomId}</p>
-        <p>Room status: {roomStatus}</p>
-        <p className={socketId === activeSocketId ? styles.playerActive : ''}>
-          Your player name: {myPlayerName}
-        </p>
-        <p>Your socked ID: {socketId}</p>
-        <p>Host socket ID: {hostSocketId}</p>
-        <p>Active socket ID: {activeSocketId}</p>
-        <p>
-          Trump card: <span className={styles.cardName}>{cardToString(trumpCard)}</span>
-        </p>
-        <p>Cards in the deck: {deckCounter}</p>
-      </section>
+      <h2 className={styles.title}>stats</h2>
+      <div className={styles.info}>
+        <div>
+          <p>Online status: {isOnline ? 'online' : 'offline'}</p>
+          <p>Room ID: {roomId}</p>
+          <p>Room status: {roomStatus}</p>
+          <p>Player Host socket ID: {hostSocketId}</p>
+          {error && <p className="stats-error">Error: {error}</p>}
+        </div>
+        <div>
+          <p className={socketId === activeSocketId ? styles.playerActive : ''}>
+            Your player name: {myPlayerName}
+          </p>
+          <p>Your socked ID: {socketId}</p>
+          <p className="info__active-player">Player Active socket ID: {activeSocketId}</p>
+        </div>
+        <div className="deck">
+          <p>
+            Trump card: <span className={styles.cardName}>{cardToString(trumpCard)}</span>
+          </p>
+          <p>
+            Cards in the deck: <span className={styles.cardInDeck}>{deckCounter}</span>
+          </p>
+        </div>
+      </div>
 
       <section className={styles.section}>
-        <h2>players</h2>
+        <h2 className={styles.title}>players</h2>
         <div className={styles.players}>
           {players.map((player) => (
             <div

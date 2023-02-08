@@ -27,6 +27,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2em;
+  padding: 6px;
+}
+
+.player {
+  h3 {
+    background-color: #343a46;
+    border-radius: 10px;
+    padding: 4px 8px;
+  }
 }
 
 .player:not(:last-child) {
@@ -48,5 +57,28 @@
 }
 
 .cardName {
+  font-size: 36px;
+}
+
+// Temporary styles
+.stats-error {
+  color: red;
+}
+
+.title {
+  text-align: center;
+  border-bottom: 1px solid gray;
+  padding-bottom: 6px;
+}
+
+.info {
+  padding-top: 6px;
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid gray;
+  padding-bottom: 6px;
+}
+
+.cardInDeck {
   font-size: 36px;
 }
