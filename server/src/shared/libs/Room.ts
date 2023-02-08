@@ -180,6 +180,7 @@ export class Room {
       this.activePlayer.setPlayerRole(TypePlayerRole.Waiting);
 
       this.attacker = this.getNextAttacker(this.activePlayer);
+      this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     }
 
     // Move turn to defender from attacker
@@ -359,7 +360,9 @@ export class Room {
     const lastPlayerIndex =
       this.players.getPlayerIndexBySocketId(lastPlayerSocketId);
 
-    const playersInGame = this.players.getPlayersInGame();
+    const playersInGame = this.players.getPlayersInGame().filter((player) => {
+      return player.getSocketId() !== lastPlayerSocketId;
+    });
   }
 
   /**
