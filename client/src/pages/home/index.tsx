@@ -71,7 +71,9 @@ const HomePage = () => {
             const disabled =
               !playerName ||
               room.playersCount === MAX_NUMBER_OF_PLAYERS ||
-              room.status === TypeRoomStatus.GameInProgress;
+              ![TypeRoomStatus.WaitingForPlayers, TypeRoomStatus.WaitingForStart].includes(
+                room.status,
+              );
 
             return (
               <li
