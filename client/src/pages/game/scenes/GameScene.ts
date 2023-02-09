@@ -10,8 +10,8 @@ import { Suit } from '../prefabs/Suit';
 import { Button } from '../classes/Button';
 import { socketIOService } from '../../../shared/api/socketio';
 import { useGameStore } from '../../../store/gameStore';
+import { useNavigate } from 'react-router';
 import { TypePlayer } from '../../../shared/types';
-
 export class GameScene extends Phaser.Scene {
   deckText!: Phaser.GameObjects.Text;
   playersCards = [
@@ -34,17 +34,25 @@ export class GameScene extends Phaser.Scene {
     super('Game');
 
     this.attack = new Array<boolean>(this.players).fill(false);
-    // const playersSub = useGameStore.subscribe(this.setPlayers.bind(this));
+    // const unsub3 = useDogStore.subscribe(
+    //   (state) => state.paw,
+    //   (paw, previousPaw) => console.log(paw, previousPaw)
+    // )
+    const playersSub = useGameStore.subscribe(
+      (state) => state.players,
+      (data) => this.setPlayers(data),
+    );
   }
 
   create() {
     console.log(useGameStore.getState());
     //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
-    const playersSub = useGameStore.subscribe(this.setPlayers.bind(this));
-    this.setPlayers();
+    this.createButtons();
+
+    // const playersSub = useGameStore.subscribe(this.setPlayers.bind(this));
+    this.setPlayers(useGameStore.getState().players);
     // this.createTables();
-    // this.createButton();
     // this.createDeck();
     // this.createTrumpCard();
     // this.createTrumpSuit();
@@ -54,10 +62,11 @@ export class GameScene extends Phaser.Scene {
     // this.createBeaten();
   }
 
-  setPlayers() {
+  setPlayers(players: TypePlayer[]) {
     this.playersSortedPrev = [...this.playersSorted];
     const socketId = socketIOService.getSocketId();
-    const me = useGameStore.getState().players.find((player) => player.socketId === socketId);
+    // const me = useGameStore.getState().players.find((player) => player.socketId === socketId);
+    const me = players.find((player) => player.socketId === socketId);
     this.playersSorted = useGameStore.getState().players;
     if (me !== undefined) {
       while (this.playersSorted.indexOf(me) !== 0) {
@@ -65,7 +74,7 @@ export class GameScene extends Phaser.Scene {
         if (first !== undefined) this.playersSorted.push(first);
       }
     }
-    console.log(this.playersSorted);
+    console.log('prev - ', this.playersSortedPrev.length, 'now - ', players.length);
   }
 
   highlightCards() {
@@ -95,8 +104,16 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  createButton() {
-    const button = new Button(this);
+  createButtons() {
+    const mainButton = new Button(this);
+    const handleLeaveRoom = () => {
+      useGameStore.getState().actions.leaveRoom();
+      this.scene.stop();
+      window.location.href = '/';
+      console.log(useGameStore.getState());
+    };
+    const leaveBtn = this.add.text(100, 100, 'leave');
+    leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
   }
 
   createIcons() {
