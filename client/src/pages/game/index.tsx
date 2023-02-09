@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../../store/gameStore';
 import { socketIOService } from '../../shared/api/socketio';
@@ -81,10 +81,6 @@ const GamePage = () => {
 
     return me?.playerName || 'John Doe';
   });
-
-  useEffect(() => {
-    actions.setGameState();
-  }, [actions]);
 
   const handleMakeMove = (card: TypeCard) => {
     if (activePlayerRole === TypePlayerRole.Attacker) {
