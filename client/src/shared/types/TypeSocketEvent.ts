@@ -37,6 +37,7 @@ export const enum TypeSocketEvent {
   GameServerError = 'GameServerError',
   GameJoinRoom = 'GameJoinRoom',
   GameLeaveRoom = 'GameLeaveRoom',
+  GameRestartGame = 'GameRestartGame',
   GameStart = 'GameStart',
   GameCardOpen = 'GameCardOpen',
   GameCardClose = 'GameCardClose',
