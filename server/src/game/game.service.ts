@@ -215,6 +215,36 @@ export class GameService {
     });
   }
 
+  public setGameRestart(client: Socket): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (room && room.restart(client.id)) {
+      return this.createResponseObject({ roomId });
+    }
+
+    return this.createResponseObject({
+      roomId,
+      error: TypeGameError.GameRestartFailed,
+    });
+  }
+
+  public setRoomOpen(client: Socket): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (room && room.open(client.id)) {
+      return this.createResponseObject({ roomId });
+    }
+
+    return this.createResponseObject({
+      roomId,
+      error: TypeGameError.GameRestartFailed,
+    });
+  }
+
   public getRoomState(roomId: string): TypeServerResponse {
     return this.createResponseObject({ roomId });
   }

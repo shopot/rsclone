@@ -23,6 +23,8 @@ body {
   font-family: Signika, serif;
   font-size: 16px;
   background-image: url("../assets/bg_dark.jpg");
+  background-repeat: repeat-y no-repeat;
+  background-size: 100% 100%;
 }
 
 button,
@@ -84,7 +86,9 @@ select {
 
 .heading {
   margin-bottom: 20px;
+  color: constants.$heading-color;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .feather {

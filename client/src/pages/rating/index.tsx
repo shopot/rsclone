@@ -30,16 +30,18 @@ const RatingPage = () => {
 
   return (
     <div className="container">
-      <h1 className="heading">Rating Page</h1>
-      {isOnline ? (
-        <Table
-          columns={columns}
-          data={ratingResults}
-          rowKey="id"
-        />
-      ) : (
-        'Nothing'
-      )}
+      <div className="box-container">
+        <h1 className="heading">Rating Table</h1>
+        {isOnline ? (
+          <Table
+            columns={columns}
+            data={ratingResults}
+            rowKey="id"
+          />
+        ) : (
+          'Nothing'
+        )}
+      </div>
     </div>
   );
 };

@@ -103,6 +103,14 @@ const GamePage = () => {
     navigate('/');
   };
 
+  const handleRestartGame = () => {
+    actions.restartGame();
+  };
+
+  const handleOpenRoom = () => {
+    actions.openRoom();
+  };
+
   const handleAttackerPass = () => {
     actions.attackerPass();
   };
@@ -126,7 +134,7 @@ const GamePage = () => {
           <p className={socketId === activeSocketId ? styles.playerActive : ''}>
             Your player name: {myPlayerName}
           </p>
-          <p>Your socked ID: {socketId}</p>
+          <p>Your socket ID: {socketId}</p>
           <p className="info__active-player">Player Active socket ID: {activeSocketId}</p>
         </div>
         <div className="deck">
@@ -150,6 +158,26 @@ const GamePage = () => {
           >
             leave room
           </button>
+          {socketId === hostSocketId && roomStatus === TypeRoomStatus.GameIsOver && (
+            <>
+              <button
+                style={{ marginLeft: '30px' }}
+                className="btn"
+                type="button"
+                onClick={handleRestartGame}
+              >
+                restart game
+              </button>
+              <button
+                style={{ marginLeft: '30px' }}
+                className="btn"
+                type="button"
+                onClick={handleOpenRoom}
+              >
+                open room
+              </button>
+            </>
+          )}
         </h2>
         <div className={styles.players}>
           {players.map((player) => (

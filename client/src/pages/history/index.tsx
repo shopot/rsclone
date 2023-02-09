@@ -34,16 +34,18 @@ const HistoryPage = () => {
 
   return (
     <div className="container">
-      <h1 className="heading">History Page</h1>
-      {isOnline ? (
-        <Table
-          columns={columns}
-          data={historyResults}
-          rowKey="id"
-        />
-      ) : (
-        'Nothing'
-      )}
+      <div className="box-container">
+        <h1 className="heading">Game History</h1>
+        {isOnline ? (
+          <Table
+            columns={columns}
+            data={historyResults}
+            rowKey="id"
+          />
+        ) : (
+          'Nothing'
+        )}
+      </div>
     </div>
   );
 };

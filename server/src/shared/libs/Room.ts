@@ -159,6 +159,53 @@ export class Room {
   }
 
   /**
+   * Restarts game room
+   *
+   * @returns
+   */
+  public restart(socketId: string): boolean {
+    if (
+      socketId !== this.hostPlayer.getSocketId() ||
+      this.getRoomStatus() !== TypeRoomStatus.GameIsOver
+    ) {
+      return false;
+    }
+
+    this.roomStatus = TypeRoomStatus.WaitingForStart;
+    // reset player statuses after restart
+    for (const player of this.players) {
+      player.setPlayerStatus(TypePlayerStatus.InGame);
+      player.cards = [];
+    }
+
+    this.start();
+
+    return true;
+  }
+
+  public open(socketId: string): boolean {
+    if (
+      socketId !== this.hostPlayer.getSocketId() ||
+      this.getRoomStatus() !== TypeRoomStatus.GameIsOver
+    ) {
+      return false;
+    }
+
+    if (this.getPlayersCount() >= 2) {
+      this.roomStatus = TypeRoomStatus.WaitingForStart;
+    } else {
+      this.roomStatus = TypeRoomStatus.WaitingForPlayers;
+    }
+    // reset player statuses after restart
+    for (const player of this.players) {
+      player.setPlayerStatus(TypePlayerStatus.InGame);
+      player.cards = [];
+    }
+
+    return true;
+  }
+
+  /**
    * Give one card from attacker
    */
   public setAttackerOpen(card: TypeCard): boolean {

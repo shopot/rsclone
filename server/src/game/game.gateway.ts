@@ -75,6 +75,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     this.emitEvent(TypeRoomEvent.GameCreateRoom, results, client);
 
     this.handleGetRooms();
+    this.handleGameUpdateState(client);
   }
 
   /**
@@ -120,6 +121,34 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ): void {
     const results = this.gameService.startGame(client);
+
+    this.sendStateToClientByClientSocket(client, results);
+  }
+
+  /**
+   * Restart game
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameRestartGame)
+  handleGameRestart(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const results = this.gameService.setGameRestart(client);
+
+    this.sendStateToClientByClientSocket(client, results);
+  }
+
+  /**
+   * Open room
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameOpenRoom)
+  handleOpenRoom(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const results = this.gameService.setRoomOpen(client);
 
     this.sendStateToClientByClientSocket(client, results);
   }
