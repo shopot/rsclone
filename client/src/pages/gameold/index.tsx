@@ -120,7 +120,7 @@ const GamePage = () => {
   };
 
   return (
-    <div>
+    <div className="game-page">
       <h2 className={styles.title}>stats</h2>
       <div className={styles.info}>
         <div>
