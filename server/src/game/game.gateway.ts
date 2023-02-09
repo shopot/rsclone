@@ -93,6 +93,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     this.emitEvent(TypeRoomEvent.GameJoinRoom, results, client);
 
     this.handleGetRooms();
+    this.handleGameUpdateState(client);
   }
 
   /**
