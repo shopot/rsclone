@@ -26,6 +26,16 @@ export const TopMenu = () => {
             className={({ isActive }) =>
               isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
             }
+            to={TypeRoute.Rooms}
+          >
+            Rooms
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            className={({ isActive }) =>
+              isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+            }
             to={TypeRoute.Rating}
           >
             Rating
