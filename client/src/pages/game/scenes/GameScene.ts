@@ -8,6 +8,9 @@ import { CardsText } from '../prefabs/CardsText';
 import { Card } from '../prefabs/Card';
 import { Suit } from '../prefabs/Suit';
 import { Button } from '../classes/Button';
+import { socketIOService } from '../../../shared/api/socketio';
+import { useGameStore } from '../../../store/gameStore';
+import { TypePlayer } from '../../../shared/types';
 
 export class GameScene extends Phaser.Scene {
   deckText!: Phaser.GameObjects.Text;
@@ -24,25 +27,45 @@ export class GameScene extends Phaser.Scene {
   piles: Card[][] = []; // стопочек на столе
   playersCardsSprites: Card[][] = [];
   tableSizes: { width: number; height: number; startX: number }[] = [];
+  playersSorted: TypePlayer[] = [];
+  playersSortedPrev: TypePlayer[] = [];
 
   constructor() {
     super('Game');
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    this.attack = new Array(this.players).fill(false);
+    this.attack = new Array<boolean>(this.players).fill(false);
+    // const playersSub = useGameStore.subscribe(this.setPlayers.bind(this));
   }
 
   create() {
+    console.log(useGameStore.getState());
+    //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
-    this.createTables();
-    this.createButton();
-    this.createDeck();
-    this.createTrumpCard();
-    this.createTrumpSuit();
-    this.createCards();
-    this.createCardsText();
-    this.createIcons();
-    this.createBeaten();
+    const playersSub = useGameStore.subscribe(this.setPlayers.bind(this));
+    this.setPlayers();
+    // this.createTables();
+    // this.createButton();
+    // this.createDeck();
+    // this.createTrumpCard();
+    // this.createTrumpSuit();
+    // this.createCards();
+    // this.createCardsText();
+    // this.createIcons();
+    // this.createBeaten();
+  }
+
+  setPlayers() {
+    this.playersSortedPrev = [...this.playersSorted];
+    const socketId = socketIOService.getSocketId();
+    const me = useGameStore.getState().players.find((player) => player.socketId === socketId);
+    this.playersSorted = useGameStore.getState().players;
+    if (me !== undefined) {
+      while (this.playersSorted.indexOf(me) !== 0) {
+        const first = this.playersSorted.shift();
+        if (first !== undefined) this.playersSorted.push(first);
+      }
+    }
+    console.log(this.playersSorted);
   }
 
   highlightCards() {
