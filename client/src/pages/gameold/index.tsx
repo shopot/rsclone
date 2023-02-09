@@ -107,6 +107,10 @@ const GamePage = () => {
     actions.restartGame();
   };
 
+  const handleOpenRoom = () => {
+    actions.openRoom();
+  };
+
   const handleAttackerPass = () => {
     actions.attackerPass();
   };
@@ -155,14 +159,24 @@ const GamePage = () => {
             leave room
           </button>
           {socketId === hostSocketId && roomStatus === TypeRoomStatus.GameIsOver && (
-            <button
-              style={{ marginLeft: '30px' }}
-              className="btn"
-              type="button"
-              onClick={handleRestartGame}
-            >
-              restart game
-            </button>
+            <>
+              <button
+                style={{ marginLeft: '30px' }}
+                className="btn"
+                type="button"
+                onClick={handleRestartGame}
+              >
+                restart game
+              </button>
+              <button
+                style={{ marginLeft: '30px' }}
+                className="btn"
+                type="button"
+                onClick={handleOpenRoom}
+              >
+                open room
+              </button>
+            </>
           )}
         </h2>
         <div className={styles.players}>
