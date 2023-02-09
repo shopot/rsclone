@@ -159,6 +159,31 @@ export class Room {
   }
 
   /**
+   * Restarts game room
+   *
+   * @returns
+   */
+  public restart(socketId: string): boolean {
+    if (
+      socketId !== this.hostPlayer.getSocketId() ||
+      this.getRoomStatus() !== TypeRoomStatus.GameIsOver
+    ) {
+      return false;
+    }
+
+    this.roomStatus = TypeRoomStatus.WaitingForStart;
+    // reset player statuses after restart
+    for (const player of this.players) {
+      player.setPlayerStatus(TypePlayerStatus.InGame);
+      player.cards = [];
+    }
+
+    this.start();
+
+    return true;
+  }
+
+  /**
    * Give one card from attacker
    */
   public setAttackerOpen(card: TypeCard): boolean {

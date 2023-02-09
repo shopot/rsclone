@@ -125,6 +125,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   }
 
   /**
+   * Restart game
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameRestartGame)
+  handleGameRestart(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const results = this.gameService.setGameRestart(client);
+
+    this.sendStateToClientByClientSocket(client, results);
+  }
+
+  /**
    * Open Card by attacker
    * @param {GameReceiveDto} data
    */
