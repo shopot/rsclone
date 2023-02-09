@@ -10,21 +10,11 @@
   color: inherit;
 }
 
-html {
-  height: 100%;
-  width: 100%;
-}
-
 body {
-  height: 100%;
-  width: 100%;
-  background-color: constants.$bg-color;
+  // min-height: 100vh;
   color: constants.$text-color;
   font-family: Signika, serif;
   font-size: 16px;
-  background-image: url("../assets/bg_dark.jpg");
-  background-repeat: repeat-y no-repeat;
-  background-size: 100% 100%;
 }
 
 button,
@@ -38,11 +28,24 @@ img {
   block-size: auto;
 }
 
-#app {
-  height: 100%;
+// #app {
+//   min-height: 100vh;
+// }
+
+.layout-container {
+  min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-columns: 1fr;
+  background-color: constants.$bg-color;
+  background-image: url('../assets/bg_dark.jpg');
+  background-repeat: repeat-y no-repeat;
+  background-size: 100% 100%;
+}
+
+.game-page {
+  min-height: 100vh;
+  background-color: constants.$bg-color;
 }
 
 .container {
