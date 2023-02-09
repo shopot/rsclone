@@ -1,13 +1,48 @@
 import styles from './styles.m.scss';
-import durakLogo from '../../assets/durak-logo-text.webp';
+import durakLogoText from '../../assets/durak-logo-text.webp';
+import durakLogoHat from '../../assets/durak-logo-hat.webp';
+import cardsSet from '../../assets/cards-set.webp';
+import { TypeRoute } from '../../shared/types';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
   return (
-    <img
-      className={styles.logoText}
-      src={durakLogo}
-      alt="DURAK Card Game"
-    />
+    <div className="container">
+      <div className={styles.innerContainer}>
+        <div className={styles.innerLogo}>
+          <div>
+            <img
+              className={styles.cardsSet}
+              src={cardsSet}
+              alt="Cards"
+            />
+          </div>
+          <div className={styles.logoWrapper}>
+            <img
+              className={styles.durakLogoHat}
+              src={durakLogoHat}
+              alt="DURAK Card Game"
+            />
+            <img
+              className={styles.durakLogoText}
+              src={durakLogoText}
+              alt="DURAK Card Game"
+            />
+          </div>
+        </div>
+        <div className={styles.startWrapper}>
+          <Link
+            to={TypeRoute.Rooms}
+            className={styles.startButton}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span> Start
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 };
 

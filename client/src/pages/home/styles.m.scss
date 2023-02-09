@@ -1,4 +1,95 @@
-.logoText {
+.innerContainer {
+  width: 100%;
+  position: relative;
+  top: calc(6%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.innerLogo {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardsSet {
+  width: 100%;
+  max-width: 420px;
+}
+
+.logoWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.durakLogoHat {
+  width: 100%;
+  max-width: 320px;
+  opacity: .7;
+  position: relative;
+  top: 36px;
+  z-index: 1;
+}
+
+.durakLogoText {
   width: 100%;
   max-width: 390px;
+  position: relative;
+  z-index: 2;
+}
+
+.startWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 60px;
+}
+
+.startButton {
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 2.5px;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 4px 20px;
+  width: 100%;
+  max-width: 300px;
+  background: linear-gradient(120deg,
+      #d98a05,
+      #face43,
+      #d98a05);
+  border-radius: 30px;
+  text-shadow: 1px 1px 2px rgb(0 0 0 / 50%);
+  box-shadow: 5px 5px 5px 0 rgb(0 0 0 / 70%);
+  filter: drop-shadow(5px 5px 5px rgba(0 0 0 / 70%));
+  position: relative;
+  overflow: hidden;
+  border: 4px solid rgb(252 205 71);
+}
+
+.startButton:hover {
+  box-shadow: 1px 1px 25px 10px rgb(252 205 71 / 10%);
+}
+
+.startButton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg,
+      transparent,
+      rgb(255 255 255 / 40%),
+      transparent);
+  transition: all 650ms;
+}
+
+.startButton:hover::before {
+  left: 100%;
 }
