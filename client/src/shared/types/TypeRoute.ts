@@ -5,5 +5,6 @@ export const enum TypeRoute {
   History = '/history',
   Rating = '/rating',
   Game = '/game/:roomId',
+  GameOld = '/gameold/:roomId',
   All = '/*',
 }

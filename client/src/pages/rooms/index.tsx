@@ -12,13 +12,18 @@ import { useRoomsStore } from '../../store/roomsStore';
 const RoomsPage = () => {
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState('');
+  const [oldGameUI, setOldGameUI] = useState(true);
   const { actions } = useRoomsStore();
   const rooms = useRoomsStore((state) => state.rooms);
 
   useEffect(() => {
     const cb = ({ data }: TypeResponseObject) => {
       actions.setRooms();
-      navigate(`/game/${data.roomId}`);
+      if (oldGameUI) {
+        navigate(`/gameold/${data.roomId}`);
+      } else {
+        navigate(`/game/${data.roomId}`);
+      }
       console.log(data);
     };
 
@@ -30,11 +35,15 @@ const RoomsPage = () => {
         cb(data),
       );
     };
-  }, [actions, navigate]);
+  }, [actions, navigate, oldGameUI]);
 
   useEffect(() => {
     const cb = ({ data }: TypeResponseObject) => {
-      navigate(`/game/${data.roomId}`);
+      if (oldGameUI) {
+        navigate(`/gameold/${data.roomId}`);
+      } else {
+        navigate(`/game/${data.roomId}`);
+      }
       console.log(data);
     };
 
@@ -44,7 +53,7 @@ const RoomsPage = () => {
     return () => {
       socketIOService.remove<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, (data) => cb(data));
     };
-  }, [navigate]);
+  }, [navigate, oldGameUI]);
 
   useEffect(() => {
     const cb = (data: TypeResponseObject) => {
@@ -130,6 +139,14 @@ const RoomsPage = () => {
             );
           })}
         </ul>
+        <label className={styles.oldUI}>
+          Old UI:
+          <input
+            type="checkbox"
+            checked={oldGameUI}
+            onChange={() => setOldGameUI(!oldGameUI)}
+          />
+        </label>
         <button
           className="btn btn-lg"
           type="button"

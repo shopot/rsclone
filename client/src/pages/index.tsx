@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router';
 import NotFound from './404';
 import AboutPage from './about';
 import GamePage from './game';
+import GamePageOld from './gameold';
 import HistoryPage from './history';
 import HomePage from './home';
 import RatingPage from './rating';
@@ -41,6 +42,10 @@ const PageRouting = () => {
       <Route
         path={TypeRoute.Game}
         element={<GamePage />}
+      />
+      <Route
+        path={TypeRoute.GameOld}
+        element={<GamePageOld />}
       />
       <Route
         path={TypeRoute.All}
