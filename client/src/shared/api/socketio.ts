@@ -17,6 +17,10 @@ class SocketIOService {
     this.socket.on(event, callback);
   }
 
+  remove<T>(event: TypeSocketEvent, callback: (data: T) => void) {
+    this.socket.off(event, callback);
+  }
+
   public getSocketId() {
     return this.socket.id;
   }

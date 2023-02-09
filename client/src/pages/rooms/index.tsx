@@ -12,29 +12,67 @@ import { useRoomsStore } from '../../store/roomsStore';
 const RoomsPage = () => {
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState('');
+  const [oldGameUI, setOldGameUI] = useState(true);
   const { actions } = useRoomsStore();
   const rooms = useRoomsStore((state) => state.rooms);
 
   useEffect(() => {
-    // Subscribe to GameCreateRoom event
-    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, ({ data }) => {
+    const cb = ({ data }: TypeResponseObject) => {
       actions.setRooms();
-      navigate(`/game/${data.roomId}`);
+      if (oldGameUI) {
+        navigate(`/gameold/${data.roomId}`);
+      } else {
+        navigate(`/game/${data.roomId}`);
+      }
       console.log(data);
-    });
+    };
+
+    // Subscribe to GameCreateRoom event
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, (data) => cb(data));
+
+    return () => {
+      socketIOService.remove<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, (data) =>
+        cb(data),
+      );
+    };
+  }, [actions, navigate, oldGameUI]);
+
+  useEffect(() => {
+    const cb = ({ data }: TypeResponseObject) => {
+      if (oldGameUI) {
+        navigate(`/gameold/${data.roomId}`);
+      } else {
+        navigate(`/game/${data.roomId}`);
+      }
+      console.log(data);
+    };
 
     // Subscribe to GameJoinRoom event
-    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, ({ data }) => {
-      navigate(`/game/${data.roomId}`);
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, (data) => cb(data));
+
+    return () => {
+      socketIOService.remove<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, (data) => cb(data));
+    };
+  }, [navigate, oldGameUI]);
+
+  useEffect(() => {
+    const cb = (data: TypeResponseObject) => {
       console.log(data);
-    });
-
+    };
     // Subscribe to game errors
-    socketIOService.listen(TypeSocketEvent.GameServerError, (data) => console.log(data));
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameServerError, (data) => cb(data));
 
+    return () => {
+      socketIOService.remove<TypeResponseObject>(TypeSocketEvent.GameServerError, (data) =>
+        cb(data),
+      );
+    };
+  }, []);
+
+  useEffect(() => {
     // Get rooms list
     socketIOService.emit(TypeSocketEvent.GameRooms, { data: {} });
-  }, [navigate]);
+  }, []);
 
   const handleChangePlayerName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPlayerName(event.target.value);
@@ -101,6 +139,14 @@ const RoomsPage = () => {
             );
           })}
         </ul>
+        <label className={styles.oldUI}>
+          Old UI:
+          <input
+            type="checkbox"
+            checked={oldGameUI}
+            onChange={() => setOldGameUI(!oldGameUI)}
+          />
+        </label>
         <button
           className="btn btn-lg"
           type="button"
