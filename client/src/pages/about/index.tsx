@@ -1,5 +1,3 @@
-import GitHubIcon from '../../assets/github-dark-bg.svg?component';
-import RSSchoolIcon from '../../assets/rslogo-dark-bg.svg?component';
 import styles from './styles.m.scss';
 
 const AboutPage = () => {
@@ -66,37 +64,6 @@ const AboutPage = () => {
           </li>
           <li>the last person left with cards in their hand is the loser (the fool or durak)</li>
         </ul>
-      </section>
-
-      <section className={styles.creditsSection}>
-        <p>© 2023</p>
-        <a
-          href="https://github.com/shopot/"
-          className={styles.iconLink}
-        >
-          <GitHubIcon className={styles.SVGIcon} />
-          <span>shopot</span>
-        </a>
-        <a
-          href="https://github.com/sinastya"
-          className={styles.iconLink}
-        >
-          <GitHubIcon className={styles.SVGIcon} />
-          <span>sinastya</span>
-        </a>
-        <a
-          href="https://github.com/gentoosiast/"
-          className={styles.iconLink}
-        >
-          <GitHubIcon className={styles.SVGIcon} />
-          <span>gentoosiast</span>
-        </a>
-        <a
-          href="https://rs.school/js/"
-          className={styles.iconLink}
-        >
-          <RSSchoolIcon className={styles.SVGIcon} />
-        </a>
       </section>
     </div>
   );
