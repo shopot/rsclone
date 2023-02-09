@@ -2,6 +2,7 @@
 @use './styles/constants';
 @use './styles/buttons';
 @use './styles/table';
+@use './styles/layouts';
 @use 'sass:color';
 
 * {
@@ -21,6 +22,7 @@ body {
   color: constants.$text-color;
   font-family: Signika, serif;
   font-size: 16px;
+  background-image: url("../assets/bg_dark.jpg");
 }
 
 button,

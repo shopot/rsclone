@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route, Routes } from 'react-router';
 import NotFound from './404';
 import AboutPage from './about';
@@ -8,6 +7,7 @@ import HomePage from './home';
 import RatingPage from './rating';
 import { Layout } from '../components/Layout';
 import { TypeRoute } from '../shared/types';
+import RoomPage from './rooms';
 
 const PageRouting = () => {
   return (
@@ -20,6 +20,10 @@ const PageRouting = () => {
         <Route
           index
           element={<HomePage />}
+        />
+        <Route
+          path={TypeRoute.Rooms}
+          element={<RoomPage />}
         />
         <Route
           path={TypeRoute.About}

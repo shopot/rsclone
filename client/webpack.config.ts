@@ -12,6 +12,7 @@ const devMode = process.env.NODE_ENV === 'production' ? 'production' : 'developm
 
 module.exports = {
   mode: devMode,
+  watch: devMode === 'production',
   devtool: devMode === 'production' ? 'source-map' : 'eval-source-map',
   entry: {
     index: './src/index',
@@ -37,7 +38,7 @@ module.exports = {
       progress: true,
     },
     liveReload: true,
-    watchFiles: ['src/*.html'],
+    watchFiles: ['src/*.html', 'src/**/*.{ts,tsx}'],
   },
   plugins: [
     new ESLintPlugin(),
@@ -149,7 +150,7 @@ module.exports = {
         },
       },
       {
-        test: /\.(avif|jpe?g||png|webp)$/,
+        test: /\.(avif|jpe?g|png|webp)$/,
         type: 'asset',
       },
       {
