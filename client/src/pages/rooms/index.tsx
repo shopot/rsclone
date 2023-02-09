@@ -22,19 +22,25 @@ const RoomsPage = () => {
       navigate(`/game/${data.roomId}`);
       console.log(data);
     });
+  }, [actions, navigate]);
 
+  useEffect(() => {
     // Subscribe to GameJoinRoom event
     socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, ({ data }) => {
       navigate(`/game/${data.roomId}`);
       console.log(data);
     });
+  }, [navigate]);
 
+  useEffect(() => {
     // Subscribe to game errors
     socketIOService.listen(TypeSocketEvent.GameServerError, (data) => console.log(data));
+  }, []);
 
+  useEffect(() => {
     // Get rooms list
     socketIOService.emit(TypeSocketEvent.GameRooms, { data: {} });
-  }, [navigate]);
+  }, []);
 
   const handleChangePlayerName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPlayerName(event.target.value);
