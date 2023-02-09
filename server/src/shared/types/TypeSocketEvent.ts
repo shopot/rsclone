@@ -10,4 +10,5 @@ export enum TypeRoomEvent {
   GameAttackerPass = 'GameAttackerPass',
   GamePickUpCards = 'GamePickUpCards',
   GameRestartGame = 'GameRestartGame',
+  GameOpenRoom = 'GameOpenRoom',
 }
