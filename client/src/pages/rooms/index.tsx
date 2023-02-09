@@ -16,25 +16,48 @@ const RoomsPage = () => {
   const rooms = useRoomsStore((state) => state.rooms);
 
   useEffect(() => {
-    // Subscribe to GameCreateRoom event
-    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, ({ data }) => {
+    const cb = ({ data }: TypeResponseObject) => {
       actions.setRooms();
       navigate(`/game/${data.roomId}`);
       console.log(data);
-    });
+    };
+
+    // Subscribe to GameCreateRoom event
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, (data) => cb(data));
+
+    return () => {
+      socketIOService.remove<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, (data) =>
+        cb(data),
+      );
+    };
   }, [actions, navigate]);
 
   useEffect(() => {
-    // Subscribe to GameJoinRoom event
-    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, ({ data }) => {
+    const cb = ({ data }: TypeResponseObject) => {
       navigate(`/game/${data.roomId}`);
       console.log(data);
-    });
+    };
+
+    // Subscribe to GameJoinRoom event
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, (data) => cb(data));
+
+    return () => {
+      socketIOService.remove<TypeResponseObject>(TypeSocketEvent.GameJoinRoom, (data) => cb(data));
+    };
   }, [navigate]);
 
   useEffect(() => {
+    const cb = (data: TypeResponseObject) => {
+      console.log(data);
+    };
     // Subscribe to game errors
-    socketIOService.listen(TypeSocketEvent.GameServerError, (data) => console.log(data));
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameServerError, (data) => cb(data));
+
+    return () => {
+      socketIOService.remove<TypeResponseObject>(TypeSocketEvent.GameServerError, (data) =>
+        cb(data),
+      );
+    };
   }, []);
 
   useEffect(() => {
