@@ -3,6 +3,7 @@ import durakLogoText from '../../assets/durak-logo-text.webp';
 import durakLogoHat from '../../assets/durak-logo-hat.webp';
 import cardsSet from '../../assets/cards-set.webp';
 import { TypeRoute } from '../../shared/types';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
   return (
@@ -30,15 +31,15 @@ const HomePage = () => {
           </div>
         </div>
         <div className={styles.startWrapper}>
-          <a
+          <Link
+            to={TypeRoute.Rooms}
             className={styles.startButton}
-            href={TypeRoute.Rooms}
           >
             <span></span>
             <span></span>
             <span></span>
             <span></span> Start
-          </a>
+          </Link>
         </div>
       </div>
     </div>
