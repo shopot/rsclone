@@ -14,10 +14,10 @@
 
   li::marker {
     content: '•';
-    color: constants.$main-color;
+    color: rgb(252 205 71 / 90%);
   }
 }
 
 .rulesSection {
-  margin-bottom: 20px;
+  font-size: 1.1rem;
 }

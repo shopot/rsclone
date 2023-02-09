@@ -3,8 +3,8 @@ import styles from './styles.m.scss';
 const AboutPage = () => {
   return (
     <div className="container">
-      <section className={styles.rulesSection}>
-        <h2>Game Rules</h2>
+      <section className={`box-container ${styles.rulesSection}`}>
+        <h1 className="heading">Game Rules</h1>
         <ul className={styles.rulesList}>
           <li>2-4 players</li>
           <li>36 cards in the deck; 6 is the lowest card rank</li>
