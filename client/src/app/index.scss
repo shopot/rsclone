@@ -86,7 +86,7 @@ select {
 
 .heading {
   margin-bottom: 20px;
-  color: #fccd47;
+  color: constants.$heading-color;
   text-align: center;
   text-transform: uppercase;
 }
