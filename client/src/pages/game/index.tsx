@@ -184,7 +184,7 @@ const GamePage = () => {
   useGame(config, gameContainer);
 
   return (
-    <div>
+    <div className="game-page">
       <h1>Game Page</h1>
       <div ref={gameContainer}></div>
     </div>
