@@ -130,7 +130,7 @@ const GamePage = () => {
           <p className={socketId === activeSocketId ? styles.playerActive : ''}>
             Your player name: {myPlayerName}
           </p>
-          <p>Your socked ID: {socketId}</p>
+          <p>Your socket ID: {socketId}</p>
           <p className="info__active-player">Player Active socket ID: {activeSocketId}</p>
         </div>
         <div className="deck">
