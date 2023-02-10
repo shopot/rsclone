@@ -1,5 +1,6 @@
 import { TypeCard } from './TypeCard';
 import { TypeDealt } from './TypeDealt';
+import { TypeChatMessage } from './TypeChatMessage';
 import { TypePlacedCard } from './TypePlacedCard';
 import { TypePlayerDto } from './TypePlayerDto';
 
@@ -9,6 +10,7 @@ export type TypeRoomState = {
   hostSocketId: string;
   activeSocketId: string;
   players: TypePlayerDto[];
+  chat: TypeChatMessage[];
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
   dealt: TypeDealt[];

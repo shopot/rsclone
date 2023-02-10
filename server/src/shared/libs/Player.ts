@@ -74,4 +74,14 @@ export class Player {
       (card) => card.rank !== cardDto.rank || card.suit !== cardDto.suit,
     );
   }
+
+  public getPlayerAsDto() {
+    return {
+      socketId: this.getSocketId(),
+      playerName: this.getPlayerName(),
+      playerRole: this.getPlayerRole(),
+      playerStatus: this.getPlayerStatus(),
+      cards: this.getCardsAsDto(),
+    };
+  }
 }

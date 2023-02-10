@@ -7,3 +7,4 @@ export * from './TypeDealt';
 export * from './TypeCard';
 export * from './TypePlacedCard';
 export * from './TypeRoomState';
+export * from './TypeChatMessage';

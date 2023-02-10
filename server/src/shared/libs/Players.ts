@@ -47,15 +47,7 @@ export class Players {
   }
 
   public getPlayersAsDto(): TypePlayerDto[] {
-    return this.players.map((player) => {
-      return {
-        socketId: player.getSocketId(),
-        playerName: player.getPlayerName(),
-        playerRole: player.getPlayerRole(),
-        playerStatus: player.getPlayerStatus(),
-        cards: player.getCardsAsDto(),
-      };
-    });
+    return this.players.map((player) => player.getPlayerAsDto());
   }
 
   /**
