@@ -10,6 +10,11 @@ import { useGameStore } from '../../../store/gameStore';
 import { TypeCard, TypePlayer, TypeResponseRoomData, TypeRoomStatus } from '../../../shared/types';
 import { Icon } from '../classes/Icon';
 
+export const enum TypeButtonStatus {
+  Start = 'Start',
+  Pass = 'Pass',
+  Take = 'Take',
+}
 export class GameScene extends Phaser.Scene {
   beaten = 3;
   // deckCards = 36 - this.playersCards.flat().length - this.beaten;
@@ -33,17 +38,10 @@ export class GameScene extends Phaser.Scene {
     super('Game');
 
     const setPlayers = useGameStore.subscribe(
-      (state) => state.players,
-      (data) => this.setPlayers(data),
+      (state) => state.players.length,
+      (data) => this.setPlayers(),
     );
-    const createTables = useGameStore.subscribe(
-      (state) => state.players,
-      (data) => this.createTables(),
-    );
-    const createIcons = useGameStore.subscribe(
-      (state) => state.players,
-      (data) => this.createIcons(),
-    );
+
     const updateDeck = useGameStore.subscribe(
       (state) => state.deckCounter,
       (data) => this.updateDeck(data),
@@ -54,8 +52,8 @@ export class GameScene extends Phaser.Scene {
     );
 
     const updateButton = useGameStore.subscribe(
-      (state) => state.roomStatus,
-      (data) => this.updateButton(data),
+      (state) => [state.roomStatus, state.activeSocketId],
+      (arr) => this.updateButton(arr),
     );
 
     const gameStarted = useGameStore.subscribe(
@@ -70,11 +68,12 @@ export class GameScene extends Phaser.Scene {
     //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
     this.createButtons();
-    this.setPlayers(useGameStore.getState().players);
-    this.attack = new Array<boolean>(this.playersSorted.length).fill(false);
-    this.createTables();
-    this.createIcons();
+
+    this.setPlayers();
+
     this.createDeck(useGameStore.getState().deckCounter);
+
+    this.attack = new Array<boolean>(this.playersSorted.length).fill(false);
     // this.createBeaten();
   }
 
@@ -88,20 +87,8 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  setPlayers(players: TypePlayer[]) {
-    this.playersSortedPrev = [...this.playersSorted];
-    const me = players.find((player) => player.socketId === this.socketId);
-    this.playersSorted = [...useGameStore.getState().players];
-    if (me !== undefined) {
-      while (this.playersSorted.indexOf(me) !== 0) {
-        const first = this.playersSorted.shift();
-        if (first !== undefined) this.playersSorted.push(first);
-      }
-    }
-  }
-
   highlightCards() {
-    //вызвать, когда мой статут фолс и кинута карта (pile имеет нечетные подмассивы)
+    //вызвать, когда мой статут фо1лс и кинута карта (pile имеет нечетные подмассивы)
     //подсветит, чем можно бить по возрастанию
     //когда мой статус тру и у меня есть карты того же значения, что и на столе
     //подсветит такие же карты, чтобы подкинуть
@@ -110,10 +97,6 @@ export class GameScene extends Phaser.Scene {
     targets.forEach((card) => card.highlight());
   }
 
-  createBg() {
-    const bg = this.add.sprite(config.width / 2, config.height / 2, 'bgDark');
-    bg.depth = -5;
-  }
   createBeaten() {
     //временно создаю спрайты, потом будут анимироваться со стола
     const centerX = config.width;
@@ -127,34 +110,17 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  updateButton(roomStatus: TypeRoomStatus) {
-    const isFirst = this.playersSorted[0].socketId === this.socketId;
-    if (this.mainButton !== undefined && isFirst && roomStatus === 'WaitingForStart')
-      this.mainButton.update(this.playersSorted.length);
-  }
+  updateButton(arr: string[]) {
+    if (this.mainButton !== undefined) {
+      const isFirst = this.playersSorted[0].socketId === this.socketId;
+      if (isFirst && arr[0] === 'WaitingForStart') this.mainButton.update(TypeButtonStatus.Start);
 
-  createButtons() {
-    this.mainButton = new Button(this);
-    //переделать на красивую кнопку в отдельном классе
-    const handleLeaveRoom = () => {
-      useGameStore.getState().actions.leaveRoom();
-      this.scene.start('End');
-    };
-    const leaveBtn = this.add.text(30, 30, 'leave');
-    leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
-  }
-
-  createIcons() {
-    //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
-    if (this.icons.length !== 0) {
-      this.icons.forEach((el) => el.destroy());
-      this.icons = [];
-    }
-    //решить вопрос с назначением иконок, не должны меняться!
-    for (let i = 0; i < this.playersSorted.length; i++) {
-      const nickname = this.playersSorted[i].playerName;
-      const icon = new Icon(this, i, this.tableSizes, nickname);
-      this.icons.push(icon);
+      const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
+      const isSocketActive = arr[1] === this.socketId;
+      const isPileOnTable = useGameStore.getState().placedCards.length != 0;
+      if (isSocketActive && isAttacker && isPileOnTable)
+        this.mainButton.update(TypeButtonStatus.Pass);
+      else if (isSocketActive && !isAttacker) this.mainButton.update(TypeButtonStatus.Take);
     }
   }
 
@@ -266,53 +232,6 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  createTables() {
-    //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
-    this.tables.forEach((el) => el.destroy());
-    this.tables = [];
-    this.tableSizes =
-      this.playersSorted.length === 1
-        ? config.playersTables[1]
-        : this.playersSorted.length === 2
-        ? config.playersTables[2]
-        : this.playersSorted.length === 3
-        ? config.playersTables[3]
-        : config.playersTables[4];
-
-    const params = {
-      x: this.tableSizes[0].startX,
-      y: config.height - this.tableSizes[0].height,
-      width: this.tableSizes[0].width,
-      height: this.tableSizes[0].height,
-      rounded: { tl: 10, tr: 10, bl: 0, br: 0 },
-    };
-
-    for (let i = 0; i < this.playersSorted.length; i++) {
-      if (i != 0) {
-        params.x = this.tableSizes[i].startX;
-        params.y = 0;
-        params.width = this.tableSizes[i].width;
-        params.height = 115; //partially visible
-        params.rounded = { tl: 0, tr: 0, bl: 10, br: 10 };
-      }
-      const table = new Table(this, params);
-      this.tables.push(table);
-    }
-  }
-
-  createDeck(deck: number) {
-    //потом вынести в отдельный класс
-    const max = deck > 8 ? 8 : deck - 1;
-    for (let i = 0; i < max - 1; i++) {
-      const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack').setAngle(
-        10,
-      );
-      this.deckCards.push(card);
-    }
-    const textData = { x: 30, y: config.height / 2 - 80, amount: deck.toString() };
-    this.deckText = new CardsText(this, textData);
-  }
-
   updateDeck(deck: number) {
     if (deck < 8) {
       while (this.deckCards.length > deck) {
@@ -355,4 +274,100 @@ export class GameScene extends Phaser.Scene {
   // onExit() {
   //   this.playersCardsSprites.flat().forEach((card) => card.destroy());
   // }
+
+  createBg() {
+    const bg = this.add.sprite(config.width / 2, config.height / 2, 'bgDark');
+    bg.depth = -5;
+  }
+
+  createButtons() {
+    this.mainButton = new Button(this);
+    //переделать на красивую кнопку в отдельном классе
+    const handleLeaveRoom = () => {
+      useGameStore.getState().actions.leaveRoom();
+      this.scene.start('End');
+    };
+    const leaveBtn = this.add.text(30, 30, 'leave');
+    leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
+  }
+
+  setPlayers() {
+    const players = useGameStore.getState().players;
+    this.sortPlayers(players);
+    this.createTables();
+    this.createIcons();
+  }
+
+  sortPlayers(players: TypePlayer[]) {
+    this.playersSortedPrev = [...this.playersSorted];
+    const me = players.find((player) => player.socketId === this.socketId);
+    this.playersSorted = [...useGameStore.getState().players];
+    if (me !== undefined) {
+      while (this.playersSorted.indexOf(me) !== 0) {
+        const first = this.playersSorted.shift();
+        if (first !== undefined) this.playersSorted.push(first);
+      }
+    }
+  }
+
+  createTables() {
+    //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
+    this.tables.forEach((el) => el.destroy());
+    this.tables = [];
+    this.tableSizes =
+      this.playersSorted.length === 1
+        ? config.playersTables[1]
+        : this.playersSorted.length === 2
+        ? config.playersTables[2]
+        : this.playersSorted.length === 3
+        ? config.playersTables[3]
+        : config.playersTables[4];
+
+    const params = {
+      x: this.tableSizes[0].startX,
+      y: config.height - this.tableSizes[0].height,
+      width: this.tableSizes[0].width,
+      height: this.tableSizes[0].height,
+      rounded: { tl: 10, tr: 10, bl: 0, br: 0 },
+    };
+
+    for (let i = 0; i < this.playersSorted.length; i++) {
+      if (i != 0) {
+        params.x = this.tableSizes[i].startX;
+        params.y = 0;
+        params.width = this.tableSizes[i].width;
+        params.height = 115; //partially visible
+        params.rounded = { tl: 0, tr: 0, bl: 10, br: 10 };
+      }
+      const table = new Table(this, params);
+      this.tables.push(table);
+    }
+  }
+
+  createIcons() {
+    //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
+    if (this.icons.length !== 0) {
+      this.icons.forEach((el) => el.destroy());
+      this.icons = [];
+    }
+    //решить вопрос с назначением иконок, не должны меняться!
+    for (let i = 0; i < this.playersSorted.length; i++) {
+      const nickname = this.playersSorted[i].playerName;
+      const icon = new Icon(this, i, this.tableSizes, nickname);
+      this.icons.push(icon);
+    }
+  }
+
+  createDeck(deck: number) {
+    //потом вынести в отдельный класс
+    const max = deck > 8 ? 8 : deck - 1;
+    for (let i = 0; i < max - 1; i++) {
+      const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack').setAngle(
+        10,
+      );
+      this.deckCards.push(card);
+    }
+    const textData = { x: 30, y: config.height / 2 - 80, amount: deck.toString() };
+    this.deckText = new CardsText(this, textData);
+  }
 }

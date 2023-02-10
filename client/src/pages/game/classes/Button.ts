@@ -1,11 +1,12 @@
 import { config } from '../index';
 import { useGameStore } from '../../../store/gameStore';
+import { TypeButtonStatus } from '../scenes/GameScene';
 export class Button {
   scene: Phaser.Scene;
   btnShape: Phaser.GameObjects.Graphics;
   btnText: Phaser.GameObjects.Text;
   bgColors: { active: number; inactive: number; focus: number };
-  text: string[];
+  // text: string[];
   textColors: { active: number; inactive: number };
   params: { x: number; y: number; width: number; height: number; rounded: number };
   constructor(scene: Phaser.Scene) {
@@ -19,13 +20,13 @@ export class Button {
     };
     this.bgColors = { active: 0x68ff00, inactive: 0x666666, focus: 0xcdff00 };
     this.textColors = { active: 0xfff, inactive: 0x000000 };
-    this.text = ['Start', 'Take', 'Pass']; // какие названия по англ?
+    // this.text = ['Start', 'Take', 'Pass']; // какие названия по англ?
 
     this.btnShape = this.scene.add.graphics();
     this.drawButtonShape(this.bgColors.inactive);
 
     this.btnText = this.scene.add
-      .text(this.params.x + 100, this.params.y + 30, this.text[0], {
+      .text(this.params.x + 100, this.params.y + 30, TypeButtonStatus.Start, {
         font: '30px',
         color: this.textColors.inactive.toString(),
         strokeThickness: 1,
@@ -35,18 +36,18 @@ export class Button {
       .setOrigin(0.5);
   }
 
-  update(playersAmt: number) {
-    if (playersAmt >= 2) this.gameAvailable();
+  update(status: TypeButtonStatus) {
+    if (status === TypeButtonStatus.Start) this.gameAvailable();
   }
 
   gameAvailable() {
     this.drawButtonShape(this.bgColors.active);
-    this.changeText(this.textColors.active, this.text[0]);
+    this.changeText(this.textColors.active, TypeButtonStatus.Start);
     this.btnText.setInteractive().on('pointerdown', () => {
       //начало игры + кнопка неактивная
       useGameStore.getState().actions.startGame();
       this.drawButtonShape(this.bgColors.inactive);
-      this.changeText(this.textColors.inactive, this.text[0]);
+      this.changeText(this.textColors.inactive, TypeButtonStatus.Start);
       this.btnText.removeInteractive();
     });
     this.btnText.on('pointerover', () => this.drawButtonShape(this.bgColors.focus));
