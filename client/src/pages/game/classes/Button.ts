@@ -38,16 +38,29 @@ export class Button {
 
   update(status: TypeButtonStatus) {
     if (status === TypeButtonStatus.Start) this.gameAvailable();
+    else if (status === TypeButtonStatus.Pass) this.passAvailable();
+    else this.takeAvailable();
+  }
+
+  takeAvailable() {
+    this.makeInteractive(TypeButtonStatus.Take, useGameStore.getState().actions.defenderTake);
+  }
+  passAvailable() {
+    this.makeInteractive(TypeButtonStatus.Pass, useGameStore.getState().actions.attackerPass);
   }
 
   gameAvailable() {
+    this.makeInteractive(TypeButtonStatus.Start, useGameStore.getState().actions.startGame);
+  }
+
+  makeInteractive(btnStatus: TypeButtonStatus, action: { (): void; (): void }) {
     this.drawButtonShape(this.bgColors.active);
-    this.changeText(this.textColors.active, TypeButtonStatus.Start);
+    this.changeText(this.textColors.active, btnStatus);
     this.btnText.setInteractive().on('pointerdown', () => {
-      //начало игры + кнопка неактивная
-      useGameStore.getState().actions.startGame();
+      // useGameStore.getState().actions.startGame();
+      action();
       this.drawButtonShape(this.bgColors.inactive);
-      this.changeText(this.textColors.inactive, TypeButtonStatus.Start);
+      this.changeText(this.textColors.inactive, btnStatus);
       this.btnText.removeInteractive();
     });
     this.btnText.on('pointerover', () => this.drawButtonShape(this.bgColors.focus));

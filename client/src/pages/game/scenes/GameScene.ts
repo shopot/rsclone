@@ -42,6 +42,11 @@ export class GameScene extends Phaser.Scene {
       (data) => this.setPlayers(),
     );
 
+    const sortPlayers = useGameStore.subscribe(
+      (state) => state.players,
+      (data) => this.sortPlayers(data),
+    );
+
     const updateDeck = useGameStore.subscribe(
       (state) => state.deckCounter,
       (data) => this.updateDeck(data),
