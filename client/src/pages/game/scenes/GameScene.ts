@@ -115,20 +115,6 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  updateButton(arr: string[]) {
-    if (this.mainButton !== undefined) {
-      const isFirst = this.playersSorted[0].socketId === this.socketId;
-      if (isFirst && arr[0] === 'WaitingForStart') this.mainButton.update(TypeButtonStatus.Start);
-
-      const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
-      const isSocketActive = arr[1] === this.socketId;
-      const isPileOnTable = useGameStore.getState().placedCards.length != 0;
-      if (isSocketActive && isAttacker && isPileOnTable)
-        this.mainButton.update(TypeButtonStatus.Pass);
-      else if (isSocketActive && !isAttacker) this.mainButton.update(TypeButtonStatus.Take);
-    }
-  }
-
   setCardsPositions() {
     const border = 8;
     const tableSize = { ...this.tableSizes[0] };
@@ -162,15 +148,16 @@ export class GameScene extends Phaser.Scene {
     this.playersCardsSprites[0].forEach((card) => {
       card.setInteractive().open();
     });
-    this.input.on('gameobjectdown', this.onCardClick.bind(this));
+    this.input.on('gameobjectdown', () => console.log(1));
+    // this.input.on('gameobjectdown', this.onCardClick.bind(this));
 
     //временно подсвечиваю
     // this.highlightCards();
   }
 
-  onCardClick(pointer: PointerEvent, card: Card) {
-    this.moveCardToTable(card);
-  }
+  // onCardClick(pointer: PointerEvent, card: Card) {
+  //   this.moveCardToTable(card);
+  // }
 
   moveCardToTable(card: Card) {
     //временно тру пока нет сервера
@@ -274,6 +261,23 @@ export class GameScene extends Phaser.Scene {
     };
     const leaveBtn = this.add.text(30, 30, 'leave');
     leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
+  }
+
+  updateButton(arr: string[]) {
+    console.log(arr);
+    if (this.mainButton !== undefined) {
+      const isFirst = this.playersSorted[0].socketId === this.socketId;
+      if (isFirst && arr[0] === 'WaitingForStart') this.mainButton.update(TypeButtonStatus.Start);
+
+      const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
+      const isGame = arr[0] === 'GameInProgress';
+      const isSocketActive = arr[1] === this.socketId;
+      const isPileOnTable = useGameStore.getState().placedCards.length != 0;
+      if (isSocketActive && isAttacker && isPileOnTable)
+        this.mainButton.update(TypeButtonStatus.Pass);
+      else if (isGame && isSocketActive && !isAttacker)
+        this.mainButton.update(TypeButtonStatus.Take);
+    }
   }
 
   setPlayers() {
