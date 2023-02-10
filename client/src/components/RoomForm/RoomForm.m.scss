@@ -1,0 +1,19 @@
+.formFooter {
+  margin-top: 4rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.oldUI,
+.playerName {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.oldUI {
+  margin-top: 30px;
+}
