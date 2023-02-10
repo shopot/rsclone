@@ -284,21 +284,6 @@ export class Room {
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
-
-      // Check game is finish for defender
-      if (
-        this.players.totalCountInGame() === 1 &&
-        (this.defender.getCardsCount() > 1 ||
-          !this.defender.cards[0].canBeat(
-            Card.create(card, this.deck.getTrumpSuit()),
-            this.deck.getTrumpSuit(),
-          ))
-      ) {
-        this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
-        this.roomStatus = TypeRoomStatus.GameIsOver;
-        return true;
-      }
-
       this.attacker = this.getNextAttacker2(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     }
@@ -329,6 +314,12 @@ export class Room {
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
 
+      // beats last card of the last attacker with their own last card - draw
+      if (this.players.totalCountInGame() === 0) {
+        this.roomStatus = TypeRoomStatus.GameIsOver;
+        return true;
+      }
+
       // Check attacker as YouLoser
       if (
         this.attacker.getCardsCount() > 0 &&
@@ -341,6 +332,14 @@ export class Room {
 
       this.activePlayer = this.getNextPlayer(this.activePlayer);
       this.startNextRound();
+      return true;
+    }
+
+    // Defender beats last attacker's last card with their own card, but still
+    // loses (it was not their last card)
+    if (this.players.totalCountInGame() === 1) {
+      this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.roomStatus = TypeRoomStatus.GameIsOver;
       return true;
     }
 
@@ -397,6 +396,14 @@ export class Room {
    */
   public setDefenderPickUpCards(): void {
     this.activePlayer.addCards(this.round.getRoundCards());
+
+    // Check game is finish for defender
+    if (this.players.totalCountInGame() === 1) {
+      this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.roomStatus = TypeRoomStatus.GameIsOver;
+
+      return;
+    }
 
     // Next after active player (defender)
     // this.setActivePlayer(this.getNextPlayer());
