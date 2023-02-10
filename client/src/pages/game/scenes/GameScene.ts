@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import Phaser from 'phaser';
 import { config } from '../index';
 import { Table } from '../prefabs/Table';
@@ -7,7 +8,15 @@ import { Suit } from '../prefabs/Suit';
 import { Button } from '../classes/Button';
 import { socketIOService } from '../../../shared/api/socketio';
 import { useGameStore } from '../../../store/gameStore';
-import { TypeCard, TypePlayer, TypeResponseRoomData, TypeRoomStatus } from '../../../shared/types';
+import {
+  TypeCard,
+  TypeDealt,
+  TypePlacedCard,
+  TypePlayer,
+  TypePlayerRole,
+  TypeRoomStatus,
+  TypeServerError,
+} from '../../../shared/types';
 import { Icon } from '../classes/Icon';
 
 export const enum TypeButtonStatus {
@@ -15,6 +24,32 @@ export const enum TypeButtonStatus {
   Pass = 'Pass',
   Take = 'Take',
 }
+
+export type TypeState = {
+  isOnline: boolean;
+  roomId: string;
+  roomStatus: TypeRoomStatus;
+  hostSocketId: string;
+  activeSocketId: string;
+  players: TypePlayer[];
+  trumpCard: TypeCard;
+  placedCards: TypePlacedCard[];
+  deckCounter: number;
+  dealt: TypeDealt[];
+  error: '' | TypeServerError;
+  actions: {
+    setGameState: () => void;
+    startGame: () => void;
+    leaveRoom: () => void;
+    restartGame: () => void;
+    openRoom: () => void;
+    makeAttackingMove: (card: TypeCard) => void;
+    makeDefensiveMove: (card: TypeCard) => void;
+    attackerPass: () => void;
+    defenderTake: () => void;
+  };
+};
+
 export class GameScene extends Phaser.Scene {
   beaten = 3;
   // deckCards = 36 - this.playersCards.flat().length - this.beaten;
@@ -33,6 +68,7 @@ export class GameScene extends Phaser.Scene {
   socketId = socketIOService.getSocketId();
   playersCards: TypeCard[][] = [];
   playersText: CardsText[] = [];
+  cardToMove: Card | undefined;
 
   constructor() {
     super('Game');
@@ -71,6 +107,12 @@ export class GameScene extends Phaser.Scene {
       (data) => this.colorIcon(data),
     );
 
+    const animateCardMoveToTable = useGameStore.subscribe(
+      (state) => state,
+      (state, prevState) => this.animateCardMoveToTable(state, prevState),
+    );
+
+    // animateCardMoveToTable
     const tmp = useGameStore.subscribe((state) => console.log(state));
   }
 
@@ -83,11 +125,12 @@ export class GameScene extends Phaser.Scene {
 
     this.createDeck(useGameStore.getState().deckCounter);
 
-    this.attack = new Array<boolean>(this.playersSorted.length).fill(false);
+    // this.attack = new Array<boolean>(this.playersSorted.length).fill(false);
     // this.createBeaten();
   }
 
   startGame(status: TypeRoomStatus) {
+    this.trump = useGameStore.getState().trumpCard;
     if (status === 'GameInProgress') {
       this.createTrumpSuit();
       this.createTrumpCard();
@@ -140,11 +183,10 @@ export class GameScene extends Phaser.Scene {
   createCards() {
     //на раздаче сделать анимацию движения карт в центр стола
     //затем сортировка по возрастанию и анимация распределения карт на столе (для главного - рубашой вниз)
-    this.playersCards = this.playersSorted.map((set) => set.cards);
     this.playersCards.forEach((set, ind) => {
       const arr: Card[] = [];
       set.forEach((el) => {
-        const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el));
+        const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
         arr.push(item);
       });
       this.playersCardsSprites.push(arr);
@@ -153,52 +195,45 @@ export class GameScene extends Phaser.Scene {
     this.playersCardsSprites[0].forEach((card) => {
       card.setInteractive().open();
     });
-    this.input.on('gameobjectdown', this.moveCardToTable.bind(this));
+    this.input.on('gameobjectdown', this.makeMove.bind(this));
 
     //временно подсвечиваю
     // this.highlightCards();
   }
 
-  // onCardClick(pointer: PointerEvent, card: Card) {
-  //   if (this.socketId === useGameStore.getState().activeSocketId) this.moveCardToTable(card);
-  // }
-
-  moveCardToTable(pointer: PointerEvent, card: Card) {
-    //временно тру пока нет сервера
-    // this.attack[0] = true;
+  makeMove(pointer: PointerEvent, card: Card) {
+    console.log('try to move')
     //если разрешено(если у того, на которого ходят достаточно карт + если ход данного игрока разрешен правилами), то
-    if (this.socketId === useGameStore.getState().activeSocketId) {
-      console.log(1);
-      //   const indexOfPlayer = this.playersCardsSprites
-      //     .map((set, ind) => {
-      //       if (set.includes(card)) return ind;
-      //     })
-      //     .find((el) => el != undefined);
+    const isSocketActive = this.socketId === useGameStore.getState().activeSocketId;
+    const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
+    if (isSocketActive && card.cardType !== undefined && isGameOn) {
+      console.log('went to server')
+      this.cardToMove = card;
+      const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
+      isAttacker
+        ? useGameStore.getState().actions.makeAttackingMove(card.cardType)
+        : useGameStore.getState().actions.makeDefensiveMove(card.cardType);
+    }
+  }
 
-      //   //расположение карты в зависимости от того, кто нападает + сколько кучек уже на столе
-      //   if (indexOfPlayer != undefined) {
-      //     const params = { attack: this.attack[indexOfPlayer], place: -1 };
+  animateCardMoveToTable(state: TypeState,prevSate: TypeState) {
+    if (JSON.stringify(state.placedCards) !== JSON.stringify(prevSate.placedCards)) {
+      const idPlayerMoved = prevSate.activeSocketId;
+      const rolePlayerMoved = prevSate.players.filter((player) => player.socketId === idPlayerMoved)[0].playerRole;
+      const cardMovedType = (rolePlayerMoved === TypePlayerRole.Attacker) ?
+       state.placedCards[state.placedCards.length - 1].attacker :
+       state.placedCards[state.placedCards.length - 1].defender;
+      const thisplayer = this.playersSorted.filter(player => player.socketId === idPlayerMoved)[0];
+      const indexOfPlayer = this.playersSorted.indexOf(thisplayer);
 
-      //     // const indexOfCard = this.playersCards[indexOfPlayer].indexOf(card.value);
-
-      //     //если нападаю, то след кучку начинаю, иначе последнюю нечетную
-      //     if (params.attack) {
-      //       params.place = this.piles.length + 1;
-      //       this.piles.push([card]);
-      //     } else {
-      //       const oddSet = this.piles.find((set) => set.length === 1) || [];
-      //       params.place = this.piles.indexOf(oddSet);
-      //       this.piles[this.piles.length].push(card);
-      //     }
-      //     card.move(params);
-
-      //     //временно удаляю вручную, потом будет с сервера приходить массив обновленный
-      //     // this.playersCards[indexOfPlayer].splice(indexOfCard, 1);
-
-      //     //перемещение спрайта от игрока
-      //     // this.playersCardsSprites[indexOfPlayer].splice(indexOfCard, 1);
-      //     this.setCardsPositions();
-      //   }
+      if (cardMovedType) {
+        const spriteToMove = this.playersCardsSprites[indexOfPlayer].filter(sprite => sprite.value === this.getCardTexture(cardMovedType))[0];
+        const indexOfCard = this.playersCardsSprites[indexOfPlayer].indexOf(spriteToMove);
+        this.playersCardsSprites[indexOfPlayer].splice(indexOfCard, 1);
+        const params = {isAttacker: rolePlayerMoved === TypePlayerRole.Attacker, place: state.placedCards.length, me: indexOfPlayer === 0};
+        spriteToMove?.move(params);
+      }
+      this.setCardsPositions();
     }
   }
 
@@ -229,21 +264,6 @@ export class GameScene extends Phaser.Scene {
     this.playersText.forEach((text, i) => {
       text.setText(cardsWithoutMainPlayer[i].length.toString());
     });
-  }
-
-  getCardTexture(card: TypeCard) {
-    const texture = { rank: '', suit: '' };
-    if (card.rank <= 10) texture.rank = card.rank.toString();
-    else if (card.rank === 11) texture.rank = 'J';
-    else if (card.rank === 12) texture.rank = 'Q';
-    else if (card.rank === 13) texture.rank = 'K';
-    else texture.rank = 'A';
-
-    if (card.suit === 'clubs') texture.suit = 'C';
-    else if (card.suit === 'spades') texture.suit = 'S';
-    else if (card.suit === 'hearts') texture.suit = 'H';
-    else texture.suit = 'D';
-    return texture.rank + texture.suit;
   }
 
   // setAlive(value: boolean) {
@@ -288,10 +308,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   setPlayers() {
-    const players = useGameStore.getState().players;
-    this.sortPlayers(players);
-    this.createTables();
-    this.createIcons();
+    const roomStatus = useGameStore.getState().roomStatus;
+    if (roomStatus === TypeRoomStatus.WaitingForStart || roomStatus === TypeRoomStatus.WaitingForPlayers) {
+      const players = useGameStore.getState().players;
+      this.sortPlayers(players);
+      this.createTables();
+      this.createIcons();
+    }
   }
 
   sortPlayers(players: TypePlayer[]) {
@@ -304,6 +327,7 @@ export class GameScene extends Phaser.Scene {
         if (first !== undefined) this.playersSorted.push(first);
       }
     }
+    this.playersCards = this.playersSorted.map((set) => set.cards);
   }
 
   createTables() {
@@ -390,11 +414,28 @@ export class GameScene extends Phaser.Scene {
 
   createTrumpCard() {
     const texture = this.getCardTexture(this.trump);
-    const trumpCard = new Card(this, 80, config.height / 2, 'cards', texture)
+    console.log(this.trump, texture)
+    const trumpCard = new Card(this, 80, config.height / 2, 'cards', texture, this.trump)
       .setDepth(config.depth.trumpCard)
       .positionTrump();
   }
+
   createTrumpSuit() {
     new Suit(this, this.trump.suit);
+  }
+
+  getCardTexture(card: TypeCard) {
+    const texture = { rank: '', suit: '' };
+    if (card.rank <= 10) texture.rank = card.rank.toString();
+    else if (card.rank === 11) texture.rank = 'J';
+    else if (card.rank === 12) texture.rank = 'Q';
+    else if (card.rank === 13) texture.rank = 'K';
+    else texture.rank = 'A';
+
+    if (card.suit === 'clubs') texture.suit = 'C';
+    else if (card.suit === 'spades') texture.suit = 'S';
+    else if (card.suit === 'hearts') texture.suit = 'H';
+    else texture.suit = 'D';
+    return texture.rank + texture.suit;
   }
 }

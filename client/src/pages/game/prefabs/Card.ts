@@ -1,14 +1,24 @@
 import Phaser from 'phaser';
+import { TypeCard } from '../../../shared/types';
 import { config } from '../index';
 
 export class Card extends Phaser.GameObjects.Sprite {
   value: string;
+  cardType?: TypeCard;
   colors: { primaryColor: Phaser.Display.Color; secondaryColor: Phaser.Display.Color };
   highlighted: boolean;
-  constructor(scene: Phaser.Scene, x: number, y: number, texture = 'cards', value: string) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    texture = 'cards',
+    value: string,
+    type?: TypeCard,
+  ) {
     super(scene, x, y, texture, 'cardBack');
     this.scene = scene;
     this.value = value;
+    this.cardType = type;
     this.highlighted = false;
     this.init();
     this.colors = {
@@ -95,14 +105,17 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.moveAnimation(pileIndex, isAttacking, piles);
   }
 
-  move(params: { attack: boolean; place: number }) {
+  move(params: { isAttacker: boolean; place: number; me: boolean }) {
     //если вызван для карт других игроков, то переворачиваем перед ходом
     //если для главного игрока, то убираем возможность клика после попадения на стол
-    if (!this.active) {
+    if (!params.me) {
       this.open();
     } else {
       this.removeInteractive();
     }
-    this.moveAnimation(params.place - 1, params.attack, params.place);
+    if (!params.isAttacker) {
+      this.setDepth(2);
+    }
+    this.moveAnimation(params.place - 1, params.isAttacker, params.place);
   }
 }

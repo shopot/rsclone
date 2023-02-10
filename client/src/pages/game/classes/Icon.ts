@@ -38,6 +38,7 @@ export class Icon {
   }
 
   colorBorder(status: boolean) {
+    // setTimeout(() => this.border.createBorder(status), 300);
     this.border.createBorder(status);
   }
 }
