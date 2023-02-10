@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useGame } from '../../app/hooks/useGame';
 import { BootScene } from './scenes/BootScene';
+import { EndScene } from './scenes/EndScene';
 import { GameScene } from './scenes/GameScene';
 
 export const config = {
@@ -14,7 +15,7 @@ export const config = {
   tableBorderColor: [0xffff00, 0x00ff00],
   parent: 'game-content',
   cardSize: { w: 150 * 0.7, h: 225 * 0.7 },
-  scene: [BootScene, GameScene],
+  scene: [BootScene, GameScene, EndScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

@@ -138,9 +138,7 @@ export class GameScene extends Phaser.Scene {
     //переделать на красивую кнопку в отдельном классе
     const handleLeaveRoom = () => {
       useGameStore.getState().actions.leaveRoom();
-      // this.scene.stop();
-      window.location.href = '/';
-      console.log(useGameStore.getState());
+      this.scene.start('End');
     };
     const leaveBtn = this.add.text(30, 30, 'leave');
     leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
