@@ -7,4 +7,5 @@ export enum TypeGameError {
   GameStartFailed = 'GameStartFailed',
   GameRestartFailed = 'GameRestartFailed',
   GameRoomNotFound = 'GameRoomNotFound',
+  MessageSendFailed = 'MessageSendFailed',
 }

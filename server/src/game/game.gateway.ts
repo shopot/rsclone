@@ -155,6 +155,20 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   }
 
   /**
+   * Chat message
+   * @param {GameReceiveDto} data
+   */
+  @SubscribeMessage(TypeRoomEvent.GameChatMessage)
+  handleChatMessage(
+    @MessageBody('data') data: GameReceiveDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const results = this.gameService.setChatMessage(data, client);
+
+    this.sendStateToClientByClientSocket(client, results);
+  }
+
+  /**
    * Open Card by attacker
    * @param {GameReceiveDto} data
    */

@@ -147,6 +147,31 @@ export class GameService {
     });
   }
 
+  public setChatMessage(
+    data: GameReceiveDto,
+    client: Socket,
+  ): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: TypeGameError.GameRoomNotFound,
+      });
+    }
+
+    if (!room.addChatMessage(client.id, data.message)) {
+      return this.createResponseObject({
+        roomId,
+        error: TypeGameError.MessageSendFailed,
+      });
+    }
+
+    return this.createResponseObject({ roomId });
+  }
+
   public setCardOpen(client: Socket, card: TypeCard): TypeServerResponse {
     const roomId = this.getRoomIdByClientSocket(client);
 

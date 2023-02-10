@@ -4,4 +4,5 @@ export const enum TypeServerError {
   ChangeNextPlayerFailed = 'ChangeNextPlayerFailed',
   SetOpenCardFailed = 'SetOpenCardFailed',
   SetCloseCardFailed = 'SetCloseCardFailed',
+  MessageSendFailed = 'MessageSendFailed',
 }

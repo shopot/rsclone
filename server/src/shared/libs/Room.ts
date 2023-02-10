@@ -17,6 +17,7 @@ import {
   TypeDealt,
   TypeRoomState,
   TypeCard,
+  TypeChatMessage,
 } from '../types';
 import { Players } from './Players';
 import { GameService } from '../../game/game.service';
@@ -33,6 +34,8 @@ export class Room {
   hostPlayer: Player;
   /** Players list in this room */
   players: Players;
+  /** Chat messages */
+  chat: TypeChatMessage[];
   /** Deck of cards */
   deck: Deck;
   /** Round */
@@ -71,6 +74,7 @@ export class Room {
     this.hostPlayer = hostPlayer;
     this.hostPlayer.setPlayerStatus(TypePlayerStatus.InGame);
     this.players = new Players([this.hostPlayer]);
+    this.chat = [];
 
     // Create empty deck
     this.deck = new Deck();
@@ -126,6 +130,9 @@ export class Room {
 
     // Game is started
     this.roomStatus = TypeRoomStatus.GameInProgress;
+
+    // Clear old chat messages
+    this.chat = [];
 
     // Start new deck
     this.deck = new Deck();
@@ -201,6 +208,27 @@ export class Room {
       player.setPlayerStatus(TypePlayerStatus.InGame);
       player.cards = [];
     }
+
+    return true;
+  }
+
+  /**
+   * Adds chat message
+   */
+  public addChatMessage(socketId: string, message: string): boolean {
+    const player = this.players.getPlayerBySocketId(socketId);
+
+    if (!player) {
+      return false;
+    }
+
+    const timestamp = Date.now();
+
+    this.chat.push({
+      sender: player.getPlayerAsDto(),
+      timestamp,
+      message,
+    });
 
     return true;
   }
@@ -754,6 +782,7 @@ export class Room {
       hostSocketId: this.hostPlayer.getSocketId(),
       activeSocketId: this.activePlayer.getSocketId(),
       players: this.players.getPlayersAsDto(),
+      chat: this.chat,
       trumpCard: this.getDeck().getTrumpCard().getCardDto() || {
         rank: TypeCardRank.RANK_6,
         suit: TypeCardSuit.Clubs,

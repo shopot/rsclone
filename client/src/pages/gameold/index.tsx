@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../../store/gameStore';
 import { socketIOService } from '../../shared/api/socketio';
@@ -61,6 +61,7 @@ const GamePage = () => {
     deckCounter,
     trumpCard,
     players,
+    chat,
     dealt,
     placedCards,
     error,
@@ -81,6 +82,8 @@ const GamePage = () => {
 
     return me?.playerName || 'John Doe';
   });
+
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     actions.setGameState();
@@ -119,6 +122,15 @@ const GamePage = () => {
     actions.defenderTake();
   };
 
+  const handleChangeMessage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(event.target.value);
+  };
+
+  const handleSendMessage = () => {
+    actions.sendMessage(message);
+    setMessage('');
+  };
+
   return (
     <div className="game-page">
       <h2 className={styles.title}>stats</h2>
@@ -135,7 +147,7 @@ const GamePage = () => {
             Your player name: {myPlayerName}
           </p>
           <p>Your socket ID: {socketId}</p>
-          <p className="info__active-player">Player Active socket ID: {activeSocketId}</p>
+          <p className="info__active-player">Player active socket ID: {activeSocketId}</p>
         </div>
         <div className="deck">
           <p>
@@ -148,8 +160,31 @@ const GamePage = () => {
       </div>
 
       <section className={styles.section}>
-        <h2 className={styles.title}>
-          players
+        <h2 className={styles.title}>players</h2>
+        <div className={styles.playerButtons}>
+          <div className={styles.chatSection}>
+            {chat.length > 0 && (
+              <p className={styles.chatMessage}>
+                <span>{new Date(chat.at(-1)?.timestamp ?? 0).toLocaleTimeString()}</span>
+                <span>{chat.at(-1)?.sender.playerName}:</span>
+                <span>{chat.at(-1)?.message}</span>
+              </p>
+            )}
+            <input
+              type="text"
+              placeholder="message"
+              value={message}
+              onChange={handleChangeMessage}
+            />
+            <button
+              className="btn"
+              type="button"
+              disabled={!message}
+              onClick={handleSendMessage}
+            >
+              send
+            </button>
+          </div>
           <button
             style={{ marginLeft: '30px' }}
             className="btn"
@@ -178,7 +213,7 @@ const GamePage = () => {
               </button>
             </>
           )}
-        </h2>
+        </div>
         <div className={styles.players}>
           {players.map((player) => (
             <div
