@@ -48,30 +48,6 @@
   }
 }
 
-.btn1 {
-  background-color: color.adjust(constants.$main-color, $lightness: -10%);
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease-in-out;
-  text-transform: uppercase;
-
-  &:hover {
-    background-color: constants.$main-color;
-  }
-
-  &:disabled {
-    // filter: sepia(90%);
-    opacity: 0.9;
-    background-color: color.adjust(constants.$disabled-color, $lightness: -10%);
-    cursor: default;
-    pointer-events: none;
-  }
-
-  &-lg {
-    padding: 15px 20px;
-  }
-}
-
 .btnCard {
   font-size: 36px;
 }
