@@ -6,7 +6,6 @@ import {
   MAX_NUMBER_OF_PLAYERS,
 } from '../constants';
 import { Logger } from '@nestjs/common';
-import { Card } from './Card';
 import { Round } from './Round';
 import {
   TypePlayerStatus,
