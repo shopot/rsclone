@@ -66,6 +66,11 @@ export class GameScene extends Phaser.Scene {
       (data) => this.startGame(data),
     );
 
+    const colorIcon = useGameStore.subscribe(
+      (state) => state.activeSocketId,
+      (data) => this.colorIcon(data),
+    );
+
     const tmp = useGameStore.subscribe((state) => console.log(state));
   }
 
@@ -148,50 +153,52 @@ export class GameScene extends Phaser.Scene {
     this.playersCardsSprites[0].forEach((card) => {
       card.setInteractive().open();
     });
-    this.input.on('gameobjectdown', () => console.log(1));
-    // this.input.on('gameobjectdown', this.onCardClick.bind(this));
+    this.input.on('gameobjectdown', this.moveCardToTable.bind(this));
 
     //временно подсвечиваю
     // this.highlightCards();
   }
 
   // onCardClick(pointer: PointerEvent, card: Card) {
-  //   this.moveCardToTable(card);
+  //   if (this.socketId === useGameStore.getState().activeSocketId) this.moveCardToTable(card);
   // }
 
-  moveCardToTable(card: Card) {
+  moveCardToTable(pointer: PointerEvent, card: Card) {
     //временно тру пока нет сервера
-    this.attack[0] = true;
+    // this.attack[0] = true;
     //если разрешено(если у того, на которого ходят достаточно карт + если ход данного игрока разрешен правилами), то
-    const indexOfPlayer = this.playersCardsSprites
-      .map((set, ind) => {
-        if (set.includes(card)) return ind;
-      })
-      .find((el) => el != undefined);
+    if (this.socketId === useGameStore.getState().activeSocketId) {
+      console.log(1);
+      //   const indexOfPlayer = this.playersCardsSprites
+      //     .map((set, ind) => {
+      //       if (set.includes(card)) return ind;
+      //     })
+      //     .find((el) => el != undefined);
 
-    //расположение карты в зависимости от того, кто нападает + сколько кучек уже на столе
-    if (indexOfPlayer != undefined) {
-      const params = { attack: this.attack[indexOfPlayer], place: -1 };
+      //   //расположение карты в зависимости от того, кто нападает + сколько кучек уже на столе
+      //   if (indexOfPlayer != undefined) {
+      //     const params = { attack: this.attack[indexOfPlayer], place: -1 };
 
-      // const indexOfCard = this.playersCards[indexOfPlayer].indexOf(card.value);
+      //     // const indexOfCard = this.playersCards[indexOfPlayer].indexOf(card.value);
 
-      //если нападаю, то след кучку начинаю, иначе последнюю нечетную
-      if (params.attack) {
-        params.place = this.piles.length + 1;
-        this.piles.push([card]);
-      } else {
-        const oddSet = this.piles.find((set) => set.length === 1) || [];
-        params.place = this.piles.indexOf(oddSet);
-        this.piles[this.piles.length].push(card);
-      }
-      card.move(params);
+      //     //если нападаю, то след кучку начинаю, иначе последнюю нечетную
+      //     if (params.attack) {
+      //       params.place = this.piles.length + 1;
+      //       this.piles.push([card]);
+      //     } else {
+      //       const oddSet = this.piles.find((set) => set.length === 1) || [];
+      //       params.place = this.piles.indexOf(oddSet);
+      //       this.piles[this.piles.length].push(card);
+      //     }
+      //     card.move(params);
 
-      //временно удаляю вручную, потом будет с сервера приходить массив обновленный
-      // this.playersCards[indexOfPlayer].splice(indexOfCard, 1);
+      //     //временно удаляю вручную, потом будет с сервера приходить массив обновленный
+      //     // this.playersCards[indexOfPlayer].splice(indexOfCard, 1);
 
-      //перемещение спрайта от игрока
-      // this.playersCardsSprites[indexOfPlayer].splice(indexOfCard, 1);
-      this.setCardsPositions();
+      //     //перемещение спрайта от игрока
+      //     // this.playersCardsSprites[indexOfPlayer].splice(indexOfCard, 1);
+      //     this.setCardsPositions();
+      //   }
     }
   }
 
@@ -342,8 +349,19 @@ export class GameScene extends Phaser.Scene {
     //решить вопрос с назначением иконок, не должны меняться!
     for (let i = 0; i < this.playersSorted.length; i++) {
       const nickname = this.playersSorted[i].playerName;
-      const icon = new Icon(this, i, this.tableSizes, nickname);
+      const socketId = this.playersSorted[i].socketId;
+      const icon = new Icon(this, i, this.tableSizes, nickname, socketId);
       this.icons.push(icon);
+    }
+  }
+
+  colorIcon(activeId: string) {
+    if (useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress) {
+      this.icons.forEach((icon) => icon.colorBorder(false));
+      const activeIcon = this.icons.find((icon) => icon.socketId === activeId);
+      if (activeIcon !== undefined) {
+        activeIcon.colorBorder(true);
+      }
     }
   }
 

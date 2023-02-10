@@ -8,13 +8,16 @@ export class Icon {
   pic: IconPic;
   border: IconBorder;
   text: Nickname;
+  socketId: string;
   constructor(
     scene: Phaser.Scene,
     index: number,
     tableSizes: { width: number; height: number; startX: number }[],
     nickname: string,
+    socketId: string,
   ) {
     this.scene = scene;
+    this.socketId = socketId;
 
     const x = tableSizes[index].startX;
     const spriteY = index === 0 ? config.height - config.cardSize.h + 25 : 82;
@@ -32,5 +35,9 @@ export class Icon {
     this.border.destroy();
     this.text.destroy();
     // this.destroy();
+  }
+
+  colorBorder(status: boolean) {
+    this.border.createBorder(status);
   }
 }
