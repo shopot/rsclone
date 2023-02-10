@@ -32,14 +32,12 @@ const RatingPage = () => {
     <div className="container">
       <div className="box-container">
         <h1 className="heading">Rating Table</h1>
-        {isOnline ? (
+        {isOnline && ratingResults.length > 0 && (
           <Table
             columns={columns}
             data={ratingResults}
             rowKey="id"
           />
-        ) : (
-          'Nothing'
         )}
       </div>
     </div>
