@@ -13,6 +13,7 @@ export const config = {
   backgroundColor: '0x000000',
   tableColor: [0x000000, 0x00ff00],
   tableBorderColor: [0xffff00, 0x00ff00],
+  depth: { bg: -5, suit: -4, trumpCard: -3 },
   parent: 'game-content',
   cardSize: { w: 150 * 0.7, h: 225 * 0.7 },
   scene: [BootScene, GameScene, EndScene],

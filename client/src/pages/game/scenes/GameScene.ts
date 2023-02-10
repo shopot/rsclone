@@ -237,16 +237,6 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  updateDeck(deck: number) {
-    if (deck < 8) {
-      while (this.deckCards.length > deck) {
-        this.deckCards[0].destroy();
-      }
-    }
-    const text = deck === 1 ? '' : deck.toString();
-    this.deckText?.setText(text);
-  }
-
   getCardTexture(card: TypeCard) {
     const texture = { rank: '', suit: '' };
     if (card.rank <= 10) texture.rank = card.rank.toString();
@@ -262,16 +252,6 @@ export class GameScene extends Phaser.Scene {
     return texture.rank + texture.suit;
   }
 
-  createTrumpCard() {
-    const texture = this.getCardTexture(this.trump);
-    const trumpCard = new Card(this, 80, config.height / 2, 'cards', texture)
-      .setDepth(-2)
-      .positionTrump();
-  }
-  createTrumpSuit() {
-    new Suit(this, this.trump.suit);
-  }
-
   // setAlive(value: boolean) {
   // в конце игры - скрыть текстуру, деактивировать объекты карт, если они будут улетать на пределы экрана. если в кучке битых, то не нужно.
   // }
@@ -282,7 +262,7 @@ export class GameScene extends Phaser.Scene {
 
   createBg() {
     const bg = this.add.sprite(config.width / 2, config.height / 2, 'bgDark');
-    bg.depth = -5;
+    bg.depth = config.depth.bg;
   }
 
   createButtons() {
@@ -374,5 +354,25 @@ export class GameScene extends Phaser.Scene {
     }
     const textData = { x: 30, y: config.height / 2 - 80, amount: deck.toString() };
     this.deckText = new CardsText(this, textData);
+  }
+
+  updateDeck(deck: number) {
+    if (deck < 8) {
+      while (this.deckCards.length > deck) {
+        this.deckCards[0].destroy();
+      }
+    }
+    const text = deck === 1 ? '' : deck.toString();
+    this.deckText?.setText(text);
+  }
+
+  createTrumpCard() {
+    const texture = this.getCardTexture(this.trump);
+    const trumpCard = new Card(this, 80, config.height / 2, 'cards', texture)
+      .setDepth(config.depth.trumpCard)
+      .positionTrump();
+  }
+  createTrumpSuit() {
+    new Suit(this, this.trump.suit);
   }
 }
