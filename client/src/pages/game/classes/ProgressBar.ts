@@ -39,8 +39,8 @@ export class ProgressBar {
   }
 
   setEvents() {
-    this.scene.load.on('progress', this.showProgressBar, this);
-    this.scene.load.on('complete', this.onLoadComplete, this);
+    this.scene.load.on('progress', this.showProgressBar.bind(this));
+    this.scene.load.on('complete', this.onLoadComplete.bind(this));
   }
 
   showWrapper() {

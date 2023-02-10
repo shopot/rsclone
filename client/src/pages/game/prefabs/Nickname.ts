@@ -9,19 +9,19 @@ export class Nickname extends Phaser.GameObjects.Text {
       strokeThickness: 1,
       stroke: '#FFFFFF',
     });
-    this.scene.tweens.add({
-      targets: this,
-      scaleX: 0,
-      ease: 'Linear',
-      duration: 5,
-      onComplete: () => {
-        this.scene.tweens.add({
-          targets: this,
-          scaleX: 1,
-          ease: 'Linear',
-          duration: 500,
-        });
-      },
-    });
+    // this.scene.tweens.add({
+    //   targets: this,
+    //   scaleX: 0,
+    //   ease: 'Linear',
+    //   duration: 5,
+    //   onComplete: () => {
+    //     this.scene.tweens.add({
+    //       targets: this,
+    //       scaleX: 1,
+    //       ease: 'Linear',
+    //       duration: 200,
+    //     });
+    //   },
+    // });
   }
 }

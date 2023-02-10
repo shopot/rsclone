@@ -1,80 +1,103 @@
 import Phaser from 'phaser';
 import { config } from '../index';
 import { Table } from '../prefabs/Table';
-import { IconPic } from '../prefabs/IconPic';
-import { IconBorder } from '../prefabs/IconBorder';
-import { Nickname } from '../prefabs/Nickname';
 import { CardsText } from '../prefabs/CardsText';
 import { Card } from '../prefabs/Card';
 import { Suit } from '../prefabs/Suit';
 import { Button } from '../classes/Button';
 import { socketIOService } from '../../../shared/api/socketio';
 import { useGameStore } from '../../../store/gameStore';
-import { useNavigate } from 'react-router';
-import { TypePlayer } from '../../../shared/types';
+import { TypeCard, TypePlayer, TypeResponseRoomData, TypeRoomStatus } from '../../../shared/types';
+import { Icon } from '../classes/Icon';
+
 export class GameScene extends Phaser.Scene {
-  deckText!: Phaser.GameObjects.Text;
-  playersCards = [
-    ['6C', '7H', '8S', '10H', 'AH', 'KD', 'QC', '7C', '6D', '6H', '6S'],
-    ['6C', '7H', '8S', '10H', 'AH', 'KD'],
-    ['6C', '7H', '8S'],
-    ['6C', '7H', '8S', '10H'],
-  ];
   beaten = 3;
-  deckCards = 36 - this.playersCards.flat().length - this.beaten;
-  players = 4;
-  attack: boolean[];
+  // deckCards = 36 - this.playersCards.flat().length - this.beaten;
+  attack: boolean[] = [];
   piles: Card[][] = []; // стопочек на столе
   playersCardsSprites: Card[][] = [];
   tableSizes: { width: number; height: number; startX: number }[] = [];
   playersSorted: TypePlayer[] = [];
   playersSortedPrev: TypePlayer[] = [];
+  tables: Table[] = [];
+  icons: Icon[] = [];
+  deckCards: Card[] = [];
+  deckText: CardsText | undefined;
+  trump: TypeCard = useGameStore.getState().trumpCard;
+  mainButton: Button | undefined;
+  socketId = socketIOService.getSocketId();
+  playersCards: TypeCard[][] = [];
+  playersText: CardsText[] = [];
 
   constructor() {
     super('Game');
 
-    this.attack = new Array<boolean>(this.players).fill(false);
-    // const unsub3 = useDogStore.subscribe(
-    //   (state) => state.paw,
-    //   (paw, previousPaw) => console.log(paw, previousPaw)
-    // )
-    const playersSub = useGameStore.subscribe(
+    const setPlayers = useGameStore.subscribe(
       (state) => state.players,
       (data) => this.setPlayers(data),
     );
+    const createTables = useGameStore.subscribe(
+      (state) => state.players,
+      (data) => this.createTables(),
+    );
+    const createIcons = useGameStore.subscribe(
+      (state) => state.players,
+      (data) => this.createIcons(),
+    );
+    const updateDeck = useGameStore.subscribe(
+      (state) => state.deckCounter,
+      (data) => this.updateDeck(data),
+    );
+    const updatePlayersText = useGameStore.subscribe(
+      (state) => state.players,
+      (data) => this.updatePlayersText(data),
+    );
+
+    const updateButton = useGameStore.subscribe(
+      (state) => state.roomStatus,
+      (data) => this.updateButton(data),
+    );
+
+    const gameStarted = useGameStore.subscribe(
+      (state) => state.roomStatus,
+      (data) => this.startGame(data),
+    );
+
+    const tmp = useGameStore.subscribe((state) => console.log(state));
   }
 
   create() {
-    console.log(useGameStore.getState());
     //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
     this.createButtons();
-
-    // const playersSub = useGameStore.subscribe(this.setPlayers.bind(this));
     this.setPlayers(useGameStore.getState().players);
-    // this.createTables();
-    // this.createDeck();
-    // this.createTrumpCard();
-    // this.createTrumpSuit();
-    // this.createCards();
-    // this.createCardsText();
-    // this.createIcons();
+    this.attack = new Array<boolean>(this.playersSorted.length).fill(false);
+    this.createTables();
+    this.createIcons();
+    this.createDeck(useGameStore.getState().deckCounter);
     // this.createBeaten();
+  }
+
+  startGame(status: TypeRoomStatus) {
+    if (status === 'GameInProgress') {
+      this.createTrumpSuit();
+      this.createTrumpCard();
+      //анимацию сделать раздачи + расположения на столах игроков
+      this.createCards();
+      this.createCardsText();
+    }
   }
 
   setPlayers(players: TypePlayer[]) {
     this.playersSortedPrev = [...this.playersSorted];
-    const socketId = socketIOService.getSocketId();
-    // const me = useGameStore.getState().players.find((player) => player.socketId === socketId);
-    const me = players.find((player) => player.socketId === socketId);
-    this.playersSorted = useGameStore.getState().players;
+    const me = players.find((player) => player.socketId === this.socketId);
+    this.playersSorted = [...useGameStore.getState().players];
     if (me !== undefined) {
       while (this.playersSorted.indexOf(me) !== 0) {
         const first = this.playersSorted.shift();
         if (first !== undefined) this.playersSorted.push(first);
       }
     }
-    console.log('prev - ', this.playersSortedPrev.length, 'now - ', players.length);
   }
 
   highlightCards() {
@@ -104,31 +127,36 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  updateButton(roomStatus: TypeRoomStatus) {
+    const isFirst = this.playersSorted[0].socketId === this.socketId;
+    if (this.mainButton !== undefined && isFirst && roomStatus === 'WaitingForStart')
+      this.mainButton.update(this.playersSorted.length);
+  }
+
   createButtons() {
-    const mainButton = new Button(this);
+    this.mainButton = new Button(this);
+    //переделать на красивую кнопку в отдельном классе
     const handleLeaveRoom = () => {
       useGameStore.getState().actions.leaveRoom();
-      this.scene.stop();
+      // this.scene.stop();
       window.location.href = '/';
       console.log(useGameStore.getState());
     };
-    const leaveBtn = this.add.text(100, 100, 'leave');
+    const leaveBtn = this.add.text(30, 30, 'leave');
     leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
   }
 
   createIcons() {
-    for (let i = 0; i < this.players; i++) {
-      const startX = this.tableSizes[i].startX;
-      const spriteY = i === 0 ? config.height - config.cardSize.h + 25 : 82;
-      //поменять на конркетную иконку
-      new IconPic(this, startX - 40, spriteY, 'icons', config.icons[i]);
-
-      //должен меняться цвет рамки на зеленый, когда ходит и на серый после
-      new IconBorder(this, startX - 68, spriteY - 27, 55, 55, 5);
-
-      const textY = i === 0 ? spriteY - 55 : spriteY + 40;
-      //поменять на конркетный ник
-      new Nickname(this, startX + 10, textY, `${config.icons[i]}`);
+    //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
+    if (this.icons.length !== 0) {
+      this.icons.forEach((el) => el.destroy());
+      this.icons = [];
+    }
+    //решить вопрос с назначением иконок, не должны меняться!
+    for (let i = 0; i < this.playersSorted.length; i++) {
+      const nickname = this.playersSorted[i].playerName;
+      const icon = new Icon(this, i, this.tableSizes, nickname);
+      this.icons.push(icon);
     }
   }
 
@@ -152,10 +180,11 @@ export class GameScene extends Phaser.Scene {
   createCards() {
     //на раздаче сделать анимацию движения карт в центр стола
     //затем сортировка по возрастанию и анимация распределения карт на столе (для главного - рубашой вниз)
+    this.playersCards = this.playersSorted.map((set) => set.cards);
     this.playersCards.forEach((set, ind) => {
       const arr: Card[] = [];
       set.forEach((el) => {
-        const item = new Card(this, 0, 0, 'cards', el);
+        const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el));
         arr.push(item);
       });
       this.playersCardsSprites.push(arr);
@@ -164,11 +193,10 @@ export class GameScene extends Phaser.Scene {
     this.playersCardsSprites[0].forEach((card) => {
       card.setInteractive().open();
     });
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    this.input.on('gameobjectdown', this.onCardClick, this);
+    this.input.on('gameobjectdown', this.onCardClick.bind(this));
 
     //временно подсвечиваю
-    this.highlightCards();
+    // this.highlightCards();
   }
 
   onCardClick(pointer: PointerEvent, card: Card) {
@@ -189,7 +217,7 @@ export class GameScene extends Phaser.Scene {
     if (indexOfPlayer != undefined) {
       const params = { attack: this.attack[indexOfPlayer], place: -1 };
 
-      const indexOfCard = this.playersCards[indexOfPlayer].indexOf(card.value);
+      // const indexOfCard = this.playersCards[indexOfPlayer].indexOf(card.value);
 
       //если нападаю, то след кучку начинаю, иначе последнюю нечетную
       if (params.attack) {
@@ -203,10 +231,10 @@ export class GameScene extends Phaser.Scene {
       card.move(params);
 
       //временно удаляю вручную, потом будет с сервера приходить массив обновленный
-      this.playersCards[indexOfPlayer].splice(indexOfCard, 1);
+      // this.playersCards[indexOfPlayer].splice(indexOfCard, 1);
 
       //перемещение спрайта от игрока
-      this.playersCardsSprites[indexOfPlayer].splice(indexOfCard, 1);
+      // this.playersCardsSprites[indexOfPlayer].splice(indexOfCard, 1);
       this.setCardsPositions();
     }
   }
@@ -227,17 +255,29 @@ export class GameScene extends Phaser.Scene {
     cardsWithoutMainPlayer.forEach((set, i) => {
       textData.x = this.tableSizes[i + 1].startX + 20;
       if (set.length != 0) textData.amount = set.length.toString();
-      new CardsText(this, textData);
+      const text = new CardsText(this, textData);
+      this.playersText.push(text);
+    });
+  }
+
+  updatePlayersText(players: TypePlayer[]) {
+    const cardsWithoutMainPlayer = [...this.playersCards];
+    cardsWithoutMainPlayer.splice(0, 1);
+    this.playersText.forEach((text, i) => {
+      text.setText(cardsWithoutMainPlayer[i].length.toString());
     });
   }
 
   createTables() {
+    //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
+    this.tables.forEach((el) => el.destroy());
+    this.tables = [];
     this.tableSizes =
-      this.players === 1
+      this.playersSorted.length === 1
         ? config.playersTables[1]
-        : this.players === 2
+        : this.playersSorted.length === 2
         ? config.playersTables[2]
-        : this.players === 3
+        : this.playersSorted.length === 3
         ? config.playersTables[3]
         : config.playersTables[4];
 
@@ -248,7 +288,8 @@ export class GameScene extends Phaser.Scene {
       height: this.tableSizes[0].height,
       rounded: { tl: 10, tr: 10, bl: 0, br: 0 },
     };
-    for (let i = 0; i < this.players; i++) {
+
+    for (let i = 0; i < this.playersSorted.length; i++) {
       if (i != 0) {
         params.x = this.tableSizes[i].startX;
         params.y = 0;
@@ -256,35 +297,57 @@ export class GameScene extends Phaser.Scene {
         params.height = 115; //partially visible
         params.rounded = { tl: 0, tr: 0, bl: 10, br: 10 };
       }
-      new Table(this, params);
+      const table = new Table(this, params);
+      this.tables.push(table);
     }
   }
 
-  createDeck() {
-    for (let i = 0; i < this.deckCards - 1; i++) {
-      new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack').setAngle(10);
+  createDeck(deck: number) {
+    //потом вынести в отдельный класс
+    const max = deck > 8 ? 8 : deck - 1;
+    for (let i = 0; i < max - 1; i++) {
+      const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack').setAngle(
+        10,
+      );
+      this.deckCards.push(card);
     }
-    const textData = { x: 30, y: config.height / 2 - 80, amount: `${this.deckCards}` };
-    new CardsText(this, textData);
+    const textData = { x: 30, y: config.height / 2 - 80, amount: deck.toString() };
+    this.deckText = new CardsText(this, textData);
+  }
+
+  updateDeck(deck: number) {
+    if (deck < 8) {
+      while (this.deckCards.length > deck) {
+        this.deckCards[0].destroy();
+      }
+    }
+    const text = deck === 1 ? '' : deck.toString();
+    this.deckText?.setText(text);
+  }
+
+  getCardTexture(card: TypeCard) {
+    const texture = { rank: '', suit: '' };
+    if (card.rank <= 10) texture.rank = card.rank.toString();
+    else if (card.rank === 11) texture.rank = 'J';
+    else if (card.rank === 12) texture.rank = 'Q';
+    else if (card.rank === 13) texture.rank = 'K';
+    else texture.rank = 'A';
+
+    if (card.suit === 'clubs') texture.suit = 'C';
+    else if (card.suit === 'spades') texture.suit = 'S';
+    else if (card.suit === 'hearts') texture.suit = 'H';
+    else texture.suit = 'D';
+    return texture.rank + texture.suit;
   }
 
   createTrumpCard() {
-    //temporary using random //появится после старта
-    const randomIndex = Phaser.Math.Between(0, config.cardNames.length - 1);
-    new Card(this, 80, config.height / 2, 'cards', config.cardNames[randomIndex]).positionTrump();
+    const texture = this.getCardTexture(this.trump);
+    const trumpCard = new Card(this, 80, config.height / 2, 'cards', texture)
+      .setDepth(-2)
+      .positionTrump();
   }
   createTrumpSuit() {
-    //temporary using random //появится после старта
-    new Suit(this, config.suits[1]);
-  }
-
-  onDeckChange() {
-    if (this.deckCards === 0) {
-      //show suit
-      this.deckText.setText('');
-    } else {
-      this.deckText.setText(`${this.deckCards}`);
-    }
+    new Suit(this, this.trump.suit);
   }
 
   // setAlive(value: boolean) {

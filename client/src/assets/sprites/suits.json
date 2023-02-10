@@ -1,7 +1,7 @@
 {"frames": [
 
 {
-	"filename": "club",
+	"filename": "clubs",
 	"frame": {"x":1,"y":1,"w":200,"h":237},
 	"rotated": false,
 	"trimmed": false,
@@ -9,7 +9,7 @@
 	"sourceSize": {"w":200,"h":237}
 },
 {
-	"filename": "diamond",
+	"filename": "diamonds",
 	"frame": {"x":1,"y":239,"w":200,"h":221},
 	"rotated": false,
 	"trimmed": false,
@@ -17,7 +17,7 @@
 	"sourceSize": {"w":200,"h":221}
 },
 {
-	"filename": "heart",
+	"filename": "hearts",
 	"frame": {"x":1,"y":461,"w":207,"h":200},
 	"rotated": false,
 	"trimmed": false,
@@ -25,7 +25,7 @@
 	"sourceSize": {"w":207,"h":200}
 },
 {
-	"filename": "spade",
+	"filename": "spades",
 	"frame": {"x":1,"y":662,"w":211,"h":200},
 	"rotated": false,
 	"trimmed": false,

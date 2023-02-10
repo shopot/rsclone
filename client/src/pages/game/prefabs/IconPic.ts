@@ -4,19 +4,19 @@ export class IconPic extends Phaser.GameObjects.Sprite {
     this.scene = scene;
     this.scene.add.existing(this);
     this.setScale(0.3);
-    this.scene.tweens.add({
-      targets: this,
-      scaleX: 0,
-      ease: 'Linear',
-      duration: 50,
-      onComplete: () => {
-        this.scene.tweens.add({
-          targets: this,
-          scaleX: 0.3,
-          ease: 'Linear',
-          duration: 500,
-        });
-      },
-    });
+    // this.scene.tweens.add({
+    //   targets: this,
+    //   scaleX: 0,
+    //   ease: 'Linear',
+    //   duration: 50,
+    //   onComplete: () => {
+    //     this.scene.tweens.add({
+    //       targets: this,
+    //       scaleX: 0.3,
+    //       ease: 'Linear',
+    //       duration: 200,
+    //     });
+    //   },
+    // });
   }
 }

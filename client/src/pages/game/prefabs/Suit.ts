@@ -6,6 +6,6 @@ export class Suit extends Phaser.GameObjects.Sprite {
     // this.scene = scene;
     this.scene.add.existing(this);
     this.setScale(0.25);
-    this.depth = -2;
+    this.depth = -3;
   }
 }

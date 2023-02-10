@@ -20,7 +20,7 @@ export const config = {
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   icons: ['Dali', 'Earring', 'Frida', 'Mona', 'Peach', 'Unknown'],
-  suits: ['club', 'diamond', 'heart', 'spade'],
+  suits: ['clubs', 'diamonds', 'hearts', 'spades'],
   cardNames: [
     '6C',
     '6D',
