@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { IS_OLD_GAME_UI_ENABLED } from '../app/config';
 import { TypeResponseObject } from '../shared/types';
 
-export const useOldGameUI = () => {
-  const [isOldGameUI, setIsOldGameUI] = useState(true);
+export const useOldGameUI = (flag = IS_OLD_GAME_UI_ENABLED) => {
+  const [isOldGameUI, setIsOldGameUI] = useState(flag);
   const navigate = useNavigate();
 
   const setOldGameUI = (flag = true) => {
