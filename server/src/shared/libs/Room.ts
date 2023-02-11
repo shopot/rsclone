@@ -305,7 +305,7 @@ export class Room {
       this.setActivePlayer(this.defender);
     }
 
-    if (this.round.isFinished()) {
+    if (this.isDefenderPickup && this.round.isFinished()) {
       this.GivePickedupCardsToDefender();
       this.startNextRound();
     }
@@ -378,13 +378,6 @@ export class Room {
    * Event GameAttackerPass
    */
   public setAttackerPass(): boolean {
-    // For twi players
-    if (this.isTwoPlayersInGame()) {
-      this.activePlayer = this.defender;
-      this.startNextRound();
-      return true;
-    }
-
     this.passCounter += 1;
 
     if (this.passCounter === this.passCounterMaxValue) {
@@ -418,6 +411,8 @@ export class Room {
    * Start next round with next player
    */
   public setDefenderPickUpCards(): void {
+    this.lastDefender = this.activePlayer;
+
     // Check game is finish for defender
     if (this.players.totalCountInGame() === 1) {
       this.activePlayer.addCards(this.round.getRoundCards());
@@ -502,10 +497,6 @@ export class Room {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
     player.setPlayerRole(TypePlayerRole.Waiting);
     this.passCounterMaxValue -= 1;
-  }
-
-  private isTwoPlayersInGame(): boolean {
-    return this.players.totalCountInGame() === 2;
   }
 
   private getPlayersForDealt(): Player[] {
