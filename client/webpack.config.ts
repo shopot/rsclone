@@ -12,7 +12,7 @@ const devMode = process.env.NODE_ENV === 'production' ? 'production' : 'developm
 
 module.exports = {
   mode: devMode,
-  watch: devMode === 'production',
+  watch: devMode !== 'production',
   devtool: devMode === 'production' ? 'source-map' : 'eval-source-map',
   entry: {
     index: './src/index',

@@ -6,6 +6,7 @@ import { TypePlayerRole, TypePlayerStatus, TypePlayerMember } from '../types';
 export class Player {
   socket: Socket;
   playerName: string;
+  playerAvatar: string;
   cards: Card[];
   memberStatus: TypePlayerMember;
   playerStatus: TypePlayerStatus;
@@ -14,11 +15,13 @@ export class Player {
   constructor(
     socket: Socket,
     playerName: string,
+    playerAvatar: string,
     memberStatus: TypePlayerMember = TypePlayerMember.Regular,
     playerStatus: TypePlayerStatus = TypePlayerStatus.InGame,
   ) {
     this.socket = socket;
     this.playerName = playerName;
+    this.playerAvatar = playerAvatar;
     this.cards = [];
     this.memberStatus = memberStatus;
     this.playerStatus = playerStatus;
@@ -43,6 +46,10 @@ export class Player {
 
   public getPlayerName() {
     return this.playerName;
+  }
+
+  public getPlayerAvatar() {
+    return this.playerAvatar;
   }
 
   public getCardsCount() {
@@ -73,5 +80,16 @@ export class Player {
     this.cards = this.cards.filter(
       (card) => card.rank !== cardDto.rank || card.suit !== cardDto.suit,
     );
+  }
+
+  public getPlayerAsDto() {
+    return {
+      socketId: this.getSocketId(),
+      playerName: this.getPlayerName(),
+      playerAvatar: this.getPlayerAvatar(),
+      playerRole: this.getPlayerRole(),
+      playerStatus: this.getPlayerStatus(),
+      cards: this.getCardsAsDto(),
+    };
   }
 }

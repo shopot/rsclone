@@ -1,0 +1,49 @@
+@use 'sass:color';
+@use '../../../app/styles/constants';
+
+.join {
+  background: linear-gradient(90deg, transparent 0%, constants.$bg-color 50%, transparent 100%);
+  border-radius: 5px;
+}
+
+.disabled {
+  opacity: .7;
+}
+
+.roomListItem {
+  width: 100%;
+  min-width: 480px;
+  display: grid;
+  grid-template: [row1-room] auto / [column1-uid] auto [column2-players] 1fr [column3-actions] 160px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0 10px;
+  padding: 6px 10px;
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
+}
+
+.roomListItemId {
+  grid-area: column1-uid;
+}
+
+.roomListItemPlayers {
+  grid-area: column2-players;
+  justify-self: center;
+  background-color: transparent;
+  opacity: 0.7;
+  display: flex;
+  gap: 5px;
+
+  &:not(.disabled) {
+    opacity: 1;
+
+  }
+}
+
+.roomListItemAction {
+  grid-area: column3-actions;
+  justify-self: end;
+}

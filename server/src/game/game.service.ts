@@ -1,9 +1,13 @@
+import { RatingService } from './../rating/rating.service';
+import { HistoryService } from './../history/history.service';
 import {
   TypePlayerMember,
   TypeServerResponse,
   TypeRoomList,
-  TypeGameError,
+  TypeGameErrorType,
   TypeCard,
+  TypeGameStats,
+  TypeRoomStatus,
 } from './../shared/types';
 
 import { Injectable } from '@nestjs/common';
@@ -18,7 +22,10 @@ export class GameService {
   private rooms: Map<string, Room>;
   public server: Server;
 
-  constructor() {
+  constructor(
+    private historyService: HistoryService,
+    private ratingService: RatingService,
+  ) {
     this.rooms = new Map();
   }
 
@@ -56,9 +63,14 @@ export class GameService {
    * @returns {TypeServerResponse} - Data for send as a payload to client
    */
   public createRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { playerName } = data;
+    const { playerName, playerAvatar } = data;
 
-    const hostPlayer = new Player(socket, playerName, TypePlayerMember.Host);
+    const hostPlayer = new Player(
+      socket,
+      playerName,
+      playerAvatar,
+      TypePlayerMember.Host,
+    );
 
     let roomId = '';
 
@@ -82,23 +94,33 @@ export class GameService {
    * @returns {void}
    */
   public joinRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { roomId, playerName } = data;
+    const { roomId, playerName, playerAvatar } = data;
 
     const room = this.rooms.get(roomId);
 
     if (!room) {
       return this.createResponseObject({
         roomId,
-        error: TypeGameError.JoinRoomFailed,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
       });
     }
 
-    const player = new Player(socket, playerName, TypePlayerMember.Regular);
+    const player = new Player(
+      socket,
+      playerName,
+      playerAvatar,
+      TypePlayerMember.Regular,
+    );
 
-    if (room.joinRoom(player) === false) {
+    const result = room.joinRoom(player);
+
+    if (result !== true) {
       return this.createResponseObject({
         roomId,
-        error: TypeGameError.JoinRoomFailed,
+        error: result,
       });
     }
 
@@ -110,16 +132,20 @@ export class GameService {
   public setLeaveRoom(client: Socket): TypeServerResponse | null {
     const roomId = this.getRoomIdByClientSocket(client);
 
+    // even if room no longer exists, socket may still have subscription to such room id
+    client.leave(roomId);
+
     const room = this.getRoomById(roomId);
 
-    if (room === null) {
+    if (!room) {
       return this.createResponseObject({
         roomId,
-        error: TypeGameError.JoinRoomFailed,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
       });
     }
-
-    client.leave(roomId);
 
     room.leaveRoom(client.id);
 
@@ -137,14 +163,51 @@ export class GameService {
 
     const room = this.getRoomById(roomId);
 
-    if (room && room.start()) {
-      return this.createResponseObject({ roomId });
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
+      });
     }
 
-    return this.createResponseObject({
-      roomId,
-      error: TypeGameError.GameStartFailed,
-    });
+    const result = room.start();
+    if (result !== true) {
+      return this.createResponseObject({ roomId, error: result });
+    }
+
+    return this.createResponseObject({ roomId });
+  }
+
+  public setChatMessage(
+    data: GameReceiveDto,
+    client: Socket,
+  ): TypeServerResponse {
+    const roomId = this.getRoomIdByClientSocket(client);
+
+    const room = this.getRoomById(roomId);
+
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
+      });
+    }
+
+    const result = room.addChatMessage(client.id, data.message);
+    if (result !== true) {
+      return this.createResponseObject({
+        roomId,
+        error: result,
+      });
+    }
+
+    return this.createResponseObject({ roomId });
   }
 
   public setCardOpen(client: Socket, card: TypeCard): TypeServerResponse {
@@ -152,13 +215,24 @@ export class GameService {
 
     const room = this.getRoomById(roomId);
 
-    if (room && room.setAttackerOpen(card)) {
-      return this.createResponseObject({ roomId });
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
+      });
+    }
+
+    const result = room.setAttackerOpen(card);
+
+    if (result !== true) {
+      return this.createResponseObject({ roomId, error: result });
     }
 
     return this.createResponseObject({
       roomId,
-      error: TypeGameError.OpenCardFailed,
     });
   }
 
@@ -167,13 +241,24 @@ export class GameService {
 
     const room = this.getRoomById(roomId);
 
-    if (room && room.setDefenderClose(card)) {
-      return this.createResponseObject({ roomId });
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
+      });
+    }
+
+    const result = room.setDefenderClose(card);
+
+    if (result !== true) {
+      return this.createResponseObject({ roomId, error: result });
     }
 
     return this.createResponseObject({
       roomId,
-      error: TypeGameError.CloseCardFailed,
     });
   }
 
@@ -182,15 +267,21 @@ export class GameService {
 
     const room = this.getRoomById(roomId);
 
-    if (room) {
-      room.setAttackerPass();
-
-      return this.createResponseObject({ roomId });
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
+      });
     }
+
+    // at the moment method always ends with success
+    room.setAttackerPass();
 
     return this.createResponseObject({
       roomId,
-      error: TypeGameError.GameRoomNotFound,
     });
   }
 
@@ -203,15 +294,21 @@ export class GameService {
 
     const room = this.getRoomById(roomId);
 
-    if (room) {
-      room.setDefenderPickUpCards();
-
-      return this.createResponseObject({ roomId });
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
+      });
     }
+
+    // at the moment method always ends with success
+    room.setDefenderPickUpCards();
 
     return this.createResponseObject({
       roomId,
-      error: TypeGameError.GameRoomNotFound,
     });
   }
 
@@ -220,13 +317,24 @@ export class GameService {
 
     const room = this.getRoomById(roomId);
 
-    if (room && room.restart(client.id)) {
-      return this.createResponseObject({ roomId });
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
+      });
+    }
+
+    const result = room.restart(client.id);
+
+    if (result !== true) {
+      return this.createResponseObject({ roomId, error: result });
     }
 
     return this.createResponseObject({
       roomId,
-      error: TypeGameError.GameRestartFailed,
     });
   }
 
@@ -235,13 +343,24 @@ export class GameService {
 
     const room = this.getRoomById(roomId);
 
-    if (room && room.open(client.id)) {
-      return this.createResponseObject({ roomId });
+    if (!room) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomNotFound,
+          message: 'Room not found',
+        },
+      });
+    }
+
+    const result = room.open(client.id);
+
+    if (result !== true) {
+      return this.createResponseObject({ roomId, error: result });
     }
 
     return this.createResponseObject({
       roomId,
-      error: TypeGameError.GameRestartFailed,
     });
   }
 
@@ -265,6 +384,27 @@ export class GameService {
     }
 
     return roomId;
+  }
+
+  public async updateGameHistory(stats: TypeGameStats): Promise<void> {
+    if (stats.roomId) {
+      this.historyService.create(stats);
+    }
+  }
+
+  public async updatePlayerStats(player: string, wins: number) {
+    const playerInfo = await this.ratingService.findOne(player);
+
+    if (playerInfo) {
+      this.ratingService.update({
+        player,
+        wins: playerInfo.wins + wins,
+        total: (playerInfo.total = 1),
+        lastGameAt: Date.now(),
+      });
+    } else {
+      this.ratingService.create({ player, wins, total: 1 });
+    }
   }
 
   /**
