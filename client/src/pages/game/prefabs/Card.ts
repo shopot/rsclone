@@ -35,6 +35,10 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.setFrame(this.value);
   }
 
+  close() {
+    this.setFrame('cardBack');
+  }
+
   positionTrump() {
     this.setAngle(100);
     this.open();
@@ -83,7 +87,30 @@ export class Card extends Phaser.GameObjects.Sprite {
   //   console.log(1111);
   // }
 
-  moveAnimation(pileIndex: number, isAttacking: boolean, piles: number) {
+  async moveFromTableToPlayer(playerInd: number, playersAmt: number) {
+    await new Promise((resolve) => {
+      const params =
+        playersAmt <= 2
+          ? config.playersTables[2]
+          : playersAmt === 3
+          ? config.playersTables[3]
+          : config.playersTables[4];
+      const coordY = playerInd === 0 ? config.height - config.cardSize.h / 2 : 30;
+      this.scene.tweens.add({
+        targets: this,
+        x: params[playerInd].startX + params[playerInd].width / 2,
+        y: coordY,
+        scale: 0.7,
+        ease: 'Linear',
+        duration: 50,
+        angle: 0,
+        onComplete: resolve,
+      });
+      if (playerInd !== 0) this.close();
+    });
+  }
+
+  moveFromPlayerToTable(pileIndex: number, isAttacking: boolean, piles: number) {
     const positionArray = isAttacking ? config.placesForAttack : config.placesForDefend;
     const params =
       piles <= 3 ? positionArray[3] : piles <= 6 ? positionArray[6] : positionArray[12];
@@ -98,11 +125,12 @@ export class Card extends Phaser.GameObjects.Sprite {
       duration: 300,
       angle: cardAngle,
     });
+    this.setDepth(isAttacking ? 2 : 100);
   }
 
   redrawTable(cardindex: number, pileIndex: number, piles: number) {
     const isAttacking = cardindex === 0 ? true : false;
-    this.moveAnimation(pileIndex, isAttacking, piles);
+    this.moveFromPlayerToTable(pileIndex, isAttacking, piles);
   }
 
   move(params: { isAttacker: boolean; place: number; me: boolean }) {
@@ -116,6 +144,6 @@ export class Card extends Phaser.GameObjects.Sprite {
     if (!params.isAttacker) {
       this.setDepth(2);
     }
-    this.moveAnimation(params.place - 1, params.isAttacker, params.place);
+    this.moveFromPlayerToTable(params.place - 1, params.isAttacker, params.place);
   }
 }

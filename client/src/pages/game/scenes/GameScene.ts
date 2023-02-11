@@ -42,6 +42,7 @@ export class GameScene extends Phaser.Scene {
   playersCards: TypeCard[][] = [];
   playersText: CardsText[] = [];
   cardToMove: Card | undefined;
+  dealtSprites: Card[][] = [];
 
   constructor() {
     super('Game');
@@ -110,8 +111,9 @@ export class GameScene extends Phaser.Scene {
     // this.createBeaten();
   }
 
-  handleDealt(dealt: TypeDealt[]) {
-    if (useGameStore.getState().currentRound > 1) {
+  async handleDealt(dealt: TypeDealt[]) {
+    const dealtCards = dealt.map((obj) => obj.cards);
+    if (useGameStore.getState().currentRound > 1 && dealtCards.some((arr) => arr.length !== 0)) {
       const sortedDealt = [...dealt];
       const me = dealt.filter((player) => player.socketId === this.socketId)[0];
 
@@ -119,7 +121,65 @@ export class GameScene extends Phaser.Scene {
         const first = sortedDealt.shift();
         if (first !== undefined) sortedDealt.push(first);
       }
+      const sortedDealtcards = sortedDealt.map((obj) => obj.cards.map((card) => card));
+
       //Todo: отрисовать добавление спрайтов некоторым из колоды, некоторым со стола
+      //определить был ли тейк
+      const cardTextureFromTable = this.piles[0][0].value;
+      const newPlayersCards = [...this.playersCards].map((set) =>
+        set.map((card) => this.getCardTexture(card)),
+      );
+      const wasTake = newPlayersCards.some((arr) => arr.includes(cardTextureFromTable));
+      //если take, то переместить спрайты со стола этому игроку, другому из делт отрисовать и перенести из стопки
+      if (wasTake) {
+        await this.handleTake(sortedDealtcards).then(() => this.setCardsPositions());
+      }
+    }
+  }
+
+  async handleTake(sortedDealtcards: TypeCard[][]) {
+    const playerTakingIndex = [...sortedDealtcards].map((arr) => arr.length).indexOf(0);
+    console.log(this.piles.flat());
+    for (const sprite of this.piles.flat()) {
+      this.playersCardsSprites[playerTakingIndex].push(sprite);
+      await sprite.moveFromTableToPlayer(playerTakingIndex, sortedDealtcards.length);
+    }
+    this.piles = [];
+    await this.handleDealFromDeck(sortedDealtcards, playerTakingIndex);
+  }
+
+  async handleDealFromDeck(sortedDealtcards: TypeCard[][], excludeInd: number) {
+    //для каждого иргока кроме указанного создать спрайты, повернуть рубашкой вверх, добавить из в массив спрайтов игроков и массив раздаваемых спрайтов
+    sortedDealtcards.forEach((set, ind) => {
+      const arr: Card[] = [];
+      set.forEach((el) => {
+                console.log(this.getCardTexture(el))
+
+        const sprite = new Card(this, 70, config.height / 2, 'cards', this.getCardTexture(el), el);
+        sprite.setTexture('cardBack');
+        this.playersCardsSprites[ind].push(sprite);
+        arr.push(sprite);
+      });
+      this.dealtSprites.push(arr);
+    });
+    // this.playersCards.forEach((set, ind) => {
+    //   const arr: Card[] = [];
+    //   set.forEach((el) => {
+    //     const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
+    //     arr.push(item);
+    //   });
+    //   this.playersCardsSprites.push(arr);
+    // });
+    // this.setCardsPositions();
+    // this.playersCardsSprites[0].forEach((card) => {
+    //   card.setInteractive().open();
+    // });
+    // this.input.on('gameobjectdown', this.makeMove.bind(this));
+    //анимировать перемещенеи спрайтов из колоды на стол игроков, для главноего повернуть лицом
+    for (const arr of this.dealtSprites) {
+      for (const sprite of arr) {
+        await sprite.moveFromTableToPlayer(this.dealtSprites.indexOf(arr), sortedDealtcards.length);
+      }
     }
   }
 
@@ -172,6 +232,7 @@ export class GameScene extends Phaser.Scene {
         let x = tableSize.startX + config.cardSize.w / 2 + ind * shift + border;
         if (set.length === 1) x = tableSize.startX + config.cardSize.w / 2 + border;
         card.setPosition(x, y);
+        card.setDepth(ind + 1);
       });
     });
   }
@@ -436,7 +497,7 @@ export class GameScene extends Phaser.Scene {
 
   createTrumpCard() {
     const texture = this.getCardTexture(this.trump);
-    console.log(this.trump, texture);
+    // console.log(this.trump, texture);
     const trumpCard = new Card(this, 80, config.height / 2, 'cards', texture, this.trump)
       .setDepth(config.depth.trumpCard)
       .positionTrump();
