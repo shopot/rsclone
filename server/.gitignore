@@ -36,3 +36,6 @@ lerna-debug.log*
 
 # typedoc files
 docs
+
+# SQLite Game DB
+db/durak_online.db
