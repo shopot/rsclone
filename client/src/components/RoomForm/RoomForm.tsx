@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { IS_OLD_GAME_UI_ENABLED } from '../../app/config';
 import styles from './RoomForm.m.scss';
 
 export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
@@ -49,14 +50,16 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
             type="text"
           ></input>
         </label>
-        <label className={styles.oldUI}>
-          Old UI:
-          <input
-            type="checkbox"
-            checked={oldGameUI}
-            onChange={() => setOldGameUI(!oldGameUI)}
-          />
-        </label>
+        {IS_OLD_GAME_UI_ENABLED && (
+          <label className={styles.oldUI}>
+            Old UI:
+            <input
+              type="checkbox"
+              checked={oldGameUI}
+              onChange={() => setOldGameUI(!oldGameUI)}
+            />
+          </label>
+        )}
       </div>
       <div className={styles.formFooter}>
         <button
