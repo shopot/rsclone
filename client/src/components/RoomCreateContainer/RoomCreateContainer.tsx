@@ -6,36 +6,29 @@ import { TypeResponseObject, TypeSocketEvent } from '../../shared/types';
 import { socketIOService } from '../../shared/api/socketio';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useOldGameUI } from '../../hooks/useOldGameUI';
 
 export const RoomCreateContainer = () => {
-  const navigate = useNavigate();
   const [isOpen, toggle] = useModal();
-  const [oldGameUI, setOldGameUI] = useState(true);
+  const [isOldGameUI, setOldGameUI, redirectToGamePage] = useOldGameUI();
 
   useEffect(() => {
-    const cb = ({ data }: TypeResponseObject) => {
-      if (oldGameUI) {
-        navigate(`/gameold/${data.roomId}`);
-      } else {
-        navigate(`/game/${data.roomId}`);
-      }
-      console.log(data);
-    };
-
     // Subscribe to GameCreateRoom event
-    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, (data) => cb(data));
+    socketIOService.listen<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, (data) =>
+      redirectToGamePage(data),
+    );
 
     return () => {
       socketIOService.remove<TypeResponseObject>(TypeSocketEvent.GameCreateRoom, (data) =>
-        cb(data),
+        redirectToGamePage(data),
       );
     };
-  }, [navigate, oldGameUI]);
+  }, [redirectToGamePage, isOldGameUI]);
 
   const handleCreateRoom = (playerName: string, oldGameUI = true): void => {
-    console.log('handleCreateRoom');
-    socketIOService.emit(TypeSocketEvent.GameCreateRoom, { data: { playerName } });
     toggle();
+    setOldGameUI(oldGameUI);
+    socketIOService.emit(TypeSocketEvent.GameCreateRoom, { data: { playerName } });
   };
 
   return (
