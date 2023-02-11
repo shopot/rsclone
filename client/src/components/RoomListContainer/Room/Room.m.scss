@@ -1,16 +1,5 @@
 @use 'sass:color';
-@use '../../app/styles/constants';
-
-.playerName,
-.oldUI {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-}
-
-.playerNameInput {
-  width: 100%;
-}
+@use '../../../app/styles/constants';
 
 .join {
   background: linear-gradient(90deg, transparent 0%, constants.$bg-color 50%, transparent 100%);
@@ -57,8 +46,4 @@
 .roomListItemAction {
   grid-area: column3-actions;
   justify-self: end;
-}
-
-.createRoomBtn {
-  margin-top: 30px;
 }
