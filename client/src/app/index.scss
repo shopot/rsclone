@@ -28,21 +28,6 @@ img {
   block-size: auto;
 }
 
-// #app {
-//   min-height: 100vh;
-// }
-
-.layout-container {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  grid-template-columns: 1fr;
-  background-color: constants.$bg-color;
-  background-image: url('../assets/bg_dark.jpg');
-  background-repeat: repeat-y no-repeat;
-  background-size: 100% 100%;
-}
-
 .game-page {
   min-height: 100vh;
   background-color: constants.$bg-color;
@@ -68,14 +53,15 @@ h3 {
 }
 
 input {
-  border: 1px solid constants.$main-color;
+  border: 2px solid constants.$secondary-color;
   border-radius: 5px;
-  padding: 10px;
+  padding: 8px 10px;
   padding-left: 15px;
   transition: border 0.3s ease-in-out;
+  background: rgb(0 0 0 / 50%);
 
   &:focus {
-    border: 1px solid constants.$outline-color;
+    border: 1px solid constants.$main-color;
     outline: none;
   }
 }

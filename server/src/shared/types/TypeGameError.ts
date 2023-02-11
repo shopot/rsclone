@@ -1,10 +1,6 @@
-export enum TypeGameError {
-  JoinRoomFailed = 'JoinRoomFailed',
-  CreateRoomFailed = 'CreateRoomFailed',
-  NextPlayerFailed = 'NextPlayerFailed',
-  OpenCardFailed = 'OpenCardFailed',
-  CloseCardFailed = 'CloseCardFailed',
-  GameStartFailed = 'GameStartFailed',
-  GameRestartFailed = 'GameRestartFailed',
-  GameRoomNotFound = 'GameRoomNotFound',
-}
+import { TypeGameErrorType } from './TypeGameErrorType';
+
+export type TypeGameError = {
+  type: TypeGameErrorType;
+  message: string;
+};

@@ -88,8 +88,40 @@
       rgb(255 255 255 / 40%),
       transparent);
   transition: all 650ms;
+  animation: slide-flash 2s, pause-slide-flash 6s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
 
-.startButton:hover::before {
-  left: 100%;
+.preview-block__btn {
+  max-width: 350px;
+  margin-top: 35px;
+}
+
+@keyframes slide-flash {
+  0% {
+    left: -200%;
+  }
+
+  100% {
+    left: 200%;
+  }
+}
+
+@keyframes pause-slide-flash {
+  0% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  25.1% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }

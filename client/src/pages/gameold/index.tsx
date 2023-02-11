@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../../store/gameStore';
 import { socketIOService } from '../../shared/api/socketio';
@@ -9,22 +9,26 @@ import {
   TypeRoomStatus,
   TypePlayerRole,
 } from '../../shared/types';
+import { avatars } from '../../shared/avatars';
 import styles from './styles.m.scss';
+
+const renderHTML = (rawHTML: string) =>
+  React.createElement('span', { dangerouslySetInnerHTML: { __html: rawHTML } });
 
 const cardToString = (card: TypeCard) => {
   let suit = '';
   switch (card.suit) {
     case TypeCardSuit.Clubs:
-      suit = '♣';
+      suit = '<span class="black">♣</span>';
       break;
     case TypeCardSuit.Diamonds:
-      suit = '♦';
+      suit = '<span class="red">♦</span>';
       break;
     case TypeCardSuit.Hearts:
-      suit = '♥';
+      suit = '<span class="red">♥</span>';
       break;
     case TypeCardSuit.Spades:
-      suit = '♠';
+      suit = '<span class="black">♠</span>';
       break;
   }
 
@@ -49,6 +53,10 @@ const cardToString = (card: TypeCard) => {
   return `${rank}${suit}`;
 };
 
+const getPlayerAvatarIdx = (avatarString: string): number => {
+  return parseInt(avatarString.replace('avatar', ''), 10);
+};
+
 const GamePage = () => {
   const navigate = useNavigate();
   const {
@@ -61,6 +69,7 @@ const GamePage = () => {
     deckCounter,
     trumpCard,
     players,
+    chat,
     dealt,
     placedCards,
     error,
@@ -81,6 +90,8 @@ const GamePage = () => {
 
     return me?.playerName || 'John Doe';
   });
+
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     actions.setGameState();
@@ -119,6 +130,15 @@ const GamePage = () => {
     actions.defenderTake();
   };
 
+  const handleChangeMessage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(event.target.value);
+  };
+
+  const handleSendMessage = () => {
+    actions.sendMessage(message);
+    setMessage('');
+  };
+
   return (
     <div className="game-page">
       <h2 className={styles.title}>stats</h2>
@@ -128,18 +148,19 @@ const GamePage = () => {
           <p>Room ID: {roomId}</p>
           <p>Room status: {roomStatus}</p>
           <p>Player Host socket ID: {hostSocketId}</p>
-          {error && <p className="stats-error">Error: {error}</p>}
+          {error && <p className="stats-error">Error: {`${error.type}: ${error.message}`}</p>}
         </div>
         <div>
           <p className={socketId === activeSocketId ? styles.playerActive : ''}>
             Your player name: {myPlayerName}
           </p>
           <p>Your socket ID: {socketId}</p>
-          <p className="info__active-player">Player Active socket ID: {activeSocketId}</p>
+          <p className="info__active-player">Player active socket ID: {activeSocketId}</p>
         </div>
         <div className="deck">
           <p>
-            Trump card: <span className={styles.cardName}>{cardToString(trumpCard)}</span>
+            Trump card:{' '}
+            <span className={styles.cardName}>{renderHTML(cardToString(trumpCard))}</span>
           </p>
           <p>
             Cards in the deck: <span className={styles.cardInDeck}>{deckCounter}</span>
@@ -148,8 +169,31 @@ const GamePage = () => {
       </div>
 
       <section className={styles.section}>
-        <h2 className={styles.title}>
-          players
+        <h2 className={styles.title}>players</h2>
+        <div className={styles.playerButtons}>
+          <div className={styles.chatSection}>
+            {chat.length > 0 && (
+              <p className={styles.chatMessage}>
+                <span>{new Date(chat.at(-1)?.timestamp ?? 0).toLocaleTimeString()}</span>
+                <span>{chat.at(-1)?.sender.playerName}:</span>
+                <span>{chat.at(-1)?.message}</span>
+              </p>
+            )}
+            <input
+              type="text"
+              placeholder="message"
+              value={message}
+              onChange={handleChangeMessage}
+            />
+            <button
+              className="btn"
+              type="button"
+              disabled={!message}
+              onClick={handleSendMessage}
+            >
+              send
+            </button>
+          </div>
           <button
             style={{ marginLeft: '30px' }}
             className="btn"
@@ -178,16 +222,23 @@ const GamePage = () => {
               </button>
             </>
           )}
-        </h2>
+        </div>
         <div className={styles.players}>
           {players.map((player) => (
             <div
               className={styles.player}
               key={player.socketId}
             >
-              <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
-                {player.playerName}
-              </h3>
+              <div className={styles.playerImgName}>
+                <img
+                  className={styles.playerAvatar}
+                  src={avatars[getPlayerAvatarIdx(player.playerAvatar)]}
+                  alt={`Avatar of player ${player.playerName}`}
+                />
+                <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
+                  {player.playerName}
+                </h3>
+              </div>
               <p>player socketId: {player.socketId}</p>
               <p>
                 player role:{' '}
@@ -211,7 +262,7 @@ const GamePage = () => {
                       disabled={activeSocketId !== socketId || activeSocketId !== player.socketId}
                       onClick={() => handleMakeMove(card)}
                     >
-                      {socketId === player.socketId ? cardToString(card) : '?'}
+                      {socketId === player.socketId ? renderHTML(cardToString(card)) : '?'}
                     </button>
                   ))}
                 </div>
@@ -242,7 +293,7 @@ const GamePage = () => {
                 key={`a-${idx}`}
                 disabled={true}
               >
-                {cardToString(placedCard.attacker)}
+                {renderHTML(cardToString(placedCard.attacker))}
               </button>
               {placedCard.defender && (
                 <button
@@ -251,7 +302,7 @@ const GamePage = () => {
                   key={`d-${idx}`}
                   disabled={true}
                 >
-                  {cardToString(placedCard.defender)}
+                  {renderHTML(cardToString(placedCard.defender))}
                 </button>
               )}
             </div>

@@ -1,5 +1,6 @@
 import { TypeCard } from './TypeCard';
 import { TypeDealt } from './TypeDealt';
+import { TypeChatMessage } from './TypeChatMessage';
 import { TypePlacedCard } from './TypePlacedCard';
 import { TypePlayerDto } from './TypePlayerDto';
 
@@ -9,6 +10,7 @@ export type TypeRoomState = {
   hostSocketId: string;
   activeSocketId: string;
   players: TypePlayerDto[];
+  chat: TypeChatMessage[];
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
   dealt: TypeDealt[];
@@ -28,6 +30,14 @@ export type TypeRoomDto = {
   roomId: string;
   playersCount: number;
   status: TypeRoomStatus;
+};
+
+export type TypeGameStats = {
+  roomId: string;
+  players: string;
+  loser: string;
+  duration: number;
+  rounds: number;
 };
 
 export type TypeRoomList = TypeRoomDto[];

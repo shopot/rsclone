@@ -4,6 +4,7 @@ import { useDataStore } from '../../store/dataStore';
 
 const RatingPage = () => {
   const { ratingResults, isOnline, actions } = useDataStore();
+  console.log(ratingResults);
   useEffect(() => {
     actions.setRatingList();
   }, [actions]);
@@ -24,7 +25,8 @@ const RatingPage = () => {
     {
       title: 'Last time played',
       dataIndex: 'lastGameAt',
-      render: (value: number) => <>{new Date(value).toLocaleString()}</>,
+      // Note: SQLite stores Unix timestamp in seconds; new Date expects it in milliseconds
+      render: (value: number) => <>{new Date(value * 1000).toLocaleString()}</>,
     },
   ];
 
@@ -32,15 +34,11 @@ const RatingPage = () => {
     <div className="container">
       <div className="box-container">
         <h1 className="heading">Rating Table</h1>
-        {isOnline ? (
-          <Table
-            columns={columns}
-            data={ratingResults}
-            rowKey="id"
-          />
-        ) : (
-          'Nothing'
-        )}
+        <Table
+          columns={columns}
+          data={ratingResults}
+          rowKey="id"
+        />
       </div>
     </div>
   );

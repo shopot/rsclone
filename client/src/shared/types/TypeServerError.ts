@@ -1,7 +1,6 @@
-export const enum TypeServerError {
-  JoinRoomFailed = 'JoinRoomFailed',
-  CreateRoomFailed = 'CreateRoomFailed',
-  ChangeNextPlayerFailed = 'ChangeNextPlayerFailed',
-  SetOpenCardFailed = 'SetOpenCardFailed',
-  SetCloseCardFailed = 'SetCloseCardFailed',
-}
+import { TypeServerErrorType } from './TypeServerErrorType';
+
+export type TypeServerError = {
+  type: TypeServerErrorType;
+  message: string;
+};

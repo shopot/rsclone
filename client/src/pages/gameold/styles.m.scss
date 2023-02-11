@@ -32,8 +32,6 @@
 
 .player {
   h3 {
-    background-color: #343a46;
-    border-radius: 10px;
     padding: 4px 8px;
     text-align: center;
     font-size: 24px;
@@ -43,6 +41,19 @@
 
 .player:not(:last-child) {
   margin-bottom: 20px;
+}
+
+.playerImgName {
+  margin-bottom: 5px;
+  border-radius: 10px;
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  background-color: #343a46;
+}
+
+.playerAvatar {
+  border-radius: 5px;
 }
 
 .playerCards {
@@ -92,4 +103,24 @@
 
 .defender {
   color: yellowgreen;
+}
+
+.playerButtons {
+  border-bottom: 1px solid gray;
+  display: flex;
+  gap: 0.5em;
+  justify-content: center;
+  align-items: center;
+}
+
+.chatSection {
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.chatMessage {
+  display: flex;
+  gap: 0.5em;
 }

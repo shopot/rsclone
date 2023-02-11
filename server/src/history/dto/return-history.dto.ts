@@ -1,6 +1,7 @@
-export class ReturnHistoryDto {
-  players?: string[];
-  loser?: string;
-  duration?: number;
-  rounds?: number;
+export interface IReturnHistoryDto {
+  roomId: string;
+  players: string[];
+  loser: string;
+  duration: number;
+  rounds: number;
 }

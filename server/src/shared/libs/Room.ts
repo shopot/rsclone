@@ -17,6 +17,10 @@ import {
   TypeDealt,
   TypeRoomState,
   TypeCard,
+  TypeChatMessage,
+  TypeGameError,
+  TypeGameErrorType,
+  TypeGameStats,
 } from '../types';
 import { Players } from './Players';
 import { GameService } from '../../game/game.service';
@@ -33,6 +37,8 @@ export class Room {
   hostPlayer: Player;
   /** Players list in this room */
   players: Players;
+  /** Chat messages */
+  chat: TypeChatMessage[];
   /** Deck of cards */
   deck: Deck;
   /** Round */
@@ -56,6 +62,8 @@ export class Room {
   /** Time of start game */
   gameTimeStart: number;
 
+  gameStats: TypeGameStats;
+
   isDealtEnabled: boolean;
 
   dealt: TypeDealt[];
@@ -71,6 +79,7 @@ export class Room {
     this.hostPlayer = hostPlayer;
     this.hostPlayer.setPlayerStatus(TypePlayerStatus.InGame);
     this.players = new Players([this.hostPlayer]);
+    this.chat = [];
 
     // Create empty deck
     this.deck = new Deck();
@@ -86,6 +95,13 @@ export class Room {
     this.passCounterMaxValue = 1;
     this.dealt = [];
     this.isDealtEnabled = false;
+    this.gameStats = {
+      roomId: this.roomId,
+      players: '',
+      loser: '',
+      duration: 0,
+      rounds: 0,
+    };
 
     // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
@@ -116,16 +132,19 @@ export class Room {
    *
    * @returns
    */
-  public start(): boolean {
-    if (
-      this.roomStatus !== TypeRoomStatus.WaitingForStart ||
-      this.players.totalCount() < 2
-    ) {
-      return false;
+  public start(): TypeGameError | true {
+    if (this.roomStatus !== TypeRoomStatus.WaitingForStart) {
+      return {
+        type: TypeGameErrorType.GameStartFailed,
+        message: "Room is not in 'WaitingForStart' mode",
+      };
     }
 
     // Game is started
     this.roomStatus = TypeRoomStatus.GameInProgress;
+
+    // Clear old chat messages
+    this.chat = [];
 
     // Start new deck
     this.deck = new Deck();
@@ -163,12 +182,19 @@ export class Room {
    *
    * @returns
    */
-  public restart(socketId: string): boolean {
-    if (
-      socketId !== this.hostPlayer.getSocketId() ||
-      this.getRoomStatus() !== TypeRoomStatus.GameIsOver
-    ) {
-      return false;
+  public restart(socketId: string): TypeGameError | true {
+    if (socketId !== this.hostPlayer.getSocketId()) {
+      return {
+        type: TypeGameErrorType.GameRestartFailed,
+        message: 'Only host player can restart the game',
+      };
+    }
+
+    if (this.getRoomStatus() !== TypeRoomStatus.GameIsOver) {
+      return {
+        type: TypeGameErrorType.GameRestartFailed,
+        message: "Room does not have status 'GameIsOver'",
+      };
     }
 
     this.roomStatus = TypeRoomStatus.WaitingForStart;
@@ -183,12 +209,19 @@ export class Room {
     return true;
   }
 
-  public open(socketId: string): boolean {
-    if (
-      socketId !== this.hostPlayer.getSocketId() ||
-      this.getRoomStatus() !== TypeRoomStatus.GameIsOver
-    ) {
-      return false;
+  public open(socketId: string): TypeGameError | true {
+    if (socketId !== this.hostPlayer.getSocketId()) {
+      return {
+        type: TypeGameErrorType.GameRoomOpenFailed,
+        message: 'Only host player can open the room',
+      };
+    }
+
+    if (this.getRoomStatus() !== TypeRoomStatus.GameIsOver) {
+      return {
+        type: TypeGameErrorType.GameRoomOpenFailed,
+        message: "Room does not have status 'GameIsOver'",
+      };
     }
 
     if (this.getPlayersCount() >= 2) {
@@ -206,23 +239,49 @@ export class Room {
   }
 
   /**
+   * Adds chat message
+   */
+  public addChatMessage(
+    socketId: string,
+    message: string,
+  ): TypeGameError | true {
+    const player = this.players.getPlayerBySocketId(socketId);
+
+    if (!player) {
+      return {
+        type: TypeGameErrorType.MessageSendFailed,
+        message: 'Player not found',
+      };
+    }
+
+    const timestamp = Date.now();
+
+    this.chat.push({
+      sender: player.getPlayerAsDto(),
+      timestamp,
+      message,
+    });
+
+    return true;
+  }
+
+  /**
    * Give one card from attacker
    */
-  public setAttackerOpen(card: TypeCard): boolean {
+  public setAttackerOpen(card: TypeCard): TypeGameError | true {
     this.isDealtEnabled = false;
 
     const isAttackSuccess = this.round.attack(card);
 
-    // Автоматический останов игры если у защищающегося одна карта, но эта карта не может побить атакующую карту
-    if (!isAttackSuccess && this.players.totalCountInGame() === 1) {
-      this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
-      this.roomStatus = TypeRoomStatus.GameIsOver;
-      return false;
-    }
-
     if (!isAttackSuccess) {
-      // Add the card & check it
-      return false;
+      // at the moment attack is not successful only if the new attack card not
+      // matches the rank of any card which has already been played during that
+      // round
+      return {
+        type: TypeGameErrorType.OpenCardFailed,
+        message:
+          'Not the first attack in the round & card does not match the rank of any card on the table',
+      };
     }
 
     // Remove card from player cards array
@@ -234,17 +293,6 @@ export class Room {
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
-
-      // Check game is finish for defender
-      if (
-        this.players.totalCountInGame() === 1 &&
-        this.defender.getCardsCount() > 1
-      ) {
-        this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
-        this.roomStatus = TypeRoomStatus.GameIsOver;
-        return true;
-      }
-
       this.attacker = this.getNextAttacker2(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
     }
@@ -258,12 +306,15 @@ export class Room {
   /**
    * Give one card from defender
    */
-  public setDefenderClose(card: TypeCard): boolean {
+  public setDefenderClose(card: TypeCard): TypeGameError | true {
     this.lastDefender = this.activePlayer;
 
     // Add the card
     if (!this.round.defend(card)) {
-      return false;
+      return {
+        type: TypeGameErrorType.CloseCardFailed,
+        message: "This card of the defender can't beat attacker's card",
+      };
     }
 
     // Remove card from player cards array
@@ -272,39 +323,32 @@ export class Room {
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
 
+      // beats last card of the last attacker with their own last card - draw
+      if (this.players.totalCountInGame() === 0) {
+        this.setGameIsOver();
+        return true;
+      }
+
       // Check attacker as YouLoser
       if (
         this.attacker.getCardsCount() > 0 &&
         this.players.totalCountInGame() === 1
       ) {
         this.attacker.setPlayerStatus(TypePlayerStatus.YouLoser);
-        this.roomStatus = TypeRoomStatus.GameIsOver;
+        this.setGameIsOver();
         return true;
       }
 
-      // Check attacker as YOU_WINNER
-      if (
-        this.attacker.getCardsCount() === 0 &&
-        this.players.totalCountInGame() === 1
-      ) {
-        this.attacker.setPlayerStatus(TypePlayerStatus.YouWinner);
-        this.roomStatus = TypeRoomStatus.GameIsOver;
-        return true;
-      }
-
-      // this.setActivePlayer(this.getNextPlayer());
       this.activePlayer = this.getNextPlayer(this.activePlayer);
       this.startNextRound();
       return true;
     }
 
-    // Check exits cards from defender and players in game
-    if (
-      this.defender.getCardsCount() > 0 &&
-      this.players.totalCountInGame() === 1
-    ) {
-      this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+    // Defender beats last attacker's last card with their own card, but still
+    // loses (it was not their last card)
+    if (this.players.totalCountInGame() === 1) {
+      this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.setGameIsOver();
       return true;
     }
 
@@ -362,10 +406,11 @@ export class Room {
   public setDefenderPickUpCards(): void {
     this.activePlayer.addCards(this.round.getRoundCards());
 
-    // Check defender as YouLoser
+    // Check game is finish for defender
     if (this.players.totalCountInGame() === 1) {
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+      this.setGameIsOver();
+
       return;
     }
 
@@ -394,7 +439,7 @@ export class Room {
     if (this.defender === this.attacker) {
       this.log(`Room #${this.roomId} - Can't set next defender`);
 
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+      this.setGameIsOver();
 
       return;
     }
@@ -505,20 +550,26 @@ export class Room {
   /**
    * Add new player to the room
    * @param {Player} player
-   * @returns {void}
+   * @returns
    */
-  public joinRoom(player: Player): boolean {
+  public joinRoom(player: Player): TypeGameError | true {
     if (
       ![
         TypeRoomStatus.WaitingForPlayers,
         TypeRoomStatus.WaitingForStart,
       ].includes(this.getRoomStatus())
     ) {
-      return false;
+      return {
+        type: TypeGameErrorType.JoinRoomFailed,
+        message: 'Room is closed and not waiting for new players',
+      };
     }
 
     if (this.players.totalCount() === MAX_NUMBER_OF_PLAYERS) {
-      return false;
+      return {
+        type: TypeGameErrorType.JoinRoomFailed,
+        message: 'Room already has maximum number of players',
+      };
     }
 
     this.players.add(player);
@@ -556,7 +607,7 @@ export class Room {
         }
       }
 
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+      this.setGameIsOver();
     }
 
     this.players.remove(leavePlayer);
@@ -568,9 +619,13 @@ export class Room {
    * Restarts game after current game session was finished
    */
   public restartGame(): void {
-    this.roomStatus = TypeRoomStatus.WaitingForStart;
+    if (this.players.totalCount() < MIN_NUMBER_OF_PLAYERS) {
+      this.openRoom();
+    } else {
+      this.roomStatus = TypeRoomStatus.WaitingForStart;
 
-    this.start();
+      this.start();
+    }
   }
 
   /**
@@ -743,6 +798,52 @@ export class Room {
     return [];
   }
 
+  public getGameStats(): TypeGameStats {
+    return this.gameStats;
+  }
+
+  /**
+   * Update game stats after set roomStatus = TypeRoomStatus.GameIsOver
+   */
+  private updateGameStats(): void {
+    const playersAll = this.players.getAll();
+
+    const loser = playersAll.find(
+      (player) => player.getPlayerStatus() === TypePlayerStatus.YouLoser,
+    );
+
+    const players = playersAll.map((player) => player.getPlayerName());
+
+    this.gameStats = {
+      roomId: this.roomId,
+      players: players.join('#'),
+      loser: loser?.getPlayerName() || 'undefined',
+      duration: Date.now() - this.gameTimeStart,
+      rounds: this.currentRound,
+    };
+  }
+
+  /**
+   * Set game is over
+   */
+  private setGameIsOver(): void {
+    this.roomStatus = TypeRoomStatus.GameIsOver;
+
+    // Update stats
+    this.updateGameStats();
+
+    // Write stats to DB
+    this.gameService.updateGameHistory(this.gameStats);
+
+    // Update plyers stats
+    this.players.getAll().map((player) => {
+      const wins =
+        player.getPlayerStatus() !== TypePlayerStatus.YouLoser ? 1 : 0;
+
+      this.gameService.updatePlayerStats(player.getPlayerName(), wins);
+    });
+  }
+
   /**
    * Returns room state
    * @returns {TypeRoomState}  - Room state
@@ -754,6 +855,7 @@ export class Room {
       hostSocketId: this.hostPlayer.getSocketId(),
       activeSocketId: this.activePlayer.getSocketId(),
       players: this.players.getPlayersAsDto(),
+      chat: this.chat,
       trumpCard: this.getDeck().getTrumpCard().getCardDto() || {
         rank: TypeCardRank.RANK_6,
         suit: TypeCardSuit.Clubs,

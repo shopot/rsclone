@@ -1,0 +1,60 @@
+.modalOverlay {
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  background: rgba(0 0 0 / 70%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalBox {
+  display: block;
+  min-width: 480px;
+  max-width: max-content;
+  padding: 20px 30px;
+  border: 8px solid #030301;
+  border-radius: 15px;
+  background-color: rgb(0 0 0 / 50%);
+  box-shadow: inset 0 0 30px #030301;
+  margin: 0 auto;
+  color: rgb(255 255 255 / 80%);
+  background-image: url("../../assets/bg_dark.jpg");
+  background-repeat: repeat-y no-repeat;
+  background-size: 100% 100%;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(120deg, #d98a05, #face43, #d98a05);
+  border-radius: 50%;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  z-index: 9;
+  opacity: 0.9;
+
+  &:hover {
+    opacity: 1;
+    box-shadow: 1px 1px 25px 10px rgb(252 205 71 / 10%);
+    text-shadow: 1px 1px 2px rgb(0 0 0 / 70%);
+  }
+}
+
+.close::before {
+  position: absolute;
+  left: 6px;
+  top: -7px;
+  content: "\00d7";
+  font-size: 36px;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgb(0 0 0 / 50%);
+  z-index: 10;
+}
