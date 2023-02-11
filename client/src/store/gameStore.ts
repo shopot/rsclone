@@ -13,8 +13,9 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { socketIOService } from '../shared/api/socketio';
 
-type TypeGameState = {
+export type TypeGameState = {
   isOnline: boolean;
+  currentRound: number;
   roomId: string;
   roomStatus: TypeRoomStatus;
   hostSocketId: string;
@@ -57,6 +58,7 @@ export const useGameStore = create<TypeGameState>()(
 
     return {
       isOnline: false,
+      currentRound: 0,
       roomId: '',
       roomStatus: TypeRoomStatus.WaitingForPlayers,
       hostSocketId: '',

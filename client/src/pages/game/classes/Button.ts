@@ -36,28 +36,39 @@ export class Button {
       .setOrigin(0.5);
   }
 
-  update(status: TypeButtonStatus) {
-    if (status === TypeButtonStatus.Start) this.gameAvailable();
-    else if (status === TypeButtonStatus.Pass) this.passAvailable();
-    else this.takeAvailable();
+  update(status: TypeButtonStatus, active: boolean) {
+    if (status === TypeButtonStatus.Start) this.gameAvailable(active);
+    else if (status === TypeButtonStatus.Pass) this.passAvailable(active);
+    else this.takeAvailable(active);
   }
 
-  takeAvailable() {
-    this.makeInteractive(TypeButtonStatus.Take, useGameStore.getState().actions.defenderTake);
+  takeAvailable(active: boolean) {
+    active
+      ? this.makeInteractive(TypeButtonStatus.Take, useGameStore.getState().actions.defenderTake)
+      : this.makeInactive(TypeButtonStatus.Take);
   }
-  passAvailable() {
-    this.makeInteractive(TypeButtonStatus.Pass, useGameStore.getState().actions.attackerPass);
+  passAvailable(active: boolean) {
+    active
+      ? this.makeInteractive(TypeButtonStatus.Pass, useGameStore.getState().actions.attackerPass)
+      : this.makeInactive(TypeButtonStatus.Pass);
   }
 
-  gameAvailable() {
-    this.makeInteractive(TypeButtonStatus.Start, useGameStore.getState().actions.startGame);
+  gameAvailable(active: boolean) {
+    active
+      ? this.makeInteractive(TypeButtonStatus.Start, useGameStore.getState().actions.startGame)
+      : this.makeInactive(TypeButtonStatus.Start);
+  }
+
+  makeInactive(btnStatus: TypeButtonStatus) {
+    this.drawButtonShape(this.bgColors.inactive);
+    this.changeText(this.textColors.inactive, btnStatus);
+    this.btnText.removeInteractive();
   }
 
   makeInteractive(btnStatus: TypeButtonStatus, action: { (): void; (): void }) {
     this.drawButtonShape(this.bgColors.active);
     this.changeText(this.textColors.active, btnStatus);
     this.btnText.setInteractive().on('pointerdown', () => {
-      // useGameStore.getState().actions.startGame();
       action();
       this.drawButtonShape(this.bgColors.inactive);
       this.changeText(this.textColors.inactive, btnStatus);
