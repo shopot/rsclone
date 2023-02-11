@@ -1,6 +1,7 @@
 import styles from './Room.m.scss';
 import featherSprite from 'feather-icons/dist/feather-sprite.svg';
 import { MAX_NUMBER_OF_PLAYERS } from '../../../shared/constants';
+import { RoomJoinContainer } from '../../RoomJoinContainer';
 
 export const Room = ({ roomId, playersCount, isCanJoin }: IRoomProps) => {
   return (
@@ -16,16 +17,10 @@ export const Room = ({ roomId, playersCount, isCanJoin }: IRoomProps) => {
         {playersCount}/{MAX_NUMBER_OF_PLAYERS}
       </div>
       <div className={styles.roomListItemAction}>
-        <button
-          className="btn"
-          type="button"
-          disabled={!isCanJoin}
-          onClick={() => {
-            console.log('join');
-          }}
-        >
-          {isCanJoin ? 'Join' : 'Playing'}
-        </button>
+        <RoomJoinContainer
+          isCanJoin={isCanJoin}
+          roomId={roomId}
+        />
       </div>
     </li>
   );
