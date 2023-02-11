@@ -66,6 +66,8 @@ export class Room {
 
   isDealtEnabled: boolean;
 
+  isDefenderPickup: boolean;
+
   dealt: TypeDealt[];
 
   logger: Logger;
@@ -95,6 +97,7 @@ export class Room {
     this.passCounterMaxValue = 1;
     this.dealt = [];
     this.isDealtEnabled = false;
+    this.isDefenderPickup = false;
     this.gameStats = {
       roomId: this.roomId,
       players: '',
@@ -276,7 +279,7 @@ export class Room {
     if (!isAttackSuccess) {
       // at the moment attack is not successful only if the new attack card not
       // matches the rank of any card which has already been played during that
-      // round
+      // round or if attack limit is reached
       return {
         type: TypeGameErrorType.OpenCardFailed,
         message:
@@ -298,7 +301,14 @@ export class Room {
     }
 
     // Move turn to defender from attacker
-    this.setActivePlayer(this.defender);
+    if (!this.isDefenderPickup) {
+      this.setActivePlayer(this.defender);
+    }
+
+    if (this.round.isFinished()) {
+      this.GivePickedupCardsToDefender();
+      this.startNextRound();
+    }
 
     return true;
   }
@@ -378,8 +388,12 @@ export class Room {
     this.passCounter += 1;
 
     if (this.passCounter === this.passCounterMaxValue) {
-      // Defender becomes attacker
-      this.setActivePlayer(this.defender);
+      if (this.isDefenderPickup) {
+        this.GivePickedupCardsToDefender();
+      } else {
+        // Defender becomes attacker
+        this.setActivePlayer(this.defender);
+      }
 
       this.startNextRound();
 
@@ -404,21 +418,29 @@ export class Room {
    * Start next round with next player
    */
   public setDefenderPickUpCards(): void {
-    this.activePlayer.addCards(this.round.getRoundCards());
-
     // Check game is finish for defender
     if (this.players.totalCountInGame() === 1) {
+      this.activePlayer.addCards(this.round.getRoundCards());
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
       this.setGameIsOver();
 
       return;
     }
 
+    this.isDefenderPickup = true;
+
+    // Move turn back to attacker
+    this.setActivePlayer(this.attacker);
+    return;
+  }
+
+  private GivePickedupCardsToDefender(): void {
+    this.isDefenderPickup = false;
+    this.lastDefender.addCards(this.round.getRoundCards());
+
     // Next after active player (defender)
     // this.setActivePlayer(this.getNextPlayer());
-    this.activePlayer = this.getNextPlayer(this.activePlayer);
-
-    this.startNextRound();
+    this.activePlayer = this.getNextPlayer(this.lastDefender);
   }
 
   private startNextRound(): void {
