@@ -37,7 +37,7 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
 
   const handleSubmit = () => {
     if (validateName(playerName)) {
-      onSubmit(playerName, oldGameUI);
+      onSubmit(playerName, `avatar${playerAvatarIdx}`, oldGameUI);
     }
   };
 
@@ -109,6 +109,6 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
 
 export declare interface IRoomFormProps {
   title: string;
-  onSubmit(playerName: string, oldGameUI: boolean): void;
+  onSubmit(playerName: string, playerAvatar: string, oldGameUI: boolean): void;
   onCancel(): void;
 }

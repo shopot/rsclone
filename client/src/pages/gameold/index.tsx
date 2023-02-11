@@ -9,6 +9,7 @@ import {
   TypeRoomStatus,
   TypePlayerRole,
 } from '../../shared/types';
+import { avatars } from '../../shared/avatars';
 import styles from './styles.m.scss';
 
 const renderHTML = (rawHTML: string) =>
@@ -50,6 +51,10 @@ const cardToString = (card: TypeCard) => {
   }
 
   return `${rank}${suit}`;
+};
+
+const getPlayerAvatarIdx = (avatarString: string): number => {
+  return parseInt(avatarString.replace('avatar', ''), 10);
 };
 
 const GamePage = () => {
@@ -224,9 +229,16 @@ const GamePage = () => {
               className={styles.player}
               key={player.socketId}
             >
-              <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
-                {player.playerName}
-              </h3>
+              <div className={styles.playerImgName}>
+                <img
+                  className={styles.playerAvatar}
+                  src={avatars[getPlayerAvatarIdx(player.playerAvatar)]}
+                  alt={`Avatar of player ${player.playerName}`}
+                />
+                <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
+                  {player.playerName}
+                </h3>
+              </div>
               <p>player socketId: {player.socketId}</p>
               <p>
                 player role:{' '}
