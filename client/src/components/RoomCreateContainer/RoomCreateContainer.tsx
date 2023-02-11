@@ -4,8 +4,7 @@ import styles from './RoomCreateContainer.m.scss';
 import { RoomForm } from '../RoomForm';
 import { TypeResponseObject, TypeSocketEvent } from '../../shared/types';
 import { socketIOService } from '../../shared/api/socketio';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
 import { useOldGameUI } from '../../hooks/useOldGameUI';
 
 export const RoomCreateContainer = () => {
@@ -25,10 +24,10 @@ export const RoomCreateContainer = () => {
     };
   }, [redirectToGamePage, isOldGameUI]);
 
-  const handleCreateRoom = (playerName: string, oldGameUI = true): void => {
+  const handleCreateRoom = (playerName: string, playerAvatar: string, oldGameUI = true): void => {
     toggle();
     setOldGameUI(oldGameUI);
-    socketIOService.emit(TypeSocketEvent.GameCreateRoom, { data: { playerName } });
+    socketIOService.emit(TypeSocketEvent.GameCreateRoom, { data: { playerName, playerAvatar } });
   };
 
   return (

@@ -63,9 +63,14 @@ export class GameService {
    * @returns {TypeServerResponse} - Data for send as a payload to client
    */
   public createRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { playerName } = data;
+    const { playerName, playerAvatar } = data;
 
-    const hostPlayer = new Player(socket, playerName, TypePlayerMember.Host);
+    const hostPlayer = new Player(
+      socket,
+      playerName,
+      playerAvatar,
+      TypePlayerMember.Host,
+    );
 
     let roomId = '';
 
@@ -89,7 +94,7 @@ export class GameService {
    * @returns {void}
    */
   public joinRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { roomId, playerName } = data;
+    const { roomId, playerName, playerAvatar } = data;
 
     const room = this.rooms.get(roomId);
 
@@ -103,7 +108,12 @@ export class GameService {
       });
     }
 
-    const player = new Player(socket, playerName, TypePlayerMember.Regular);
+    const player = new Player(
+      socket,
+      playerName,
+      playerAvatar,
+      TypePlayerMember.Regular,
+    );
 
     const result = room.joinRoom(player);
 

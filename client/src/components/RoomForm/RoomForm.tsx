@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { IS_OLD_GAME_UI_ENABLED } from '../../app/config';
+import { avatars } from '../../shared/avatars';
 import styles from './RoomForm.m.scss';
 
 export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
   const [playerName, setPlayerName] = useState('');
   const [oldGameUI, setOldGameUI] = useState(true);
   const [isPlayerNameValid, setIsPlayerNameValid] = useState(false);
+  const [playerAvatarIdx, setPlayerAvatarIdx] = useState(0);
 
   const actionText = title.toLowerCase().includes('join') ? 'Join' : 'Create';
 
@@ -29,9 +31,13 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
     setPlayerName(event.target.value);
   };
 
+  const handleChooseAvatar = (idx: number) => {
+    setPlayerAvatarIdx(idx);
+  };
+
   const handleSubmit = () => {
     if (validateName(playerName)) {
-      onSubmit(playerName, oldGameUI);
+      onSubmit(playerName, `avatar${playerAvatarIdx}`, oldGameUI);
     }
   };
 
@@ -52,6 +58,23 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
             type="text"
           ></input>
         </label>
+        <div className={styles.avatars}>
+          {avatars.map((avatar, idx) => (
+            <button
+              key={idx}
+              className={`${styles.avatar} ${idx === playerAvatarIdx ? styles.avatarChosen : ''}`}
+              type="button"
+              role="radio"
+              aria-checked={idx === playerAvatarIdx}
+              onClick={() => handleChooseAvatar(idx)}
+            >
+              <img
+                src={avatar}
+                alt={`player avatar #${idx}`}
+              />
+            </button>
+          ))}
+        </div>
         {IS_OLD_GAME_UI_ENABLED && (
           <label className={styles.oldUI}>
             Old UI:
@@ -86,6 +109,6 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
 
 export declare interface IRoomFormProps {
   title: string;
-  onSubmit(playerName: string, oldGameUI: boolean): void;
+  onSubmit(playerName: string, playerAvatar: string, oldGameUI: boolean): void;
   onCancel(): void;
 }

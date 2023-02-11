@@ -1,3 +1,5 @@
+@use '../../app/styles/constants';
+
 .formFooter {
   margin-top: 4rem;
   margin-bottom: 1rem;
@@ -14,6 +16,30 @@
   gap: 1rem;
 }
 
+.playerName {
+  margin-bottom: 20px;
+}
+
 .oldUI {
   margin-top: 30px;
+}
+
+.avatars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 1em;
+}
+
+.avatar {
+  box-sizing: content-box;
+  border: 2px solid transparent;
+
+  img {
+    border-radius: 5px;
+  }
+}
+
+.avatarChosen {
+  border: 2px solid constants.$outline-color;
+  border-radius: 5px;
 }
