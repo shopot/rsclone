@@ -11,20 +11,23 @@ import {
 } from '../../shared/types';
 import styles from './styles.m.scss';
 
+const renderHTML = (rawHTML: string) =>
+  React.createElement('span', { dangerouslySetInnerHTML: { __html: rawHTML } });
+
 const cardToString = (card: TypeCard) => {
   let suit = '';
   switch (card.suit) {
     case TypeCardSuit.Clubs:
-      suit = '♣';
+      suit = '<span class="black">♣</span>';
       break;
     case TypeCardSuit.Diamonds:
-      suit = '♦';
+      suit = '<span class="red">♦</span>';
       break;
     case TypeCardSuit.Hearts:
-      suit = '♥';
+      suit = '<span class="red">♥</span>';
       break;
     case TypeCardSuit.Spades:
-      suit = '♠';
+      suit = '<span class="black">♠</span>';
       break;
   }
 
@@ -139,7 +142,8 @@ const GamePage = () => {
         </div>
         <div className="deck">
           <p>
-            Trump card: <span className={styles.cardName}>{cardToString(trumpCard)}</span>
+            Trump card:{' '}
+            <span className={styles.cardName}>{renderHTML(cardToString(trumpCard))}</span>
           </p>
           <p>
             Cards in the deck: <span className={styles.cardInDeck}>{deckCounter}</span>
@@ -211,7 +215,7 @@ const GamePage = () => {
                       disabled={activeSocketId !== socketId || activeSocketId !== player.socketId}
                       onClick={() => handleMakeMove(card)}
                     >
-                      {socketId === player.socketId ? cardToString(card) : '?'}
+                      {socketId === player.socketId ? renderHTML(cardToString(card)) : '?'}
                     </button>
                   ))}
                 </div>

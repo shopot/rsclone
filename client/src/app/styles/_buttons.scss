@@ -48,6 +48,27 @@
   }
 }
 
-.btnCard {
-  font-size: 36px;
+.game-page {
+  .black {
+    color: gray;
+  }
+
+  .btnCard {
+    font-size: 36px;
+    padding: 4px 10px;
+
+    .black {
+      color: black;
+    }
+
+    &:disabled {
+      background: lightgray;
+      border-color: gray;
+      opacity: 1;
+    }
+  }
+
+  .red {
+    color: red;
+  }
 }
