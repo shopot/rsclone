@@ -138,49 +138,49 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleTake(sortedDealtcards: TypeCard[][]) {
+    console.log('handle take');
     const playerTakingIndex = [...sortedDealtcards].map((arr) => arr.length).indexOf(0);
-    console.log(this.piles.flat());
     for (const sprite of this.piles.flat()) {
       this.playersCardsSprites[playerTakingIndex].push(sprite);
-      await sprite.moveFromTableToPlayer(playerTakingIndex, sortedDealtcards.length);
+      await sprite.moveToPlayer(playerTakingIndex, sortedDealtcards.length);
+      if (playerTakingIndex === 0) sprite.makeClickable();
     }
+    // this.input.on('gameobjectdown', this.makeMove.bind(this));
     this.piles = [];
     await this.handleDealFromDeck(sortedDealtcards, playerTakingIndex);
+    // this.playersCardsSprites[0].forEach((card) => {
+    //   // card.setInteractive().open();
+    //   card.makeClickable();
+    // });
   }
 
   async handleDealFromDeck(sortedDealtcards: TypeCard[][], excludeInd: number) {
     //для каждого иргока кроме указанного создать спрайты, повернуть рубашкой вверх, добавить из в массив спрайтов игроков и массив раздаваемых спрайтов
     sortedDealtcards.forEach((set, ind) => {
       const arr: Card[] = [];
-      set.forEach((el) => {
-                console.log(this.getCardTexture(el))
-
-        const sprite = new Card(this, 70, config.height / 2, 'cards', this.getCardTexture(el), el);
-        sprite.setTexture('cardBack');
-        this.playersCardsSprites[ind].push(sprite);
-        arr.push(sprite);
-      });
+      if (ind !== excludeInd) {
+        set.forEach((el) => {
+          const item = new Card(this, 70, config.height / 2, 'cards', this.getCardTexture(el), el);
+          item.close();
+          if (ind === 0) item.makeClickable();
+          this.playersCardsSprites[ind].push(item);
+          arr.push(item);
+        });
+      }
       this.dealtSprites.push(arr);
     });
-    // this.playersCards.forEach((set, ind) => {
-    //   const arr: Card[] = [];
-    //   set.forEach((el) => {
-    //     const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
-    //     arr.push(item);
-    //   });
-    //   this.playersCardsSprites.push(arr);
-    // });
-    // this.setCardsPositions();
     // this.playersCardsSprites[0].forEach((card) => {
-    //   card.setInteractive().open();
+    //   // card.setInteractive().open();
+    //   card.makeClickable();
     // });
-    // this.input.on('gameobjectdown', this.makeMove.bind(this));
     //анимировать перемещенеи спрайтов из колоды на стол игроков, для главноего повернуть лицом
     for (const arr of this.dealtSprites) {
       for (const sprite of arr) {
-        await sprite.moveFromTableToPlayer(this.dealtSprites.indexOf(arr), sortedDealtcards.length);
+        await sprite.moveToPlayer(this.dealtSprites.indexOf(arr), sortedDealtcards.length);
       }
     }
+    this.dealtSprites = [];
+    // this.input.on('gameobjectdown', this.makeMove.bind(this));
   }
 
   startGame(status: TypeRoomStatus) {
@@ -244,33 +244,35 @@ export class GameScene extends Phaser.Scene {
       const arr: Card[] = [];
       set.forEach((el) => {
         const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
+        if (ind === 0) item.makeClickable();
         arr.push(item);
       });
       this.playersCardsSprites.push(arr);
     });
     this.setCardsPositions();
-    this.playersCardsSprites[0].forEach((card) => {
-      card.setInteractive().open();
-    });
-    this.input.on('gameobjectdown', this.makeMove.bind(this));
+    // this.playersCardsSprites[0].forEach((card) => {
+    //   // card.setInteractive().open();
+    //   card.makeClickable();
+    // });
+    // this.input.on('gameobjectdown', this.makeMove.bind(this));
 
     //временно подсвечиваю
     // this.highlightCards();
   }
 
-  makeMove(pointer: PointerEvent, card: Card) {
-    console.log('try to move');
-    const isSocketActive = this.socketId === useGameStore.getState().activeSocketId;
-    const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
-    if (isSocketActive && card.cardType !== undefined && isGameOn) {
-      console.log('went to server');
-      this.cardToMove = card;
-      const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
-      isAttacker
-        ? useGameStore.getState().actions.makeAttackingMove(card.cardType)
-        : useGameStore.getState().actions.makeDefensiveMove(card.cardType);
-    }
-  }
+  // makeMove(pointer: PointerEvent, card: Card) {
+  //   console.log('try to move');
+  //   const isSocketActive = this.socketId === useGameStore.getState().activeSocketId;
+  //   const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
+  //   if (isSocketActive && card.cardType !== undefined && isGameOn) {
+  //     console.log('went to server');
+  //     this.cardToMove = card;
+  //     const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
+  //     isAttacker
+  //       ? useGameStore.getState().actions.makeAttackingMove(card.cardType)
+  //       : useGameStore.getState().actions.makeDefensiveMove(card.cardType);
+  //   }
+  // }
 
   animateCardMoveToTable(state: TypeGameState, prevSate: TypeGameState) {
     if (
@@ -329,6 +331,7 @@ export class GameScene extends Phaser.Scene {
       textData.x = this.tableSizes[i + 1].startX + 20;
       if (set.length != 0) textData.amount = set.length.toString();
       const text = new CardsText(this, textData);
+      text.setDepth(100);
       this.playersText.push(text);
     });
   }
@@ -479,6 +482,7 @@ export class GameScene extends Phaser.Scene {
       const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack').setAngle(
         10,
       );
+      card.makeNotClickable();
       this.deckCards.push(card);
     }
     const textData = { x: 30, y: config.height / 2 - 80, amount: deck.toString() };
@@ -497,10 +501,14 @@ export class GameScene extends Phaser.Scene {
 
   createTrumpCard() {
     const texture = this.getCardTexture(this.trump);
-    // console.log(this.trump, texture);
-    const trumpCard = new Card(this, 80, config.height / 2, 'cards', texture, this.trump)
-      .setDepth(config.depth.trumpCard)
-      .positionTrump();
+    const trumpCard = new Card(
+      this,
+      80,
+      config.height / 2,
+      'cards',
+      texture,
+      this.trump,
+    ).positionTrump();
   }
 
   createTrumpSuit() {

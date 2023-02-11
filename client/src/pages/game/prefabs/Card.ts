@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
-import { TypeCard } from '../../../shared/types';
+import { TypeCard, TypeRoomStatus } from '../../../shared/types';
 import { config } from '../index';
+import { socketIOService } from '../../../shared/api/socketio';
+import { useGameStore, TypeGameState } from '../../../store/gameStore';
 
 export class Card extends Phaser.GameObjects.Sprite {
   value: string;
@@ -25,10 +27,42 @@ export class Card extends Phaser.GameObjects.Sprite {
       primaryColor: Phaser.Display.Color.ValueToColor(0xffffff),
       secondaryColor: Phaser.Display.Color.ValueToColor(0xeeee76),
     };
+    this.setInteractive().on('pointerdown', () => this.makeMove());
   }
   init() {
     this.scene.add.existing(this);
     this.setScale(0.7);
+  }
+
+  makeClickable() {
+    this.open();
+    this.setInteractive();
+    // .on('pointerdown', () => this.makeMove());
+  }
+  makeNotClickable() {
+    // this.on('pointerdown', () => null);
+    this.removeInteractive();
+  }
+
+  makeMove() {
+    console.log('try to move');
+    const socketId = socketIOService.getSocketId();
+    const isSocketActive = socketId === useGameStore.getState().activeSocketId;
+    const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
+    console.log(socketId, 'socketId')
+    console.log(isGameOn, 'isGameOn')
+    console.log(this.cardType !== undefined, 'this.cardType !== undefined')
+    if (isSocketActive && this.cardType !== undefined && isGameOn) {
+      console.log('went to server');
+      // this.cardToMove = card;
+      const thisPlayer = useGameStore
+        .getState()
+        .players.filter((player) => player.socketId === socketId)[0];
+      const isAttacker = thisPlayer.playerRole === 'Attacker';
+      isAttacker
+        ? useGameStore.getState().actions.makeAttackingMove(this.cardType)
+        : useGameStore.getState().actions.makeDefensiveMove(this.cardType);
+    }
   }
 
   open() {
@@ -40,7 +74,8 @@ export class Card extends Phaser.GameObjects.Sprite {
   }
 
   positionTrump() {
-    this.setAngle(100);
+    this.setAngle(100).setDepth(config.depth.trumpCard);
+    this.makeNotClickable();
     this.open();
     this.depth = -1;
     this.scene.tweens.add({
@@ -87,7 +122,7 @@ export class Card extends Phaser.GameObjects.Sprite {
   //   console.log(1111);
   // }
 
-  async moveFromTableToPlayer(playerInd: number, playersAmt: number) {
+  async moveToPlayer(playerInd: number, playersAmt: number) {
     await new Promise((resolve) => {
       const params =
         playersAmt <= 2
@@ -102,11 +137,12 @@ export class Card extends Phaser.GameObjects.Sprite {
         y: coordY,
         scale: 0.7,
         ease: 'Linear',
-        duration: 50,
+        duration: 100,
         angle: 0,
         onComplete: resolve,
       });
       if (playerInd !== 0) this.close();
+      else this.makeClickable();
     });
   }
 
@@ -139,7 +175,7 @@ export class Card extends Phaser.GameObjects.Sprite {
     if (!params.me) {
       this.open();
     } else {
-      this.removeInteractive();
+      this.makeNotClickable();
     }
     if (!params.isAttacker) {
       this.setDepth(2);
