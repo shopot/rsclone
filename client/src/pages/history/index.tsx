@@ -26,7 +26,7 @@ const HistoryPage = () => {
     {
       title: 'Duration',
       dataIndex: 'duration',
-      render: (value: number) => <>{prettyMs(value * 1000)}</>,
+      render: (value: number) => <>{prettyMs(value)}</>,
     },
     {
       title: 'Rounds',
