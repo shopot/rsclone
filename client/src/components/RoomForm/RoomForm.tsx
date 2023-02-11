@@ -7,6 +7,8 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
   const [oldGameUI, setOldGameUI] = useState(true);
   const [isPlayerNameValid, setIsPlayerNameValid] = useState(false);
 
+  const actionText = title.toLowerCase().includes('join') ? 'Join' : 'Create';
+
   useEffect(() => {
     if (validateName(playerName)) {
       setIsPlayerNameValid(true);
@@ -68,7 +70,7 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
           type="button"
           disabled={!isPlayerNameValid}
         >
-          Create
+          {actionText}
         </button>
         <button
           onClick={onCancel}
