@@ -131,6 +131,8 @@ export class GameScene extends Phaser.Scene {
       //анимацию сделать раздачи + расположения на столах игроков
       this.createCards();
       this.createCardsText();
+      //иначе, если до игры он же был активный, то не меняется
+      this.colorIcon(useGameStore.getState().activeSocketId);
     }
   }
 
@@ -210,7 +212,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   animateCardMoveToTable(state: TypeGameState, prevSate: TypeGameState) {
-    if (JSON.stringify(state.placedCards) !== JSON.stringify(prevSate.placedCards)) {
+    if (
+      JSON.stringify(state.placedCards) !== JSON.stringify(prevSate.placedCards) &&
+      state.placedCards.length !== 0
+    ) {
       const idPlayerMoved = prevSate.activeSocketId;
       const rolePlayerMoved = prevSate.players.filter(
         (player) => player.socketId === idPlayerMoved,
