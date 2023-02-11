@@ -19,7 +19,7 @@ import avatar18 from '../assets/avatars/18.jpg';
 import avatar19 from '../assets/avatars/19.jpg';
 import avatar20 from '../assets/avatars/20.jpg';
 
-export const avatars = {
+export const avatars = [
   avatar01,
   avatar02,
   avatar03,
@@ -40,4 +40,4 @@ export const avatars = {
   avatar18,
   avatar19,
   avatar20,
-};
+];
