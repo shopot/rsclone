@@ -1,4 +1,4 @@
-export class ReturnHistoryDto {
+export interface IReturnHistoryDto {
   roomId: string;
   players: string[];
   loser: string;
