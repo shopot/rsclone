@@ -11,14 +11,13 @@
       #face43,
       #d98a05);
   border-radius: 16px;
-  text-shadow: 1px 1px 2px rgb(0 0 0 / 50%);
+  text-shadow: 1px 1px 2px rgb(0 0 0 / 70%);
   box-shadow: 5px 5px 5px 0 rgb(0 0 0 / 70%);
   filter: drop-shadow(5px 5px 5px rgba(0 0 0 / 70%));
   border: 2px solid rgb(252 205 71);
 
   &:hover {
     box-shadow: 1px 1px 25px 10px rgb(252 205 71 / 10%);
-    text-shadow: 1px 1px 2px rgb(0 0 0 / 70%);
   }
 
   &:disabled {
