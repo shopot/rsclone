@@ -28,21 +28,6 @@ img {
   block-size: auto;
 }
 
-// #app {
-//   min-height: 100vh;
-// }
-
-.layout-container {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  grid-template-columns: 1fr;
-  background-color: constants.$bg-color;
-  background-image: url('../assets/bg_dark.jpg');
-  background-repeat: repeat-y no-repeat;
-  background-size: 100% 100%;
-}
-
 .game-page {
   min-height: 100vh;
   background-color: constants.$bg-color;
