@@ -20,6 +20,7 @@ import {
   TypeChatMessage,
   TypeGameError,
   TypeGameErrorType,
+  TypeGameStats,
 } from '../types';
 import { Players } from './Players';
 import { GameService } from '../../game/game.service';
@@ -61,6 +62,8 @@ export class Room {
   /** Time of start game */
   gameTimeStart: number;
 
+  gameStats: TypeGameStats;
+
   isDealtEnabled: boolean;
 
   dealt: TypeDealt[];
@@ -92,6 +95,13 @@ export class Room {
     this.passCounterMaxValue = 1;
     this.dealt = [];
     this.isDealtEnabled = false;
+    this.gameStats = {
+      roomId: this.roomId,
+      players: '',
+      loser: '',
+      duration: 0,
+      rounds: 0,
+    };
 
     // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
@@ -315,7 +325,7 @@ export class Room {
 
       // beats last card of the last attacker with their own last card - draw
       if (this.players.totalCountInGame() === 0) {
-        this.roomStatus = TypeRoomStatus.GameIsOver;
+        this.setGameIsOver();
         return true;
       }
 
@@ -325,7 +335,7 @@ export class Room {
         this.players.totalCountInGame() === 1
       ) {
         this.attacker.setPlayerStatus(TypePlayerStatus.YouLoser);
-        this.roomStatus = TypeRoomStatus.GameIsOver;
+        this.setGameIsOver();
         return true;
       }
 
@@ -338,7 +348,7 @@ export class Room {
     // loses (it was not their last card)
     if (this.players.totalCountInGame() === 1) {
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+      this.setGameIsOver();
       return true;
     }
 
@@ -399,7 +409,7 @@ export class Room {
     // Check game is finish for defender
     if (this.players.totalCountInGame() === 1) {
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+      this.setGameIsOver();
 
       return;
     }
@@ -429,7 +439,7 @@ export class Room {
     if (this.defender === this.attacker) {
       this.log(`Room #${this.roomId} - Can't set next defender`);
 
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+      this.setGameIsOver();
 
       return;
     }
@@ -597,7 +607,7 @@ export class Room {
         }
       }
 
-      this.roomStatus = TypeRoomStatus.GameIsOver;
+      this.setGameIsOver();
     }
 
     this.players.remove(leavePlayer);
@@ -786,6 +796,40 @@ export class Room {
     }
 
     return [];
+  }
+
+  public getGameStats(): TypeGameStats {
+    return this.gameStats;
+  }
+
+  /**
+   * Update game stats after set roomStatus = TypeRoomStatus.GameIsOver
+   */
+  private updateGameStats(): void {
+    const playersAll = this.players.getAll();
+
+    const loser = playersAll.find(
+      (player) => player.getPlayerStatus() === TypePlayerStatus.YouLoser,
+    );
+
+    const players = playersAll.map((player) => player.getPlayerName());
+
+    this.gameStats = {
+      roomId: this.roomId,
+      players: players.join('#'),
+      loser: loser?.getPlayerName() || 'undefined',
+      duration: Date.now() - this.gameTimeStart,
+      rounds: this.currentRound,
+    };
+  }
+
+  /**
+   * Set game is over
+   */
+  private setGameIsOver(): void {
+    this.roomStatus = TypeRoomStatus.GameIsOver;
+
+    this.updateGameStats();
   }
 
   /**

@@ -7,5 +7,6 @@ import { DatabaseModule } from '../database';
 @Module({
   providers: [HistoryService, HistoryGateway, ...historyProviders],
   imports: [DatabaseModule],
+  exports: [HistoryService],
 })
 export class HistoryModule {}
