@@ -2,7 +2,7 @@ import { TypeSortOrder } from './../shared/types';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InsertResult, QueryFailedError, Repository } from 'typeorm';
 import { HISTORY_ROWS_LIMIT } from './constants';
-import { CreateHistoryDto, ReturnHistoryDto } from './dto';
+import { ICreateHistoryDto, IReturnHistoryDto } from './dto';
 import { History } from './models/history.entity';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class HistoryService {
    *
    * @returns Array list of history
    */
-  public async getAll(): Promise<ReturnHistoryDto[]> {
+  public async getAll(): Promise<IReturnHistoryDto[]> {
     const results = await this.historyRepository.find({
       order: {
         id: TypeSortOrder.Desc,
@@ -40,19 +40,14 @@ export class HistoryService {
    * @param createHistoryDto
    * @returns
    */
-  async create(createHistoryDto: CreateHistoryDto): Promise<void> {
+  async create(createHistoryDto: ICreateHistoryDto): Promise<void> {
     try {
       await this.historyRepository
         .createQueryBuilder()
         .insert()
         .into(History)
-        .values({
-          roomId: createHistoryDto.roomId,
-          players: createHistoryDto.players,
-          loser: createHistoryDto.loser,
-          duration: createHistoryDto.duration,
-          rounds: createHistoryDto.rounds,
-        })
+        .values({ ...createHistoryDto })
+        .updateEntity(false)
         .execute();
     } catch {
       Logger.error('Insert createHistoryDto to History:');

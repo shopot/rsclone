@@ -1,3 +1,4 @@
+import { RatingService } from './../rating/rating.service';
 import { HistoryService } from './../history/history.service';
 import {
   TypePlayerMember,
@@ -21,7 +22,10 @@ export class GameService {
   private rooms: Map<string, Room>;
   public server: Server;
 
-  constructor(private historyService: HistoryService) {
+  constructor(
+    private historyService: HistoryService,
+    private ratingService: RatingService,
+  ) {
     this.rooms = new Map();
   }
 
@@ -372,9 +376,24 @@ export class GameService {
     return roomId;
   }
 
-  private async updateGameHistory(stats: TypeGameStats): Promise<void> {
+  public async updateGameHistory(stats: TypeGameStats): Promise<void> {
     if (stats.roomId) {
       this.historyService.create(stats);
+    }
+  }
+
+  public async updatePlayerStats(player: string, wins: number) {
+    const playerInfo = await this.ratingService.findOne(player);
+
+    if (playerInfo) {
+      this.ratingService.update({
+        player,
+        wins: playerInfo.wins + wins,
+        total: (playerInfo.total = 1),
+        lastGameAt: Date.now(),
+      });
+    } else {
+      this.ratingService.create({ player, wins, total: 1 });
     }
   }
 
@@ -391,14 +410,6 @@ export class GameService {
     const room = this.getRoomById(roomId);
 
     if (room) {
-      const roomState = room.getState();
-
-      const { roomStatus } = roomState;
-
-      if (roomStatus === TypeRoomStatus.GameIsOver) {
-        this.updateGameHistory(room.getGameStats());
-      }
-
       return {
         ...room.getState(),
         ...payload,

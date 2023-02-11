@@ -1,4 +1,4 @@
-export class ReturnRatingDto {
+export interface IReturnRatingDto {
   player: string;
   wins: number;
   total: number;

@@ -829,7 +829,19 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
+    // Update stats
     this.updateGameStats();
+
+    // Write stats to DB
+    this.gameService.updateGameHistory(this.gameStats);
+
+    // Update plyers stats
+    this.players.getAll().map((player) => {
+      const wins =
+        player.getPlayerStatus() !== TypePlayerStatus.YouLoser ? 1 : 0;
+
+      this.gameService.updatePlayerStats(player.getPlayerName(), wins);
+    });
   }
 
   /**
