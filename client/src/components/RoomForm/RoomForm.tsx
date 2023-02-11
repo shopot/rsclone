@@ -18,7 +18,7 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
   }, [playerName]);
 
   const validateName = (playerName: string) => {
-    if (playerName.match(/^[a-zA-Z0-9а-яА-Я_]+$/) && playerName.length > 3) {
+    if (playerName.match(/^[a-zA-Z0-9а-яА-Я_\s]+$/) && playerName.length > 3) {
       return true;
     }
 

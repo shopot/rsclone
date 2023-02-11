@@ -1,8 +1,8 @@
 import { TypeSortOrder } from './../shared/types';
-import { Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { InsertResult, QueryFailedError, Repository } from 'typeorm';
 import { HISTORY_ROWS_LIMIT } from './constants';
-import { CreateHistoryDto, ReturnHistoryDto, UpdateHistoryDto } from './dto';
+import { CreateHistoryDto, ReturnHistoryDto } from './dto';
 import { History } from './models/history.entity';
 
 @Injectable()
@@ -26,12 +26,12 @@ export class HistoryService {
     });
 
     return results.map((item) => {
-      // exclude id, roomId
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { roomId, ...results } = item;
-
-      return { ...results, players: results.players.split('#') };
+      return { ...item, players: item.players.split('#') };
     });
+  }
+
+  public async findOne(roomId: string): Promise<History | null> {
+    return this.historyRepository.findOneBy({ roomId });
   }
 
   /**
@@ -40,25 +40,23 @@ export class HistoryService {
    * @param createHistoryDto
    * @returns
    */
-  async create(createHistoryDto: CreateHistoryDto): Promise<History> {
-    const createdHistory = await this.historyRepository.save(createHistoryDto);
-
-    return createdHistory;
-  }
-
-  /**
-   * Update history row
-   *
-   * @param updateHistoryDto
-   */
-  async update(updateHistoryDto: UpdateHistoryDto): Promise<void> {
-    const { roomId, ...data } = updateHistoryDto;
-
-    this.historyRepository
-      .createQueryBuilder()
-      .update(History)
-      .set({ ...data })
-      .where('roomId = :roomId', { roomId: roomId })
-      .execute();
+  async create(createHistoryDto: CreateHistoryDto): Promise<void> {
+    try {
+      await this.historyRepository
+        .createQueryBuilder()
+        .insert()
+        .into(History)
+        .values({
+          roomId: createHistoryDto.roomId,
+          players: createHistoryDto.players,
+          loser: createHistoryDto.loser,
+          duration: createHistoryDto.duration,
+          rounds: createHistoryDto.rounds,
+        })
+        .execute();
+    } catch {
+      Logger.error('Insert createHistoryDto to History:');
+      Logger.error(createHistoryDto);
+    }
   }
 }

@@ -1,10 +1,12 @@
+import { HistoryService } from './../history/history.service';
 import {
   TypePlayerMember,
   TypeServerResponse,
   TypeRoomList,
-  TypeGameError,
   TypeGameErrorType,
   TypeCard,
+  TypeGameStats,
+  TypeRoomStatus,
 } from './../shared/types';
 
 import { Injectable } from '@nestjs/common';
@@ -19,7 +21,7 @@ export class GameService {
   private rooms: Map<string, Room>;
   public server: Server;
 
-  constructor() {
+  constructor(private historyService: HistoryService) {
     this.rooms = new Map();
   }
 
@@ -370,6 +372,12 @@ export class GameService {
     return roomId;
   }
 
+  private async updateGameHistory(stats: TypeGameStats): Promise<void> {
+    if (stats.roomId) {
+      this.historyService.create(stats);
+    }
+  }
+
   /**
    * Returns response object
    * @param {Partial<TypeServerResponse>} payload
@@ -383,6 +391,14 @@ export class GameService {
     const room = this.getRoomById(roomId);
 
     if (room) {
+      const roomState = room.getState();
+
+      const { roomStatus } = roomState;
+
+      if (roomStatus === TypeRoomStatus.GameIsOver) {
+        this.updateGameHistory(room.getGameStats());
+      }
+
       return {
         ...room.getState(),
         ...payload,

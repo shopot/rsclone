@@ -281,7 +281,7 @@ const GamePage = () => {
                 key={`a-${idx}`}
                 disabled={true}
               >
-                {cardToString(placedCard.attacker)}
+                {renderHTML(cardToString(placedCard.attacker))}
               </button>
               {placedCard.defender && (
                 <button
@@ -290,7 +290,7 @@ const GamePage = () => {
                   key={`d-${idx}`}
                   disabled={true}
                 >
-                  {cardToString(placedCard.defender)}
+                  {renderHTML(cardToString(placedCard.defender))}
                 </button>
               )}
             </div>

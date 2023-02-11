@@ -32,4 +32,12 @@ export type TypeRoomDto = {
   status: TypeRoomStatus;
 };
 
+export type TypeGameStats = {
+  roomId: string;
+  players: string;
+  loser: string;
+  duration: number;
+  rounds: number;
+};
+
 export type TypeRoomList = TypeRoomDto[];
