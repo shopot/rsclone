@@ -1,14 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Table from 'rc-table';
 import listify from 'listify';
 import prettyMs from 'pretty-ms';
 import { useDataStore } from '../../store/dataStore';
 
 const HistoryPage = () => {
-  const { historyResults, isOnline, actions } = useDataStore();
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const { historyResults, actions } = useDataStore();
 
   useEffect(() => {
     actions.setHistoryList();
+    setDataLoaded(true);
   }, [actions]);
 
   const columns = [
@@ -36,14 +38,12 @@ const HistoryPage = () => {
     <div className="container">
       <div className="box-container">
         <h1 className="heading">Game History</h1>
-        {isOnline ? (
+        {dataLoaded && (
           <Table
             columns={columns}
             data={historyResults}
             rowKey="id"
           />
-        ) : (
-          'Nothing'
         )}
       </div>
     </div>

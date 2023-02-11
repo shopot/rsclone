@@ -7,6 +7,7 @@ export * from './TypePlayerRole';
 export * from './TypePlayerStatus';
 export * from './TypeRoomStatus';
 export * from './TypeServerError';
+export * from './TypeServerErrorType';
 export * from './TypeSocketEvent';
 export * from './TypeRoute';
 export * from './TypeResponseObject';

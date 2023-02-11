@@ -140,7 +140,7 @@ const GamePage = () => {
           <p>Room ID: {roomId}</p>
           <p>Room status: {roomStatus}</p>
           <p>Player Host socket ID: {hostSocketId}</p>
-          {error && <p className="stats-error">Error: {error}</p>}
+          {error && <p className="stats-error">Error: {`${error.type}: ${error.message}`}</p>}
         </div>
         <div>
           <p className={socketId === activeSocketId ? styles.playerActive : ''}>

@@ -26,7 +26,7 @@ type TypeGameState = {
   placedCards: TypePlacedCard[];
   deckCounter: number;
   dealt: TypeDealt[];
-  error: TypeServerError | '';
+  error: TypeServerError | null;
 
   actions: {
     setGameState: () => void;
@@ -55,7 +55,7 @@ export const useGameStore = create<TypeGameState>()(
     socketIOService.listen<{ data: TypeGameState }>(TypeSocketEvent.GameUpdateState, ({ data }) => {
       console.log(data);
 
-      set({ ...data });
+      set({ ...data, error: data.error ?? null });
     });
 
     return {
@@ -73,7 +73,7 @@ export const useGameStore = create<TypeGameState>()(
       placedCards: [],
       deckCounter: 0,
       dealt: [],
-      error: '',
+      error: null,
 
       getPlayerCards: (): TypeCard[] => {
         const socketId = socketIOService.getSocketId();
