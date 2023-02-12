@@ -119,7 +119,7 @@ export const config = {
       { x: 1280 * 0.85 + 50, y: 720 / 2 + 90, scale: 0.6 },
     ],
   },
-  playersTables: {
+  playersHands: {
     1: [
       {
         width: 1280 * 0.6,

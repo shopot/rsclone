@@ -14,7 +14,7 @@ export class Button {
     this.scene = scene;
     this.status = TypeButtonStatus.Start;
     this.params = {
-      x: config.playersTables[1][0].startX + config.playersTables[1][0].width + 30,
+      x: config.playersHands[1][0].startX + config.playersHands[1][0].width + 30,
       y: config.height - 100,
       width: 200,
       height: 60,
@@ -96,11 +96,4 @@ export class Button {
   changeText(color: number, text: string) {
     this.btnText.setText(text).setColor(color.toString()).setStroke(color.toString(), 1);
   }
-}
-function setInteractive() {
-  throw new Error('Function not implemented.');
-}
-
-function action() {
-  throw new Error('Function not implemented.');
 }

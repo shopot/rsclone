@@ -1,6 +1,6 @@
 import { config } from '../index';
 
-type TableParams = {
+type HandParams = {
   x: number;
   y: number;
   width: number;
@@ -8,8 +8,8 @@ type TableParams = {
   rounded: { tl: number; tr: number; bl: number; br: number };
 };
 
-export class Table extends Phaser.GameObjects.Graphics {
-  constructor(scene: Phaser.Scene, params: TableParams) {
+export class Hand extends Phaser.GameObjects.Graphics {
+  constructor(scene: Phaser.Scene, params: HandParams) {
     const { x, y, width, height, rounded } = params;
     super(scene);
     this.scene = scene;

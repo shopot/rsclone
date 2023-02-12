@@ -22,16 +22,13 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.value = value;
     this.cardType = type;
     this.highlighted = false;
-    this.init();
+    this.scene.add.existing(this);
+    this.setScale(0.7);
     this.colors = {
       primaryColor: Phaser.Display.Color.ValueToColor(0xffffff),
       secondaryColor: Phaser.Display.Color.ValueToColor(0xeeee76),
     };
     this.setInteractive().on('pointerdown', () => this.onCardClick());
-  }
-  init() {
-    this.scene.add.existing(this);
-    this.setScale(0.7);
   }
 
   makeClickable() {
@@ -69,19 +66,30 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.setFrame('cardBack');
   }
 
-  positionTrump() {
-    this.setAngle(100).setDepth(config.depth.trumpCard);
-    this.makeNotClickable();
-    this.open();
-    this.depth = -1;
-    this.scene.tweens.add({
-      targets: this,
-      x: 115,
-      y: config.height / 2 + 5,
-      ease: 'Linear',
-      delay: 300,
-      duration: 500,
+  async positionTrump() {
+    await new Promise((resolve) => {
+      this.setAngle(100).setDepth(config.depth.trumpCard);
+      this.makeNotClickable();
+      this.open();
+      this.depth = -1;
+      this.scene.tweens.add({
+        targets: this,
+        x: 115,
+        y: config.height / 2 + 5,
+        ease: 'Linear',
+        delay: 300,
+        duration: 300,
+        onComplete: resolve,
+      });
     });
+  }
+
+  positionDeckCard(isForMainPlayer: boolean) {
+    this.setPosition(70, config.height / 2).setAngle(10);
+    if (!isForMainPlayer) {
+      this.setFrame('cardBack');
+      this.makeNotClickable();
+    }
   }
 
   highlight() {
@@ -118,14 +126,14 @@ export class Card extends Phaser.GameObjects.Sprite {
   //   console.log(1111);
   // }
 
-  async moveToPlayer(playerInd: number, playersAmt: number) {
+  async animateToPlayer(playerInd: number, playersAmt: number) {
     await new Promise((resolve) => {
       const params =
         playersAmt <= 2
-          ? config.playersTables[2]
+          ? config.playersHands[2]
           : playersAmt === 3
-          ? config.playersTables[3]
-          : config.playersTables[4];
+          ? config.playersHands[3]
+          : config.playersHands[4];
       const coordY = playerInd === 0 ? config.height - config.cardSize.h / 2 : 30;
       this.scene.tweens.add({
         targets: this,
@@ -133,7 +141,7 @@ export class Card extends Phaser.GameObjects.Sprite {
         y: coordY,
         scale: 0.7,
         ease: 'Linear',
-        duration: 100,
+        duration: 150,
         angle: 0,
         onComplete: resolve,
       });
@@ -142,40 +150,45 @@ export class Card extends Phaser.GameObjects.Sprite {
     });
   }
 
-  moveFromPlayerToTable(pileIndex: number, isAttacking: boolean, piles: number) {
-    const positionArray = isAttacking ? config.placesForAttack : config.placesForDefend;
-    const params =
-      piles <= 3 ? positionArray[3] : piles <= 6 ? positionArray[6] : positionArray[12];
-    const cardAngle = isAttacking ? -15 : -5;
-
-    this.scene.tweens.add({
-      targets: this,
-      x: params[pileIndex].x,
-      y: params[pileIndex].y,
-      scale: params[pileIndex].scale,
-      ease: 'Linear',
-      duration: 300,
-      angle: cardAngle,
-    });
-    this.setDepth(isAttacking ? 2 : 100);
-  }
-
-  redrawTable(cardindex: number, pileIndex: number, piles: number) {
-    const isAttacking = cardindex === 0 ? true : false;
-    this.moveFromPlayerToTable(pileIndex, isAttacking, piles);
-  }
-
-  move(params: { isAttacker: boolean; place: number; me: boolean }) {
-    //если вызван для карт других игроков, то переворачиваем перед ходом
-    //если для главного игрока, то убираем возможность клика после попадения на стол
-    if (!params.me) {
-      this.open();
-    } else {
+  async animateToTable(pileIndex: number, isAttacking: boolean, piles: number, me: boolean) {
+    await new Promise((resolve) => {
       this.makeNotClickable();
-    }
-    if (!params.isAttacker) {
-      this.setDepth(2);
-    }
-    this.moveFromPlayerToTable(params.place - 1, params.isAttacker, params.place);
+      if (!me) this.open();
+      const positionArray = isAttacking ? config.placesForAttack : config.placesForDefend;
+      const params =
+        piles <= 3 ? positionArray[3] : piles <= 6 ? positionArray[6] : positionArray[12];
+      const cardAngle = isAttacking ? -15 : -5;
+
+      this.scene.tweens.add({
+        targets: this,
+        x: params[pileIndex].x,
+        y: params[pileIndex].y,
+        scale: params[pileIndex].scale,
+        ease: 'Linear',
+        duration: 300,
+        angle: cardAngle,
+        onComplete: resolve,
+      });
+      this.setDepth(isAttacking ? 2 : 100);
+    });
   }
+
+  async redrawTable(cardindex: number, pileIndex: number, piles: number) {
+    const isAttacking = cardindex === 0 ? true : false;
+    await this.animateToTable(pileIndex, isAttacking, piles, true);
+  }
+
+  // move(params: { isAttacker: boolean; place: number; me: boolean }) {
+  //   //если вызван для карт других игроков, то переворачиваем перед ходом
+  //   //если для главного игрока, то убираем возможность клика после попадения на стол
+  //   if (!params.me) {
+  //     this.open();
+  //   } else {
+  //     this.makeNotClickable();
+  //   }
+  //   if (!params.isAttacker) {
+  //     this.setDepth(2);
+  //   }
+  //   this.animateToTable(params.place - 1, params.isAttacker, params.place);
+  // }
 }
