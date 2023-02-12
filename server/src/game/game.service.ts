@@ -173,6 +173,16 @@ export class GameService {
       });
     }
 
+    if (client.id !== room.getHostPlayerSocketId()) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameStartFailed,
+          message: 'Only host player can start the game',
+        },
+      });
+    }
+
     const result = room.start();
     if (result !== true) {
       return this.createResponseObject({ roomId, error: result });
@@ -225,6 +235,16 @@ export class GameService {
       });
     }
 
+    if (client.id !== room.getActivePlayerSocketId()) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.OpenCardFailed,
+          message: 'Only active player is allowed to perform this action',
+        },
+      });
+    }
+
     const result = room.setAttackerOpen(card);
 
     if (result !== true) {
@@ -247,6 +267,16 @@ export class GameService {
         error: {
           type: TypeGameErrorType.GameRoomNotFound,
           message: 'Room not found',
+        },
+      });
+    }
+
+    if (client.id !== room.getActivePlayerSocketId()) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.CloseCardFailed,
+          message: 'Only active player is allowed to perform this action',
         },
       });
     }
@@ -277,8 +307,20 @@ export class GameService {
       });
     }
 
-    // at the moment method always ends with success
-    room.setAttackerPass();
+    if (client.id !== room.getActivePlayerSocketId()) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.AttackerPassFailed,
+          message: 'Only active player is allowed to perform this action',
+        },
+      });
+    }
+
+    const result = room.setAttackerPass();
+    if (result !== true) {
+      return this.createResponseObject({ roomId, error: result });
+    }
 
     return this.createResponseObject({
       roomId,
@@ -304,8 +346,21 @@ export class GameService {
       });
     }
 
+    if (client.id !== room.getActivePlayerSocketId()) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.DefenderPickupFailed,
+          message: 'Only active player is allowed to perform this action',
+        },
+      });
+    }
+
     // at the moment method always ends with success
-    room.setDefenderPickUpCards();
+    const result = room.setDefenderPickUpCards();
+    if (result !== true) {
+      return this.createResponseObject({ roomId, error: result });
+    }
 
     return this.createResponseObject({
       roomId,
@@ -327,7 +382,17 @@ export class GameService {
       });
     }
 
-    const result = room.restart(client.id);
+    if (client.id !== room.getHostPlayerSocketId()) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRestartFailed,
+          message: 'Only host player can restart the game',
+        },
+      });
+    }
+
+    const result = room.restart();
 
     if (result !== true) {
       return this.createResponseObject({ roomId, error: result });
@@ -353,7 +418,17 @@ export class GameService {
       });
     }
 
-    const result = room.open(client.id);
+    if (client.id !== room.getHostPlayerSocketId()) {
+      return this.createResponseObject({
+        roomId,
+        error: {
+          type: TypeGameErrorType.GameRoomOpenFailed,
+          message: 'Only host player can open the room',
+        },
+      });
+    }
+
+    const result = room.open();
 
     if (result !== true) {
       return this.createResponseObject({ roomId, error: result });

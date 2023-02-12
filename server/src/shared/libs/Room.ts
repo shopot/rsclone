@@ -191,18 +191,18 @@ export class Room {
    *
    * @returns
    */
-  public restart(socketId: string): TypeGameError | true {
-    if (socketId !== this.hostPlayer.getSocketId()) {
-      return {
-        type: TypeGameErrorType.GameRestartFailed,
-        message: 'Only host player can restart the game',
-      };
-    }
-
+  public restart(): TypeGameError | true {
     if (this.getRoomStatus() !== TypeRoomStatus.GameIsOver) {
       return {
         type: TypeGameErrorType.GameRestartFailed,
         message: "Room does not have status 'GameIsOver'",
+      };
+    }
+
+    if (this.players.totalCount() < MIN_NUMBER_OF_PLAYERS) {
+      return {
+        type: TypeGameErrorType.GameRestartFailed,
+        message: "Room doesn't have minimum number of players",
       };
     }
 
@@ -218,14 +218,7 @@ export class Room {
     return true;
   }
 
-  public open(socketId: string): TypeGameError | true {
-    if (socketId !== this.hostPlayer.getSocketId()) {
-      return {
-        type: TypeGameErrorType.GameRoomOpenFailed,
-        message: 'Only host player can open the room',
-      };
-    }
-
+  public open(): TypeGameError | true {
     if (this.getRoomStatus() !== TypeRoomStatus.GameIsOver) {
       return {
         type: TypeGameErrorType.GameRoomOpenFailed,
@@ -278,6 +271,13 @@ export class Room {
    * Give one card from attacker
    */
   public setAttackerOpen(card: TypeCard): TypeGameError | true {
+    if (this.activePlayer.getPlayerRole() !== TypePlayerRole.Attacker) {
+      return {
+        type: TypeGameErrorType.OpenCardFailed,
+        message: "Active player doesn't have Attacker role",
+      };
+    }
+
     this.LastGameAction = TypeGameAction.AttackerMoveCard;
     this.isDealtEnabled = false;
 
@@ -316,6 +316,13 @@ export class Room {
    * Give one card from defender
    */
   public setDefenderClose(card: TypeCard): TypeGameError | true {
+    if (this.activePlayer.getPlayerRole() !== TypePlayerRole.Defender) {
+      return {
+        type: TypeGameErrorType.CloseCardFailed,
+        message: "Active player doesn't have Defender role",
+      };
+    }
+
     this.LastGameAction = TypeGameAction.DefenderMoveCard;
     this.lastDefender = this.activePlayer;
 
@@ -379,7 +386,14 @@ export class Room {
   /**
    * Event GameAttackerPass
    */
-  public setAttackerPass(): boolean {
+  public setAttackerPass(): TypeGameError | true {
+    if (this.activePlayer.getPlayerRole() !== TypePlayerRole.Attacker) {
+      return {
+        type: TypeGameErrorType.AttackerPassFailed,
+        message: "Active player doesn't have Attacker role",
+      };
+    }
+
     this.LastGameAction = TypeGameAction.AttackerPass;
 
     // For twi players
@@ -417,7 +431,14 @@ export class Room {
    * Defender as the active player get all cards
    * Start next round with next player
    */
-  public setDefenderPickUpCards(): void {
+  public setDefenderPickUpCards(): TypeGameError | true {
+    if (this.activePlayer.getPlayerRole() !== TypePlayerRole.Defender) {
+      return {
+        type: TypeGameErrorType.DefenderPickupFailed,
+        message: "Active player doesn't have Defender role",
+      };
+    }
+
     this.LastGameAction = TypeGameAction.DefenderTakesCards;
 
     this.activePlayer.addCards(this.round.getRoundCards());
@@ -427,7 +448,7 @@ export class Room {
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
       this.setGameIsOver();
 
-      return;
+      return true;
     }
 
     // Next after active player (defender)
@@ -435,6 +456,8 @@ export class Room {
     this.activePlayer = this.getNextPlayer(this.activePlayer);
 
     this.startNextRound();
+
+    return true;
   }
 
   private startNextRound(): void {
@@ -633,30 +656,6 @@ export class Room {
   }
 
   /**
-   * Restarts game after current game session was finished
-   */
-  public restartGame(): void {
-    if (this.players.totalCount() < MIN_NUMBER_OF_PLAYERS) {
-      this.openRoom();
-    } else {
-      this.roomStatus = TypeRoomStatus.WaitingForStart;
-
-      this.start();
-    }
-  }
-
-  /**
-   * Sets room to 'open' state, so players from outside can possibly join
-   */
-  public openRoom(): void {
-    if (this.players.totalCount() >= MIN_NUMBER_OF_PLAYERS) {
-      this.roomStatus = TypeRoomStatus.WaitingForStart;
-    } else {
-      this.roomStatus = TypeRoomStatus.WaitingForPlayers;
-    }
-  }
-
-  /**
    * Returns player who is sitting to the right of last loser
    */
   private findPreviousPlayerToLastLoser(loser: Player): Player {
@@ -686,7 +685,7 @@ export class Room {
     return foundPlayer;
   }
 
-  getNextAttacker(currentAttacker: Player): Player {
+  private getNextAttacker(currentAttacker: Player): Player {
     if (this.players.totalCountInGame() < 2) {
       Logger.error(`Room::getNextAttacker(): playersInGame < 2`);
       return currentAttacker;
@@ -776,6 +775,14 @@ export class Room {
     }
 
     return [];
+  }
+
+  public getActivePlayerSocketId(): string {
+    return this.activePlayer.getSocketId();
+  }
+
+  public getHostPlayerSocketId(): string {
+    return this.hostPlayer.getSocketId();
   }
 
   public getGameStats(): TypeGameStats {
