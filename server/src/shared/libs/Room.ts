@@ -177,6 +177,7 @@ export class Room {
     this.defender.setPlayerRole(TypePlayerRole.Defender);
 
     this.round = new Round(this.deck);
+    this.round.setDefenderCardsAtRoundStart(STARTING_CARDS_NUMBER);
 
     this.passCounterMaxValue = this.players.totalCount() - 1;
 
@@ -460,6 +461,11 @@ export class Room {
 
     this.isDefenderPickup = true;
 
+    if (this.round.isFinished()) {
+      this.GivePickedupCardsToDefender();
+      this.startNextRound();
+    }
+
     // Move turn back to attacker
     this.setActivePlayer(this.attacker);
     return true;
@@ -502,6 +508,8 @@ export class Room {
 
     // Dealt cards to user
     this.dealtCards();
+
+    this.round.setDefenderCardsAtRoundStart(this.defender.getCardsCount());
 
     // Save first player socketId in this round,
     // after dealt only
