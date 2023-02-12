@@ -1,13 +1,57 @@
 import { useEffect, useState } from 'react';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { IS_OLD_GAME_UI_ENABLED } from '../../app/config';
-import { avatars } from '../../shared/avatars';
+import { avatars, getPlayerAvatarIdx, validateAvatarIdx } from '../../shared/avatars';
+import { AVATAR_PREFIX, UNIQUE_LOCALSTORAGE_PREFIX } from '../../shared/constants';
 import styles from './RoomForm.m.scss';
 
+type TypePlayerSettings = {
+  playerName: string;
+  avatar: string;
+};
+
 export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
-  const [playerName, setPlayerName] = useState('');
+  const validateName = (playerName: string) => {
+    if (playerName.match(/^[a-zA-Z0-9а-яА-Я_\s]+$/) && playerName.length > 3) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const isPlayerSettings = (value: unknown): value is TypePlayerSettings => {
+    if (
+      value &&
+      typeof value === 'object' &&
+      'playerName' in value &&
+      typeof value.playerName === 'string' &&
+      validateName(value.playerName) &&
+      'avatar' in value &&
+      typeof value.avatar === 'string' &&
+      validateAvatarIdx(getPlayerAvatarIdx(value.avatar))
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const initialPlayerSettings: TypePlayerSettings = {
+    playerName: '',
+    avatar: `${AVATAR_PREFIX}0`,
+  };
+
+  const [playerSettings, setPlayerSettings] = useLocalStorage<TypePlayerSettings>(
+    UNIQUE_LOCALSTORAGE_PREFIX,
+    'playersettings',
+    initialPlayerSettings,
+    isPlayerSettings,
+  );
+
+  const [playerName, setPlayerName] = useState(playerSettings.playerName);
   const [oldGameUI, setOldGameUI] = useState(true);
   const [isPlayerNameValid, setIsPlayerNameValid] = useState(false);
-  const [playerAvatarIdx, setPlayerAvatarIdx] = useState(0);
+  const [playerAvatarIdx, setPlayerAvatarIdx] = useState(getPlayerAvatarIdx(playerSettings.avatar));
 
   const actionText = title.toLowerCase().includes('join') ? 'Join' : 'Create';
 
@@ -19,14 +63,6 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
     }
   }, [playerName]);
 
-  const validateName = (playerName: string) => {
-    if (playerName.match(/^[a-zA-Z0-9а-яА-Я_\s]+$/) && playerName.length > 3) {
-      return true;
-    }
-
-    return false;
-  };
-
   const handleChangePlayerName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPlayerName(event.target.value);
   };
@@ -36,8 +72,12 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
   };
 
   const handleSubmit = () => {
-    if (validateName(playerName)) {
-      onSubmit(playerName, `avatar${playerAvatarIdx}`, oldGameUI);
+    if (validateName(playerName) && validateAvatarIdx(playerAvatarIdx)) {
+      setPlayerSettings({
+        playerName,
+        avatar: `${AVATAR_PREFIX}${playerAvatarIdx}`,
+      });
+      onSubmit(playerName, `${AVATAR_PREFIX}${playerAvatarIdx}`, oldGameUI);
     }
   };
 
