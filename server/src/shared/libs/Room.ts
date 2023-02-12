@@ -652,6 +652,13 @@ export class Room {
 
     this.players.remove(leavePlayer);
 
+    if (
+      this.getRoomStatus() === TypeRoomStatus.WaitingForStart &&
+      this.getPlayersCount() < MIN_NUMBER_OF_PLAYERS
+    ) {
+      this.roomStatus = TypeRoomStatus.WaitingForPlayers;
+    }
+
     return true;
   }
 
