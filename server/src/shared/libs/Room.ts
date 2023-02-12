@@ -56,6 +56,8 @@ export class Room {
   lastDefender: Player;
   /** Active player on the current step */
   activePlayer: Player;
+  /** Last loser (or null if it is first game session or last loser left room) */
+  lastLoser: Player | null;
   /** Total number of pass */
   passCounter: number;
   /** Maximum number of pass */
@@ -90,6 +92,7 @@ export class Room {
     this.defender = this.hostPlayer;
     this.lastDefender = this.hostPlayer;
     this.activePlayer = this.hostPlayer;
+    this.lastLoser = null;
     this.passCounter = 0;
     this.passCounterMaxValue = 1;
     this.dealt = [];
@@ -153,8 +156,14 @@ export class Room {
 
     this.currentRound = 1;
 
-    // Set attacker as player with lowest trump
-    this.activePlayer = this.findPlayerWithLowestTrump();
+    // reset player roles
+    for (const player of this.players) {
+      player.setPlayerRole(TypePlayerRole.Waiting);
+    }
+
+    this.activePlayer = this.lastLoser
+      ? this.findPreviousPlayerToLastLoser(this.lastLoser)
+      : this.findPlayerWithLowestTrump();
 
     this.attacker = this.activePlayer;
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
@@ -269,15 +278,14 @@ export class Room {
    * Give one card from attacker
    */
   public setAttackerOpen(card: TypeCard): TypeGameError | true {
-    this.LastGameAction = TypeGameAction.AttackerOpenCard;
+    this.LastGameAction = TypeGameAction.AttackerMoveCard;
     this.isDealtEnabled = false;
 
     const isAttackSuccess = this.round.attack(card);
 
     if (!isAttackSuccess) {
-      // at the moment attack is not successful only if the new attack card not
-      // matches the rank of any card which has already been played during that
-      // round
+      this.LastGameAction = TypeGameAction.AttackerMoveCardFailed;
+
       return {
         type: TypeGameErrorType.OpenCardFailed,
         message:
@@ -308,11 +316,13 @@ export class Room {
    * Give one card from defender
    */
   public setDefenderClose(card: TypeCard): TypeGameError | true {
-    this.LastGameAction = TypeGameAction.DefenderOpenCard;
+    this.LastGameAction = TypeGameAction.DefenderMoveCard;
     this.lastDefender = this.activePlayer;
 
     // Add the card
     if (!this.round.defend(card)) {
+      this.LastGameAction = TypeGameAction.DefenderMoveCardFailed;
+
       return {
         type: TypeGameErrorType.CloseCardFailed,
         message: "This card of the defender can't beat attacker's card",
@@ -321,7 +331,6 @@ export class Room {
 
     // Remove card from player cards array
     this.activePlayer.lostCard(card);
-    this.LastGameAction = TypeGameAction.DefenderBeatCard;
 
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
@@ -606,6 +615,7 @@ export class Room {
     // Game over
     if (this.isGameInProgress()) {
       leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.lastLoser = null;
 
       // Set all players as winner
       for (const player of this.players) {
@@ -644,6 +654,13 @@ export class Room {
     } else {
       this.roomStatus = TypeRoomStatus.WaitingForPlayers;
     }
+  }
+
+  /**
+   * Returns player who is sitting to the right of last loser
+   */
+  private findPreviousPlayerToLastLoser(loser: Player): Player {
+    return this.getPrevPlayer(loser);
   }
 
   /**
@@ -707,7 +724,7 @@ export class Room {
     return players[0];
   }
 
-  getNextPlayer(current: Player): Player {
+  private getNextPlayer(current: Player): Player {
     const index = this.players.getPlayerIndexBySocketId(current.getSocketId());
 
     const playersAll = this.players.getAll();
@@ -716,6 +733,21 @@ export class Room {
       ...playersAll.slice(index + 1),
       ...playersAll.slice(0, index),
     ].filter((player) => player.getPlayerStatus() === TypePlayerStatus.InGame);
+
+    return players[0];
+  }
+
+  private getPrevPlayer(current: Player): Player {
+    const index = this.players.getPlayerIndexBySocketId(current.getSocketId());
+
+    const playersAll = this.players.getAll();
+
+    const players = [
+      ...playersAll.slice(index + 1),
+      ...playersAll.slice(0, index),
+    ]
+      .filter((player) => player.getPlayerStatus() === TypePlayerStatus.InGame)
+      .reverse();
 
     return players[0];
   }
@@ -776,6 +808,13 @@ export class Room {
    */
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
+
+    this.lastLoser =
+      this.players
+        .getAll()
+        .find(
+          (player) => player.getPlayerStatus() === TypePlayerStatus.YouLoser,
+        ) ?? null;
 
     // Update stats
     this.updateGameStats();
