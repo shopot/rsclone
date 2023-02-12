@@ -164,20 +164,34 @@ export class Card extends Phaser.GameObjects.Sprite {
     });
   }
 
-  async animateToBeaten(cardAngle: number, index: number) {
+  // async animateToBeaten(cardAngle: number, index: number) {
+  //   this.setFrame('cardBack');
+  //   await new Promise((resolve) => {
+  //     this.scene.tweens.add({
+  //       targets: this,
+  //       x: config.width,
+  //       y: config.height / 2 - 20,
+  //       scale: 0.7,
+  //       ease: 'Linear',
+  //       duration: 100,
+  //       angle: cardAngle,
+  //       onComplete: resolve,
+  //     });
+  //     this.setDepth(index + 2);
+  //   });
+  // }
+
+  async animateToBeaten() {
     this.setFrame('cardBack');
     await new Promise((resolve) => {
       this.scene.tweens.add({
         targets: this,
-        x: config.width,
+        x: config.width + config.cardSize.w,
         y: config.height / 2 - 20,
-        scale: 0.7,
         ease: 'Linear',
         duration: 100,
-        angle: cardAngle,
         onComplete: resolve,
       });
-      this.setDepth(index + 2);
     });
   }
 

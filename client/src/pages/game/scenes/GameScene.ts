@@ -55,15 +55,6 @@ export class GameScene extends Phaser.Scene {
       (data) => this.sortPlayersData(data),
     );
 
-    // const updateDeck = useGameStore.subscribe(
-    //   (state) => state.deckCounter,
-    //   (data) => this.updateDeck(data),
-    // );
-    // const updatePlayersText = useGameStore.subscribe(
-    //   (state) => state.players,
-    //   (data) => this.updatePlayersText(data),
-    // );
-
     const updateButton = useGameStore.subscribe(
       (state) => [state.roomStatus, state.activeSocketId],
       (arr) => this.updateButton(arr),
@@ -78,21 +69,6 @@ export class GameScene extends Phaser.Scene {
       (state) => state.activeSocketId,
       (data) => this.colorIcon(data),
     );
-
-    // const animateCardMoveToTable = useGameStore.subscribe(
-    //   (state) => state,
-    //   (state, prevState) => this.animateCardMoveToTable(state, prevState),
-    // );
-
-    // const updateCardsPositionOnTable = useGameStore.subscribe(
-    //   (state) => state.placedCards,
-    //   (data) => this.updateCardsPosOnTable(data),
-    // );
-
-    // const handleDealt = useGameStore.subscribe(
-    //   (state) => state.dealt,
-    //   (data) => this.handleDealt(data),
-    // );
 
     const createNewAnimateFromDeck = useGameStore.subscribe(
       (state) => state.dealt,
@@ -147,11 +123,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handlePass() {
-    const angle = 180 / (this.piles.flat().length + 1);
+    // const angle = 180 / (this.piles.flat().length + 1);
     for (const card of this.piles.flat()) {
-      const ind = this.piles.flat().indexOf(card);
-      await card.animateToBeaten(angle + ind * angle, ind);
+      await card.animateToBeaten();
+      // const ind = this.piles.flat().indexOf(card);
+      // await card.animateToBeaten(angle + ind * angle, ind);
     }
+    this.piles.flat().forEach((card) => card.destroy());
     this.piles = [];
   }
 
@@ -506,15 +484,20 @@ export class GameScene extends Phaser.Scene {
     const round = useGameStore.getState().currentRound;
     const isNew = JSON.stringify(this.prevDealt) !== JSON.stringify(dealt);
     if (dealtCards.length !== 0 && round > 1 && isNew) {
+      console.log('will create new sprites 1');
       await this.createCardSprites(dealt, round);
       this.prevDealt = dealt;
     }
   }
 
   async createCardSprites(dealt: TypeDealt[], round: number) {
+    console.log('will create new sprites 2');
     //= создание новых спрайтов, если идет раздача из колоды
     const sortedDealt: TypeCard[][] = [];
+    console.log(dealt, 'dealt')
+    console.log(sortedDealt, 'sortedDealt')
     const playersId = [...this.playersSorted].map((data) => data.socketId);
+    console.log(playersId, 'playersId')
     playersId.forEach((id) => {
       const cardsArr = [...dealt].filter((info) => info.socketId === id)[0].cards;
       sortedDealt.push(cardsArr);
@@ -530,14 +513,17 @@ export class GameScene extends Phaser.Scene {
       this.dealtSprites.push(arr);
       if (round <= 1) this.playersCardsSprites.push(arr);
     });
+    console.log('will animateFromDeckToPlayers 1')
     await this.animateFromDeckToPlayers();
   }
 
   async animateFromDeckToPlayers() {
+    console.log('will animateFromDeckToPlayers 2')
     //если будет время, сделать чередование карт, а не сначала одному, потом другому
     //если будет время, сохранять самой карты в колоде и по одной убирать
     for (const arr of this.dealtSprites) {
       for (const sprite of arr) {
+        console.log(sprite, 'sprite from this.dealtSprites')
         await sprite.animateToPlayer(this.dealtSprites.indexOf(arr), this.dealtSprites.length);
       }
     }
@@ -551,7 +537,7 @@ export class GameScene extends Phaser.Scene {
     const deck = useGameStore.getState().deckCounter;
     if (deck < 8) {
       while (this.deckCards.length > deck) {
-        this.deckCards[0].destroy();
+        this.deckCards.pop();
       }
     }
     const text = deck <= 1 ? '' : deck.toString();
