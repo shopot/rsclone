@@ -3,6 +3,7 @@ import { TypeDealt } from './TypeDealt';
 import { TypeChatMessage } from './TypeChatMessage';
 import { TypePlacedCard } from './TypePlacedCard';
 import { TypePlayerDto } from './TypePlayerDto';
+import { TypeGameAction } from './TypeGameAction';
 
 export type TypeRoomState = {
   roomId: string;
@@ -17,6 +18,7 @@ export type TypeRoomState = {
   isDealtEnabled: boolean;
   deckCounter: number;
   currentRound: number;
+  lastGameAction: TypeGameAction;
 };
 
 export enum TypeRoomStatus {

@@ -8,6 +8,7 @@ import {
   TypeCard,
   TypeDealt,
   TypeChatMessage,
+  TypeGameAction,
   TypeServerError,
 } from '../shared/types';
 import { create } from 'zustand';
@@ -26,6 +27,7 @@ type TypeGameState = {
   placedCards: TypePlacedCard[];
   deckCounter: number;
   dealt: TypeDealt[];
+  lastGameAction: TypeGameAction;
   error: TypeServerError | null;
 
   actions: {
@@ -73,6 +75,7 @@ export const useGameStore = create<TypeGameState>()(
       placedCards: [],
       deckCounter: 0,
       dealt: [],
+      lastGameAction: TypeGameAction.Undefined,
       error: null,
 
       getPlayerCards: (): TypeCard[] => {

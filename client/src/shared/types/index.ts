@@ -12,3 +12,4 @@ export * from './TypeSocketEvent';
 export * from './TypeRoute';
 export * from './TypeResponseObject';
 export * from './TypeChatMessage';
+export * from './TypeGameAction';
