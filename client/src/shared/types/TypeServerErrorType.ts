@@ -1,4 +1,4 @@
-export enum TypeGameErrorType {
+export enum TypeServerErrorType {
   JoinRoomFailed = 'JoinRoomFailed',
   LeaveRoomFailed = 'LeaveRoomFailed',
   CreateRoomFailed = 'CreateRoomFailed',
