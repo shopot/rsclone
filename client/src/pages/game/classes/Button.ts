@@ -9,8 +9,10 @@ export class Button {
   // text: string[];
   textColors: { active: number; inactive: number };
   params: { x: number; y: number; width: number; height: number; rounded: number };
+  status: TypeButtonStatus;
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+    this.status = TypeButtonStatus.Start;
     this.params = {
       x: config.playersTables[1][0].startX + config.playersTables[1][0].width + 30,
       y: config.height - 100,
@@ -20,7 +22,6 @@ export class Button {
     };
     this.bgColors = { active: 0x68ff00, inactive: 0x666666, focus: 0xcdff00 };
     this.textColors = { active: 0xfff, inactive: 0x000000 };
-    // this.text = ['Start', 'Take', 'Pass']; // какие названия по англ?
 
     this.btnShape = this.scene.add.graphics();
     this.drawButtonShape(this.bgColors.inactive);
@@ -33,30 +34,27 @@ export class Button {
         stroke: this.textColors.inactive.toString(),
       })
       .setPadding(50, 20, 50, 20)
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setInteractive()
+      .on('pointerdown', () => this.handleClick())
+      .removeInteractive();
+  }
+
+  handleClick() {
+    if (this.status === TypeButtonStatus.Start) {
+      useGameStore.getState().actions.startGame();
+    } else if (this.status === TypeButtonStatus.Take) {
+      useGameStore.getState().actions.defenderTake();
+    } else if (this.status === TypeButtonStatus.Pass) {
+      useGameStore.getState().actions.attackerPass();
+    }
+    this.drawButtonShape(this.bgColors.inactive);
+    this.changeText(this.textColors.inactive, this.status);
+    this.btnText.removeInteractive();
   }
 
   update(status: TypeButtonStatus, active: boolean) {
-    if (status === TypeButtonStatus.Start) this.gameAvailable(active);
-    else if (status === TypeButtonStatus.Pass) this.passAvailable(active);
-    else this.takeAvailable(active);
-  }
-
-  takeAvailable(active: boolean) {
-    active
-      ? this.makeInteractive(TypeButtonStatus.Take, useGameStore.getState().actions.defenderTake)
-      : this.makeInactive(TypeButtonStatus.Take);
-  }
-  passAvailable(active: boolean) {
-    active
-      ? this.makeInteractive(TypeButtonStatus.Pass, useGameStore.getState().actions.attackerPass)
-      : this.makeInactive(TypeButtonStatus.Pass);
-  }
-
-  gameAvailable(active: boolean) {
-    active
-      ? this.makeInteractive(TypeButtonStatus.Start, useGameStore.getState().actions.startGame)
-      : this.makeInactive(TypeButtonStatus.Start);
+    active ? this.makeInteractive(status) : this.makeInactive(status);
   }
 
   makeInactive(btnStatus: TypeButtonStatus) {
@@ -65,15 +63,11 @@ export class Button {
     this.btnText.removeInteractive();
   }
 
-  makeInteractive(btnStatus: TypeButtonStatus, action: { (): void; (): void }) {
+  makeInteractive(btnStatus: TypeButtonStatus) {
     this.drawButtonShape(this.bgColors.active);
     this.changeText(this.textColors.active, btnStatus);
-    this.btnText.setInteractive().on('pointerdown', () => {
-      action();
-      this.drawButtonShape(this.bgColors.inactive);
-      this.changeText(this.textColors.inactive, btnStatus);
-      this.btnText.removeInteractive();
-    });
+    this.status = btnStatus;
+    this.btnText.setInteractive();
     this.btnText.on('pointerover', () => this.drawButtonShape(this.bgColors.focus));
     this.btnText.on('pointerout', () => this.drawButtonShape(this.bgColors.active));
   }
@@ -102,4 +96,11 @@ export class Button {
   changeText(color: number, text: string) {
     this.btnText.setText(text).setColor(color.toString()).setStroke(color.toString(), 1);
   }
+}
+function setInteractive() {
+  throw new Error('Function not implemented.');
+}
+
+function action() {
+  throw new Error('Function not implemented.');
 }

@@ -25,7 +25,6 @@ export const enum TypeButtonStatus {
 
 export class GameScene extends Phaser.Scene {
   beaten = 3;
-  // deckCards = 36 - this.playersCards.flat().length - this.beaten;
   attack: boolean[] = [];
   piles: Card[][] = []; // стопочек на столе
   playersCardsSprites: Card[][] = [];
@@ -100,6 +99,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    0;
     //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
     this.createButtons();
@@ -112,67 +112,69 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleDealt(dealt: TypeDealt[]) {
-    const dealtCards = dealt.map((obj) => obj.cards);
+    console.log('handleDealt');
+    const dealtCards = [...dealt].map((obj) => obj.cards);
     if (useGameStore.getState().currentRound > 1 && dealtCards.some((arr) => arr.length !== 0)) {
-      const sortedDealt = [...dealt];
-      const me = dealt.filter((player) => player.socketId === this.socketId)[0];
+      const sortedDealt: TypeCard[][] = [];
+      const playersId = [...this.playersSorted].map((data) => data.socketId);
+      playersId.forEach((id) => {
+        const item = [...dealt].filter((info) => info.socketId === id)[0].cards;
+        sortedDealt.push(item);
+      });
 
-      while (sortedDealt.indexOf(me) !== 0) {
-        const first = sortedDealt.shift();
-        if (first !== undefined) sortedDealt.push(first);
-      }
-      const sortedDealtcards = sortedDealt.map((obj) => obj.cards.map((card) => card));
-
+      // const sortedDealtcards = sortedDealt.map((arr) => arr.map((card) => card));
+      console.log(dealt, 'dealt');
+      console.log(sortedDealt, 'sortedDealtcards');
       //Todo: отрисовать добавление спрайтов некоторым из колоды, некоторым со стола
       //определить был ли тейк
-      const cardTextureFromTable = this.piles[0][0].value;
+      const cardTextureFromTable = [...this.piles].flat()[0].value;
       const newPlayersCards = [...this.playersCards].map((set) =>
         set.map((card) => this.getCardTexture(card)),
       );
       const wasTake = newPlayersCards.some((arr) => arr.includes(cardTextureFromTable));
+      console.log('was take', wasTake);
       //если take, то переместить спрайты со стола этому игроку, другому из делт отрисовать и перенести из стопки
       if (wasTake) {
-        await this.handleTake(sortedDealtcards).then(() => this.setCardsPositions());
+        const playerTakingCards = newPlayersCards.filter((arr) =>
+          arr.includes(cardTextureFromTable),
+        )[0];
+        const playerTakingIndex = newPlayersCards.indexOf(playerTakingCards);
+        await this.handleTake(sortedDealt, playerTakingIndex).then(() => this.setCardsPositions());
       }
     }
   }
 
-  async handleTake(sortedDealtcards: TypeCard[][]) {
+  async handleTake(sortedDealtcards: TypeCard[][], playerTakingIndex: number) {
     console.log('handle take');
-    const playerTakingIndex = [...sortedDealtcards].map((arr) => arr.length).indexOf(0);
+    console.log(this.piles, 'pile');
     for (const sprite of this.piles.flat()) {
+      console.log(sprite, 'sprite form pile');
       this.playersCardsSprites[playerTakingIndex].push(sprite);
       await sprite.moveToPlayer(playerTakingIndex, sortedDealtcards.length);
       if (playerTakingIndex === 0) sprite.makeClickable();
     }
-    // this.input.on('gameobjectdown', this.makeMove.bind(this));
     this.piles = [];
     await this.handleDealFromDeck(sortedDealtcards, playerTakingIndex);
-    // this.playersCardsSprites[0].forEach((card) => {
-    //   // card.setInteractive().open();
-    //   card.makeClickable();
-    // });
   }
 
   async handleDealFromDeck(sortedDealtcards: TypeCard[][], excludeInd: number) {
     //для каждого иргока кроме указанного создать спрайты, повернуть рубашкой вверх, добавить из в массив спрайтов игроков и массив раздаваемых спрайтов
+    console.log('handleDealFromDeck');
+    console.log(sortedDealtcards, 'sortedDealtcards');
     sortedDealtcards.forEach((set, ind) => {
       const arr: Card[] = [];
-      if (ind !== excludeInd) {
+      if (ind !== excludeInd || set.length !== 0) {
         set.forEach((el) => {
           const item = new Card(this, 70, config.height / 2, 'cards', this.getCardTexture(el), el);
           item.close();
-          if (ind === 0) item.makeClickable();
+          if (ind !== 0) item.makeNotClickable();
           this.playersCardsSprites[ind].push(item);
           arr.push(item);
         });
       }
       this.dealtSprites.push(arr);
     });
-    // this.playersCardsSprites[0].forEach((card) => {
-    //   // card.setInteractive().open();
-    //   card.makeClickable();
-    // });
+    console.log('this.playersCardsSprites', this.playersCardsSprites);
     //анимировать перемещенеи спрайтов из колоды на стол игроков, для главноего повернуть лицом
     for (const arr of this.dealtSprites) {
       for (const sprite of arr) {
@@ -250,29 +252,9 @@ export class GameScene extends Phaser.Scene {
       this.playersCardsSprites.push(arr);
     });
     this.setCardsPositions();
-    // this.playersCardsSprites[0].forEach((card) => {
-    //   // card.setInteractive().open();
-    //   card.makeClickable();
-    // });
-    // this.input.on('gameobjectdown', this.makeMove.bind(this));
-
     //временно подсвечиваю
     // this.highlightCards();
   }
-
-  // makeMove(pointer: PointerEvent, card: Card) {
-  //   console.log('try to move');
-  //   const isSocketActive = this.socketId === useGameStore.getState().activeSocketId;
-  //   const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
-  //   if (isSocketActive && card.cardType !== undefined && isGameOn) {
-  //     console.log('went to server');
-  //     this.cardToMove = card;
-  //     const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
-  //     isAttacker
-  //       ? useGameStore.getState().actions.makeAttackingMove(card.cardType)
-  //       : useGameStore.getState().actions.makeDefensiveMove(card.cardType);
-  //   }
-  // }
 
   animateCardMoveToTable(state: TypeGameState, prevSate: TypeGameState) {
     if (
@@ -530,3 +512,4 @@ export class GameScene extends Phaser.Scene {
     return texture.rank + texture.suit;
   }
 }
+//todo убрать повторящееся создание карт!!!
