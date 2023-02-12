@@ -92,6 +92,7 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
           Your nickname:
           <input
             autoComplete="off"
+            spellCheck="false"
             value={playerName}
             onChange={handleChangePlayerName}
             id="player-name"

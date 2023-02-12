@@ -3,7 +3,7 @@ import Table from 'rc-table';
 import { useDataStore } from '../../store/dataStore';
 
 const RatingPage = () => {
-  const { ratingResults, isOnline, actions } = useDataStore();
+  const { ratingResults, actions } = useDataStore();
   console.log(ratingResults);
   useEffect(() => {
     actions.setRatingList();
