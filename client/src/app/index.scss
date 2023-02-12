@@ -53,7 +53,7 @@ h3 {
 }
 
 input {
-  border: 1px solid constants.$secondary-color;
+  border: 2px solid constants.$secondary-color;
   border-radius: 5px;
   padding: 8px 10px;
   padding-left: 15px;
@@ -61,7 +61,7 @@ input {
   background: rgb(0 0 0 / 50%);
 
   &:focus {
-    border: 1px solid constants.$main-color;
+    border: 2px solid constants.$main-color;
     outline: none;
   }
 }
