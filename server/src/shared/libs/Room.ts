@@ -635,6 +635,11 @@ export class Room {
       return true;
     }
 
+    // host leaves, we need new host
+    if (leavePlayer.getSocketId() === this.getHostPlayerSocketId()) {
+      this.hostPlayer = this.getNextPlayer(leavePlayer);
+    }
+
     // Game over
     if (this.isGameInProgress()) {
       leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
