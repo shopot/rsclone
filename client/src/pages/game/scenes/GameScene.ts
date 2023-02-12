@@ -6,12 +6,11 @@ import { Card } from '../prefabs/Card';
 import { Suit } from '../prefabs/Suit';
 import { Button } from '../classes/Button';
 import { socketIOService } from '../../../shared/api/socketio';
-import { useGameStore, TypeGameState } from '../../../store/gameStore';
+import { useGameStore } from '../../../store/gameStore';
 import {
   TypeCard,
   TypeDealt,
   TypeGameAction,
-  TypePlacedCard,
   TypePlayer,
   TypePlayerRole,
   TypeRoomStatus,
@@ -25,8 +24,6 @@ export const enum TypeButtonStatus {
 }
 
 export class GameScene extends Phaser.Scene {
-  beaten = 3;
-  attack: boolean[] = [];
   piles: Card[][] = []; // стопочек на столе
   playersCardsSprites: Card[][] = [];
   handSizes: { width: number; height: number; startX: number }[] = [];
@@ -41,7 +38,6 @@ export class GameScene extends Phaser.Scene {
   socketId = socketIOService.getSocketId();
   playersCards: TypeCard[][] = [];
   playersText: CardsText[] = [];
-  cardToMove: Card | undefined;
   dealtSprites: Card[][] = [];
   playerAmt = 0;
   prevDealt: TypeDealt[] = [];
@@ -107,13 +103,6 @@ export class GameScene extends Phaser.Scene {
       (state) => state.lastGameAction,
       (data) => this.handleActions(data),
     );
-
-    // const onTake = useGameStore.subscribe(
-    //   (state) => state.lastGameAction,
-    //   (data) => this.onTake(data),
-    // );
-
-    // const tmp = useGameStore.subscribe((state) => console.log(state));
   }
 
   create() {
@@ -136,7 +125,7 @@ export class GameScene extends Phaser.Scene {
     ) {
       await this.handleClick(lastAction);
     } else if (lastAction === TypeGameAction.AttackerPass) {
-      this.handlePass();
+      await this.handlePass();
     } else if (lastAction === TypeGameAction.DefenderTakesCards) {
       await this.handleTake();
     }
@@ -147,19 +136,23 @@ export class GameScene extends Phaser.Scene {
       (player) => player.playerRole === TypePlayerRole.Defender,
     )[0];
     const defenderInd = this.playersSorted.indexOf(defender);
-
     for (const card of this.piles.flat()) {
       card.setAngle(0);
-      this.playersCardsSprites[defenderInd].push(card);
       await card.animateToPlayer(defenderInd, this.playerAmt);
+      this.playersCardsSprites[defenderInd].push(card);
     }
     this.piles = [];
     this.setEqualPositionAtHands();
     this.updatePlayersText();
   }
-  handlePass() {
-    //изменится делт и сами карты раздадутся из колоды
-    //сделать анимацию движения спрайтов со стола в битые + обнулить пайлз
+
+  async handlePass() {
+    const angle = 180 / (this.piles.flat().length + 1);
+    for (const card of this.piles.flat()) {
+      const ind = this.piles.flat().indexOf(card);
+      await card.animateToBeaten(angle + ind * angle, ind);
+    }
+    this.piles = [];
   }
 
   async handleClick(lastAction: TypeGameAction) {
@@ -551,7 +544,7 @@ export class GameScene extends Phaser.Scene {
     this.setEqualPositionAtHands();
     this.dealtSprites = [];
     this.updateDeck();
-    // this.updatePlayersText();
+    this.updatePlayersText();
   }
 
   updateDeck() {
