@@ -5,6 +5,8 @@ export enum TypeGameErrorType {
   NextPlayerFailed = 'NextPlayerFailed',
   OpenCardFailed = 'OpenCardFailed',
   CloseCardFailed = 'CloseCardFailed',
+  AttackerPassFailed = 'AttackerPassFailed',
+  DefenderPickupFailed = 'DefenderPickupFailed',
   GameStartFailed = 'GameStartFailed',
   GameRestartFailed = 'GameRestartFailed',
   GameRoomOpenFailed = 'GameRoomOpenFailed',
