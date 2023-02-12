@@ -5,6 +5,7 @@ import { TypePlayerDto } from './TypePlayerDto';
 import { TypeDealt } from './TypeDealt';
 import { TypePlacedCard } from './TypePlacedCard';
 import { TypeRoomStatus } from './TypeRoomState';
+import { TypeGameAction } from './TypeGameAction';
 
 export type TypeServerResponse = {
   roomId: string;
@@ -19,5 +20,6 @@ export type TypeServerResponse = {
   isDealtEnabled?: boolean;
   deckCounter?: number;
   currentRound?: number;
+  lastGameAction?: TypeGameAction;
   error?: TypeGameError;
 };
