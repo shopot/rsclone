@@ -43,6 +43,8 @@ export class GameScene extends Phaser.Scene {
   playersText: CardsText[] = [];
   cardToMove: Card | undefined;
   dealtSprites: Card[][] = [];
+  playerAmt = 0;
+  prevDealt: TypeDealt[] = [];
 
   constructor() {
     super('Game');
@@ -96,10 +98,10 @@ export class GameScene extends Phaser.Scene {
     //   (data) => this.handleDealt(data),
     // );
 
-    // const createNewAnimateFromDeck = useGameStore.subscribe(
-    //   (state) => state.dealt,
-    //   (data) => this.checkDealt(data),
-    // );
+    const createNewAnimateFromDeck = useGameStore.subscribe(
+      (state) => state.dealt,
+      (data) => this.checkDealt(data),
+    );
 
     const handleActions = useGameStore.subscribe(
       (state) => state.lastGameAction,
@@ -136,16 +138,27 @@ export class GameScene extends Phaser.Scene {
     } else if (lastAction === TypeGameAction.AttackerPass) {
       this.handlePass();
     } else if (lastAction === TypeGameAction.DefenderTakesCards) {
-      this.handleTake();
+      await this.handleTake();
     }
   }
 
-  handleTake() {
-    //изменится делт и сами карты раздадуться из колоды
-    //сделать анимацию движения спрайтов со стола игроку + обнулить пайлз + добавить в спрайты игрока
+  async handleTake() {
+    const defender = this.playersSorted.filter(
+      (player) => player.playerRole === TypePlayerRole.Defender,
+    )[0];
+    const defenderInd = this.playersSorted.indexOf(defender);
+
+    for (const card of this.piles.flat()) {
+      card.setAngle(0);
+      this.playersCardsSprites[defenderInd].push(card);
+      await card.animateToPlayer(defenderInd, this.playerAmt);
+    }
+    this.piles = [];
+    this.setEqualPositionAtHands();
+    this.updatePlayersText();
   }
   handlePass() {
-    //изменится делт и сами карты раздадуться из колоды
+    //изменится делт и сами карты раздадутся из колоды
     //сделать анимацию движения спрайтов со стола в битые + обнулить пайлз
   }
 
@@ -361,6 +374,7 @@ export class GameScene extends Phaser.Scene {
       roomStatus === TypeRoomStatus.WaitingForPlayers
     ) {
       const players = useGameStore.getState().players;
+      this.playerAmt = players.length;
       this.sortPlayersData(players);
       this.createHands();
       this.createIcons();
@@ -486,7 +500,7 @@ export class GameScene extends Phaser.Scene {
     if (status === 'GameInProgress') {
       this.createTrumpSuit();
       await this.createTrumpCard();
-      await this.createCardSprites(useGameStore.getState().dealt);
+      await this.createCardSprites(useGameStore.getState().dealt, 1);
       this.createCardsText();
       //иначе, если до игры он же был активный, то не меняется
       this.colorIcon(useGameStore.getState().activeSocketId);
@@ -497,12 +511,14 @@ export class GameScene extends Phaser.Scene {
   async checkDealt(dealt: TypeDealt[]) {
     const dealtCards = [...dealt].map((obj) => obj.cards).flat();
     const round = useGameStore.getState().currentRound;
-    if (dealtCards.length !== 0 && round > 1) {
-      await this.createCardSprites(dealt);
+    const isNew = JSON.stringify(this.prevDealt) !== JSON.stringify(dealt);
+    if (dealtCards.length !== 0 && round > 1 && isNew) {
+      await this.createCardSprites(dealt, round);
+      this.prevDealt = dealt;
     }
   }
 
-  async createCardSprites(dealt: TypeDealt[]) {
+  async createCardSprites(dealt: TypeDealt[], round: number) {
     //= создание новых спрайтов, если идет раздача из колоды
     const sortedDealt: TypeCard[][] = [];
     const playersId = [...this.playersSorted].map((data) => data.socketId);
@@ -516,9 +532,10 @@ export class GameScene extends Phaser.Scene {
         const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
         item.positionDeckCard(ind === 0);
         arr.push(item);
+        if (round > 1) this.playersCardsSprites[ind].push(item);
       });
-      this.playersCardsSprites.push(arr);
       this.dealtSprites.push(arr);
+      if (round <= 1) this.playersCardsSprites.push(arr);
     });
     await this.animateFromDeckToPlayers();
   }
