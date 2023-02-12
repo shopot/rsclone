@@ -7,7 +7,6 @@ import {
   TypeGameErrorType,
   TypeCard,
   TypeGameStats,
-  TypeRoomStatus,
 } from './../shared/types';
 
 import { Injectable } from '@nestjs/common';
