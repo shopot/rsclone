@@ -269,15 +269,14 @@ export class Room {
    * Give one card from attacker
    */
   public setAttackerOpen(card: TypeCard): TypeGameError | true {
-    this.LastGameAction = TypeGameAction.AttackerOpenCard;
+    this.LastGameAction = TypeGameAction.AttackerMoveCard;
     this.isDealtEnabled = false;
 
     const isAttackSuccess = this.round.attack(card);
 
     if (!isAttackSuccess) {
-      // at the moment attack is not successful only if the new attack card not
-      // matches the rank of any card which has already been played during that
-      // round
+      this.LastGameAction = TypeGameAction.AttackerMoveCardFailed;
+
       return {
         type: TypeGameErrorType.OpenCardFailed,
         message:
@@ -308,11 +307,13 @@ export class Room {
    * Give one card from defender
    */
   public setDefenderClose(card: TypeCard): TypeGameError | true {
-    this.LastGameAction = TypeGameAction.DefenderOpenCard;
+    this.LastGameAction = TypeGameAction.DefenderMoveCard;
     this.lastDefender = this.activePlayer;
 
     // Add the card
     if (!this.round.defend(card)) {
+      this.LastGameAction = TypeGameAction.DefenderMoveCardFailed;
+
       return {
         type: TypeGameErrorType.CloseCardFailed,
         message: "This card of the defender can't beat attacker's card",
@@ -321,7 +322,6 @@ export class Room {
 
     // Remove card from player cards array
     this.activePlayer.lostCard(card);
-    this.LastGameAction = TypeGameAction.DefenderBeatCard;
 
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);

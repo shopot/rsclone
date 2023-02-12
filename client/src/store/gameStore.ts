@@ -75,7 +75,7 @@ export const useGameStore = create<TypeGameState>()(
       placedCards: [],
       deckCounter: 0,
       dealt: [],
-      lastGameAction: TypeGameAction.AttackerOpenCard,
+      lastGameAction: TypeGameAction.Undefined,
       error: null,
 
       getPlayerCards: (): TypeCard[] => {

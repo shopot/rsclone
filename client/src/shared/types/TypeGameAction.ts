@@ -1,7 +1,8 @@
 export const enum TypeGameAction {
-  AttackerOpenCard = 'AttackerOpenCard',
-  DefenderOpenCard = 'DefenderOpenCard',
-  DefenderBeatCard = 'DefenderBeatCard',
+  AttackerMoveCard = 'AttackerMoveCard',
+  AttackerMoveCardFailed = 'AttackerMoveCardFailed',
+  DefenderMoveCard = 'DefenderMoveCard',
+  DefenderMoveCardFailed = 'DefenderMoveCardFailed',
   AttackerPass = 'AttackerPass',
   DefenderTakesCards = 'DefenderTakesCards',
   Undefined = 'Undefined',
