@@ -10,6 +10,7 @@ import { useGameStore, TypeGameState } from '../../../store/gameStore';
 import {
   TypeCard,
   TypeDealt,
+  TypeGameAction,
   TypePlacedCard,
   TypePlayer,
   TypePlayerRole,
@@ -51,9 +52,9 @@ export class GameScene extends Phaser.Scene {
       (data) => this.setPlayers(),
     );
 
-    const sortPlayers = useGameStore.subscribe(
+    const sortPlayersData = useGameStore.subscribe(
       (state) => state.players,
-      (data) => this.sortPlayers(data),
+      (data) => this.sortPlayersData(data),
     );
 
     const updateDeck = useGameStore.subscribe(
@@ -95,11 +96,16 @@ export class GameScene extends Phaser.Scene {
       (data) => this.handleDealt(data),
     );
 
+    const onTake = useGameStore.subscribe(
+      (state) => state.lastGameAction,
+      (data) => this.onTake(data),
+    );
+
     // const tmp = useGameStore.subscribe((state) => console.log(state));
   }
 
   create() {
-    0;
+    // 0;
     //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
     this.createButtons();
@@ -107,10 +113,16 @@ export class GameScene extends Phaser.Scene {
     this.setPlayers();
 
     this.createDeck(useGameStore.getState().deckCounter);
-
-    // this.createBeaten();
   }
 
+  //подписка на state.lastGameAction
+  onTake(lastGameAction: TypeGameAction) {
+    if (lastGameAction === TypeGameAction.DefenderTakesCards) {
+      console.log(1);
+    }
+  }
+
+  //подписка на state.dealt
   async handleDealt(dealt: TypeDealt[]) {
     console.log('handleDealt');
     const dealtCards = [...dealt].map((obj) => obj.cards);
@@ -185,19 +197,6 @@ export class GameScene extends Phaser.Scene {
     // this.input.on('gameobjectdown', this.makeMove.bind(this));
   }
 
-  startGame(status: TypeRoomStatus) {
-    this.trump = useGameStore.getState().trumpCard;
-    if (status === 'GameInProgress') {
-      this.createTrumpSuit();
-      this.createTrumpCard();
-      //анимацию сделать раздачи + расположения на столах игроков
-      this.createCards();
-      this.createCardsText();
-      //иначе, если до игры он же был активный, то не меняется
-      this.colorIcon(useGameStore.getState().activeSocketId);
-    }
-  }
-
   highlightCards() {
     //вызвать, когда мой статут фо1лс и кинута карта (pile имеет нечетные подмассивы)
     //подсветит, чем можно бить по возрастанию
@@ -239,23 +238,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  createCards() {
-    //на раздаче сделать анимацию движения карт в центр стола
-    //затем сортировка по возрастанию и анимация распределения карт на столе (для главного - рубашой вниз)
-    this.playersCards.forEach((set, ind) => {
-      const arr: Card[] = [];
-      set.forEach((el) => {
-        const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
-        if (ind === 0) item.makeClickable();
-        arr.push(item);
-      });
-      this.playersCardsSprites.push(arr);
-    });
-    this.setCardsPositions();
-    //временно подсвечиваю
-    // this.highlightCards();
-  }
-
+  //подписка на state
   animateCardMoveToTable(state: TypeGameState, prevSate: TypeGameState) {
     if (
       JSON.stringify(state.placedCards) !== JSON.stringify(prevSate.placedCards) &&
@@ -297,6 +280,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  //подписка на state.placedCards
   updateTable(piles: TypePlacedCard[]) {
     if (piles.length === 4 || piles.length === 7) {
       this.piles.forEach((set, pileInd) => {
@@ -305,19 +289,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  createCardsText() {
-    const textData = { x: 0, y: 70, amount: '' };
-    const cardsWithoutMainPlayer = [...this.playersCards];
-    cardsWithoutMainPlayer.splice(0, 1);
-    cardsWithoutMainPlayer.forEach((set, i) => {
-      textData.x = this.tableSizes[i + 1].startX + 20;
-      if (set.length != 0) textData.amount = set.length.toString();
-      const text = new CardsText(this, textData);
-      text.setDepth(100);
-      this.playersText.push(text);
-    });
-  }
-
+  //подписка на state.players
   updatePlayersText(players: TypePlayer[]) {
     const cardsWithoutMainPlayer = [...this.playersCards];
     cardsWithoutMainPlayer.splice(0, 1);
@@ -350,6 +322,7 @@ export class GameScene extends Phaser.Scene {
     leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
   }
 
+  //подписка на [state.roomStatus, state.activeSocketId]
   updateButton(arr: string[]) {
     const [roomStatus, activeSocketId] = arr;
     if (this.mainButton !== undefined) {
@@ -372,6 +345,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  //подписка на state.players.length
   setPlayers() {
     const roomStatus = useGameStore.getState().roomStatus;
     if (
@@ -379,13 +353,14 @@ export class GameScene extends Phaser.Scene {
       roomStatus === TypeRoomStatus.WaitingForPlayers
     ) {
       const players = useGameStore.getState().players;
-      this.sortPlayers(players);
+      this.sortPlayersData(players);
       this.createTables();
       this.createIcons();
     }
   }
 
-  sortPlayers(players: TypePlayer[]) {
+  //подписка на state.players
+  sortPlayersData(players: TypePlayer[]) {
     this.playersSortedPrev = [...this.playersSorted];
     const me = players.find((player) => player.socketId === this.socketId);
     this.playersSorted = [...useGameStore.getState().players];
@@ -447,6 +422,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  //подписка на state.activeSocketId
   colorIcon(activeId: string) {
     if (useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress) {
       this.icons.forEach((icon) => icon.colorBorder(false));
@@ -471,13 +447,14 @@ export class GameScene extends Phaser.Scene {
     this.deckText = new CardsText(this, textData);
   }
 
+  //подписка на state.deckCounter
   updateDeck(deck: number) {
     if (deck < 8) {
       while (this.deckCards.length > deck) {
         this.deckCards[0].destroy();
       }
     }
-    const text = deck === 1 ? '' : deck.toString();
+    const text = deck <= 1 ? '' : deck.toString();
     this.deckText?.setText(text);
   }
 
@@ -510,6 +487,47 @@ export class GameScene extends Phaser.Scene {
     else if (card.suit === 'hearts') texture.suit = 'H';
     else texture.suit = 'D';
     return texture.rank + texture.suit;
+  }
+
+  //подписка на state.roomStatus
+  startGame(status: TypeRoomStatus) {
+    this.trump = useGameStore.getState().trumpCard;
+    if (status === 'GameInProgress') {
+      this.createTrumpSuit();
+      this.createTrumpCard();
+      //анимацию сделать раздачи + расположения на столах игроков
+      this.createCards();
+      this.createCardsText();
+      //иначе, если до игры он же был активный, то не меняется
+      this.colorIcon(useGameStore.getState().activeSocketId);
+    }
+  }
+
+  createCards() {
+    //сделать сортировка по возрастанию и анимация распределения карт на столе (для главного - рубашой вниз)
+    this.playersCards.forEach((set, ind) => {
+      const arr: Card[] = [];
+      set.forEach((el) => {
+        const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
+        if (ind === 0) item.makeClickable();
+        arr.push(item);
+      });
+      this.playersCardsSprites.push(arr);
+    });
+    this.setCardsPositions();
+  }
+
+  createCardsText() {
+    const textData = { x: 0, y: 70, amount: '' };
+    const cardsWithoutMainPlayer = [...this.playersCards];
+    cardsWithoutMainPlayer.splice(0, 1);
+    cardsWithoutMainPlayer.forEach((set, i) => {
+      textData.x = this.tableSizes[i + 1].startX + 20;
+      if (set.length != 0) textData.amount = set.length.toString();
+      const text = new CardsText(this, textData);
+      text.setDepth(100);
+      this.playersText.push(text);
+    });
   }
 }
 //todo убрать повторящееся создание карт!!!

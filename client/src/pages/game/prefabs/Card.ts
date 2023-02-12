@@ -27,7 +27,7 @@ export class Card extends Phaser.GameObjects.Sprite {
       primaryColor: Phaser.Display.Color.ValueToColor(0xffffff),
       secondaryColor: Phaser.Display.Color.ValueToColor(0xeeee76),
     };
-    this.setInteractive().on('pointerdown', () => this.makeMove());
+    this.setInteractive().on('pointerdown', () => this.onCardClick());
   }
   init() {
     this.scene.add.existing(this);
@@ -44,17 +44,13 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.removeInteractive();
   }
 
-  makeMove() {
-    console.log('try to move');
+  onCardClick() {
+    console.log('on click');
     const socketId = socketIOService.getSocketId();
     const isSocketActive = socketId === useGameStore.getState().activeSocketId;
     const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
-    console.log(socketId, 'socketId')
-    console.log(isGameOn, 'isGameOn')
-    console.log(this.cardType !== undefined, 'this.cardType !== undefined')
     if (isSocketActive && this.cardType !== undefined && isGameOn) {
       console.log('went to server');
-      // this.cardToMove = card;
       const thisPlayer = useGameStore
         .getState()
         .players.filter((player) => player.socketId === socketId)[0];
