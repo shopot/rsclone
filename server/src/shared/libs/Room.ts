@@ -156,6 +156,11 @@ export class Room {
 
     this.currentRound = 1;
 
+    // reset player roles
+    for (const player of this.players) {
+      player.setPlayerRole(TypePlayerRole.Waiting);
+    }
+
     this.activePlayer = this.lastLoser
       ? this.findPreviousPlayerToLastLoser(this.lastLoser)
       : this.findPlayerWithLowestTrump();
