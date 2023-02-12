@@ -9,7 +9,7 @@ import {
   TypeRoomStatus,
   TypePlayerRole,
 } from '../../shared/types';
-import { avatars } from '../../shared/avatars';
+import { avatars, getPlayerAvatarIdx } from '../../shared/avatars';
 import styles from './styles.m.scss';
 
 const renderHTML = (rawHTML: string) =>
@@ -51,10 +51,6 @@ const cardToString = (card: TypeCard) => {
   }
 
   return `${rank}${suit}`;
-};
-
-const getPlayerAvatarIdx = (avatarString: string): number => {
-  return parseInt(avatarString.replace('avatar', ''), 10);
 };
 
 const GamePage = () => {

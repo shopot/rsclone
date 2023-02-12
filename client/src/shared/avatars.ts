@@ -1,3 +1,4 @@
+import { AVATAR_PREFIX } from './constants';
 import avatar01 from '../assets/avatars/01.jpg';
 import avatar02 from '../assets/avatars/02.jpg';
 import avatar03 from '../assets/avatars/03.jpg';
@@ -41,3 +42,11 @@ export const avatars = [
   avatar19,
   avatar20,
 ];
+
+export const getPlayerAvatarIdx = (avatarString: string): number => {
+  return parseInt(avatarString.replace(AVATAR_PREFIX, ''), 10);
+};
+
+export const validateAvatarIdx = (index: number) => {
+  return index >= 0 && index <= avatars.length - 1;
+};
