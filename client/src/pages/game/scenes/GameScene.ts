@@ -6,7 +6,7 @@ import { Card } from '../prefabs/Card';
 import { Suit } from '../prefabs/Suit';
 import { Button } from '../classes/Button';
 import { socketIOService } from '../../../shared/api/socketio';
-import { useGameStore } from '../../../store/gameStore';
+import { TypeGameState, useGameStore } from '../../../store/gameStore';
 import {
   TypeCard,
   TypeDealt,
@@ -78,7 +78,7 @@ export class GameScene extends Phaser.Scene {
     );
 
     const handleActions = useGameStore.subscribe(
-      (state) => state.lastGameAction,
+      (state) => state,
       (data) => this.handleActions(data),
     );
   }
@@ -102,21 +102,28 @@ export class GameScene extends Phaser.Scene {
     //сделать модалку
   }
 
-  async handleActions(lastAction: TypeGameAction) {
+  //подписка на статус целиком. если только на экшены, то они могут не меняться, если несколько игроков делают пасс
+  async handleActions(state: TypeGameState) {
     if (
-      lastAction === TypeGameAction.AttackerMoveCardFailed ||
-      lastAction === TypeGameAction.DefenderMoveCardFailed
+      state.lastGameAction === TypeGameAction.AttackerMoveCardFailed ||
+      state.lastGameAction === TypeGameAction.DefenderMoveCardFailed
     ) {
       this.handleWrongClick();
     } else if (
-      lastAction === TypeGameAction.AttackerMoveCard ||
-      lastAction === TypeGameAction.DefenderMoveCard
+      state.lastGameAction === TypeGameAction.AttackerMoveCard ||
+      state.lastGameAction === TypeGameAction.DefenderMoveCard
     ) {
-      await this.handleClick(lastAction);
-    } else if (lastAction === TypeGameAction.AttackerPass) {
-      if (useGameStore.getState().placedCards.length === 0) await this.handlePass();
-    } else if (lastAction === TypeGameAction.DefenderTakesCards) {
-      if (useGameStore.getState().placedCards.length === 0) await this.handleTake();
+      await this.handleClick(state.lastGameAction);
+    } else if (
+      state.lastGameAction === TypeGameAction.AttackerPass &&
+      state.placedCards.length === 0
+    ) {
+      await this.handlePass();
+    } else if (
+      state.lastGameAction === TypeGameAction.DefenderTakesCards &&
+      state.placedCards.length === 0
+    ) {
+      await this.handleTake();
     }
   }
 
@@ -131,6 +138,7 @@ export class GameScene extends Phaser.Scene {
         }
       });
     });
+    console.log(defenderInd);
     for (const card of this.piles.flat()) {
       card.setAngle(0);
       await card.animateToPlayer(defenderInd, this.playerAmt);
