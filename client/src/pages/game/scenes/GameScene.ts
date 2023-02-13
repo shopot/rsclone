@@ -132,7 +132,7 @@ export class GameScene extends Phaser.Scene {
       const ind = this.piles.flat().indexOf(card);
       await card.animateToBeaten(angle + ind * angle, ind);
     }
-    this.piles.flat().forEach((card) => card.destroy());
+    // this.piles.flat().forEach((card) => card.destroy());
     this.piles = [];
   }
 
