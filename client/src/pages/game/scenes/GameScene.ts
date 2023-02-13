@@ -62,9 +62,9 @@ export class GameScene extends Phaser.Scene {
       (arr) => this.updateButton(arr),
     );
 
-    const gameStarted = useGameStore.subscribe(
+    const handleRoomStatus = useGameStore.subscribe(
       (state) => state.roomStatus,
-      (data) => this.startGame(data),
+      (data) => this.handleRoomStatus(data),
     );
 
     const colorIcon = useGameStore.subscribe(
@@ -91,6 +91,17 @@ export class GameScene extends Phaser.Scene {
     this.createDeck(useGameStore.getState().deckCounter);
   }
 
+  //подписка на румстатус
+  async handleRoomStatus(roomStatus: TypeRoomStatus) {
+    if (roomStatus === TypeRoomStatus.GameInProgress) await this.startGame();
+    if (roomStatus === TypeRoomStatus.GameIsOver) this.endGame();
+  }
+
+  endGame() {
+    // this.scene.start('End');
+    //сделать модалку
+  }
+
   async handleActions(lastAction: TypeGameAction) {
     if (
       lastAction === TypeGameAction.AttackerMoveCardFailed ||
@@ -103,19 +114,23 @@ export class GameScene extends Phaser.Scene {
     ) {
       await this.handleClick(lastAction);
     } else if (lastAction === TypeGameAction.AttackerPass) {
-      // const cards = JSON.stringify(this.playersSorted.map((el) => el.cards).flat());
-      // const prevCards = JSON.stringify(this.playersSortedPrev.map((el) => el.cards).flat());
       if (useGameStore.getState().placedCards.length === 0) await this.handlePass();
     } else if (lastAction === TypeGameAction.DefenderTakesCards) {
-      await this.handleTake();
+      if (useGameStore.getState().placedCards.length === 0) await this.handleTake();
     }
   }
 
   async handleTake() {
-    const defender = this.playersSorted.filter(
-      (player) => player.playerRole === TypePlayerRole.Defender,
-    )[0];
-    const defenderInd = this.playersSorted.indexOf(defender);
+    const spriteValueFromPile = this.piles.flat()[0].value;
+
+    let defenderInd = -1;
+    this.playersCards.forEach((arr) => {
+      arr.forEach((el) => {
+        if (this.getCardTexture(el) === spriteValueFromPile) {
+          defenderInd = this.playersCards.indexOf(arr);
+        }
+      });
+    });
     for (const card of this.piles.flat()) {
       card.setAngle(0);
       await card.animateToPlayer(defenderInd, this.playerAmt);
@@ -124,6 +139,19 @@ export class GameScene extends Phaser.Scene {
     this.piles = [];
     this.setEqualPositionAtHands();
     this.updatePlayersText();
+    // const playersCardsValues = this.playersCards.map((arr) => {
+    //   arr.map((type) => this.getCardTexture(type));
+    // });
+    // const defender = this.playersCards.filter((arr) => arr.includes(spriteValueFromPile))[0];
+    // const defenderInd = this.playersCards.indexOf(defender);
+
+    // const defender = this.playersSortedPrev.filter(
+    //   (player) => player.playerRole === TypePlayerRole.Defender,
+    // )[0];
+    // const defender = this.playersSorted.filter(
+    //   (player) => player.playerRole === TypePlayerRole.Defender,
+    // )[0];
+    // const defenderInd = this.playersSorted.indexOf(defender);
   }
 
   async handlePass() {
@@ -132,7 +160,6 @@ export class GameScene extends Phaser.Scene {
       const ind = this.piles.flat().indexOf(card);
       await card.animateToBeaten(angle + ind * angle, ind);
     }
-    // this.piles.flat().forEach((card) => card.destroy());
     this.piles = [];
   }
 
@@ -337,16 +364,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   //подписка на state.roomStatus
-  async startGame(status: TypeRoomStatus) {
+  async startGame() {
     this.trump = useGameStore.getState().trumpCard;
-    if (status === 'GameInProgress') {
-      this.createTrumpSuit();
-      await this.createTrumpCard();
-      await this.createCardSprites(useGameStore.getState().dealt, 1);
-      this.createCardsText();
-      //иначе, если до игры он же был активный, то не меняется
-      this.colorIcon(useGameStore.getState().activeSocketId);
-    }
+    this.createTrumpSuit();
+    await this.createTrumpCard();
+    await this.createCardSprites(useGameStore.getState().dealt, 1);
+    this.createCardsText();
+    //иначе, если до игры он же был активный, то не меняется
+    this.colorIcon(useGameStore.getState().activeSocketId);
   }
 
   //подписка на state.dealt
