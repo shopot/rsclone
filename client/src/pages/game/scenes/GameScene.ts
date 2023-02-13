@@ -4,7 +4,7 @@ import { Hand } from '../prefabs/Hand';
 import { CardsText } from '../prefabs/CardsText';
 import { Card } from '../prefabs/Card';
 import { Suit } from '../prefabs/Suit';
-import { Button } from '../classes/Button';
+import { Button } from '../prefabs/Button';
 import { socketIOService } from '../../../shared/api/socketio';
 import { TypeGameState, useGameStore } from '../../../store/gameStore';
 import {
@@ -17,6 +17,7 @@ import {
   TypeRoomStatus,
 } from '../../../shared/types';
 import { Icon } from '../classes/Icon';
+import { ButtonLeave } from '../prefabs/ButtonLeave';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -229,13 +230,14 @@ export class GameScene extends Phaser.Scene {
 
   createButtons() {
     this.mainButton = new Button(this);
+    const leaveBtn = new ButtonLeave(this);
     //переделать на красивую кнопку в отдельном классе
-    const handleLeaveRoom = () => {
-      useGameStore.getState().actions.leaveRoom();
-      this.scene.start('End');
-    };
-    const leaveBtn = this.add.text(30, 30, 'leave');
-    leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
+    // const handleLeaveRoom = () => {
+    //   useGameStore.getState().actions.leaveRoom();
+    //   this.scene.start('End');
+    // };
+    // const leaveBtn = this.add.text(30, 30, 'leave');
+    // leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
   }
 
   //подписка на [state.roomStatus, state.activeSocketId]
