@@ -2,7 +2,6 @@ export * from './TypeSocketEvent';
 export * from './TypeServerResponse';
 export * from './TypeSortOrder';
 export * from './TypeGameError';
-export * from './TypeGameErrorType';
 export * from './TypePlayerDto';
 export * from './TypeDealt';
 export * from './TypeCard';
