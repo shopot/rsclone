@@ -98,7 +98,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   endGame() {
-    // this.scene.start('End');
+    this.scene.start('End');
     //сделать модалку
   }
 
@@ -186,7 +186,11 @@ export class GameScene extends Phaser.Scene {
     const playerInd = this.playersCardsSprites.indexOf(player);
     const me = playerInd === 0;
     const spriteInd = player.indexOf(sprite);
-    this.playersCardsSprites[playerInd].splice(spriteInd, 1);
+    if (this.playersCardsSprites[playerInd].length !== 0) {
+      this.playersCardsSprites[playerInd].splice(spriteInd, 1);
+    } else {
+      this.playersCardsSprites[playerInd] = [];
+    }
     isAttacker ? this.piles.push([sprite]) : this.piles[this.piles.length - 1].push(sprite);
     await sprite.animateToTable(pileInd, isAttacker, piles.length, me);
     this.setEqualPositionAtHands();
