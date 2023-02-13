@@ -1,3 +1,4 @@
+import { getErrorMessage } from './../shared/helpers';
 import { RatingService } from './../rating/rating.service';
 import { HistoryService } from './../history/history.service';
 import {
@@ -7,6 +8,7 @@ import {
   TypeGameErrorType,
   TypeCard,
   TypeGameStats,
+  TypeGameError,
 } from './../shared/types';
 
 import { Injectable } from '@nestjs/common';
@@ -20,14 +22,43 @@ import { GameReceiveDto } from './dto';
 export class GameService {
   private rooms: Map<string, Room>;
   public server: Server;
+  private roomId: string;
+  private room: Room | null;
 
   constructor(
     private historyService: HistoryService,
     private ratingService: RatingService,
   ) {
     this.rooms = new Map();
+    this.roomId = '';
+    this.room = null;
   }
 
+  /**
+   * Set room and rooId
+   *
+   * @param ident - roomId or client socket
+   */
+  private initRoom(ident: string | Socket): void {
+    if (ident instanceof Socket) {
+      this.roomId = this.getRoomIdByClientSocket(ident);
+    } else if (typeof ident === 'string') {
+      this.roomId = ident;
+    } else {
+      this.roomId = '';
+      this.room = null;
+
+      return;
+    }
+
+    this.room = this.getRoomById(this.roomId);
+  }
+
+  /**
+   * Returns Room instance or null
+   * @param {string} roomId
+   * @returns - Room instance or null if room not exists
+   */
   private getRoomById(roomId: string): Room | null {
     const room = this.rooms.get(roomId);
 
@@ -55,11 +86,15 @@ export class GameService {
 
     return rooms;
   }
+
   /**
    * Create room
+   *
+   * Event: GameCreateRoom
+   *
    * @param {GameReceiveDto} data
-   * @param {Socket} socket - Client socket
-   * @returns {TypeServerResponse} - Data for send as a payload to client
+   * @param {Socket} socket - Socket client owner emitter
+   * @returns {TypeServerResponse } - Server response object
    */
   public createRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
     const { playerName, playerAvatar } = data;
@@ -77,33 +112,34 @@ export class GameService {
       roomId = generateRoomId();
     } while (this.rooms.has(roomId));
 
-    socket.join(roomId);
+    this.roomId = roomId;
 
-    const room = new Room(roomId, hostPlayer, this);
+    socket.join(this.roomId);
 
-    this.rooms.set(roomId, room);
+    this.room = new Room(this.roomId, hostPlayer, this);
 
-    return this.createResponseObject({ roomId });
+    this.rooms.set(this.roomId, this.room);
+
+    return this.createResponseObject();
   }
 
   /**
    * Join player to room
-   * @param {GameReceiveDto} data
-   * @param {Socket} socket
-   * @returns {void}
+   *
+   * Event: GameJoinRoom
+   *
+   * @param {GameReceiveDto} data - Player data
+   * @param {Socket} client - Socket client owner emitter
+   * @returns {TypeServerResponse } - Server response object
    */
   public joinRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
     const { roomId, playerName, playerAvatar } = data;
 
-    const room = this.rooms.get(roomId);
+    this.initRoom(roomId);
 
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
       });
     }
 
@@ -114,345 +150,311 @@ export class GameService {
       TypePlayerMember.Regular,
     );
 
-    const result = room.joinRoom(player);
+    const result = this.room.joinRoom(player);
 
     if (result !== true) {
-      return this.createResponseObject({
-        roomId,
-        error: result,
-      });
+      return this.createResponseErrorObject(result);
     }
 
-    socket.join(room.getRoomId());
+    socket.join(this.room.getRoomId());
 
-    return this.createResponseObject({ roomId });
+    return this.createResponseObject();
   }
 
+  /**
+   * Player leave room
+   *
+   * Event: GameLeaveRoom
+   *
+   * @param {Socket} client - Socket client owner emitter
+   * @returns {TypeServerResponse | null} - Server response object or null
+   */
   public setLeaveRoom(client: Socket): TypeServerResponse | null {
-    const roomId = this.getRoomIdByClientSocket(client);
+    this.initRoom(client);
 
-    // even if room no longer exists, socket may still have subscription to such room id
-    client.leave(roomId);
+    // Even if room no longer exists, socket may still have subscription to such room id
+    client.leave(this.roomId);
 
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
       });
     }
 
-    room.leaveRoom(client.id);
+    this.room.leaveRoom(client.id);
 
-    if (room.getPlayersCount() === 0) {
-      this.closeRoomById(roomId);
+    if (this.room.getPlayersCount() === 0) {
+      this.closeRoomById(this.roomId);
 
       return null;
     }
 
-    return this.createResponseObject({ roomId });
+    return this.createResponseObject();
   }
 
+  /**
+   * Host player start game
+   *
+   * Event: GameStart
+   *
+   * @param {Socket} client - Socket client owner emitter
+   * @returns {TypeServerResponse} - Server response object
+   */
   public startGame(client: Socket): TypeServerResponse {
-    const roomId = this.getRoomIdByClientSocket(client);
+    this.initRoom(client);
 
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
       });
     }
 
-    if (client.id !== room.getHostPlayerSocketId()) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameStartFailed,
-          message: 'Only host player can start the game',
-        },
+    if (client.id !== this.room.getHostPlayerSocketId()) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameStartFailed,
       });
     }
 
-    const result = room.start();
+    const result = this.room.start();
+
     if (result !== true) {
-      return this.createResponseObject({ roomId, error: result });
+      return this.createResponseErrorObject(result);
     }
 
-    return this.createResponseObject({ roomId });
+    return this.createResponseObject();
   }
 
   public setChatMessage(
     data: GameReceiveDto,
     client: Socket,
   ): TypeServerResponse {
-    const roomId = this.getRoomIdByClientSocket(client);
+    this.initRoom(client);
 
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
       });
     }
 
-    const result = room.addChatMessage(client.id, data.message);
-    if (result !== true) {
-      return this.createResponseObject({
-        roomId,
-        error: result,
-      });
-    }
-
-    return this.createResponseObject({ roomId });
-  }
-
-  public setCardOpen(client: Socket, card: TypeCard): TypeServerResponse {
-    const roomId = this.getRoomIdByClientSocket(client);
-
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
-      });
-    }
-
-    if (client.id !== room.getActivePlayerSocketId()) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.OpenCardFailed,
-          message: 'Only active player is allowed to perform this action',
-        },
-      });
-    }
-
-    const result = room.setAttackerOpen(card);
+    const result = this.room.addChatMessage(client.id, data.message);
 
     if (result !== true) {
-      return this.createResponseObject({ roomId, error: result });
+      return this.createResponseErrorObject(result);
     }
 
-    return this.createResponseObject({
-      roomId,
-    });
-  }
-
-  public setCardClose(client: Socket, card: TypeCard): TypeServerResponse {
-    const roomId = this.getRoomIdByClientSocket(client);
-
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
-      });
-    }
-
-    if (client.id !== room.getActivePlayerSocketId()) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.CloseCardFailed,
-          message: 'Only active player is allowed to perform this action',
-        },
-      });
-    }
-
-    const result = room.setDefenderClose(card);
-
-    if (result !== true) {
-      return this.createResponseObject({ roomId, error: result });
-    }
-
-    return this.createResponseObject({
-      roomId,
-    });
-  }
-
-  public setAttackerPass(client: Socket): TypeServerResponse {
-    const roomId = this.getRoomIdByClientSocket(client);
-
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
-      });
-    }
-
-    if (client.id !== room.getActivePlayerSocketId()) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.AttackerPassFailed,
-          message: 'Only active player is allowed to perform this action',
-        },
-      });
-    }
-
-    const result = room.setAttackerPass();
-    if (result !== true) {
-      return this.createResponseObject({ roomId, error: result });
-    }
-
-    return this.createResponseObject({
-      roomId,
-    });
+    return this.createResponseObject();
   }
 
   /**
-   * Event GamePickUpCards
+   * Player attacker put card on the table
+   *
+   * Event: GameCardOpen
+   *
    * @param {Socket} client - Socket client owner emitter
+   * @param {TypeCard} card - Card from player
+   * @returns {TypeServerResponse} - Server response object
    */
-  public setDefenderPickUpCards(client: Socket): TypeServerResponse {
-    const roomId = this.getRoomIdByClientSocket(client);
+  public setCardOpen(client: Socket, card: TypeCard): TypeServerResponse {
+    this.initRoom(client);
 
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
       });
     }
 
-    if (client.id !== room.getActivePlayerSocketId()) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.DefenderPickupFailed,
-          message: 'Only active player is allowed to perform this action',
-        },
+    if (client.id !== this.room.getActivePlayerSocketId()) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.OpenCardFailed,
+      });
+    }
+
+    const result = this.room.setAttackerOpen(card);
+
+    if (result !== true) {
+      return this.createResponseErrorObject(result);
+    }
+
+    return this.createResponseObject();
+  }
+
+  /**
+   * Player defender try yo beat card
+   *
+   * Event: GameCardClose
+   *
+   * @param {Socket} client - Socket client owner emitter
+   * @param {TypeCard} card - Card from player
+   * @returns {TypeServerResponse} - Server response object
+   */
+  public setCardClose(client: Socket, card: TypeCard): TypeServerResponse {
+    this.initRoom(client);
+
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
+      });
+    }
+
+    if (client.id !== this.room.getActivePlayerSocketId()) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.CloseCardFailed,
+      });
+    }
+
+    const result = this.room.setDefenderClose(card);
+
+    if (result !== true) {
+      return this.createResponseErrorObject(result);
+    }
+
+    return this.createResponseObject();
+  }
+
+  /**
+   * Player attacker pass
+   *
+   * Event: GameAttackerPass
+   *
+   * @param  {Socket} client - Socket client owner emitter
+   * @returns {TypeServerResponse} - Server response object
+   */
+  public setAttackerPass(client: Socket): TypeServerResponse {
+    this.initRoom(client);
+
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
+      });
+    }
+
+    if (client.id !== this.room.getActivePlayerSocketId()) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.AttackerPassFailed,
+      });
+    }
+
+    const result = this.room.setAttackerPass();
+
+    if (result !== true) {
+      return this.createResponseErrorObject(result);
+    }
+
+    return this.createResponseObject();
+  }
+
+  /**
+   * Player defender takes card
+   *
+   * Event: GamePickUpCards
+   *
+   * @param  {Socket} client - Socket client owner emitter
+   * @returns {TypeServerResponse} - Server response object
+   */
+  public setDefenderPickUpCards(client: Socket): TypeServerResponse {
+    this.initRoom(client);
+
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
+      });
+    }
+
+    if (client.id !== this.room.getActivePlayerSocketId()) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.DefenderPickupFailed,
       });
     }
 
     // at the moment method always ends with success
-    const result = room.setDefenderPickUpCards();
+    const result = this.room.setDefenderPickUpCards();
+
     if (result !== true) {
-      return this.createResponseObject({ roomId, error: result });
+      return this.createResponseErrorObject(result);
     }
 
-    return this.createResponseObject({
-      roomId,
-    });
+    return this.createResponseObject();
   }
 
+  /**
+   * Restart game
+   *
+   * @param {Socket} client - Player who owner room
+   * @returns {TypeServerResponse} - Server response object
+   */
   public setGameRestart(client: Socket): TypeServerResponse {
-    const roomId = this.getRoomIdByClientSocket(client);
+    this.initRoom(client);
 
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
       });
     }
 
-    if (client.id !== room.getHostPlayerSocketId()) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRestartFailed,
-          message: 'Only host player can restart the game',
-        },
+    if (client.id !== this.room.getHostPlayerSocketId()) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRestartFailed,
       });
     }
 
-    const result = room.restart();
+    const result = this.room.restart();
 
     if (result !== true) {
-      return this.createResponseObject({ roomId, error: result });
+      return this.createResponseErrorObject(result);
     }
 
-    return this.createResponseObject({
-      roomId,
-    });
+    return this.createResponseObject();
   }
 
+  /**
+   * Open game for invite new players
+   *
+   * @param {Socket} client - Player who owner room
+   * @returns {TypeServerResponse} - Server response object
+   */
   public setRoomOpen(client: Socket): TypeServerResponse {
-    const roomId = this.getRoomIdByClientSocket(client);
+    this.initRoom(client);
 
-    const room = this.getRoomById(roomId);
-
-    if (!room) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomNotFound,
-          message: 'Room not found',
-        },
+    if (!this.room) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomNotFound,
       });
     }
 
-    if (client.id !== room.getHostPlayerSocketId()) {
-      return this.createResponseObject({
-        roomId,
-        error: {
-          type: TypeGameErrorType.GameRoomOpenFailed,
-          message: 'Only host player can open the room',
-        },
+    if (client.id !== this.room.getHostPlayerSocketId()) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.GameRoomOpenFailed,
       });
     }
 
-    const result = room.open();
+    const result = this.room.open();
 
     if (result !== true) {
-      return this.createResponseObject({ roomId, error: result });
+      return this.createResponseErrorObject(result);
     }
 
-    return this.createResponseObject({
-      roomId,
-    });
+    return this.createResponseObject();
   }
 
-  public getRoomState(roomId: string): TypeServerResponse {
-    return this.createResponseObject({ roomId });
-  }
-
-  public getRoomIdByClientSocket(client: Socket) {
+  /**
+   * Return room id as sting
+   *
+   * Used in WebSocketGateway same
+   *
+   * @param {Socket} client
+   * @returns {string} - Room id
+   */
+  public getRoomIdByClientSocket(client: Socket): string {
     let roomId = '';
 
-    loop1: for (const room of this.rooms.values()) {
+    exitLoop: for (const room of this.rooms.values()) {
       const players = room.getPlayers();
 
       for (const player of players) {
         if (player.getSocketId() === client.id) {
           roomId = room.getRoomId();
 
-          break loop1;
+          break exitLoop;
         }
       }
     }
@@ -460,12 +462,23 @@ export class GameService {
     return roomId;
   }
 
+  /**
+   * Used by Room instance
+   *
+   * @param {TypeGameStats} stats
+   */
   public async updateGameHistory(stats: TypeGameStats): Promise<void> {
     if (stats.roomId) {
       this.historyService.create(stats);
     }
   }
 
+  /**
+   * Used by Room instance
+   *
+   * @param {string} player
+   * @param {number} wins - Player is win = 1 or else 0
+   */
   public async updatePlayerStats(player: string, wins: number) {
     const playerInfo = await this.ratingService.findOne(player);
 
@@ -482,27 +495,62 @@ export class GameService {
   }
 
   /**
+   * Return response object with room state
+   *
+   * @param {sting} roomId - Room id
+   * @returns {TypeServerResponse} - Server response object
+   */
+  public getRoomState(roomId: string): TypeServerResponse {
+    this.initRoom(roomId);
+
+    return this.createResponseObject();
+  }
+
+  /**
+   * Return response object with error object
+   *
+   * @param {TypeGameError} data - Type and error message
+   * @returns {TypeServerResponse} - Server response object
+   */
+  private createResponseErrorObject(
+    data: Partial<TypeGameError>,
+  ): TypeServerResponse {
+    const { message } = data;
+    const type = data.type || TypeGameErrorType.UnknownError;
+
+    return this.createResponseObject({
+      error: {
+        type,
+        message: message || getErrorMessage(type),
+      },
+    });
+  }
+
+  /**
    * Returns response object
+   *
    * @param {Partial<TypeServerResponse>} payload
    * @returns {TypeServerResponse}
    */
   private createResponseObject(
-    payload: TypeServerResponse,
+    payload?: Partial<TypeServerResponse>,
   ): TypeServerResponse {
-    const { roomId } = payload;
-
-    const room = this.getRoomById(roomId);
-
-    if (room) {
+    if (this.room) {
       return {
-        ...room.getState(),
-        ...payload,
+        ...this.room.getState(),
+        ...(payload || {}),
       };
     }
 
     throw new Error('Room not found. Something went wrong.');
   }
 
+  /**
+   * Used in WebSocketGateway
+   *
+   * @param {Socket} client
+   * @returns {boolean}
+   */
   public hasPlayerInRoomByClientSocket(client: Socket): boolean {
     return !!this.getRoomIdByClientSocket(client);
   }
