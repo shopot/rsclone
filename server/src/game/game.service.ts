@@ -486,7 +486,7 @@ export class GameService {
       this.ratingService.update({
         player,
         wins: playerInfo.wins + wins,
-        total: (playerInfo.total = 1),
+        total: playerInfo.total + 1,
       });
     } else {
       this.ratingService.create({ player, wins, total: 1 });
