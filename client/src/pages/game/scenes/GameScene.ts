@@ -13,7 +13,6 @@ import {
   TypeGameAction,
   TypePlacedCard,
   TypePlayer,
-  TypePlayerRole,
   TypeRoomStatus,
 } from '../../../shared/types';
 import { Icon } from '../classes/Icon';
@@ -46,6 +45,14 @@ export class GameScene extends Phaser.Scene {
   trumpCard: Card | undefined;
   rounds: number[] = [];
   prevPlacedCards: TypePlacedCard[] = [];
+  sounds:
+    | {
+        placeCard: Phaser.Sound.BaseSound;
+        loser: Phaser.Sound.BaseSound;
+        toBeaten: Phaser.Sound.BaseSound;
+        fromDeck: Phaser.Sound.BaseSound;
+      }
+    | undefined;
 
   constructor() {
     super('Game');
@@ -96,6 +103,15 @@ export class GameScene extends Phaser.Scene {
     this.createButtons();
     this.setPlayers();
     this.createDeck(useGameStore.getState().deckCounter);
+    this.createSounds();
+  }
+  createSounds() {
+    this.sounds = {
+      placeCard: this.sound.add('placeCard'),
+      loser: this.sound.add('loser'),
+      toBeaten: this.sound.add('toBeaten'),
+      fromDeck: this.sound.add('fromDeck'),
+    };
   }
 
   //подписка на румстатус
@@ -176,12 +192,14 @@ export class GameScene extends Phaser.Scene {
     const angle = 180 / (this.piles.flat().length + 1);
     for (const card of this.piles.flat()) {
       const ind = this.piles.flat().indexOf(card);
+      this.sounds?.toBeaten.play({ volume: 0.5 });
       await card.animateToBeaten(angle + ind * angle, ind);
     }
     this.piles = [];
   }
 
   async handleClick(lastAction: TypeGameAction) {
+    this.sounds?.placeCard.play({ volume: 0.5 });
     const isAttacker = lastAction === TypeGameAction.AttackerMoveCard;
     const currPlaced = useGameStore.getState().placedCards;
     const piles = currPlaced.length !== 0 ? currPlaced : this.prevPlacedCards;
@@ -231,13 +249,6 @@ export class GameScene extends Phaser.Scene {
   createButtons() {
     this.mainButton = new Button(this);
     const leaveBtn = new ButtonLeave(this);
-    //переделать на красивую кнопку в отдельном классе
-    // const handleLeaveRoom = () => {
-    //   useGameStore.getState().actions.leaveRoom();
-    //   this.scene.start('End');
-    // };
-    // const leaveBtn = this.add.text(30, 30, 'leave');
-    // leaveBtn.setInteractive().on('pointerdown', handleLeaveRoom);
   }
 
   //подписка на [state.roomStatus, state.activeSocketId]
@@ -436,6 +447,7 @@ export class GameScene extends Phaser.Scene {
     //если будет время, сохранять самой карты в колоде и по одной убирать
     for (const arr of this.dealtSprites) {
       for (const sprite of arr) {
+        this.sounds?.fromDeck.play({ volume: 0.5 });
         await sprite.animateToPlayer(this.dealtSprites.indexOf(arr), this.dealtSprites.length);
       }
     }
