@@ -1,3 +1,21 @@
+@keyframes logo-anim {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(3deg);
+  }
+
+  50% {
+    transform: rotate(0deg);
+  }
+
+  75% {
+    transform: rotate(-3deg);
+  }
+}
+
 .innerContainer {
   width: 100%;
   position: relative;
@@ -25,12 +43,13 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  animation: logo-anim 2s linear infinite;
 }
 
 .durakLogoHat {
   width: 100%;
   max-width: 320px;
-  opacity: .7;
+  opacity: 0.7;
   position: relative;
   top: 36px;
   z-index: 1;
@@ -59,10 +78,7 @@
   padding: 4px 20px;
   width: 100%;
   max-width: 300px;
-  background: linear-gradient(120deg,
-      #d98a05,
-      #face43,
-      #d98a05);
+  background: linear-gradient(120deg, #d98a05, #face43, #d98a05);
   border-radius: 30px;
   text-shadow: 1px 1px 2px rgb(0 0 0 / 50%);
   box-shadow: 5px 5px 5px 0 rgb(0 0 0 / 70%);
@@ -77,16 +93,13 @@
 }
 
 .startButton::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(120deg,
-      transparent,
-      rgb(255 255 255 / 40%),
-      transparent);
+  background: linear-gradient(120deg, transparent, rgb(255 255 255 / 40%), transparent);
   transition: all 650ms;
   animation: slide-flash 2s, pause-slide-flash 6s;
   animation-timing-function: ease-in-out;
