@@ -137,6 +137,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const results = this.gameService.setGameRestart(client);
 
+    this.handleGetRooms();
     this.sendStateToClientByClientSocket(client, results);
   }
 
@@ -151,6 +152,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const results = this.gameService.setRoomOpen(client);
 
+    this.handleGetRooms();
     this.sendStateToClientByClientSocket(client, results);
   }
 
