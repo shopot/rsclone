@@ -6,7 +6,7 @@ import { Card } from '../prefabs/Card';
 import { Suit } from '../prefabs/Suit';
 import { Button } from '../classes/Button';
 import { socketIOService } from '../../../shared/api/socketio';
-import { useGameStore } from '../../../store/gameStore';
+import { TypeGameState, useGameStore } from '../../../store/gameStore';
 import {
   TypeCard,
   TypeDealt,
@@ -24,7 +24,7 @@ export const enum TypeButtonStatus {
 }
 
 export class GameScene extends Phaser.Scene {
-  piles: Card[][] = []; // стопочек на столе
+  piles: Card[][] = [];
   playersCardsSprites: Card[][] = [];
   handSizes: { width: number; height: number; startX: number }[] = [];
   playersSorted: TypePlayer[] = [];
@@ -41,6 +41,8 @@ export class GameScene extends Phaser.Scene {
   dealtSprites: Card[][] = [];
   playerAmt = 0;
   prevDealt: TypeDealt[] = [];
+  trumpCard: Card | undefined;
+  rounds: number[] = [];
 
   constructor() {
     super('Game');
@@ -79,6 +81,10 @@ export class GameScene extends Phaser.Scene {
       (state) => state.lastGameAction,
       (data) => this.handleActions(data),
     );
+    // const saveRounds = useGameStore.subscribe(
+    //   (state) => state,
+    //   (currState, prevState) => this.saveRounds(currState, prevState),
+    // );
   }
 
   create() {
@@ -101,7 +107,9 @@ export class GameScene extends Phaser.Scene {
     ) {
       await this.handleClick(lastAction);
     } else if (lastAction === TypeGameAction.AttackerPass) {
-      await this.handlePass();
+      // const cards = JSON.stringify(this.playersSorted.map((el) => el.cards).flat());
+      // const prevCards = JSON.stringify(this.playersSortedPrev.map((el) => el.cards).flat());
+      if (useGameStore.getState().placedCards.length === 0) await this.handlePass();
     } else if (lastAction === TypeGameAction.DefenderTakesCards) {
       await this.handleTake();
     }
@@ -123,11 +131,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handlePass() {
-    // const angle = 180 / (this.piles.flat().length + 1);
+    const angle = 180 / (this.piles.flat().length + 1);
     for (const card of this.piles.flat()) {
-      await card.animateToBeaten();
-      // const ind = this.piles.flat().indexOf(card);
-      // await card.animateToBeaten(angle + ind * angle, ind);
+      const ind = this.piles.flat().indexOf(card);
+      await card.animateToBeaten(angle + ind * angle, ind);
     }
     this.piles.flat().forEach((card) => card.destroy());
     this.piles = [];
@@ -426,24 +433,20 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  createDeck(deck: number) {
-    //потом вынести в отдельный класс
-    const max = deck > 8 ? 8 : deck - 1;
-    for (let i = 0; i < max - 1; i++) {
-      const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack').setAngle(
-        10,
-      );
-      card.makeNotClickable();
+  createDeck(deckAmt: number) {
+    for (let i = 0; i < 8; i++) {
+      const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack');
+      card.positionDeck();
       this.deckCards.push(card);
     }
-    const textData = { x: 30, y: config.height / 2 - 80, amount: deck.toString() };
+    const textData = { x: 30, y: config.height / 2 - 80, amount: deckAmt.toString() };
     this.deckText = new CardsText(this, textData).setDepth(100);
   }
 
   async createTrumpCard() {
     const texture = this.getCardTexture(this.trump);
-    const trumpCard = new Card(this, 80, config.height / 2, 'cards', texture, this.trump);
-    await trumpCard.positionTrump();
+    this.trumpCard = new Card(this, 80, config.height / 2, 'cards', texture, this.trump);
+    await this.trumpCard.positionTrump();
   }
 
   createTrumpSuit() {
@@ -484,20 +487,15 @@ export class GameScene extends Phaser.Scene {
     const round = useGameStore.getState().currentRound;
     const isNew = JSON.stringify(this.prevDealt) !== JSON.stringify(dealt);
     if (dealtCards.length !== 0 && round > 1 && isNew) {
-      console.log('will create new sprites 1');
       await this.createCardSprites(dealt, round);
       this.prevDealt = dealt;
     }
   }
 
   async createCardSprites(dealt: TypeDealt[], round: number) {
-    console.log('will create new sprites 2');
     //= создание новых спрайтов, если идет раздача из колоды
     const sortedDealt: TypeCard[][] = [];
-    console.log(dealt, 'dealt')
-    console.log(sortedDealt, 'sortedDealt')
     const playersId = [...this.playersSorted].map((data) => data.socketId);
-    console.log(playersId, 'playersId')
     playersId.forEach((id) => {
       const cardsArr = [...dealt].filter((info) => info.socketId === id)[0].cards;
       sortedDealt.push(cardsArr);
@@ -513,17 +511,14 @@ export class GameScene extends Phaser.Scene {
       this.dealtSprites.push(arr);
       if (round <= 1) this.playersCardsSprites.push(arr);
     });
-    console.log('will animateFromDeckToPlayers 1')
     await this.animateFromDeckToPlayers();
   }
 
   async animateFromDeckToPlayers() {
-    console.log('will animateFromDeckToPlayers 2')
     //если будет время, сделать чередование карт, а не сначала одному, потом другому
     //если будет время, сохранять самой карты в колоде и по одной убирать
     for (const arr of this.dealtSprites) {
       for (const sprite of arr) {
-        console.log(sprite, 'sprite from this.dealtSprites')
         await sprite.animateToPlayer(this.dealtSprites.indexOf(arr), this.dealtSprites.length);
       }
     }
@@ -534,13 +529,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   updateDeck() {
-    const deck = useGameStore.getState().deckCounter;
-    if (deck < 8) {
-      while (this.deckCards.length > deck) {
-        this.deckCards.pop();
-      }
+    const deckAmt = useGameStore.getState().deckCounter;
+    if (deckAmt < 8) {
+      this.deckCards.forEach((card) => card.destroy());
+      if (deckAmt > 1) {
+        for (let i = 0; i < deckAmt - 1; i++) {
+          const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack');
+          card.positionDeck();
+          this.deckCards.push(card);
+        }
+      } else if (deckAmt === 0) this.trumpCard?.destroy();
     }
-    const text = deck <= 1 ? '' : deck.toString();
+    const text = deckAmt <= 1 ? '' : deckAmt.toString();
     this.deckText?.setText(text);
   }
 

@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { TypeCard, TypeRoomStatus } from '../../../shared/types';
 import { config } from '../index';
 import { socketIOService } from '../../../shared/api/socketio';
-import { useGameStore, TypeGameState } from '../../../store/gameStore';
+import { useGameStore } from '../../../store/gameStore';
 
 export class Card extends Phaser.GameObjects.Sprite {
   value: string;
@@ -82,6 +82,11 @@ export class Card extends Phaser.GameObjects.Sprite {
         onComplete: resolve,
       });
     });
+  }
+
+  positionDeck() {
+    this.setAngle(10);
+    this.makeNotClickable();
   }
 
   positionDeckCard(isForMainPlayer: boolean) {
@@ -164,36 +169,37 @@ export class Card extends Phaser.GameObjects.Sprite {
     });
   }
 
-  // async animateToBeaten(cardAngle: number, index: number) {
-  //   this.setFrame('cardBack');
-  //   await new Promise((resolve) => {
-  //     this.scene.tweens.add({
-  //       targets: this,
-  //       x: config.width,
-  //       y: config.height / 2 - 20,
-  //       scale: 0.7,
-  //       ease: 'Linear',
-  //       duration: 100,
-  //       angle: cardAngle,
-  //       onComplete: resolve,
-  //     });
-  //     this.setDepth(index + 2);
-  //   });
-  // }
-
-  async animateToBeaten() {
+  async animateToBeaten(cardAngle: number, index: number) {
     this.setFrame('cardBack');
     await new Promise((resolve) => {
       this.scene.tweens.add({
         targets: this,
-        x: config.width + config.cardSize.w,
+        x: config.width,
         y: config.height / 2 - 20,
+        scale: 0.7,
         ease: 'Linear',
         duration: 100,
+        angle: cardAngle,
         onComplete: resolve,
       });
+      this.setDepth(index + 2);
     });
   }
+
+  //версия за пределы
+  // async animateToBeaten() {
+  //   this.setFrame('cardBack');
+  //   await new Promise((resolve) => {
+  //     this.scene.tweens.add({
+  //       targets: this,
+  //       x: config.width + config.cardSize.w,
+  //       y: config.height / 2 - 20,
+  //       ease: 'Linear',
+  //       duration: 100,
+  //       onComplete: resolve,
+  //     });
+  //   });
+  // }
 
   async redrawTable(cardindex: number, pileIndex: number, piles: number) {
     const isAttacking = cardindex === 0 ? true : false;

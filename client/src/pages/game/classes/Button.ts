@@ -6,7 +6,6 @@ export class Button {
   btnShape: Phaser.GameObjects.Graphics;
   btnText: Phaser.GameObjects.Text;
   bgColors: { active: number; inactive: number; focus: number };
-  // text: string[];
   textColors: { active: number; inactive: number };
   params: { x: number; y: number; width: number; height: number; rounded: number };
   status: TypeButtonStatus;
