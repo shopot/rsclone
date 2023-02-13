@@ -845,9 +845,10 @@ export class Room {
   }
 
   /**
-   * Update game stats after set roomStatus = TypeRoomStatus.GameIsOver
+   * Updates game stats and saves game results to DB
    */
-  private updateGameStats(): void {
+  private async updateGameStats(): Promise<void> {
+    // Update stats
     this.gameStats = {
       roomId: this.roomId,
       players: this.startingPlayerNames.join('#'),
@@ -855,6 +856,16 @@ export class Room {
       duration: Date.now() - this.gameTimeStart,
       rounds: this.currentRound,
     };
+
+    // Write stats to DB
+    await this.gameService.updateGameHistory(this.gameStats);
+
+    // Update players stats
+    for (const playerName of this.startingPlayerNames) {
+      const isLoser =
+        this.lastLoser && this.lastLoser.getPlayerName() === playerName;
+      await this.gameService.updatePlayerStats(playerName, isLoser ? 0 : 1);
+    }
   }
 
   /**
@@ -863,18 +874,7 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
-    // Update stats
     this.updateGameStats();
-
-    // Write stats to DB
-    this.gameService.updateGameHistory(this.gameStats);
-
-    // Update players stats
-    for (const playerName of this.startingPlayerNames) {
-      const isLoser =
-        this.lastLoser && this.lastLoser.getPlayerName() === playerName;
-      this.gameService.updatePlayerStats(playerName, isLoser ? 0 : 1);
-    }
   }
 
   /**
