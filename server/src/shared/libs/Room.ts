@@ -885,8 +885,8 @@ export class Room {
     return {
       roomId: this.roomId,
       roomStatus: this.roomStatus || TypeRoomStatus.WaitingForPlayers,
-      hostSocketId: this.hostPlayer.getSocketId(),
-      activeSocketId: this.activePlayer.getSocketId(),
+      hostSocketId: this.hostPlayer?.getSocketId(),
+      activeSocketId: this.activePlayer?.getSocketId(),
       players: this.players.getPlayersAsDto(),
       chat: this.chat,
       trumpCard: this.getDeck().getTrumpCard().getCardDto() || {
