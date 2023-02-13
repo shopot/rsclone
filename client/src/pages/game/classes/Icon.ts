@@ -15,6 +15,7 @@ export class Icon {
     tableSizes: { width: number; height: number; startX: number }[],
     nickname: string,
     socketId: string,
+    avatar: string,
   ) {
     this.scene = scene;
     this.socketId = socketId;
@@ -22,7 +23,7 @@ export class Icon {
     const x = tableSizes[index].startX;
     const spriteY = index === 0 ? config.height - config.cardSize.h + 25 : 82;
     //поменять на конркетную иконку
-    this.pic = new IconPic(this.scene, x - 40, spriteY, 'icons', config.icons[index]);
+    this.pic = new IconPic(this.scene, x - 40, spriteY, 'icons', avatar);
     //должен меняться цвет рамки на зеленый, когда ходит и на серый после
     this.border = new IconBorder(this.scene, x - 68, spriteY - 27, 55, 55, 5);
 

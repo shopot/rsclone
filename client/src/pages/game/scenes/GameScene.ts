@@ -330,11 +330,11 @@ export class GameScene extends Phaser.Scene {
       this.icons.forEach((el) => el.destroy());
       this.icons = [];
     }
-    //решить вопрос с назначением иконок, не должны меняться!
     for (let i = 0; i < this.playersSorted.length; i++) {
       const nickname = this.playersSorted[i].playerName;
       const socketId = this.playersSorted[i].socketId;
-      const icon = new Icon(this, i, this.handSizes, nickname, socketId);
+      const avatar = this.playersSorted[i].playerAvatar;
+      const icon = new Icon(this, i, this.handSizes, nickname, socketId, avatar);
       this.icons.push(icon);
     }
   }

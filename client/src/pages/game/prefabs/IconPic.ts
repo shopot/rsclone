@@ -3,7 +3,7 @@ export class IconPic extends Phaser.GameObjects.Sprite {
     super(scene, x, y, texture, frame);
     this.scene = scene;
     this.scene.add.existing(this);
-    this.setScale(0.3);
+    this.setScale(0.9);
     // this.scene.tweens.add({
     //   targets: this,
     //   scaleX: 0,
