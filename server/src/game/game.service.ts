@@ -512,8 +512,11 @@ export class GameService {
    * @param {TypeGameError} data - Type and error message
    * @returns {TypeServerResponse} - Server response object
    */
-  private createResponseErrorObject(data: TypeGameError): TypeServerResponse {
-    const { type, message } = data;
+  private createResponseErrorObject(
+    data: Partial<TypeGameError>,
+  ): TypeServerResponse {
+    const { message } = data;
+    const type = data.type || TypeGameErrorType.UnknownError;
 
     return this.createResponseObject({
       error: {

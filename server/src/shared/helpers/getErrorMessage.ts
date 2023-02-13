@@ -41,6 +41,9 @@ export const getErrorMessage = (type: TypeGameErrorType): string => {
     case TypeGameErrorType.MessageSendFailed: {
       return 'Message send failed.';
     }
+    case TypeGameErrorType.UnknownError: {
+      return 'Unknown error';
+    }
     default:
       return 'Unknown error.';
   }
