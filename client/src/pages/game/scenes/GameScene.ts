@@ -11,6 +11,7 @@ import {
   TypeCard,
   TypeDealt,
   TypeGameAction,
+  TypePlacedCard,
   TypePlayer,
   TypePlayerRole,
   TypeRoomStatus,
@@ -43,10 +44,10 @@ export class GameScene extends Phaser.Scene {
   prevDealt: TypeDealt[] = [];
   trumpCard: Card | undefined;
   rounds: number[] = [];
+  prevPlacedCards: TypePlacedCard[] = [];
 
   constructor() {
     super('Game');
-
     const setPlayers = useGameStore.subscribe(
       (state) => state.players.length,
       (data) => this.setPlayers(),
@@ -80,6 +81,11 @@ export class GameScene extends Phaser.Scene {
     const handleActions = useGameStore.subscribe(
       (state) => state,
       (data) => this.handleActions(data),
+    );
+
+    const saveTableCards = useGameStore.subscribe(
+      (state) => state.placedCards,
+      (piles, prevPiles) => this.saveTableCards(piles, prevPiles),
     );
   }
 
@@ -127,6 +133,10 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  saveTableCards(prevPlaced: TypePlacedCard[], currPlaced: TypePlacedCard[]) {
+    this.prevPlacedCards = prevPlaced;
+  }
+
   async handleTake() {
     const spriteValueFromPile = this.piles.flat()[0].value;
 
@@ -138,7 +148,6 @@ export class GameScene extends Phaser.Scene {
         }
       });
     });
-    console.log(defenderInd);
     for (const card of this.piles.flat()) {
       card.setAngle(0);
       await card.animateToPlayer(defenderInd, this.playerAmt);
@@ -173,7 +182,8 @@ export class GameScene extends Phaser.Scene {
 
   async handleClick(lastAction: TypeGameAction) {
     const isAttacker = lastAction === TypeGameAction.AttackerMoveCard;
-    const piles = useGameStore.getState().placedCards;
+    const currPlaced = useGameStore.getState().placedCards;
+    const piles = currPlaced.length !== 0 ? currPlaced : this.prevPlacedCards;
     const pileToMove = isAttacker
       ? piles.filter((obj) => obj.defender === null)[0]
       : piles[piles.length - 1];
