@@ -310,8 +310,11 @@ export class Room {
     // Remove card from player cards array
     this.activePlayer.lostCard(card);
 
-    // Reset pass counter
-    this.passCounter = 0;
+    // Reset pass counter (but do not reset if defender decides to pickup - no
+    // new card ranks will appear on the table)
+    if (!this.isDefenderPickup) {
+      this.passCounter = 0;
+    }
 
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
