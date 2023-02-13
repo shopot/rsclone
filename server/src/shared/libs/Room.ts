@@ -38,6 +38,8 @@ export class Room {
   hostPlayer: Player;
   /** Players list in this room */
   players: Players;
+  /** Names of of players who started the game (used for stats purposes) */
+  startingPlayerNames: string[];
   /** Chat messages */
   chat: TypeChatMessage[];
   /** Deck of cards */
@@ -80,6 +82,7 @@ export class Room {
     this.hostPlayer = hostPlayer;
     this.hostPlayer.setPlayerStatus(TypePlayerStatus.InGame);
     this.players = new Players([this.hostPlayer]);
+    this.startingPlayerNames = [];
     this.chat = [];
 
     // Create empty deck
@@ -145,6 +148,12 @@ export class Room {
 
     // Game is started
     this.roomStatus = TypeRoomStatus.GameInProgress;
+
+    // Save starting player names
+    this.startingPlayerNames = [];
+    for (const player of this.players) {
+      this.startingPlayerNames.push(player.playerName);
+    }
 
     // Clear old chat messages
     this.chat = [];
@@ -344,6 +353,7 @@ export class Room {
 
       // beats last card of the last attacker with their own last card - draw
       if (this.players.totalCountInGame() === 0) {
+        this.lastLoser = null;
         this.setGameIsOver();
         return true;
       }
@@ -354,6 +364,7 @@ export class Room {
         this.players.totalCountInGame() === 1
       ) {
         this.attacker.setPlayerStatus(TypePlayerStatus.YouLoser);
+        this.lastLoser = this.attacker;
         this.setGameIsOver();
         return true;
       }
@@ -367,6 +378,7 @@ export class Room {
     // loses (it was not their last card)
     if (this.players.totalCountInGame() === 1) {
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.lastLoser = this.activePlayer;
       this.setGameIsOver();
       return true;
     }
@@ -446,6 +458,7 @@ export class Room {
     // Check game is finish for defender
     if (this.players.totalCountInGame() === 1) {
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.lastLoser = this.activePlayer;
       this.setGameIsOver();
 
       return true;
@@ -478,6 +491,7 @@ export class Room {
     if (this.defender === this.attacker) {
       this.log(`Room #${this.roomId} - Can't set next defender`);
 
+      this.lastLoser = this.defender;
       this.setGameIsOver();
 
       return;
@@ -640,10 +654,13 @@ export class Room {
       this.hostPlayer = this.getNextPlayer(leavePlayer);
     }
 
-    // Game over
-    if (this.isGameInProgress()) {
+    // Game over if player who still InGame decides to leave
+    if (
+      this.isGameInProgress() &&
+      leavePlayer.getPlayerStatus() === TypePlayerStatus.InGame
+    ) {
       leavePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
-      this.lastLoser = null;
+      this.lastLoser = leavePlayer;
 
       // Set all players as winner
       for (const player of this.players) {
@@ -653,6 +670,10 @@ export class Room {
       }
 
       this.setGameIsOver();
+
+      // active player left (and lost), stats were updated
+      // but we don't have lastLoser at the start of next game session
+      this.lastLoser = null;
     }
 
     this.players.remove(leavePlayer);
@@ -805,18 +826,10 @@ export class Room {
    * Update game stats after set roomStatus = TypeRoomStatus.GameIsOver
    */
   private updateGameStats(): void {
-    const playersAll = this.players.getAll();
-
-    const loser = playersAll.find(
-      (player) => player.getPlayerStatus() === TypePlayerStatus.YouLoser,
-    );
-
-    const players = playersAll.map((player) => player.getPlayerName());
-
     this.gameStats = {
       roomId: this.roomId,
-      players: players.join('#'),
-      loser: loser?.getPlayerName() || 'undefined',
+      players: this.startingPlayerNames.join('#'),
+      loser: this.lastLoser ? this.lastLoser.getPlayerName() : 'undefined',
       duration: Date.now() - this.gameTimeStart,
       rounds: this.currentRound,
     };
@@ -828,26 +841,18 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
-    this.lastLoser =
-      this.players
-        .getAll()
-        .find(
-          (player) => player.getPlayerStatus() === TypePlayerStatus.YouLoser,
-        ) ?? null;
-
     // Update stats
     this.updateGameStats();
 
     // Write stats to DB
     this.gameService.updateGameHistory(this.gameStats);
 
-    // Update plyers stats
-    this.players.getAll().map((player) => {
-      const wins =
-        player.getPlayerStatus() !== TypePlayerStatus.YouLoser ? 1 : 0;
-
-      this.gameService.updatePlayerStats(player.getPlayerName(), wins);
-    });
+    // Update players stats
+    for (const playerName of this.startingPlayerNames) {
+      const isLoser =
+        this.lastLoser && this.lastLoser.getPlayerName() === playerName;
+      this.gameService.updatePlayerStats(playerName, isLoser ? 0 : 1);
+    }
   }
 
   /**
