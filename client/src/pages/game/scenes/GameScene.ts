@@ -6,7 +6,7 @@ import { Card } from '../prefabs/Card';
 import { Suit } from '../prefabs/Suit';
 import { Button } from '../classes/Button';
 import { socketIOService } from '../../../shared/api/socketio';
-import { TypeGameState, useGameStore } from '../../../store/gameStore';
+import { useGameStore } from '../../../store/gameStore';
 import {
   TypeCard,
   TypeDealt,
@@ -81,10 +81,6 @@ export class GameScene extends Phaser.Scene {
       (state) => state.lastGameAction,
       (data) => this.handleActions(data),
     );
-    // const saveRounds = useGameStore.subscribe(
-    //   (state) => state,
-    //   (currState, prevState) => this.saveRounds(currState, prevState),
-    // );
   }
 
   create() {
@@ -167,79 +163,6 @@ export class GameScene extends Phaser.Scene {
     //определить, кто нажимал ранее и у него проигрывать звук неправильного клика
   }
 
-  //подписка на state.dealt
-  // async handleDealt(dealt: TypeDealt[]) {
-  //   console.log('handleDealt');
-  //   const dealtCards = [...dealt].map((obj) => obj.cards);
-  //   if (useGameStore.getState().currentRound > 1 && dealtCards.some((arr) => arr.length !== 0)) {
-  //     const sortedDealt: TypeCard[][] = [];
-  //     const playersId = [...this.playersSorted].map((data) => data.socketId);
-  //     playersId.forEach((id) => {
-  //       const item = [...dealt].filter((info) => info.socketId === id)[0].cards;
-  //       sortedDealt.push(item);
-  //     });
-
-  //     //Todo: отрисовать добавление спрайтов некоторым из колоды, некоторым со стола
-  //     //определить был ли тейк
-  //     const cardTextureFromTable = [...this.piles].flat()[0].value;
-  //     const newPlayersCards = [...this.playersCards].map((set) =>
-  //       set.map((card) => this.getCardTexture(card)),
-  //     );
-  //     const wasTake = newPlayersCards.some((arr) => arr.includes(cardTextureFromTable));
-  //     console.log('was take', wasTake);
-  //     //если take, то переместить спрайты со стола этому игроку, другому из делт отрисовать и перенести из стопки
-  //     if (wasTake) {
-  //       const playerTakingCards = newPlayersCards.filter((arr) =>
-  //         arr.includes(cardTextureFromTable),
-  //       )[0];
-  //       const playerTakingIndex = newPlayersCards.indexOf(playerTakingCards);
-  //       await this.handleTake(sortedDealt, playerTakingIndex).then(() =>
-  //         this.getEqualPositionAtHands(),
-  //       );
-  //     }
-  //   }
-  // }
-
-  // async handleTake(sortedDealtcards: TypeCard[][], playerTakingIndex: number) {
-  //   console.log('handle take');
-  //   console.log(this.piles, 'pile');
-  //   for (const sprite of this.piles.flat()) {
-  //     console.log(sprite, 'sprite form pile');
-  //     this.playersCardsSprites[playerTakingIndex].push(sprite);
-  //     await sprite.animateToPlayer(playerTakingIndex, sortedDealtcards.length);
-  //     if (playerTakingIndex === 0) sprite.makeClickable();
-  //   }
-  //   this.piles = [];
-  //   await this.handleDealFromDeck(sortedDealtcards, playerTakingIndex);
-  // }
-
-  // async handleDealFromDeck(sortedDealtcards: TypeCard[][], excludeInd: number) {
-  //   //для каждого иргока кроме указанного создать спрайты, повернуть рубашкой вверх, добавить из в массив спрайтов игроков и массив раздаваемых спрайтов
-  //   console.log('handleDealFromDeck');
-  //   console.log(sortedDealtcards, 'sortedDealtcards');
-  //   sortedDealtcards.forEach((set, ind) => {
-  //     const arr: Card[] = [];
-  //     if (ind !== excludeInd || set.length !== 0) {
-  //       set.forEach((el) => {
-  //         const item = new Card(this, 70, config.height / 2, 'cards', this.getCardTexture(el), el);
-  //         item.close();
-  //         if (ind !== 0) item.makeNotClickable();
-  //         this.playersCardsSprites[ind].push(item);
-  //         arr.push(item);
-  //       });
-  //     }
-  //     this.dealtSprites.push(arr);
-  //   });
-  //   //анимировать перемещенеи спрайтов из колоды на стол игроков, для главноего повернуть лицом
-  //   for (const arr of this.dealtSprites) {
-  //     for (const sprite of arr) {
-  //       await sprite.animateToPlayer(this.dealtSprites.indexOf(arr), sortedDealtcards.length);
-  //     }
-  //   }
-  //   this.dealtSprites = [];
-  //   // this.input.on('gameobjectdown', this.makeMove.bind(this));
-  // }
-
   // highlightCards() {
   //   //вызвать, когда мой статут фо1лс и кинута карта (pile имеет нечетные подмассивы)
   //   //подсветит, чем можно бить по возрастанию
@@ -248,61 +171,6 @@ export class GameScene extends Phaser.Scene {
   //   [...this.playersCardsSprites].flat().forEach((card) => card.removeHighlight());
   //   const targets = [this.playersCardsSprites[0][5], this.playersCardsSprites[0][10]];
   //   targets.forEach((card) => card.highlight());
-  // }
-
-  // createBeaten() {
-  //   //временно создаю спрайты, потом будут анимироваться со стола
-  //   const centerX = config.width;
-  //   const centerY = config.height / 2 - 20;
-  //   const angle = 180 / (this.beaten + 1);
-  //   for (let i = 0; i < this.beaten; i++) {
-  //     this.add
-  //       .sprite(centerX, centerY, 'cards', 'cardBack')
-  //       .setScale(0.7)
-  //       .setAngle(angle + i * angle);
-  //   }
-  // }
-
-  //подписка на state
-  // animateCardMoveToTable(state: TypeGameState, prevSate: TypeGameState) {
-  //   if (
-  //     JSON.stringify(state.placedCards) !== JSON.stringify(prevSate.placedCards) &&
-  //     state.placedCards.length !== 0
-  //   ) {
-  //     const idPlayerMoved = prevSate.activeSocketId;
-  //     const rolePlayerMoved = prevSate.players.filter(
-  //       (player) => player.socketId === idPlayerMoved,
-  //     )[0].playerRole;
-  //     const cardMovedType =
-  //       rolePlayerMoved === TypePlayerRole.Attacker
-  //         ? state.placedCards[state.placedCards.length - 1].attacker
-  //         : state.placedCards[state.placedCards.length - 1].defender;
-  //     const thisplayer = this.playersSorted.filter(
-  //       (player) => player.socketId === idPlayerMoved,
-  //     )[0];
-  //     const indexOfPlayer = this.playersSorted.indexOf(thisplayer);
-
-  //     if (cardMovedType) {
-  //       const spriteToMove = this.playersCardsSprites[indexOfPlayer].filter(
-  //         (sprite) => sprite.value === this.getCardTexture(cardMovedType),
-  //       )[0];
-  //       const indexOfCard = this.playersCardsSprites[indexOfPlayer].indexOf(spriteToMove);
-  //       this.playersCardsSprites[indexOfPlayer].splice(indexOfCard, 1);
-  //       const params = {
-  //         isAttacker: rolePlayerMoved === TypePlayerRole.Attacker,
-  //         place: state.placedCards.length,
-  //         me: indexOfPlayer === 0,
-  //       };
-
-  //       //если нападаю, то след кучку начинаю, иначе последнюю нечетную
-  //       rolePlayerMoved === TypePlayerRole.Attacker
-  //         ? this.piles.push([spriteToMove])
-  //         : this.piles[this.piles.length - 1].push(spriteToMove);
-
-  //       spriteToMove?.move(params);
-  //     }
-  //     this.getEqualPositionAtHands();
-  //   }
   // }
 
   createBg() {
@@ -435,8 +303,8 @@ export class GameScene extends Phaser.Scene {
 
   createDeck(deckAmt: number) {
     for (let i = 0; i < 8; i++) {
-      const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack');
-      card.positionDeck();
+      const card = new Card(this, 0, 0, 'cards', 'cardBack');
+      card.positionDeck(i);
       this.deckCards.push(card);
     }
     const textData = { x: 30, y: config.height / 2 - 80, amount: deckAmt.toString() };
@@ -534,8 +402,8 @@ export class GameScene extends Phaser.Scene {
       this.deckCards.forEach((card) => card.destroy());
       if (deckAmt > 1) {
         for (let i = 0; i < deckAmt - 1; i++) {
-          const card = new Card(this, 70 - i / 2, config.height / 2 - i, 'cards', 'cardBack');
-          card.positionDeck();
+          const card = new Card(this, 0, 0, 'cards', 'cardBack');
+          card.positionDeck(i);
           this.deckCards.push(card);
         }
       } else if (deckAmt === 0) this.trumpCard?.destroy();

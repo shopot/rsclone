@@ -84,7 +84,9 @@ export class Card extends Phaser.GameObjects.Sprite {
     });
   }
 
-  positionDeck() {
+  positionDeck(index: number) {
+    this.setPosition(70 - index / 2, config.height / 2 - index);
+    this.setDepth(50 + index);
     this.setAngle(10);
     this.makeNotClickable();
   }
