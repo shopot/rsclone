@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
@@ -8,7 +9,11 @@ async function bootstrap() {
     origin: '*',
   });
 
-  await app.listen(3000);
+  const configService: ConfigService = app.get<ConfigService>(ConfigService);
+
+  const port = configService.get('PORT') || 3000;
+
+  await app.listen(port);
 
   console.log(`Application is running on: ${await app.getUrl()}`);
 }

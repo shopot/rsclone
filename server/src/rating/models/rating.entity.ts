@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeUpdate } from 'typeorm';
 
 @Entity('rating')
 export class Rating {
@@ -14,6 +14,15 @@ export class Rating {
   @Column({ default: 0 })
   total: number;
 
-  @Column({ default: () => 'unixepoch()' })
+  @Column({
+    name: 'lastGameAt',
+    type: 'int',
+    default: () => 'unixepoch()',
+  })
   lastGameAt: number;
+
+  @BeforeUpdate()
+  beforeUpdateActions() {
+    this.lastGameAt = Math.round(Date.now() / 1000);
+  }
 }

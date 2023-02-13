@@ -13,6 +13,8 @@ const HomePage = () => {
           <div>
             <img
               className={styles.cardsSet}
+              width="658"
+              height="544"
               src={cardsSet}
               alt="Cards"
             />
@@ -21,11 +23,15 @@ const HomePage = () => {
             <img
               className={styles.durakLogoHat}
               src={durakLogoHat}
+              width="450"
+              height="249"
               alt="DURAK Card Game"
             />
             <img
               className={styles.durakLogoText}
               src={durakLogoText}
+              width="572"
+              height="197"
               alt="DURAK Card Game"
             />
           </div>
