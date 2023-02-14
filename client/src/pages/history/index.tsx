@@ -32,6 +32,14 @@ const HistoryPage = () => {
       title: 'Rounds',
       dataIndex: 'rounds',
     },
+    {
+      title: 'Date',
+      dataIndex: 'createdAt',
+      // Note: SQLite stores Unix timestamp in seconds; new Date expects it in milliseconds
+      render: (value: number) => (
+        <>{new Date(value * 1000).toLocaleString('en-GB', { dateStyle: 'short' })}</>
+      ),
+    },
   ];
 
   return (

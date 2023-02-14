@@ -6,6 +6,7 @@ import { Deck } from './Deck';
 export class Round {
   attackersCards: Card[];
   defenderCards: Card[];
+  defenderCardsAtRoundStart: number;
   trumpSuit: TypeCardSuit;
   maxRoundSlots: number;
   startPlayerSocketId: string;
@@ -13,6 +14,7 @@ export class Round {
   constructor(deck: Deck) {
     this.attackersCards = [];
     this.defenderCards = [];
+    this.defenderCardsAtRoundStart = 0;
     this.trumpSuit = deck.getTrumpSuit();
     this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT - 1;
     this.startPlayerSocketId = '';
@@ -20,6 +22,10 @@ export class Round {
 
   public getStartPlayerSocketId(): string {
     return this.startPlayerSocketId;
+  }
+
+  public setDefenderCardsAtRoundStart(quantity: number) {
+    this.defenderCardsAtRoundStart = quantity;
   }
 
   public setStartPlayerSocketId(socketId: string): void {
@@ -103,6 +109,9 @@ export class Round {
   }
 
   public isFinished(): boolean {
-    return this.attackersCards.length === this.maxRoundSlots;
+    return (
+      this.attackersCards.length ===
+      Math.min(this.defenderCardsAtRoundStart, this.maxRoundSlots)
+    );
   }
 }
