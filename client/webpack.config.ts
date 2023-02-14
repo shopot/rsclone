@@ -79,7 +79,7 @@ module.exports = {
       ],
     }),
     new Dotenv({
-      path: `./${devMode === 'production' ? 'production' : 'development'}.env`,
+      path: `${__dirname}/.env.${devMode === 'production' ? 'production' : 'development'}`,
     }),
   ],
   module: {
