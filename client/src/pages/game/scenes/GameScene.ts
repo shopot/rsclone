@@ -56,42 +56,50 @@ export class GameScene extends Phaser.Scene {
 
   constructor() {
     super('Game');
-    const setPlayers = useGameStore.subscribe(
+    // setPlayers
+    useGameStore.subscribe(
       (state) => state.players.length,
-      (data) => this.setPlayers(),
+      () => this.setPlayers(),
     );
 
-    const sortPlayersData = useGameStore.subscribe(
+    // sortPlayersData
+    useGameStore.subscribe(
       (state) => state.players,
       (data) => this.sortPlayersData(data),
     );
 
-    const updateButton = useGameStore.subscribe(
+    // updateButton
+    useGameStore.subscribe(
       (state) => [state.roomStatus, state.activeSocketId],
       (arr) => this.updateButton(arr),
     );
 
-    const handleRoomStatus = useGameStore.subscribe(
+    // handleRoomStatus
+    useGameStore.subscribe(
       (state) => state.roomStatus,
-      (data) => this.handleRoomStatus(data),
+      (data) => void this.handleRoomStatus(data),
     );
 
-    const colorIcon = useGameStore.subscribe(
+    // colorIcon
+    useGameStore.subscribe(
       (state) => state.activeSocketId,
       (data) => this.colorIcon(data),
     );
 
-    const createNewAnimateFromDeck = useGameStore.subscribe(
+    // createNewAnimateFromDeck
+    useGameStore.subscribe(
       (state) => state.dealt,
-      (data) => this.checkDealt(data),
+      (data) => void this.checkDealt(data),
     );
 
-    const handleActions = useGameStore.subscribe(
+    // handleActions
+    useGameStore.subscribe(
       (state) => state,
-      (data) => this.handleActions(data),
+      (data) => void this.handleActions(data),
     );
 
-    const saveTableCards = useGameStore.subscribe(
+    // saveTableCards
+    useGameStore.subscribe(
       (state) => state.placedCards,
       (piles, prevPiles) => this.saveTableCards(piles, prevPiles),
     );
@@ -248,7 +256,8 @@ export class GameScene extends Phaser.Scene {
 
   createButtons() {
     this.mainButton = new Button(this);
-    const leaveBtn = new ButtonLeave(this);
+    // leaveBtn
+    new ButtonLeave(this);
   }
 
   //подписка на [state.roomStatus, state.activeSocketId]
@@ -505,11 +514,22 @@ export class GameScene extends Phaser.Scene {
       //     await card.redrawTable(pile.indexOf(card), this.piles.indexOf(pile), this.piles.length);
       //   }
       // }
-      this.piles.forEach((set, pileInd) => {
-        set.forEach(
-          async (card, cardInd) => await card.redrawTable(cardInd, pileInd, this.piles.length),
-        );
-      });
+
+      // this.piles.forEach((set, pileInd) => {
+      //   set.forEach(
+      //     async (card, cardInd) => await card.redrawTable(cardInd, pileInd, this.piles.length),
+      //   );
+      // });
+
+      await Promise.all(
+        this.piles.map(async (set, pileInd) => {
+          await Promise.all(
+            set.map(async (card, cardInd) => {
+              await card.redrawTable(cardInd, pileInd, this.piles.length);
+            }),
+          );
+        }),
+      );
     }
   }
 
