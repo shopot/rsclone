@@ -17,6 +17,7 @@ import {
 } from '../../../shared/types';
 import { Icon } from '../classes/Icon';
 import { ButtonLeave } from '../prefabs/ButtonLeave';
+import { SpeechBubble } from '../classes/SpeechBubble';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -53,6 +54,7 @@ export class GameScene extends Phaser.Scene {
         fromDeck: Phaser.Sound.BaseSound;
       }
     | undefined;
+  prevActiveSocketId = '';
 
   constructor() {
     super('Game');
@@ -102,6 +104,12 @@ export class GameScene extends Phaser.Scene {
     useGameStore.subscribe(
       (state) => state.placedCards,
       (piles, prevPiles) => this.saveTableCards(piles, prevPiles),
+    );
+
+    useGameStore.subscribe(
+      (state) => state.activeSocketId,
+      (activeSocketId, prevActiveSocketId) =>
+        this.saveActiveSocketId(activeSocketId, prevActiveSocketId),
     );
   }
 
@@ -196,7 +204,16 @@ export class GameScene extends Phaser.Scene {
     // const defenderInd = this.playersSorted.indexOf(defender);
   }
 
+  saveActiveSocketId(activeSocketId: string, prevActiveSocketId: string) {
+    this.prevActiveSocketId = prevActiveSocketId;
+  }
+
   async handlePass() {
+    const prevActiveIcon = this.icons.find((icon) => icon.socketId === this.prevActiveSocketId);
+    if (prevActiveIcon !== undefined) {
+      prevActiveIcon.createBubble('Pass');
+    }
+
     const angle = 180 / (this.piles.flat().length + 1);
     for (const card of this.piles.flat()) {
       const ind = this.piles.flat().indexOf(card);

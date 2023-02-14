@@ -2,6 +2,7 @@ import { config } from '../index';
 import { IconBorder } from '../prefabs/IconBorder';
 import { IconPic } from '../prefabs/IconPic';
 import { Nickname } from '../prefabs/Nickname';
+import { SpeechBubble } from './SpeechBubble';
 
 export class Icon {
   scene: Phaser.Scene;
@@ -9,6 +10,8 @@ export class Icon {
   border: IconBorder;
   text: Nickname;
   socketId: string;
+  x: number;
+  spriteY: number;
   constructor(
     scene: Phaser.Scene,
     index: number,
@@ -20,14 +23,14 @@ export class Icon {
     this.scene = scene;
     this.socketId = socketId;
 
-    const x = tableSizes[index].startX;
-    const spriteY = index === 0 ? config.height - config.cardSize.h + 25 : 82;
-    this.pic = new IconPic(this.scene, x - 40, spriteY, 'icons', avatar);
+    this.x = tableSizes[index].startX;
+    this.spriteY = index === 0 ? config.height - config.cardSize.h + 25 : 82;
+    this.pic = new IconPic(this.scene, this.x - 40, this.spriteY, 'icons', avatar);
     //должен меняться цвет рамки на зеленый, когда ходит и на серый после
-    this.border = new IconBorder(this.scene, x - 68, spriteY - 27, 55, 55, 5);
+    this.border = new IconBorder(this.scene, this.x - 68, this.spriteY - 27, 55, 55, 5);
 
-    const textY = index === 0 ? spriteY - 55 : spriteY + 40;
-    this.text = new Nickname(this.scene, x + 10, textY, nickname);
+    const textY = index === 0 ? this.spriteY - 55 : this.spriteY + 40;
+    this.text = new Nickname(this.scene, this.x + 10, textY, nickname);
   }
 
   destroy() {
@@ -40,5 +43,9 @@ export class Icon {
   colorBorder(status: boolean) {
     // setTimeout(() => this.border.createBorder(status), 300);
     this.border.createBorder(status);
+  }
+
+  createBubble(text: string) {
+    const bubble = new SpeechBubble(this.scene, text, this.x, this.spriteY);
   }
 }
