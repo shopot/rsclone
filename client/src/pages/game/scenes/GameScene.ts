@@ -17,7 +17,6 @@ import {
 } from '../../../shared/types';
 import { Icon } from '../classes/Icon';
 import { ButtonLeave } from '../prefabs/ButtonLeave';
-import { SpeechBubble } from '../classes/SpeechBubble';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -221,32 +220,60 @@ export class GameScene extends Phaser.Scene {
       await card.animateToBeaten(angle + ind * angle, ind);
     }
     this.piles = [];
+    console.log(useGameStore.getState());
   }
 
   async handleClick(lastAction: TypeGameAction) {
     this.sounds?.placeCard.play({ volume: 0.5 });
     const isAttacker = lastAction === TypeGameAction.AttackerMoveCard;
+    //определяю карту, которую надо положить из placedCards
+    //если это конец раунда, то он будет пустой, тогда брать из битых
+    let spriteType: TypeCard | null;
+    let pileInd = -1;
+    let pileLength = 0;
     const currPlaced = useGameStore.getState().placedCards;
-    const piles = currPlaced.length !== 0 ? currPlaced : this.prevPlacedCards;
-    const pileToMove = isAttacker
-      ? piles.filter((obj) => obj.defender === null)[0]
-      : piles[piles.length - 1];
-    const pileInd = piles.indexOf(pileToMove);
-    const spriteType = isAttacker ? piles[pileInd].attacker : piles[pileInd].defender;
+    console.log(currPlaced, 'currPlaced')
+    if (currPlaced.length !== 0) {
+      const piles = currPlaced.length !== 0 ? currPlaced : this.prevPlacedCards;
+      console.log(piles, 'piles')
+      pileLength = piles.length;
+      const pileToMove = isAttacker
+        ? piles.filter((obj) => obj.defender === null)[0]
+        : piles[piles.length - 1];
+      console.log(pileToMove, 'pileToMove')
+      pileInd = piles.indexOf(pileToMove);
+      console.log(pileInd, 'pileInd')
+      spriteType = isAttacker ? piles[pileInd].attacker : piles[pileInd].defender;
+      console.log(spriteType, 'spriteType')
+    } else {
+      const beaten = useGameStore.getState().beatCardsArray;
+      console.log(beaten, 'beaten')
+      if (beaten) {
+        spriteType = beaten[beaten.length - 1][1];
+        pileInd = beaten.length - 1;
+        pileLength = beaten.length;
+      }
+    }
+
     const sprite = this.playersCardsSprites
       .flat()
       .filter((card) => JSON.stringify(card.cardType) === JSON.stringify(spriteType))[0];
+      console.log(sprite, 'sprite')
     const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
+    console.log(player, 'player')
     const playerInd = this.playersCardsSprites.indexOf(player);
+    console.log(playerInd, 'playerInd')
     const me = playerInd === 0;
     const spriteInd = player.indexOf(sprite);
+    console.log(spriteInd, 'spriteInd')
+
     if (this.playersCardsSprites[playerInd].length !== 0) {
       this.playersCardsSprites[playerInd].splice(spriteInd, 1);
     } else {
       this.playersCardsSprites[playerInd] = [];
     }
     isAttacker ? this.piles.push([sprite]) : this.piles[this.piles.length - 1].push(sprite);
-    await sprite.animateToTable(pileInd, isAttacker, piles.length, me);
+    await sprite.animateToTable(pileInd, isAttacker, pileLength, me);
     this.setEqualPositionAtHands();
     this.updatePlayersText();
     await this.updateCardsPosOnTable();
