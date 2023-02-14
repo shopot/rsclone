@@ -443,14 +443,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   async animateFromDeckToPlayers() {
-    //если будет время, сделать чередование карт, а не сначала одному, потом другому
-    //если будет время, сохранять самой карты в колоде и по одной убирать
-    for (const arr of this.dealtSprites) {
-      for (const sprite of arr) {
-        this.sounds?.fromDeck.play({ volume: 0.5 });
-        await sprite.animateToPlayer(this.dealtSprites.indexOf(arr), this.dealtSprites.length);
-      }
-    }
+    const promiseDeal: Promise<void>[] = [];
+    this.dealtSprites.forEach((arr) => {
+      const player: Promise<void> = new Promise<void>(async (resolve) => {
+        for (const sprite of arr) {
+          //     // this.sounds?.fromDeck.play({ volume: 0.5 });
+          await sprite.animateToPlayer(this.dealtSprites.indexOf(arr), this.dealtSprites.length);
+        }
+        resolve();
+      });
+      promiseDeal.push(player);
+    });
+    await Promise.all(promiseDeal);
     this.setEqualPositionAtHands();
     this.dealtSprites = [];
     this.updateDeck();
