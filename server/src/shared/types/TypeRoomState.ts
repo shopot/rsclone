@@ -19,6 +19,8 @@ export type TypeRoomState = {
   deckCounter: number;
   currentRound: number;
   lastGameAction: TypeGameAction;
+  beatCardsArray: Array<TypeCard[]>;
+  beatCardsPlacedArray: Array<TypePlacedCard[]>;
 };
 
 export enum TypeRoomStatus {
