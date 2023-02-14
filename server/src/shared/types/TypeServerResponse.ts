@@ -21,5 +21,7 @@ export type TypeServerResponse = {
   deckCounter?: number;
   currentRound?: number;
   lastGameAction?: TypeGameAction;
+  beatCardsArray?: Array<TypeCard[]>;
+  beatCardsPlacedArray?: Array<TypePlacedCard[]>;
   error?: TypeGameError;
 };

@@ -68,6 +68,8 @@ export class Room {
   gameTimeStart: number;
   gameStats: TypeGameStats;
   isDealtEnabled: boolean;
+  beatCardsArray: Array<TypeCard[]>;
+  beatCardsPlacedArray: Array<TypePlacedCard[]>;
 
   isDefenderPickup: boolean;
 
@@ -186,6 +188,8 @@ export class Room {
     this.defender.setPlayerRole(TypePlayerRole.Defender);
 
     this.round = new Round(this.deck);
+    this.beatCardsArray = [];
+    this.beatCardsPlacedArray = [];
     this.round.setDefenderCardsAtRoundStart(STARTING_CARDS_NUMBER);
 
     this.passCounterMaxValue = this.players.totalCount() - 1;
@@ -533,6 +537,8 @@ export class Room {
     this.round.setStartPlayerSocketId(this.activePlayer.getSocketId());
 
     // Restart round
+    this.beatCardsArray.push(this.round.getRoundCards());
+    this.beatCardsPlacedArray.push(this.round.getRoundCardsAsPlaced());
     this.round.restart();
 
     this.isDealtEnabled = true;
@@ -899,6 +905,8 @@ export class Room {
       deckCounter: this.deck.getSize(),
       currentRound: this.currentRound,
       lastGameAction: this.LastGameAction,
+      beatCardsArray: this.beatCardsArray,
+      beatCardsPlacedArray: this.beatCardsPlacedArray,
     };
   }
 
