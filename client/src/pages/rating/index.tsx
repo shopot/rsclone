@@ -27,7 +27,13 @@ const RatingPage = () => {
       dataIndex: 'lastGameAt',
       // Note: SQLite stores Unix timestamp in seconds; new Date expects it in milliseconds
       render: (value: number) => (
-        <>{new Date(value * 1000).toLocaleString('en-GB', { hourCycle: 'h24' })}</>
+        <>
+          {new Date(value * 1000).toLocaleString('en-GB', {
+            hourCycle: 'h24',
+            dateStyle: 'short',
+            timeStyle: 'short',
+          })}
+        </>
       ),
     },
   ];
