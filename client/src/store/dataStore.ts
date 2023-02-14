@@ -8,6 +8,7 @@ type TypeHistoryItem = {
   loser: string;
   duration: number;
   rounds: number;
+  createdAt: number;
 };
 
 type TypeRatingItem = {
