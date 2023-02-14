@@ -68,6 +68,9 @@ export class Room {
   gameTimeStart: number;
   gameStats: TypeGameStats;
   isDealtEnabled: boolean;
+
+  isDefenderPickup: boolean;
+
   dealt: TypeDealt[];
   LastGameAction: TypeGameAction;
 
@@ -100,6 +103,7 @@ export class Room {
     this.passCounterMaxValue = 1;
     this.dealt = [];
     this.isDealtEnabled = false;
+    this.isDefenderPickup = false;
     this.gameStats = {
       roomId: this.roomId,
       players: '',
@@ -182,6 +186,7 @@ export class Room {
     this.defender.setPlayerRole(TypePlayerRole.Defender);
 
     this.round = new Round(this.deck);
+    this.round.setDefenderCardsAtRoundStart(STARTING_CARDS_NUMBER);
 
     this.passCounterMaxValue = this.players.totalCount() - 1;
 
@@ -305,8 +310,11 @@ export class Room {
     // Remove card from player cards array
     this.activePlayer.lostCard(card);
 
-    // Reset pass counter
-    this.passCounter = 0;
+    // Reset pass counter (but do not reset if defender decides to pickup - no
+    // new card ranks will appear on the table)
+    if (!this.isDefenderPickup) {
+      this.passCounter = 0;
+    }
 
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
@@ -316,7 +324,14 @@ export class Room {
     }
 
     // Move turn to defender from attacker
-    this.setActivePlayer(this.defender);
+    if (!this.isDefenderPickup) {
+      this.setActivePlayer(this.defender);
+    }
+
+    if (this.isDefenderPickup && this.round.isFinished()) {
+      this.GivePickedupCardsToDefender();
+      this.startNextRound();
+    }
 
     return true;
   }
@@ -408,18 +423,15 @@ export class Room {
 
     this.LastGameAction = TypeGameAction.AttackerPass;
 
-    // For twi players
-    if (this.isTwoPlayersInGame()) {
-      this.activePlayer = this.defender;
-      this.startNextRound();
-      return true;
-    }
-
     this.passCounter += 1;
 
     if (this.passCounter === this.passCounterMaxValue) {
-      // Defender becomes attacker
-      this.setActivePlayer(this.defender);
+      if (this.isDefenderPickup) {
+        this.GivePickedupCardsToDefender();
+      } else {
+        // Defender becomes attacker
+        this.setActivePlayer(this.defender);
+      }
 
       this.startNextRound();
 
@@ -451,12 +463,11 @@ export class Room {
       };
     }
 
-    this.LastGameAction = TypeGameAction.DefenderTakesCards;
-
-    this.activePlayer.addCards(this.round.getRoundCards());
+    this.lastDefender = this.activePlayer;
 
     // Check game is finish for defender
     if (this.players.totalCountInGame() === 1) {
+      this.activePlayer.addCards(this.round.getRoundCards());
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
       this.lastLoser = this.activePlayer;
       this.setGameIsOver();
@@ -464,13 +475,26 @@ export class Room {
       return true;
     }
 
+    this.isDefenderPickup = true;
+
+    if (this.round.isFinished()) {
+      this.GivePickedupCardsToDefender();
+      this.startNextRound();
+    }
+
+    // Move turn back to attacker
+    this.setActivePlayer(this.attacker);
+    return true;
+  }
+
+  private GivePickedupCardsToDefender(): void {
+    this.LastGameAction = TypeGameAction.DefenderTakesCards;
+    this.isDefenderPickup = false;
+    this.lastDefender.addCards(this.round.getRoundCards());
+
     // Next after active player (defender)
     // this.setActivePlayer(this.getNextPlayer());
-    this.activePlayer = this.getNextPlayer(this.activePlayer);
-
-    this.startNextRound();
-
-    return true;
+    this.activePlayer = this.getNextPlayer(this.lastDefender);
   }
 
   private startNextRound(): void {
@@ -501,6 +525,8 @@ export class Room {
 
     // Dealt cards to user
     this.dealtCards();
+
+    this.round.setDefenderCardsAtRoundStart(this.defender.getCardsCount());
 
     // Save first player socketId in this round,
     // after dealt only
@@ -533,10 +559,6 @@ export class Room {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
     player.setPlayerRole(TypePlayerRole.Waiting);
     this.passCounterMaxValue -= 1;
-  }
-
-  private isTwoPlayersInGame(): boolean {
-    return this.players.totalCountInGame() === 2;
   }
 
   private getPlayersForDealt(): Player[] {
@@ -823,9 +845,10 @@ export class Room {
   }
 
   /**
-   * Update game stats after set roomStatus = TypeRoomStatus.GameIsOver
+   * Updates game stats and saves game results to DB
    */
-  private updateGameStats(): void {
+  private async updateGameStats(): Promise<void> {
+    // Update stats
     this.gameStats = {
       roomId: this.roomId,
       players: this.startingPlayerNames.join('#'),
@@ -833,6 +856,16 @@ export class Room {
       duration: Date.now() - this.gameTimeStart,
       rounds: this.currentRound,
     };
+
+    // Write stats to DB
+    await this.gameService.updateGameHistory(this.gameStats);
+
+    // Update players stats
+    for (const playerName of this.startingPlayerNames) {
+      const isLoser =
+        this.lastLoser && this.lastLoser.getPlayerName() === playerName;
+      await this.gameService.updatePlayerStats(playerName, isLoser ? 0 : 1);
+    }
   }
 
   /**
@@ -841,18 +874,7 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
-    // Update stats
     this.updateGameStats();
-
-    // Write stats to DB
-    this.gameService.updateGameHistory(this.gameStats);
-
-    // Update players stats
-    for (const playerName of this.startingPlayerNames) {
-      const isLoser =
-        this.lastLoser && this.lastLoser.getPlayerName() === playerName;
-      this.gameService.updatePlayerStats(playerName, isLoser ? 0 : 1);
-    }
   }
 
   /**
@@ -863,8 +885,8 @@ export class Room {
     return {
       roomId: this.roomId,
       roomStatus: this.roomStatus || TypeRoomStatus.WaitingForPlayers,
-      hostSocketId: this.hostPlayer.getSocketId(),
-      activeSocketId: this.activePlayer.getSocketId(),
+      hostSocketId: this.hostPlayer?.getSocketId(),
+      activeSocketId: this.activePlayer?.getSocketId(),
       players: this.players.getPlayersAsDto(),
       chat: this.chat,
       trumpCard: this.getDeck().getTrumpCard().getCardDto() || {
