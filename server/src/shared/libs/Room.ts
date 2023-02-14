@@ -467,6 +467,8 @@ export class Room {
       };
     }
 
+    this.LastGameAction = TypeGameAction.DefenderDecidesToPickUp;
+
     this.lastDefender = this.activePlayer;
 
     // Check game is finish for defender
