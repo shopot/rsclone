@@ -3,7 +3,6 @@ import Table from 'rc-table';
 import listify from 'listify';
 import prettyMs from 'pretty-ms';
 import { useDataStore } from '../../store/dataStore';
-import { formatDate } from '../../shared/helpers';
 
 const HistoryPage = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -37,7 +36,9 @@ const HistoryPage = () => {
       title: 'Date',
       dataIndex: 'createdAt',
       // Note: SQLite stores Unix timestamp in seconds; new Date expects it in milliseconds
-      render: (value: number) => <>{formatDate(new Date(value * 1000))}</>,
+      render: (value: number) => (
+        <>{new Date(value * 1000).toLocaleString('en-GB', { dateStyle: 'short' })}</>
+      ),
     },
   ];
 
