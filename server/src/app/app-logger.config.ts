@@ -1,5 +1,4 @@
 import * as winston from 'winston';
-import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 
 const enum LoggingLevels {
   Error = 'error',
