@@ -75,6 +75,8 @@ export class Room {
 
   dealt: TypeDealt[];
   LastGameAction: TypeGameAction;
+  lastOpenAttackerCard: TypeCard | null;
+  lastCloseDefenderCard: TypeCard | null;
 
   logger: Logger;
 
@@ -114,6 +116,8 @@ export class Room {
       rounds: 0,
     };
     this.LastGameAction = TypeGameAction.Undefined;
+    this.lastOpenAttackerCard = null;
+    this.lastCloseDefenderCard = null;
 
     // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
@@ -311,6 +315,9 @@ export class Room {
       };
     }
 
+    // Set last open card from attacker
+    this.lastOpenAttackerCard = this.round.getLastOpenAttackerCard();
+
     // Remove card from player cards array
     this.activePlayer.lostCard(card);
 
@@ -363,6 +370,9 @@ export class Room {
         message: "This card of the defender can't beat attacker's card",
       };
     }
+
+    // Set last close card
+    this.lastCloseDefenderCard = this.round.getLastCloseDefenderCard();
 
     // Remove card from player cards array
     this.activePlayer.lostCard(card);
@@ -898,6 +908,7 @@ export class Room {
    * @returns {TypeRoomState}  - Room state
    */
   public getState(): TypeRoomState {
+    Logger.debug(this.round);
     return {
       roomId: this.roomId,
       roomStatus: this.roomStatus || TypeRoomStatus.WaitingForPlayers,
@@ -917,6 +928,8 @@ export class Room {
       lastGameAction: this.LastGameAction,
       beatCardsArray: this.beatCardsArray,
       beatCardsPlacedArray: this.beatCardsPlacedArray,
+      lastOpenAttackerCard: this.lastOpenAttackerCard,
+      lastCloseDefenderCard: this.lastCloseDefenderCard,
     };
   }
 
