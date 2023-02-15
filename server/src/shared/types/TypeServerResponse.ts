@@ -23,5 +23,6 @@ export type TypeServerResponse = {
   lastGameAction?: TypeGameAction;
   beatCardsArray?: Array<TypeCard[]>;
   beatCardsPlacedArray?: Array<TypePlacedCard[]>;
+  lastOpenCard: TypeCard | null;
   error?: TypeGameError;
 };

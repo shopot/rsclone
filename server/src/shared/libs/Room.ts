@@ -917,6 +917,7 @@ export class Room {
       lastGameAction: this.LastGameAction,
       beatCardsArray: this.beatCardsArray,
       beatCardsPlacedArray: this.beatCardsPlacedArray,
+      lastOpenCard: this.round.getLastOpenCard(),
     };
   }
 

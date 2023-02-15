@@ -10,6 +10,7 @@ export class Round {
   trumpSuit: TypeCardSuit;
   maxRoundSlots: number;
   startPlayerSocketId: string;
+  lastOpenCard: TypeCard | null;
 
   constructor(deck: Deck) {
     this.attackersCards = [];
@@ -18,6 +19,7 @@ export class Round {
     this.trumpSuit = deck.getTrumpSuit();
     this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT - 1;
     this.startPlayerSocketId = '';
+    this.lastOpenCard = null;
   }
 
   public getStartPlayerSocketId(): string {
@@ -51,6 +53,9 @@ export class Round {
     if (this.attackersCards.length === 0) {
       this.attackersCards.push(card);
 
+      // Save last open card
+      this.lastOpenCard = cardDto;
+
       return true;
     }
 
@@ -60,6 +65,9 @@ export class Round {
         (cardOnTable) => cardOnTable.rank === card.rank,
       )
     ) {
+      // Save last open card
+      this.lastOpenCard = cardDto;
+
       this.attackersCards.push(card);
 
       return true;
@@ -113,5 +121,8 @@ export class Round {
       this.attackersCards.length ===
       Math.min(this.defenderCardsAtRoundStart, this.maxRoundSlots)
     );
+  }
+  public getLastOpenCard(): TypeCard | null {
+    return this.lastOpenCard;
   }
 }
