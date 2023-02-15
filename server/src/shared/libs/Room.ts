@@ -902,6 +902,10 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
+    for (const player of this.players) {
+      player.setPlayerRole(TypePlayerRole.Waiting);
+    }
+
     this.updateGameStats();
   }
 
