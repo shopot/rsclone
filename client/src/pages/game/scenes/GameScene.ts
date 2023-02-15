@@ -90,12 +90,6 @@ export class GameScene extends Phaser.Scene {
       (data) => this.colorIcon(data),
     );
 
-    // createNewAnimateFromDeck
-    useGameStore.subscribe(
-      (state) => state.dealt,
-      (data) => void this.checkDealt(data),
-    );
-
     // handleActions
     useGameStore.subscribe(
       (state) => state,
@@ -145,34 +139,26 @@ export class GameScene extends Phaser.Scene {
 
   //подписка на статус целиком. если только на экшены, то они могут не меняться, если несколько игроков делают пасс
   async handleActions(state: TypeGameState, prevState: TypeGameState) {
-    if (
-      state.lastGameAction === TypeGameAction.AttackerMoveCardFailed ||
-      state.lastGameAction === TypeGameAction.DefenderMoveCardFailed
-    ) {
-      this.handleWrongClick();
-    } else if (
-      state.lastGameAction === TypeGameAction.AttackerMoveCard ||
-      state.lastGameAction === TypeGameAction.DefenderMoveCard
-    ) {
-      await this.handleClick(state.lastGameAction);
-    } else if (
-      state.lastGameAction === TypeGameAction.AttackerPass &&
-      state.placedCards.length === 0
-    ) {
-      await this.handlePass();
-    } else if (
-      state.lastGameAction === TypeGameAction.DefenderTakesCards
-      //  &&
-      // state.placedCards.length === 0
-    ) {
-      //если на столе уже 6 кучек, то обработка клика не произойдет, также должен вызваться
-      if (this.prevPlacedCards.length === 5 && state.placedCards.length === 0)
-        await this.handleTakeFull();
-      else await this.handleTake();
-      //но если было на самом деле 5 битых всего, то лишних карт не будет и перенаправлять на handleTake
-    }
     this.prevState = prevState;
     this.state = state;
+    if (
+      JSON.stringify(state.lastCloseDefenderCard) !==
+        JSON.stringify(prevState.lastCloseDefenderCard) ||
+      JSON.stringify(state.lastOpenAttackerCard) !== JSON.stringify(prevState.lastOpenAttackerCard)
+    ) {
+      await this.handleClick();
+    } else if (
+      JSON.stringify(state.lastCloseDefenderCard) ===
+        JSON.stringify(prevState.lastCloseDefenderCard) &&
+      JSON.stringify(state.lastOpenAttackerCard) === JSON.stringify(prevState.lastOpenAttackerCard)
+    ) {
+      if (state.lastGameAction === TypeGameAction.AttackerPass && state.placedCards.length === 0) {
+        await this.handlePass();
+      } else if (state.lastGameAction === TypeGameAction.DefenderTakesCards) {
+        await this.handleTake();
+      }
+      await this.checkDealt(state.dealt);
+    }
   }
 
   saveTableCards(prevPlaced: TypePlacedCard[], currPlaced: TypePlacedCard[]) {
@@ -180,6 +166,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleTake() {
+    console.log('``````handle take````````````');
     const spriteValueFromPile = this.piles.flat()[0].value;
 
     let defenderInd = -1;
@@ -198,19 +185,6 @@ export class GameScene extends Phaser.Scene {
     this.piles = [];
     this.setEqualPositionAtHands();
     this.updatePlayersText();
-    // const playersCardsValues = this.playersCards.map((arr) => {
-    //   arr.map((type) => this.getCardTexture(type));
-    // });
-    // const defender = this.playersCards.filter((arr) => arr.includes(spriteValueFromPile))[0];
-    // const defenderInd = this.playersCards.indexOf(defender);
-
-    // const defender = this.playersSortedPrev.filter(
-    //   (player) => player.playerRole === TypePlayerRole.Defender,
-    // )[0];
-    // const defender = this.playersSorted.filter(
-    //   (player) => player.playerRole === TypePlayerRole.Defender,
-    // )[0];
-    // const defenderInd = this.playersSorted.indexOf(defender);
   }
 
   saveActiveSocketId(activeSocketId: string, prevActiveSocketId: string) {
@@ -218,6 +192,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handlePass() {
+    console.log('````````````handle pass````````````````');
     const prevActiveIcon = this.icons.find((icon) => icon.socketId === this.prevActiveSocketId);
     if (prevActiveIcon !== undefined) {
       prevActiveIcon.createBubble('Pass');
@@ -230,113 +205,99 @@ export class GameScene extends Phaser.Scene {
       await card.animateToBeaten(angle + ind * angle, ind);
     }
     this.piles = [];
-    console.log(useGameStore.getState());
   }
 
-  async handleTakeFull() {
-    console.log('handleTakeFull'.toUpperCase())
-    //если тому, кто берет, накидали 6 стопок, то  автоматом новый раунд, клик не обработался
-    //placedCards и beatCardsArray не актуальны, искат карту из карт игроков
-    //найти в прошлом стейте атакующего - он же активный + все его карты
-    //найти в новом стейте карты его же - должна быть лишняя карта
-    const prevActivePlayerID = this.prevState?.activeSocketId;
-    console.log(prevActivePlayerID, 'prevActivePlayerID')
-    const prevActivePrevCards = this.prevState?.players.find(
-      (player) => player.socketId === prevActivePlayerID,
-    )?.cards;
-    console.log(prevActivePrevCards, 'prevActivePrevCards')
-    const prevActiveCurrCards = this.state?.players.find(
-      (player) => player.socketId === prevActivePlayerID,
-    )?.cards;
-    console.log(prevActiveCurrCards, 'prevActiveCurrCards')
-    if (prevActivePrevCards && prevActiveCurrCards) {
-      const extraCard = prevActiveCurrCards.filter((card) => prevActivePrevCards.includes(card))[0];
-      if (extraCard === undefined) {
-        //если в действительности было всего 5 стопок
-        await this.handleTake();
-      }
-      console.log(extraCard, 'extraCard')
-      const extraSprite = this.playersCardsSprites
-        .flat()
-        .filter((card) => card.value === this.getCardTexture(extraCard))[0];
-      console.log(extraSprite, 'extraSprite')
-      const isMe = prevActivePlayerID === this.socketId;
-      await extraSprite.animateToTable(5, true, 6, isMe);
-      this.piles.push([extraSprite]);
-      const player = this.playersCardsSprites.filter((arr) => arr.includes(extraSprite))[0];
-      console.log(player, 'player')
-      const playerInd = this.playersCardsSprites.indexOf(player);
-      console.log(playerInd, 'playerInd')
-      const spriteInd = this.playersCardsSprites[playerInd].indexOf(extraSprite);
-      console.log(spriteInd, 'spriteInd')
-      this.playersCardsSprites[playerInd].splice(spriteInd, 1);
-      this.setEqualPositionAtHands();
-      this.updatePlayersText();
-      await this.updateCardsPosOnTable();
-    }
-  }
-
-  async handleClick(lastAction: TypeGameAction) {
+  async handleClick() {
     this.sounds?.placeCard.play({ volume: 0.5 });
-    const isAttacker = lastAction === TypeGameAction.AttackerMoveCard;
-    // определяю карту, которую надо положить из placedCards
-    // если это конец раунда, то он будет пустой, тогда брать из битых
-    let spriteType: TypeCard | null;
-    let pileInd = -1;
-    let pileLength = 0;
-    const currPlaced = useGameStore.getState().placedCards;
-    if (currPlaced.length !== 0) {
-      const piles = currPlaced.length !== 0 ? currPlaced : this.prevPlacedCards;
-      pileLength = piles.length;
-      const pilesWith1card = piles.filter((obj) => obj.defender === null);
-      const pileToMove = isAttacker
-        ? pilesWith1card[pilesWith1card.length - 1]
-        : piles[piles.length - 1];
-      pileInd = piles.indexOf(pileToMove);
-      spriteType = isAttacker ? piles[pileInd].attacker : piles[pileInd].defender;
-    } else if (useGameStore.getState().beatCardsArray?.length !== 0) {
-      //если есть битые, то беру из них
-      console.log('from beaten - end of round');
-      const beaten = useGameStore.getState().beatCardsArray;
-      console.log(beaten, 'beaten');
-      if (beaten) {
-        const lastBeaten = beaten[beaten.length - 1];
-        console.log(lastBeaten, 'lastBeaten');
-        spriteType = lastBeaten[lastBeaten.length - 1];
-        console.log(beaten[beaten.length - 1], 'beaten[beaten.length - 1]');
-        console.log(spriteType, 'spriteType');
-        pileInd = beaten.length - 1;
-        pileLength = beaten.length;
+    console.log('`````````handle click`````````````');
+    const params = { isAttacker: false, cardToMoveValue: '', pileInd: -1, pileLength: 0 };
+
+    params.isAttacker = this.state?.lastGameAction === TypeGameAction.AttackerMoveCard;
+    params.pileInd = params.isAttacker ? this.piles.length : this.piles.length - 1;
+    console.log(this.piles);
+    params.pileLength = params.isAttacker ? this.piles.length + 1 : this.piles.length;
+    const prevActivePlayerID = this.prevState?.activeSocketId || '';
+    const isMe = prevActivePlayerID === this.socketId;
+    //если есть карты на столе в текущем стейте (не бито, не тейк)
+    if (this.state?.placedCards.length !== 0) {
+      console.log('normal');
+      const cardToMoveType = params.isAttacker
+        ? this.state?.lastOpenAttackerCard
+        : this.state?.lastCloseDefenderCard;
+      if (cardToMoveType) {
+        params.cardToMoveValue = this.getCardTexture(cardToMoveType);
       }
-    } else {
-      //если положили игроку 6 карт и он не может отбиться, то битые тоже пустые
-      //тогда сравниваю спрайты игроков с картами игроков
     }
 
+    //если нет карт на столе, и нет в битых - 1 вар - тейк (автоматом, включая, когда докидали до 6)
+    else if (
+      this.state?.placedCards.length === 0 &&
+      this.state?.lastGameAction === TypeGameAction.DefenderTakesCards
+    ) {
+      console.log('autotake');
+      params.isAttacker = true;
+      const cardToMoveType = this.state?.lastOpenAttackerCard;
+      if (cardToMoveType) {
+        params.cardToMoveValue = this.getCardTexture(cardToMoveType);
+      }
+      params.pileInd = params.isAttacker ? this.piles.length : this.piles.length - 1;
+      // params.pileInd = 5;
+      // params.pileLength = 6;
+      params.pileLength = params.isAttacker ? this.piles.length + 1 : this.piles.length;
+    }
+
+    //если нет карт на столе, и нет в битых - 2 вар - побил все накинутые
+    else if (
+      this.state?.placedCards.length === 0 &&
+      this.state?.lastGameAction === TypeGameAction.DefenderMoveCard
+    ) {
+      console.log('скинул послденюю');
+      params.isAttacker = false;
+      const cardToMoveType = this.state?.lastCloseDefenderCard;
+      if (cardToMoveType) {
+        params.cardToMoveValue = this.getCardTexture(cardToMoveType);
+      }
+    }
+    console.log(params, 'params');
     const sprite = this.playersCardsSprites
       .flat()
-      .filter((card) => JSON.stringify(card.cardType) === JSON.stringify(spriteType))[0];
+      .filter((card) => card.value === params.cardToMoveValue)[0];
+    await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe);
     console.log(sprite, 'sprite');
+
     const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
     console.log(player, 'player');
+
     const playerInd = this.playersCardsSprites.indexOf(player);
     console.log(playerInd, 'playerInd');
-    const isMe = playerInd === 0;
-    console.log(isMe, 'isMe');
-    const spriteInd = player.indexOf(sprite);
+
+    const spriteInd = this.playersCardsSprites[playerInd].indexOf(sprite);
     console.log(spriteInd, 'spriteInd');
-    // if (this.playersCardsSprites[playerInd].length !== 0) {
-    //   this.playersCardsSprites[playerInd].splice(spriteInd, 1);
-    // } else {
-    //   this.playersCardsSprites[playerInd] = [];
-    // }
-    isAttacker ? this.piles.push([sprite]) : this.piles[pileLength - 1].push(sprite);
-    console.log(this.piles, 'this.piles')
-    await sprite.animateToTable(pileInd, isAttacker, pileLength, isMe);
+
     this.playersCardsSprites[playerInd].splice(spriteInd, 1);
+    params.isAttacker ? this.piles.push([sprite]) : this.piles[params.pileLength - 1].push(sprite);
+    console.log(this.playersCardsSprites[playerInd], 'this.playersCardsSprites[playerInd]');
     this.setEqualPositionAtHands();
     this.updatePlayersText();
     await this.updateCardsPosOnTable();
+
+    //далее перенаправляем на тейк и пасс, если есть
+    if (
+      this.state?.lastGameAction === TypeGameAction.AttackerPass &&
+      this.state.placedCards.length === 0
+    ) {
+      await this.handlePass();
+      await this.checkDealt(this.state.dealt);
+    } else if (this.state?.lastGameAction === TypeGameAction.DefenderTakesCards) {
+      await this.handleTake();
+      await this.checkDealt(this.state.dealt);
+    } else if (
+      this.state?.lastGameAction === TypeGameAction.DefenderMoveCard &&
+      this.state.placedCards.length === 0
+    ) {
+      await this.handlePass();
+      await this.checkDealt(this.state.dealt);
+    }
   }
 
   handleWrongClick() {
@@ -536,7 +497,7 @@ export class GameScene extends Phaser.Scene {
     this.colorIcon(useGameStore.getState().activeSocketId);
   }
 
-  //подписка на state.dealt
+  //подписка на state.dealt - убрать из подписки, вызывать вручную!!!!
   async checkDealt(dealt: TypeDealt[]) {
     const dealtCards = [...dealt].map((obj) => obj.cards).flat();
     const round = useGameStore.getState().currentRound;
@@ -570,19 +531,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   async animateFromDeckToPlayers() {
-    // const promiseDeal: Promise<void>[] = [];
-    // this.dealtSprites.forEach((arr) => {
-    //   const player: Promise<void> = new Promise<void>(async (resolve) => {
-    //     for (const sprite of arr) {
-    //       //     // this.sounds?.fromDeck.play({ volume: 0.5 });
-    //       await sprite.animateToPlayer(this.dealtSprites.indexOf(arr), this.dealtSprites.length);
-    //     }
-    //     resolve();
-    //   });
-    //   promiseDeal.push(player);
-    // });
-    // await Promise.all(promiseDeal);
-
     await Promise.all(
       this.dealtSprites.map(async (arr) => {
         for (const sprite of arr) {
@@ -636,18 +584,6 @@ export class GameScene extends Phaser.Scene {
 
   async updateCardsPosOnTable() {
     if (this.piles.length === 4 || this.piles.length === 7) {
-      // for (const pile of this.piles) {
-      //   for (const card of pile) {
-      //     await card.redrawTable(pile.indexOf(card), this.piles.indexOf(pile), this.piles.length);
-      //   }
-      // }
-
-      // this.piles.forEach((set, pileInd) => {
-      //   set.forEach(
-      //     async (card, cardInd) => await card.redrawTable(cardInd, pileInd, this.piles.length),
-      //   );
-      // });
-
       await Promise.all(
         this.piles.map(async (set, pileInd) => {
           await Promise.all(

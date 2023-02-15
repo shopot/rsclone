@@ -161,7 +161,7 @@ export class Card extends Phaser.GameObjects.Sprite {
         y: params[pileIndex].y,
         scale: params[pileIndex].scale,
         ease: 'Linear',
-        duration: 300,
+        duration: 200,
         angle: cardAngle,
         onComplete: resolve,
       });
@@ -178,7 +178,7 @@ export class Card extends Phaser.GameObjects.Sprite {
         y: config.height / 2 - 20,
         scale: 0.7,
         ease: 'Linear',
-        duration: 100,
+        duration: 150,
         angle: cardAngle,
         onComplete: resolve,
       });
@@ -186,7 +186,7 @@ export class Card extends Phaser.GameObjects.Sprite {
     });
   }
 
-  //версия за пределы
+  //вар 2 - мусорку за пределы
   // async animateToBeaten() {
   //   this.setFrame('cardBack');
   //   await new Promise((resolve) => {
@@ -205,18 +205,4 @@ export class Card extends Phaser.GameObjects.Sprite {
     const isAttacking = cardindex === 0 ? true : false;
     await this.animateToTable(pileIndex, isAttacking, piles, true);
   }
-
-  // move(params: { isAttacker: boolean; place: number; me: boolean }) {
-  //   //если вызван для карт других игроков, то переворачиваем перед ходом
-  //   //если для главного игрока, то убираем возможность клика после попадения на стол
-  //   if (!params.me) {
-  //     this.open();
-  //   } else {
-  //     this.makeNotClickable();
-  //   }
-  //   if (!params.isAttacker) {
-  //     this.setDepth(2);
-  //   }
-  //   this.animateToTable(params.place - 1, params.isAttacker, params.place);
-  // }
 }
