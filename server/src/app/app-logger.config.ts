@@ -46,13 +46,16 @@ if (isDevelopmentMode) {
     new winston.transports.Console({
       level: LoggingLevels.Debug,
       format: winston.format.combine(
-        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        winston.format.json(),
+        winston.format.timestamp({ format: 'DD.MM.YYYY HH:mm:ss' }),
+        winston.format.colorize(),
         winston.format.prettyPrint(),
-        winston.format.colorize({ level: true, all: true }),
-        nestWinstonModuleUtilities.format.nestLike('GameServer', {
-          colors: true,
-          prettyPrint: true,
+        winston.format.splat(),
+        winston.format.simple(),
+        winston.format.printf((info) => {
+          if (info.message.constructor === Object) {
+            info.message = JSON.stringify(info.message, null, 4);
+          }
+          return `${info.timestamp} ${info.level}: ${info.message}`;
         }),
       ),
     }),
