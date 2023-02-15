@@ -680,8 +680,16 @@ export class Room {
     }
 
     // host leaves, we need new host
-    if (leavePlayer.getSocketId() === this.getHostPlayerSocketId()) {
-      this.hostPlayer = this.getNextPlayer(leavePlayer);
+    if (
+      leavePlayer.getSocketId() === this.getHostPlayerSocketId() &&
+      this.getPlayersCount() > 1
+    ) {
+      for (const player of this.players) {
+        if (player.getSocketId() !== leavePlayer.getSocketId()) {
+          this.hostPlayer = player;
+          break;
+        }
+      }
     }
 
     // Game over if player who still InGame decides to leave
@@ -841,11 +849,11 @@ export class Room {
   }
 
   public getActivePlayerSocketId(): string {
-    return this.activePlayer.getSocketId();
+    return this.activePlayer?.getSocketId();
   }
 
   public getHostPlayerSocketId(): string {
-    return this.hostPlayer.getSocketId();
+    return this.hostPlayer?.getSocketId();
   }
 
   public getGameStats(): TypeGameStats {
