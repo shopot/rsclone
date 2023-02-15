@@ -30,6 +30,8 @@ type TypeGameState = {
   lastGameAction: TypeGameAction;
   beatCardsArray?: Array<TypeCard[]>;
   beatCardsPlacedArray?: Array<TypePlacedCard[]>;
+  lastOpenAttackerCard: TypeCard | null;
+  lastCloseDefenderCard: TypeCard | null;
   error: TypeServerError | null;
 
   actions: {
@@ -80,6 +82,8 @@ export const useGameStore = create<TypeGameState>()(
       lastGameAction: TypeGameAction.Undefined,
       beatCardsArray: [],
       beatCardsPlacedArray: [],
+      lastOpenAttackerCard: null,
+      lastCloseDefenderCard: null,
       error: null,
 
       getPlayerCards: (): TypeCard[] => {
