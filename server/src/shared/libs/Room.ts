@@ -78,8 +78,6 @@ export class Room {
   lastOpenAttackerCard: TypeCard | null;
   lastCloseDefenderCard: TypeCard | null;
 
-  logger: Logger;
-
   constructor(roomId: string, hostPlayer: Player, gameService: GameService) {
     this.roomId = roomId;
 
@@ -118,9 +116,6 @@ export class Room {
     this.LastGameAction = TypeGameAction.Undefined;
     this.lastOpenAttackerCard = null;
     this.lastCloseDefenderCard = null;
-
-    // Only for debug!
-    this.logger = new Logger(`Room #${roomId}`);
   }
 
   public getRoomId(): string {
@@ -531,7 +526,7 @@ export class Room {
     this.defender = this.getNextPlayer(this.attacker);
 
     if (this.defender === this.attacker) {
-      this.log(`Room #${this.roomId} - Can't set next defender`);
+      Logger.debug(`Room #${this.roomId} - Can't set next defender`);
 
       this.lastLoser = this.defender;
       this.setGameIsOver();
@@ -557,7 +552,7 @@ export class Room {
 
     this.isDealtEnabled = true;
 
-    this.log(`Room #${this.roomId} - Start next round`);
+    Logger.debug(`Room #${this.roomId} - Start next round`);
   }
 
   /**
@@ -770,7 +765,6 @@ export class Room {
 
   private getNextAttacker(currentAttacker: Player): Player {
     if (this.players.totalCountInGame() < 2) {
-      Logger.error(`Room::getNextAttacker(): playersInGame < 2`);
       return currentAttacker;
     }
 
@@ -915,6 +909,7 @@ export class Room {
    */
   public getState(): TypeRoomState {
     Logger.debug(this.round);
+
     return {
       roomId: this.roomId,
       roomStatus: this.roomStatus || TypeRoomStatus.WaitingForPlayers,
@@ -937,9 +932,5 @@ export class Room {
       lastOpenAttackerCard: this.lastOpenAttackerCard,
       lastCloseDefenderCard: this.lastCloseDefenderCard,
     };
-  }
-
-  private log(message: string): void {
-    this.logger.debug(message);
   }
 }

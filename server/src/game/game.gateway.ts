@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   ConnectedSocket,
   SubscribeMessage,
@@ -8,7 +8,9 @@ import {
   OnGatewayInit,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Socket, Server } from 'socket.io';
+import { Logger as WinstonLogger } from 'winston';
 import {
   TypeRoomEvent,
   TypeRoomList,
@@ -20,13 +22,16 @@ import { GameService } from './game.service';
 @Injectable()
 @WebSocketGateway({ cors: true })
 export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
-  constructor(private gameService: GameService) {}
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
+    private gameService: GameService,
+  ) {}
 
   @WebSocketServer()
   public server: Server;
 
   handleConnection(client: Socket) {
-    Logger.debug(`Client connect ${client.id}`);
+    this.logger.info(`Client connect ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
@@ -34,7 +39,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
       this.handleGameLeaveRoom(client);
     }
 
-    Logger.debug(`Client disconnect  ${client.id}`);
+    this.logger.info(`Client disconnect  ${client.id}`);
   }
 
   afterInit(server: Server) {
@@ -239,8 +244,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
 
       this.server.to(roomId).emit(TypeRoomEvent.GameUpdateState, response);
 
-      Logger.debug(TypeRoomEvent.GameUpdateState);
-      Logger.debug(response);
+      this.logger.info(TypeRoomEvent.GameUpdateState);
+      this.logger.info(response);
     }
   }
 
@@ -256,8 +261,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const response = { data: payload };
 
-    Logger.debug(type);
-    Logger.debug(response);
+    this.logger.info(type);
+    this.logger.info(response);
 
     if (client !== null) {
       client.emit(type, response);

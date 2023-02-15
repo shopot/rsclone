@@ -4,12 +4,15 @@ import { Repository } from 'typeorm';
 import { RATING_ROWS_LIMIT } from './constants';
 import { ICreateRatingDto, IReturnRatingDto, IUpdateRatingDto } from './dto';
 import { Rating } from './models/rating.entity';
+import { Logger as WinstonLogger } from 'winston';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class RatingService {
   constructor(
     @Inject('RATING_REPOSITORY')
     private RatingRepository: Repository<Rating>,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
   ) {}
 
   /**
@@ -46,8 +49,8 @@ export class RatingService {
         reload: false,
       });
     } catch {
-      Logger.error('Insert createRatingDto:');
-      Logger.error(createRatingDto);
+      this.logger.error('Insert createRatingDto:');
+      this.logger.error(createRatingDto);
     }
   }
 
@@ -64,8 +67,8 @@ export class RatingService {
         .where('player = :player', { player: updateRatingDto.player })
         .execute();
     } catch {
-      Logger.error('Update updateRatingDto:');
-      Logger.error(updateRatingDto);
+      this.logger.error('Update updateRatingDto:');
+      this.logger.error(updateRatingDto);
     }
   }
 }
