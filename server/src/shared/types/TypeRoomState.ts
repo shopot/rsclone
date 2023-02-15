@@ -21,6 +21,8 @@ export type TypeRoomState = {
   lastGameAction: TypeGameAction;
   beatCardsArray: Array<TypeCard[]>;
   beatCardsPlacedArray: Array<TypePlacedCard[]>;
+  lastOpenAttackerCard: TypeCard | null;
+  lastCloseDefenderCard: TypeCard | null;
 };
 
 export enum TypeRoomStatus {

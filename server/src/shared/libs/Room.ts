@@ -75,6 +75,8 @@ export class Room {
 
   dealt: TypeDealt[];
   LastGameAction: TypeGameAction;
+  lastOpenAttackerCard: TypeCard | null;
+  lastCloseDefenderCard: TypeCard | null;
 
   logger: Logger;
 
@@ -114,6 +116,8 @@ export class Room {
       rounds: 0,
     };
     this.LastGameAction = TypeGameAction.Undefined;
+    this.lastOpenAttackerCard = null;
+    this.lastCloseDefenderCard = null;
 
     // Only for debug!
     this.logger = new Logger(`Room #${roomId}`);
@@ -311,6 +315,9 @@ export class Room {
       };
     }
 
+    // Set last open card from attacker
+    this.lastOpenAttackerCard = this.round.getLastOpenAttackerCard();
+
     // Remove card from player cards array
     this.activePlayer.lostCard(card);
 
@@ -325,6 +332,8 @@ export class Room {
       this.setPlayerAsWinner(this.activePlayer);
       this.attacker = this.getNextAttacker(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
+      // Change active player
+      this.activePlayer = this.attacker;
     }
 
     // Move turn to defender from attacker
@@ -333,7 +342,7 @@ export class Room {
     }
 
     if (this.isDefenderPickup && this.round.isFinished()) {
-      this.GivePickedupCardsToDefender();
+      this.GivePickedUpCardsToDefender();
       this.startNextRound();
     }
 
@@ -363,6 +372,9 @@ export class Room {
         message: "This card of the defender can't beat attacker's card",
       };
     }
+
+    // Set last close card
+    this.lastCloseDefenderCard = this.round.getLastCloseDefenderCard();
 
     // Remove card from player cards array
     this.activePlayer.lostCard(card);
@@ -431,7 +443,7 @@ export class Room {
 
     if (this.passCounter === this.passCounterMaxValue) {
       if (this.isDefenderPickup) {
-        this.GivePickedupCardsToDefender();
+        this.GivePickedUpCardsToDefender();
       } else {
         // Defender becomes attacker
         this.setActivePlayer(this.defender);
@@ -484,7 +496,7 @@ export class Room {
     this.isDefenderPickup = true;
 
     if (this.round.isFinished()) {
-      this.GivePickedupCardsToDefender();
+      this.GivePickedUpCardsToDefender();
       this.startNextRound();
     }
 
@@ -493,7 +505,7 @@ export class Room {
     return true;
   }
 
-  private GivePickedupCardsToDefender(): void {
+  private GivePickedUpCardsToDefender(): void {
     this.LastGameAction = TypeGameAction.DefenderTakesCards;
     this.isDefenderPickup = false;
     this.lastDefender.addCards(this.round.getRoundCards());
@@ -680,8 +692,16 @@ export class Room {
     }
 
     // host leaves, we need new host
-    if (leavePlayer.getSocketId() === this.getHostPlayerSocketId()) {
-      this.hostPlayer = this.getNextPlayer(leavePlayer);
+    if (
+      leavePlayer.getSocketId() === this.getHostPlayerSocketId() &&
+      this.getPlayersCount() > 1
+    ) {
+      for (const player of this.players) {
+        if (player.getSocketId() !== leavePlayer.getSocketId()) {
+          this.hostPlayer = player;
+          break;
+        }
+      }
     }
 
     // Game over if player who still InGame decides to leave
@@ -841,11 +861,11 @@ export class Room {
   }
 
   public getActivePlayerSocketId(): string {
-    return this.activePlayer.getSocketId();
+    return this.activePlayer?.getSocketId();
   }
 
   public getHostPlayerSocketId(): string {
-    return this.hostPlayer.getSocketId();
+    return this.hostPlayer?.getSocketId();
   }
 
   public getGameStats(): TypeGameStats {
@@ -882,6 +902,10 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
+    for (const player of this.players) {
+      player.setPlayerRole(TypePlayerRole.Waiting);
+    }
+
     this.updateGameStats();
   }
 
@@ -890,6 +914,7 @@ export class Room {
    * @returns {TypeRoomState}  - Room state
    */
   public getState(): TypeRoomState {
+    Logger.debug(this.round);
     return {
       roomId: this.roomId,
       roomStatus: this.roomStatus || TypeRoomStatus.WaitingForPlayers,
@@ -909,6 +934,8 @@ export class Room {
       lastGameAction: this.LastGameAction,
       beatCardsArray: this.beatCardsArray,
       beatCardsPlacedArray: this.beatCardsPlacedArray,
+      lastOpenAttackerCard: this.lastOpenAttackerCard,
+      lastCloseDefenderCard: this.lastCloseDefenderCard,
     };
   }
 
