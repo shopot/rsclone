@@ -42,12 +42,10 @@ export class Card extends Phaser.GameObjects.Sprite {
   }
 
   onCardClick() {
-    console.log('on click');
     const socketId = socketIOService.getSocketId();
     const isSocketActive = socketId === useGameStore.getState().activeSocketId;
     const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
     if (isSocketActive && this.cardType !== undefined && isGameOn) {
-      console.log('went to server');
       const thisPlayer = useGameStore
         .getState()
         .players.filter((player) => player.socketId === socketId)[0];

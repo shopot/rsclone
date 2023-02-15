@@ -13,6 +13,7 @@ import {
   TypeGameAction,
   TypePlacedCard,
   TypePlayer,
+  TypePlayerStatus,
   TypeRoomStatus,
 } from '../../../shared/types';
 import { Icon } from '../classes/Icon';
@@ -54,6 +55,8 @@ export class GameScene extends Phaser.Scene {
       }
     | undefined;
   prevActiveSocketId = '';
+  prevState: TypeGameState | undefined;
+  state: TypeGameState | undefined;
 
   constructor() {
     super('Game');
@@ -96,7 +99,7 @@ export class GameScene extends Phaser.Scene {
     // handleActions
     useGameStore.subscribe(
       (state) => state,
-      (data) => void this.handleActions(data),
+      (state, prevState) => void this.handleActions(state, prevState),
     );
 
     // saveTableCards
@@ -141,7 +144,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   //подписка на статус целиком. если только на экшены, то они могут не меняться, если несколько игроков делают пасс
-  async handleActions(state: TypeGameState) {
+  async handleActions(state: TypeGameState, prevState: TypeGameState) {
     if (
       state.lastGameAction === TypeGameAction.AttackerMoveCardFailed ||
       state.lastGameAction === TypeGameAction.DefenderMoveCardFailed
@@ -158,11 +161,18 @@ export class GameScene extends Phaser.Scene {
     ) {
       await this.handlePass();
     } else if (
-      state.lastGameAction === TypeGameAction.DefenderTakesCards &&
-      state.placedCards.length === 0
+      state.lastGameAction === TypeGameAction.DefenderTakesCards
+      //  &&
+      // state.placedCards.length === 0
     ) {
-      await this.handleTake();
+      //если на столе уже 6 кучек, то обработка клика не произойдет, также должен вызваться
+      if (this.prevPlacedCards.length === 5 && state.placedCards.length === 0)
+        await this.handleTakeFull();
+      else await this.handleTake();
+      //но если было на самом деле 5 битых всего, то лишних карт не будет и перенаправлять на handleTake
     }
+    this.prevState = prevState;
+    this.state = state;
   }
 
   saveTableCards(prevPlaced: TypePlacedCard[], currPlaced: TypePlacedCard[]) {
@@ -223,57 +233,107 @@ export class GameScene extends Phaser.Scene {
     console.log(useGameStore.getState());
   }
 
+  async handleTakeFull() {
+    console.log('handleTakeFull'.toUpperCase())
+    //если тому, кто берет, накидали 6 стопок, то  автоматом новый раунд, клик не обработался
+    //placedCards и beatCardsArray не актуальны, искат карту из карт игроков
+    //найти в прошлом стейте атакующего - он же активный + все его карты
+    //найти в новом стейте карты его же - должна быть лишняя карта
+    const prevActivePlayerID = this.prevState?.activeSocketId;
+    console.log(prevActivePlayerID, 'prevActivePlayerID')
+    const prevActivePrevCards = this.prevState?.players.find(
+      (player) => player.socketId === prevActivePlayerID,
+    )?.cards;
+    console.log(prevActivePrevCards, 'prevActivePrevCards')
+    const prevActiveCurrCards = this.state?.players.find(
+      (player) => player.socketId === prevActivePlayerID,
+    )?.cards;
+    console.log(prevActiveCurrCards, 'prevActiveCurrCards')
+    if (prevActivePrevCards && prevActiveCurrCards) {
+      const extraCard = prevActiveCurrCards.filter((card) => prevActivePrevCards.includes(card))[0];
+      if (extraCard === undefined) {
+        //если в действительности было всего 5 стопок
+        await this.handleTake();
+      }
+      console.log(extraCard, 'extraCard')
+      const extraSprite = this.playersCardsSprites
+        .flat()
+        .filter((card) => card.value === this.getCardTexture(extraCard))[0];
+      console.log(extraSprite, 'extraSprite')
+      const isMe = prevActivePlayerID === this.socketId;
+      await extraSprite.animateToTable(5, true, 6, isMe);
+      this.piles.push([extraSprite]);
+      const player = this.playersCardsSprites.filter((arr) => arr.includes(extraSprite))[0];
+      console.log(player, 'player')
+      const playerInd = this.playersCardsSprites.indexOf(player);
+      console.log(playerInd, 'playerInd')
+      const spriteInd = this.playersCardsSprites[playerInd].indexOf(extraSprite);
+      console.log(spriteInd, 'spriteInd')
+      this.playersCardsSprites[playerInd].splice(spriteInd, 1);
+      this.setEqualPositionAtHands();
+      this.updatePlayersText();
+      await this.updateCardsPosOnTable();
+    }
+  }
+
   async handleClick(lastAction: TypeGameAction) {
     this.sounds?.placeCard.play({ volume: 0.5 });
     const isAttacker = lastAction === TypeGameAction.AttackerMoveCard;
-    //определяю карту, которую надо положить из placedCards
-    //если это конец раунда, то он будет пустой, тогда брать из битых
+    // определяю карту, которую надо положить из placedCards
+    // если это конец раунда, то он будет пустой, тогда брать из битых
     let spriteType: TypeCard | null;
     let pileInd = -1;
     let pileLength = 0;
     const currPlaced = useGameStore.getState().placedCards;
-    console.log(currPlaced, 'currPlaced')
     if (currPlaced.length !== 0) {
       const piles = currPlaced.length !== 0 ? currPlaced : this.prevPlacedCards;
-      console.log(piles, 'piles')
       pileLength = piles.length;
+      const pilesWith1card = piles.filter((obj) => obj.defender === null);
       const pileToMove = isAttacker
-        ? piles.filter((obj) => obj.defender === null)[0]
+        ? pilesWith1card[pilesWith1card.length - 1]
         : piles[piles.length - 1];
-      console.log(pileToMove, 'pileToMove')
       pileInd = piles.indexOf(pileToMove);
-      console.log(pileInd, 'pileInd')
       spriteType = isAttacker ? piles[pileInd].attacker : piles[pileInd].defender;
-      console.log(spriteType, 'spriteType')
-    } else {
+    } else if (useGameStore.getState().beatCardsArray?.length !== 0) {
+      //если есть битые, то беру из них
+      console.log('from beaten - end of round');
       const beaten = useGameStore.getState().beatCardsArray;
-      console.log(beaten, 'beaten')
+      console.log(beaten, 'beaten');
       if (beaten) {
-        spriteType = beaten[beaten.length - 1][1];
+        const lastBeaten = beaten[beaten.length - 1];
+        console.log(lastBeaten, 'lastBeaten');
+        spriteType = lastBeaten[lastBeaten.length - 1];
+        console.log(beaten[beaten.length - 1], 'beaten[beaten.length - 1]');
+        console.log(spriteType, 'spriteType');
         pileInd = beaten.length - 1;
         pileLength = beaten.length;
       }
+    } else {
+      //если положили игроку 6 карт и он не может отбиться, то битые тоже пустые
+      //тогда сравниваю спрайты игроков с картами игроков
     }
 
     const sprite = this.playersCardsSprites
       .flat()
       .filter((card) => JSON.stringify(card.cardType) === JSON.stringify(spriteType))[0];
-      console.log(sprite, 'sprite')
+    console.log(sprite, 'sprite');
     const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
-    console.log(player, 'player')
+    console.log(player, 'player');
     const playerInd = this.playersCardsSprites.indexOf(player);
-    console.log(playerInd, 'playerInd')
-    const me = playerInd === 0;
+    console.log(playerInd, 'playerInd');
+    const isMe = playerInd === 0;
+    console.log(isMe, 'isMe');
     const spriteInd = player.indexOf(sprite);
-    console.log(spriteInd, 'spriteInd')
-
-    if (this.playersCardsSprites[playerInd].length !== 0) {
-      this.playersCardsSprites[playerInd].splice(spriteInd, 1);
-    } else {
-      this.playersCardsSprites[playerInd] = [];
-    }
-    isAttacker ? this.piles.push([sprite]) : this.piles[this.piles.length - 1].push(sprite);
-    await sprite.animateToTable(pileInd, isAttacker, pileLength, me);
+    console.log(spriteInd, 'spriteInd');
+    // if (this.playersCardsSprites[playerInd].length !== 0) {
+    //   this.playersCardsSprites[playerInd].splice(spriteInd, 1);
+    // } else {
+    //   this.playersCardsSprites[playerInd] = [];
+    // }
+    isAttacker ? this.piles.push([sprite]) : this.piles[pileLength - 1].push(sprite);
+    console.log(this.piles, 'this.piles')
+    await sprite.animateToTable(pileInd, isAttacker, pileLength, isMe);
+    this.playersCardsSprites[playerInd].splice(spriteInd, 1);
     this.setEqualPositionAtHands();
     this.updatePlayersText();
     await this.updateCardsPosOnTable();
@@ -324,6 +384,15 @@ export class GameScene extends Phaser.Scene {
         this.mainButton.update(TypeButtonStatus.Take, true);
       else if (isGame && !isSocketActive && !isAttacker)
         this.mainButton.update(TypeButtonStatus.Take, false);
+
+      //если победил, то статус может не соответсвовать!!!
+      const me = useGameStore
+        .getState()
+        .players.filter((player) => player.socketId === this.socketId)[0];
+
+      if (me.playerStatus === TypePlayerStatus.YouWinner) {
+        this.mainButton.update(TypeButtonStatus.Take, false);
+      }
     }
   }
 
@@ -351,6 +420,11 @@ export class GameScene extends Phaser.Scene {
       while (this.playersSorted.indexOf(me) !== 0) {
         const first = this.playersSorted.shift();
         if (first !== undefined) this.playersSorted.push(first);
+      }
+
+      //для победителя сделать модалку
+      if (me.playerStatus === TypePlayerStatus.YouWinner) {
+        console.log('WINNER');
       }
     }
     this.playersCards = this.playersSorted.map((set) => set.cards);
