@@ -8,7 +8,7 @@ const enum LoggingLevels {
 }
 
 const isDevelopmentMode =
-  (process.env.NODE_ENV || 'production') !== 'production' ? true : false;
+  (process.env.NODE_ENV || 'production') !== 'production';
 
 const appLoggerConfig: {
   level: LoggingLevels;
