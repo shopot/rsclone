@@ -325,6 +325,8 @@ export class Room {
       this.setPlayerAsWinner(this.activePlayer);
       this.attacker = this.getNextAttacker(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
+      // Change active player
+      this.activePlayer = this.attacker;
     }
 
     // Move turn to defender from attacker
@@ -333,7 +335,7 @@ export class Room {
     }
 
     if (this.isDefenderPickup && this.round.isFinished()) {
-      this.GivePickedupCardsToDefender();
+      this.GivePickedUpCardsToDefender();
       this.startNextRound();
     }
 
@@ -431,7 +433,7 @@ export class Room {
 
     if (this.passCounter === this.passCounterMaxValue) {
       if (this.isDefenderPickup) {
-        this.GivePickedupCardsToDefender();
+        this.GivePickedUpCardsToDefender();
       } else {
         // Defender becomes attacker
         this.setActivePlayer(this.defender);
@@ -484,7 +486,7 @@ export class Room {
     this.isDefenderPickup = true;
 
     if (this.round.isFinished()) {
-      this.GivePickedupCardsToDefender();
+      this.GivePickedUpCardsToDefender();
       this.startNextRound();
     }
 
@@ -493,7 +495,7 @@ export class Room {
     return true;
   }
 
-  private GivePickedupCardsToDefender(): void {
+  private GivePickedUpCardsToDefender(): void {
     this.LastGameAction = TypeGameAction.DefenderTakesCards;
     this.isDefenderPickup = false;
     this.lastDefender.addCards(this.round.getRoundCards());
