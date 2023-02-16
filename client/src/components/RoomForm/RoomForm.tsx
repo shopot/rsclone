@@ -136,21 +136,24 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
             </label>
             {actionText === 'Create' && (
               <>
-                <select
-                  name="testnames"
-                  value={testName}
-                  onChange={handleChangeTestName}
-                >
-                  <option value="">No testCase</option>
-                  {testNames.map((testName) => (
-                    <option
-                      key={testName}
-                      value={testName}
-                    >
-                      {testName}
-                    </option>
-                  ))}
-                </select>
+                <label className={styles.oldUI}>
+                  <select
+                    style={{ height: '34px', background: 'rgba(0, 0, 0, 0.5)' }}
+                    name="testNames"
+                    value={testName}
+                    onChange={handleChangeTestName}
+                  >
+                    <option value="">No testCase</option>
+                    {testNames.map((testName) => (
+                      <option
+                        key={testName}
+                        value={testName}
+                      >
+                        {testName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </>
             )}
           </>
