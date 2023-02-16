@@ -18,6 +18,7 @@ import {
 } from '../../../shared/types';
 import { Icon } from '../classes/Icon';
 import { ButtonLeave } from '../prefabs/ButtonLeave';
+import { StatusHelper } from '../prefabs/StatusHelper';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -56,6 +57,7 @@ export class GameScene extends Phaser.Scene {
     | undefined;
   prevState: TypeGameState | undefined;
   state: TypeGameState | undefined;
+  statusHelper: StatusHelper | undefined;
 
   constructor() {
     super('Game');
@@ -136,11 +138,13 @@ export class GameScene extends Phaser.Scene {
     this.state = state;
     if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
       this.createBubble('Take');
+      this.updateHelper('takes');
     } else if (
       state.lastGameAction === TypeGameAction.AttackerPass ||
       state.lastGameAction === TypeGameAction.DefenderTakesCards
     ) {
       this.createBubble('Pass');
+      this.updateHelper('passes');
     }
     if (
       JSON.stringify(state.lastCloseDefenderCard) !==
@@ -159,6 +163,26 @@ export class GameScene extends Phaser.Scene {
         await this.handleTake();
       }
       await this.checkDealt(state.dealt);
+    }
+    // if (
+    //   state.lastGameAction !== TypeGameAction.DefenderDecidesToPickUp &&
+    //   state.lastGameAction !== TypeGameAction.AttackerPass &&
+    //   state.lastGameAction !== TypeGameAction.DefenderTakesCards &&
+    //   state.lastGameAction !== TypeGameAction.DefenderMoveCardFailed &&
+    //   state.lastGameAction !== TypeGameAction.AttackerMoveCardFailed
+    // ) {
+    //   this.statusHelper?.setStatus('', '');
+    // }
+  }
+
+  updateHelper(status: string) {
+    const activeIDd = this.prevState?.activeSocketId;
+    const nickname = this.prevState?.players.find(
+      (player) => player.socketId === activeIDd,
+    )?.playerName;
+    if (nickname) {
+      if (activeIDd !== this.socketId) this.statusHelper?.setStatus(nickname, status);
+      else if (activeIDd === this.socketId) this.statusHelper?.setStatus('', '');
     }
   }
 
@@ -327,6 +351,14 @@ export class GameScene extends Phaser.Scene {
     new ButtonLeave(this);
   }
 
+  update() {
+    if (this.piles.length === 0 && this.state?.placedCards.length === 0) {
+      setTimeout(() => {
+        this.statusHelper?.setStatus('', '');
+      }, 1000);
+    }
+  }
+
   //подписка на [state.roomStatus, state.activeSocketId]
   updateButton(arr: string[]) {
     const [roomStatus, activeSocketId] = arr;
@@ -371,9 +403,13 @@ export class GameScene extends Phaser.Scene {
       this.sortPlayersData(players);
       this.createHands();
       this.createIcons();
+      this.createHelper();
     }
   }
 
+  createHelper() {
+    this.statusHelper = new StatusHelper(this);
+  }
   //подписка на state.players
   sortPlayersData(players: TypePlayer[]) {
     this.playersSortedPrev = [...this.playersSorted];
