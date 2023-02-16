@@ -6,4 +6,5 @@ export class GameReceiveDto {
   readonly playerAvatar: string;
   readonly message: string; // chat message
   readonly card: TypeCard;
+  readonly testName?: string;
 }
