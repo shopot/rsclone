@@ -54,7 +54,6 @@ export class GameScene extends Phaser.Scene {
         fromDeck: Phaser.Sound.BaseSound;
       }
     | undefined;
-  prevActiveSocketId = '';
   prevState: TypeGameState | undefined;
   state: TypeGameState | undefined;
 
@@ -101,12 +100,6 @@ export class GameScene extends Phaser.Scene {
       (state) => state.placedCards,
       (piles, prevPiles) => this.saveTableCards(piles, prevPiles),
     );
-
-    useGameStore.subscribe(
-      (state) => state.activeSocketId,
-      (activeSocketId, prevActiveSocketId) =>
-        this.saveActiveSocketId(activeSocketId, prevActiveSocketId),
-    );
   }
 
   create() {
@@ -141,6 +134,14 @@ export class GameScene extends Phaser.Scene {
   async handleActions(state: TypeGameState, prevState: TypeGameState) {
     this.prevState = prevState;
     this.state = state;
+    if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
+      this.createBubble('Take');
+    } else if (
+      state.lastGameAction === TypeGameAction.AttackerPass ||
+      state.lastGameAction === TypeGameAction.DefenderTakesCards
+    ) {
+      this.createBubble('Pass');
+    }
     if (
       JSON.stringify(state.lastCloseDefenderCard) !==
         JSON.stringify(prevState.lastCloseDefenderCard) ||
@@ -187,16 +188,17 @@ export class GameScene extends Phaser.Scene {
     this.updatePlayersText();
   }
 
-  saveActiveSocketId(activeSocketId: string, prevActiveSocketId: string) {
-    this.prevActiveSocketId = prevActiveSocketId;
+  createBubble(text: string) {
+    const prevActiveIcon = this.icons.find(
+      (icon) => icon.socketId === this.prevState?.activeSocketId,
+    );
+    if (prevActiveIcon !== undefined) {
+      const me = this.prevState?.activeSocketId === this.socketId;
+      prevActiveIcon.createBubble(text, me);
+    }
   }
-
   async handlePass() {
     console.log('````````````handle pass````````````````');
-    const prevActiveIcon = this.icons.find((icon) => icon.socketId === this.prevActiveSocketId);
-    if (prevActiveIcon !== undefined) {
-      prevActiveIcon.createBubble('Pass');
-    }
 
     const angle = 180 / (this.piles.flat().length + 1);
     for (const card of this.piles.flat()) {

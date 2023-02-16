@@ -12,6 +12,7 @@ export class Icon {
   socketId: string;
   x: number;
   spriteY: number;
+  bubble: SpeechBubble | undefined;
   constructor(
     scene: Phaser.Scene,
     index: number,
@@ -45,7 +46,14 @@ export class Icon {
     this.border.createBorder(status);
   }
 
-  createBubble(text: string) {
-    const bubble = new SpeechBubble(this.scene, text, this.x, this.spriteY);
+  createBubble(text: string, me: boolean) {
+    this.bubble = new SpeechBubble(this.scene, text, this.x, this.spriteY, me);
+    this.destroyBubble();
+  }
+
+  destroyBubble() {
+    setTimeout(() => {
+      this.bubble?.destroy();
+    }, 3000);
   }
 }
