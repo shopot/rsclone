@@ -28,12 +28,12 @@ export class Card extends Phaser.GameObjects.Sprite {
       primaryColor: Phaser.Display.Color.ValueToColor(0xffffff),
       secondaryColor: Phaser.Display.Color.ValueToColor(0xeeee76),
     };
-    this.setInteractive().on('pointerdown', () => this.onCardClick());
+    this.setInteractive({ cursor: 'pointer' }).on('pointerdown', () => this.onCardClick());
   }
 
   makeClickable() {
     this.open();
-    this.setInteractive();
+    this.setInteractive({ cursor: 'pointer' });
     // .on('pointerdown', () => this.makeMove());
   }
   makeNotClickable() {

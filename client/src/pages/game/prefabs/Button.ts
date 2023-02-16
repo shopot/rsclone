@@ -15,7 +15,7 @@ export class Button extends Phaser.GameObjects.Sprite {
     this.scene.add.existing(this);
     this.setScale(0.8);
 
-    this.setInteractive()
+    this.setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => this.handleClick())
       .removeInteractive();
   }
@@ -46,7 +46,7 @@ export class Button extends Phaser.GameObjects.Sprite {
   }
 
   makeInteractive(btnStatus: TypeButtonStatus) {
-    this.setInteractive();
+    this.setInteractive({ cursor: 'pointer' });
     if (btnStatus === TypeButtonStatus.Start) this.setFrame('btn-start');
     else if (btnStatus === TypeButtonStatus.Take) this.setFrame('btn-take');
     else if (btnStatus === TypeButtonStatus.Pass) this.setFrame('btn-pass');
