@@ -12,11 +12,16 @@ export const ModalContainer = ({ isOpen, toggle, children }: IModalProps) => {
 
   return (
     <ReactModal
+      closeTimeoutMS={450}
       isOpen={isOpen}
       contentLabel="onRequestClose Example"
       onRequestClose={toggle}
       shouldCloseOnOverlayClick={true}
-      overlayClassName={styles.modalOverlay}
+      overlayClassName={{
+        base: styles.modalOverlay,
+        afterOpen: styles.modalOverlayAfterOpen,
+        beforeClose: styles.modalOverlayBeforeClose,
+      }}
       className={styles.modalBox}
     >
       {children}

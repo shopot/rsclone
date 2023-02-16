@@ -1,15 +1,18 @@
 import { TypeSortOrder } from './../shared/types';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { HISTORY_ROWS_LIMIT } from './constants';
 import { ICreateHistoryDto, IReturnHistoryDto } from './dto';
 import { History } from './models/history.entity';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger as WinstonLogger } from 'winston';
 
 @Injectable()
 export class HistoryService {
   constructor(
     @Inject('HISTORY_REPOSITORY')
     private historyRepository: Repository<History>,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
   ) {}
 
   /**
@@ -50,8 +53,8 @@ export class HistoryService {
         .updateEntity(false)
         .execute();
     } catch {
-      Logger.error('Insert createHistoryDto to History:');
-      Logger.error(createHistoryDto);
+      this.logger.error('Insert createHistoryDto to History:');
+      this.logger.error(createHistoryDto);
     }
   }
 }
