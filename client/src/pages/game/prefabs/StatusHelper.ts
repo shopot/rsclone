@@ -24,7 +24,7 @@ export class StatusHelper extends Phaser.GameObjects.Text {
     if (status === 'passes') {
       setTimeout(() => {
         this.setText('');
-      }, 2000);
+      }, 3000);
     }
   }
 }

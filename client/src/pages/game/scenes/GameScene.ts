@@ -164,15 +164,14 @@ export class GameScene extends Phaser.Scene {
       }
       await this.checkDealt(state.dealt);
     }
-    // if (
-    //   state.lastGameAction !== TypeGameAction.DefenderDecidesToPickUp &&
-    //   state.lastGameAction !== TypeGameAction.AttackerPass &&
-    //   state.lastGameAction !== TypeGameAction.DefenderTakesCards &&
-    //   state.lastGameAction !== TypeGameAction.DefenderMoveCardFailed &&
-    //   state.lastGameAction !== TypeGameAction.AttackerMoveCardFailed
-    // ) {
-    //   this.statusHelper?.setStatus('', '');
-    // }
+    this.colorNickname();
+  }
+
+  colorNickname() {
+    const playersRoles = this.playersSorted.map((player) => player.playerRole);
+    this.icons.forEach((icon, ind) => {
+      icon.colorCloud(playersRoles[ind]);
+    });
   }
 
   updateHelper(status: string) {

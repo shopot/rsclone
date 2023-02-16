@@ -1,3 +1,4 @@
+import { TypePlayerRole } from '../../../shared/types';
 import { config } from '../index';
 import { IconBorder } from '../prefabs/IconBorder';
 import { IconPic } from '../prefabs/IconPic';
@@ -13,6 +14,8 @@ export class Icon {
   x: number;
   spriteY: number;
   bubble: SpeechBubble | undefined;
+  cloud: Phaser.GameObjects.Sprite;
+  cloudColors: { attacker: number; defender: number; other: number };
   constructor(
     scene: Phaser.Scene,
     index: number,
@@ -23,6 +26,7 @@ export class Icon {
   ) {
     this.scene = scene;
     this.socketId = socketId;
+    this.cloudColors = { attacker: 0xff0000, defender: 0xd8ff00, other: 0x712b04 };
 
     this.x = tableSizes[index].startX;
     this.spriteY = index === 0 ? config.height - config.cardSize.h + 25 : 82;
@@ -31,7 +35,14 @@ export class Icon {
     this.border = new IconBorder(this.scene, this.x - 68, this.spriteY - 27, 55, 55, 5);
 
     const textY = index === 0 ? this.spriteY - 55 : this.spriteY + 40;
-    this.text = new Nickname(this.scene, this.x + 10, textY, nickname);
+    this.cloud = this.scene.add
+      .sprite(this.x - 10, textY - 15, 'clouds', 'blue')
+      .setScale(1.7)
+      .setOrigin(0, 0)
+      .setTint(this.cloudColors.other)
+      // .setAlpha(0.7);
+      .setAlpha(0);
+    this.text = new Nickname(this.scene, this.x + 10, textY - 5, nickname);
   }
 
   destroy() {
@@ -55,5 +66,17 @@ export class Icon {
     setTimeout(() => {
       this.bubble?.destroy();
     }, 3000);
+  }
+
+  colorCloud(role: TypePlayerRole) {
+    const params = { color: 0, opacity: 0 };
+    params.color =
+      role === TypePlayerRole.Attacker
+        ? this.cloudColors.attacker
+        : role === TypePlayerRole.Defender
+        ? this.cloudColors.defender
+        : this.cloudColors.other;
+    params.opacity = role === TypePlayerRole.Attacker || role === TypePlayerRole.Defender ? 0.7 : 0;
+    this.cloud.setTint(params.color).setAlpha(params.opacity);
   }
 }
