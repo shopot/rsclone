@@ -541,10 +541,7 @@ export class Room {
 
     // active player got no cards and won the game; choose another active player
     if (this.activePlayer.getPlayerStatus() === TypePlayerStatus.YouWinner) {
-      this.activePlayer =
-        this.activePlayer === this.lastDefender
-          ? this.getNextPlayer(this.lastDefender)
-          : this.getNextAttacker(this.activePlayer);
+      this.activePlayer = this.getNextAttacker(this.activePlayer);
     }
 
     // Set only from active player every time
