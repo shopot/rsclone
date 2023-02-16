@@ -531,11 +531,10 @@ export class Room {
 
     // active player got no cards and won the game; choose another active player
     if (this.activePlayer.getPlayerStatus() === TypePlayerStatus.YouWinner) {
-      if (this.activePlayer === this.lastDefender) {
-        this.activePlayer = this.getNextPlayer(this.lastDefender);
-      } else {
-        this.activePlayer = this.getNextAttacker(this.activePlayer);
-      }
+      this.activePlayer =
+        this.activePlayer === this.lastDefender
+          ? this.getNextPlayer(this.lastDefender)
+          : this.getNextAttacker(this.activePlayer);
     }
 
     // Set only from active player every time
@@ -545,12 +544,11 @@ export class Room {
     // this.defender = this.getNextPlayer(); // Can returns error!
     this.defender = this.getNextPlayer(this.attacker);
 
-    if (this.defender === this.attacker) {
-      Logger.debug(`Room #${this.roomId} - Can't set next defender`);
-
-      this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
-      this.lastLoser = this.defender;
-      this.activePlayer = this.defender;
+    if (this.players.totalCountInGame() === 1) {
+      const lastPlayer = this.players.getPlayersInGame()[0];
+      lastPlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.lastLoser = lastPlayer;
+      this.activePlayer = lastPlayer;
       this.setGameIsOver();
 
       return;
