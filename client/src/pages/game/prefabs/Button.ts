@@ -9,9 +9,10 @@ export class Button extends Phaser.GameObjects.Sprite {
     super(scene, 0, 0, 'buttons', 'btn-start-disabled');
     this.scene = scene;
     this.status = TypeButtonStatus.Start;
-    this.x = config.playersHands[1][0].startX + config.playersHands[1][0].width + 50;
-    this.y = config.height - 100;
-    this.setOrigin(0, 0);
+    const a = config.width;
+    const b = config.playersHands[1][0].width;
+    this.x = (3 * a + b) / 4;
+    this.y = config.height - config.cardSize.h / 2;
     this.scene.add.existing(this);
     this.setScale(0.8);
 
@@ -51,7 +52,7 @@ export class Button extends Phaser.GameObjects.Sprite {
     else if (btnStatus === TypeButtonStatus.Take) this.setFrame('btn-take');
     else if (btnStatus === TypeButtonStatus.Pass) this.setFrame('btn-pass');
     this.status = btnStatus;
-    // this.btnText.on('pointerover', () => this.drawButtonShape(this.bgColors.focus));
-    // this.btnText.on('pointerout', () => this.drawButtonShape(this.bgColors.active));
+    this.on('pointerover', () => this.setScale(0.82));
+    this.on('pointerout', () => this.setScale(0.8));
   }
 }
