@@ -134,21 +134,25 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
                 onChange={() => setOldGameUI(!oldGameUI)}
               />
             </label>
-            <select
-              name="testnames"
-              value={testName}
-              onChange={handleChangeTestName}
-            >
-              <option value="">no testcase</option>
-              {testNames.map((testName) => (
-                <option
-                  key={testName}
+            {actionText === 'Create' && (
+              <>
+                <select
+                  name="testnames"
                   value={testName}
+                  onChange={handleChangeTestName}
                 >
-                  {testName}
-                </option>
-              ))}
-            </select>
+                  <option value="">No testCase</option>
+                  {testNames.map((testName) => (
+                    <option
+                      key={testName}
+                      value={testName}
+                    >
+                      {testName}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
           </>
         )}
       </div>
