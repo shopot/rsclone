@@ -19,6 +19,7 @@ import {
 import { Icon } from '../classes/Icon';
 import { ButtonLeave } from '../prefabs/ButtonLeave';
 import { StatusHelper } from '../prefabs/StatusHelper';
+import { Timer } from '../prefabs/Timer';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -58,6 +59,7 @@ export class GameScene extends Phaser.Scene {
   prevState: TypeGameState | undefined;
   state: TypeGameState | undefined;
   statusHelper: StatusHelper | undefined;
+  timer: Timer | undefined;
 
   constructor() {
     super('Game');
@@ -536,27 +538,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   createTimer() {
-    let counter = 0;
-    const timer = this.add.text(
-      this.handSizes[0].startX + this.handSizes[0].width / 2,
-      config.height - config.cardSize.h - 35,
-      '',
-      {
-        font: '20px',
-        color: '#FFFFFF',
-        strokeThickness: 1,
-        stroke: '#FFFFFF',
-      },
-    );
-    this.time.addEvent({
-      delay: 1000,
-      callback: () => {
-        counter++;
-        timer.setText(`Time: ${counter}`).setOrigin(0.5, 0);
-      },
-      callbackScope: this,
-      loop: true,
-    });
+    this.timer = new Timer(this, this.handSizes[0]);
   }
 
   //подписка на state.dealt - убрать из подписки, вызывать вручную!!!!
