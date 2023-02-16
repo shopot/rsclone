@@ -18,6 +18,8 @@ export class Card extends Phaser.GameObjects.Sprite {
     type?: TypeCard,
   ) {
     super(scene, x, y, texture, 'cardBack');
+    this.x = x;
+    this.y = y;
     this.scene = scene;
     this.value = value;
     this.cardType = type;
@@ -28,16 +30,21 @@ export class Card extends Phaser.GameObjects.Sprite {
       primaryColor: Phaser.Display.Color.ValueToColor(0xffffff),
       secondaryColor: Phaser.Display.Color.ValueToColor(0xeeee76),
     };
-    this.setInteractive({ cursor: 'pointer' }).on('pointerdown', () => this.onCardClick());
+    this.setInteractive({ cursor: 'pointer' })
+      .on('pointerdown', () => this.onCardClick())
+      .on('pointerover', () => this.shiftCard(true))
+      .on('pointerout', () => this.shiftCard(false));
+  }
+  shiftCard(status: boolean) {
+    const shift = status ? 5 : -5;
+    this.setPosition(this.x, this.y - shift);
   }
 
   makeClickable() {
     this.open();
     this.setInteractive({ cursor: 'pointer' });
-    // .on('pointerdown', () => this.makeMove());
   }
   makeNotClickable() {
-    // this.on('pointerdown', () => null);
     this.removeInteractive();
   }
 
