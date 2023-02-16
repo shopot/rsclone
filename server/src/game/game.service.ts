@@ -116,7 +116,10 @@ export class GameService {
 
     socket.join(this.roomId);
 
-    this.room = new Room(this.roomId, hostPlayer, this);
+    // RoomTestFactory
+    const testName = data.testName || '';
+
+    this.room = new Room(this.roomId, hostPlayer, this, testName);
 
     this.rooms.set(this.roomId, this.room);
 
