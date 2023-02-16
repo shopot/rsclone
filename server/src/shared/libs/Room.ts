@@ -1,3 +1,4 @@
+import { RoomTestFactory } from './../../test-factory/RoomTestFactory';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -78,7 +79,15 @@ export class Room {
   lastOpenAttackerCard: TypeCard | null;
   lastCloseDefenderCard: TypeCard | null;
 
-  constructor(roomId: string, hostPlayer: Player, gameService: GameService) {
+  // RoomTestFactory
+  testName: string;
+
+  constructor(
+    roomId: string,
+    hostPlayer: Player,
+    gameService: GameService,
+    testName = '',
+  ) {
     this.roomId = roomId;
 
     // For send actions
@@ -116,6 +125,8 @@ export class Room {
     this.LastGameAction = TypeGameAction.Undefined;
     this.lastOpenAttackerCard = null;
     this.lastCloseDefenderCard = null;
+
+    this.testName = testName;
   }
 
   public getRoomId(): string {
@@ -198,6 +209,12 @@ export class Room {
 
     // Save first player socketId in this round
     this.round.setStartPlayerSocketId(this.activePlayer.getSocketId());
+
+    // RoomTestFactory load case for testing
+    if (this.testName !== '') {
+      const test = new RoomTestFactory(this, this.testName);
+      test.create();
+    }
 
     // Send game status for all players
     return true;
@@ -518,6 +535,32 @@ export class Room {
       player.setPlayerRole(TypePlayerRole.Waiting);
     });
 
+    // Dealt cards to user
+    this.dealtCards();
+
+    // check if someone left with no cards
+    for (const player of this.players) {
+      if (player.getCardsCount() === 0) {
+        player.setPlayerRole(TypePlayerRole.Waiting);
+        player.setPlayerStatus(TypePlayerStatus.YouWinner);
+      }
+    }
+
+    if (this.players.totalCountInGame() === 1) {
+      const lastPlayer = this.players.getPlayersInGame()[0];
+      lastPlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
+      this.lastLoser = lastPlayer;
+      this.activePlayer = lastPlayer;
+      this.setGameIsOver();
+
+      return;
+    }
+
+    // active player got no cards and won the game; choose another active player
+    if (this.activePlayer.getPlayerStatus() === TypePlayerStatus.YouWinner) {
+      this.activePlayer = this.getNextAttacker(this.activePlayer);
+    }
+
     // Set only from active player every time
     this.attacker = this.activePlayer;
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
@@ -525,19 +568,7 @@ export class Room {
     // this.defender = this.getNextPlayer(); // Can returns error!
     this.defender = this.getNextPlayer(this.attacker);
 
-    if (this.defender === this.attacker) {
-      Logger.debug(`Room #${this.roomId} - Can't set next defender`);
-
-      this.lastLoser = this.defender;
-      this.setGameIsOver();
-
-      return;
-    }
-
     this.defender.setPlayerRole(TypePlayerRole.Defender);
-
-    // Dealt cards to user
-    this.dealtCards();
 
     this.round.setDefenderCardsAtRoundStart(this.defender.getCardsCount());
 

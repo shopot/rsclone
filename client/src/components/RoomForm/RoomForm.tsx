@@ -3,6 +3,7 @@ import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { IS_OLD_GAME_UI_ENABLED } from '../../app/config';
 import { avatars, getPlayerAvatarIdx, validateAvatarIdx } from '../../shared/avatars';
 import { AVATAR_PREFIX, UNIQUE_LOCALSTORAGE_PREFIX } from '../../shared/constants';
+import { testNames } from '../../shared/tests/testNames';
 import styles from './RoomForm.m.scss';
 
 type TypePlayerSettings = {
@@ -52,6 +53,7 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
   const [oldGameUI, setOldGameUI] = useState(true);
   const [isPlayerNameValid, setIsPlayerNameValid] = useState(false);
   const [playerAvatarIdx, setPlayerAvatarIdx] = useState(getPlayerAvatarIdx(playerSettings.avatar));
+  const [testName, setTestName] = useState('');
 
   const actionText = title.toLowerCase().includes('join') ? 'Join' : 'Create';
 
@@ -71,13 +73,18 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
     setPlayerAvatarIdx(idx);
   };
 
+  const handleChangeTestName = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log(event.target.value);
+    setTestName(event.target.value);
+  };
+
   const handleSubmit = () => {
     if (validateName(playerName) && validateAvatarIdx(playerAvatarIdx)) {
       setPlayerSettings({
         playerName,
         avatar: `${AVATAR_PREFIX}${playerAvatarIdx}`,
       });
-      onSubmit(playerName, `${AVATAR_PREFIX}${playerAvatarIdx}`, oldGameUI);
+      onSubmit(playerName, `${AVATAR_PREFIX}${playerAvatarIdx}`, testName, oldGameUI);
     }
   };
 
@@ -118,14 +125,38 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
           ))}
         </div>
         {IS_OLD_GAME_UI_ENABLED && (
-          <label className={styles.oldUI}>
-            Old UI:
-            <input
-              type="checkbox"
-              checked={oldGameUI}
-              onChange={() => setOldGameUI(!oldGameUI)}
-            />
-          </label>
+          <>
+            <label className={styles.oldUI}>
+              Old UI:
+              <input
+                type="checkbox"
+                checked={oldGameUI}
+                onChange={() => setOldGameUI(!oldGameUI)}
+              />
+            </label>
+            {actionText === 'Create' && (
+              <>
+                <label className={styles.oldUI}>
+                  <select
+                    style={{ height: '34px', background: 'rgba(0, 0, 0, 0.5)' }}
+                    name="testNames"
+                    value={testName}
+                    onChange={handleChangeTestName}
+                  >
+                    <option value="">No testCase</option>
+                    {testNames.map((testName) => (
+                      <option
+                        key={testName}
+                        value={testName}
+                      >
+                        {testName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </>
+            )}
+          </>
         )}
       </div>
       <div className={styles.formFooter}>
@@ -151,6 +182,6 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
 
 export declare interface IRoomFormProps {
   title: string;
-  onSubmit(playerName: string, playerAvatar: string, oldGameUI: boolean): void;
+  onSubmit(playerName: string, playerAvatar: string, testName: string, oldGameUI: boolean): void;
   onCancel(): void;
 }
