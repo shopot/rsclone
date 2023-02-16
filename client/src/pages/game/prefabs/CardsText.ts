@@ -4,8 +4,8 @@ export class CardsText extends Phaser.GameObjects.Text {
     this.scene = scene;
     this.scene.add.existing(this);
     this.setStyle({
-      font: '26px',
-      color: '#FFFF00',
+      font: '30px bold',
+      color: '#ffbf00',
       strokeThickness: 4,
       stroke: '#000000',
     });
