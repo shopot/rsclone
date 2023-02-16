@@ -33,6 +33,11 @@
 .avatar {
   box-sizing: content-box;
   border: 2px solid transparent;
+  transition: transform 0.25s ease-in-out;
+
+  &:hover {
+    transform: scale(1.05);
+  }
 
   img {
     border-radius: 5px;
