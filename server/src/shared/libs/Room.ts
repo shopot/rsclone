@@ -518,6 +518,26 @@ export class Room {
       player.setPlayerRole(TypePlayerRole.Waiting);
     });
 
+    // Dealt cards to user
+    this.dealtCards();
+
+    // check if someone left with no cards
+    for (const player of this.players) {
+      if (player.getCardsCount() === 0) {
+        player.setPlayerRole(TypePlayerRole.Waiting);
+        player.setPlayerStatus(TypePlayerStatus.YouWinner);
+      }
+    }
+
+    // active player got no cards and won the game; choose another active player
+    if (this.activePlayer.getPlayerStatus() === TypePlayerStatus.YouWinner) {
+      if (this.activePlayer === this.lastDefender) {
+        this.activePlayer = this.getNextPlayer(this.lastDefender);
+      } else {
+        this.activePlayer = this.getNextAttacker(this.activePlayer);
+      }
+    }
+
     // Set only from active player every time
     this.attacker = this.activePlayer;
     this.attacker.setPlayerRole(TypePlayerRole.Attacker);
@@ -535,9 +555,6 @@ export class Room {
     }
 
     this.defender.setPlayerRole(TypePlayerRole.Defender);
-
-    // Dealt cards to user
-    this.dealtCards();
 
     this.round.setDefenderCardsAtRoundStart(this.defender.getCardsCount());
 
