@@ -1,3 +1,4 @@
+import { RoomTestFactory } from './../../test-factory/RoomTestFactory';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -78,7 +79,15 @@ export class Room {
   lastOpenAttackerCard: TypeCard | null;
   lastCloseDefenderCard: TypeCard | null;
 
-  constructor(roomId: string, hostPlayer: Player, gameService: GameService) {
+  // RoomTestFactory
+  testName: string;
+
+  constructor(
+    roomId: string,
+    hostPlayer: Player,
+    gameService: GameService,
+    testName = '',
+  ) {
     this.roomId = roomId;
 
     // For send actions
@@ -116,6 +125,8 @@ export class Room {
     this.LastGameAction = TypeGameAction.Undefined;
     this.lastOpenAttackerCard = null;
     this.lastCloseDefenderCard = null;
+
+    this.testName = testName;
   }
 
   public getRoomId(): string {
@@ -198,6 +209,12 @@ export class Room {
 
     // Save first player socketId in this round
     this.round.setStartPlayerSocketId(this.activePlayer.getSocketId());
+
+    // RoomTestFactory load case for testing
+    if (this.testName !== '') {
+      const test = new RoomTestFactory(this, this.testName);
+      test.create();
+    }
 
     // Send game status for all players
     return true;
