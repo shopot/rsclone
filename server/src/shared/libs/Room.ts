@@ -548,7 +548,9 @@ export class Room {
     if (this.defender === this.attacker) {
       Logger.debug(`Room #${this.roomId} - Can't set next defender`);
 
+      this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
       this.lastLoser = this.defender;
+      this.activePlayer = this.defender;
       this.setGameIsOver();
 
       return;
