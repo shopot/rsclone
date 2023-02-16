@@ -24,10 +24,17 @@ export const RoomCreateContainer = () => {
     };
   }, [redirectToGamePage, isOldGameUI]);
 
-  const handleCreateRoom = (playerName: string, playerAvatar: string, oldGameUI = true): void => {
+  const handleCreateRoom = (
+    playerName: string,
+    playerAvatar: string,
+    testName = '',
+    oldGameUI = true,
+  ): void => {
     toggle();
     setOldGameUI(oldGameUI);
-    socketIOService.emit(TypeSocketEvent.GameCreateRoom, { data: { playerName, playerAvatar } });
+    socketIOService.emit(TypeSocketEvent.GameCreateRoom, {
+      data: { playerName, playerAvatar, testName },
+    });
   };
 
   return (

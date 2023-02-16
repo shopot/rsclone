@@ -23,7 +23,12 @@ export const RoomJoinContainer = ({ isCanJoin, roomId }: IRoomJoinContainerProps
     };
   }, [redirectToGamePage, isOldGameUI]);
 
-  const handleJoinRoom = (playerName: string, playerAvatar: string, oldGameUI: boolean): void => {
+  const handleJoinRoom = (
+    playerName: string,
+    playerAvatar: string,
+    testName: string,
+    oldGameUI: boolean,
+  ): void => {
     toggle();
     setOldGameUI(oldGameUI);
     socketIOService.emit(TypeSocketEvent.GameJoinRoom, {
