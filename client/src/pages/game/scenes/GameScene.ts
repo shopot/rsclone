@@ -527,11 +527,36 @@ export class GameScene extends Phaser.Scene {
   async startGame() {
     this.trump = useGameStore.getState().trumpCard;
     this.createTrumpSuit();
+    this.createTimer();
     await this.createTrumpCard();
     await this.createCardSprites(useGameStore.getState().dealt, 1);
     this.createCardsText();
     //иначе, если до игры он же был активный, то не меняется
     this.colorIcon(useGameStore.getState().activeSocketId);
+  }
+
+  createTimer() {
+    let counter = 0;
+    const timer = this.add.text(
+      this.handSizes[0].startX + this.handSizes[0].width / 2,
+      config.height - config.cardSize.h - 35,
+      '',
+      {
+        font: '20px',
+        color: '#FFFFFF',
+        strokeThickness: 1,
+        stroke: '#FFFFFF',
+      },
+    );
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        counter++;
+        timer.setText(`Time: ${counter}`).setOrigin(0.5, 0);
+      },
+      callbackScope: this,
+      loop: true,
+    });
   }
 
   //подписка на state.dealt - убрать из подписки, вызывать вручную!!!!
