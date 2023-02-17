@@ -498,6 +498,9 @@ export class Room {
     // Check game is finish for defender
     if (this.players.totalCountInGame() === 1) {
       this.activePlayer.addCards(this.round.getRoundCards());
+      // Clean place cards
+      this.round.restart();
+
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
       this.lastLoser = this.activePlayer;
       this.setGameIsOver();
@@ -804,6 +807,14 @@ export class Room {
 
     // When has two players
     if (playersInGame.length === 2) {
+      // If defender leave as winner
+      if (
+        playersInGame[0].getPlayerRole() !== TypePlayerRole.Defender &&
+        playersInGame[1].getPlayerRole() !== TypePlayerRole.Defender
+      ) {
+        return this.getNextPlayer(currentAttacker);
+      }
+
       return playersInGame[0].getPlayerRole() === TypePlayerRole.Defender
         ? playersInGame[1]
         : playersInGame[0];
