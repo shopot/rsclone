@@ -3,7 +3,7 @@ import styles from './styles.m.scss';
 
 const AboutPage = () => {
   return (
-    <MotionContainer key="AboutPage">
+    <MotionContainer identKey="AboutPage">
       <div className="container">
         <section className={`box-container ${styles.rulesSection}`}>
           <h1 className="heading">Game Rules</h1>

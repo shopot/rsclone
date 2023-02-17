@@ -6,4 +6,7 @@ export const testNames = [
   'case3xDefenderWithNoCards',
   'case3xAttackerWithNoCards',
   'case3xAttackerWithNoCardsNoWins',
+  'case3xDefenderLoserWith2Cards',
+  'case3xLastRoundDrawWins',
+  'case3xDefenderTakes4Cards',
 ];
