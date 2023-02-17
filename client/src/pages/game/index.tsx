@@ -21,6 +21,9 @@ export const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
+  dom: {
+    createContainer: true,
+  },
   icons: ['Dali', 'Earring', 'Frida', 'Mona', 'Peach', 'Unknown'],
   suits: ['clubs', 'diamonds', 'hearts', 'spades'],
   cardNames: [

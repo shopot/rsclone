@@ -39,6 +39,8 @@ export class BootScene extends Phaser.Scene {
     this.load.audio('loser', [loserSound]);
     this.load.audio('toBeaten', [toBeatenSound]);
     this.load.audio('fromDeck', [fromDeckSound]);
+
+    this.load.html('formHtml', 'form.html');
   }
 
   create() {

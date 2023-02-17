@@ -47,6 +47,11 @@ module.exports = {
       template: path.resolve('./src/index.html'),
       chunks: ['index'],
     }),
+    new HTMLWebpackPlugin({
+      filename: 'form.html',
+      template: path.resolve('./src/pages/game/form.html'),
+      chunks: ['form'],
+    }),
     new WebpackPWAManifestPlugin({
       name: 'Card Game Client',
       publicPath: './',

@@ -9,6 +9,7 @@ import { socketIOService } from '../../../shared/api/socketio';
 import { TypeGameState, useGameStore } from '../../../store/gameStore';
 import {
   TypeCard,
+  TypeChatMessage,
   TypeDealt,
   TypeGameAction,
   TypePlacedCard,
@@ -20,6 +21,7 @@ import { Icon } from '../classes/Icon';
 import { ButtonLeave } from '../prefabs/ButtonLeave';
 import { StatusHelper } from '../prefabs/StatusHelper';
 import { Timer } from '../prefabs/Timer';
+import { Input } from 'postcss';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -60,6 +62,9 @@ export class GameScene extends Phaser.Scene {
   state: TypeGameState | undefined;
   statusHelper: StatusHelper | undefined;
   timer: Timer | undefined;
+  formHtml: Phaser.GameObjects.DOMElement | undefined;
+  chatText: Phaser.GameObjects.Text | undefined;
+  enterKey: Phaser.Input.Keyboard.Key | undefined;
 
   constructor() {
     super('Game');
@@ -113,7 +118,67 @@ export class GameScene extends Phaser.Scene {
     this.setPlayers();
     this.createDeck(useGameStore.getState().deckCounter);
     this.createSounds();
+    this.createChat();
   }
+
+  createChat() {
+    this.formHtml = this.add
+      .dom(config.width - 255, 450)
+      .createFromCache('formHtml')
+      .setOrigin(0);
+
+    this.chatText = this.add
+      .text(config.width - 255, 250, 'Hello!', {
+        backgroundColor: '#fff',
+        color: '#000',
+        fontStyle: 'bold',
+        font: '18px',
+      })
+      .setPadding(10)
+      .setFixedSize(250, 245);
+
+    this.enterKey = this.input.keyboard
+      .addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
+      .on('down', (event: KeyboardEvent) => {
+        const formInput = this.formHtml?.getChildByName('chat');
+        if (formInput instanceof HTMLInputElement && formInput.value !== '') {
+          useGameStore.getState().actions.sendMessage(formInput.value);
+          formInput.nodeValue = '';
+        }
+      });
+  }
+  updateChat(chatContent: TypeChatMessage[]) {
+    const chat: string[] = [];
+    chatContent.forEach((el) => {
+      const str = `${el.sender.playerName}: ${el.message}`;
+      const strToArr = str.split(' ');
+      const copyArr = [...strToArr];
+
+      const splitWords = (arr: string[]) => {
+        let text = arr[0];
+        for (let i = 1; i < arr.length; i++) {
+          if ((text + arr[i]).length < 20) {
+            text = text + ' ' + arr[i];
+          } else {
+            return { str: text, ind: i };
+          }
+        }
+        return { str: '', ind: 0 };
+      };
+
+      while (copyArr.join(' ').length > 20) {
+        const partiallySplit = splitWords(copyArr);
+        chat.push(partiallySplit.str);
+        copyArr.splice(0, partiallySplit.ind);
+      }
+      chat.push(copyArr[0]);
+    });
+    while (chat.length > 12) {
+      chat.shift();
+    }
+    this.chatText?.setText(chat);
+  }
+
   createSounds() {
     this.sounds = {
       placeCard: this.sound.add('placeCard'),
@@ -138,6 +203,9 @@ export class GameScene extends Phaser.Scene {
   async handleActions(state: TypeGameState, prevState: TypeGameState) {
     this.prevState = prevState;
     this.state = state;
+    if (JSON.stringify(state.chat) !== JSON.stringify(prevState.chat)) {
+      this.updateChat(state.chat);
+    }
     if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
       this.createBubble('Take');
       this.updateHelper('takes');
@@ -348,7 +416,6 @@ export class GameScene extends Phaser.Scene {
 
   createButtons() {
     this.mainButton = new Button(this);
-    // leaveBtn
     new ButtonLeave(this);
   }
 
