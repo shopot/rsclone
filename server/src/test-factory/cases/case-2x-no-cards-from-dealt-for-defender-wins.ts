@@ -9,13 +9,11 @@ import {
 import { ITestCase } from '../RoomTestFactory';
 
 /**
- * По шесть карт, отбивающийся не отбивает последнюю карту, attacker win
- * почему то у defender не устанавливается статус YOU_LOSER, хотя если ливать
- * из комнаты все записывается корректно
+ * Defender отбил все карты, attacker берет последние карты с колоды и проигрывает
  */
 
-export const case2xNoCardsFromDealtAttackerWins: ITestCase = {
-  testName: 'case2xNoCardsFromDealtAttackerWins',
+export const case2xNoCardsFromDealtForDefenderWins: ITestCase = {
+  testName: 'case2xNoCardsFromDealtForDefenderWins',
   roomStatus: TypeRoomStatus.GameInProgress,
   hostSocketIdIndex: 0,
   activeSocketIdIndex: 0,
@@ -28,7 +26,7 @@ export const case2xNoCardsFromDealtAttackerWins: ITestCase = {
       cards: [
         {
           rank: TypeCardRank.RANK_A,
-          suit: TypeCardSuit.Clubs,
+          suit: TypeCardSuit.Hearts,
         },
         {
           rank: TypeCardRank.RANK_K,
@@ -57,8 +55,8 @@ export const case2xNoCardsFromDealtAttackerWins: ITestCase = {
       playerStatus: TypePlayerStatus.InGame,
       cards: [
         {
-          rank: TypeCardRank.RANK_8,
-          suit: TypeCardSuit.Spades,
+          rank: TypeCardRank.RANK_10,
+          suit: TypeCardSuit.Clubs,
         },
         {
           rank: TypeCardRank.RANK_8,
@@ -87,7 +85,16 @@ export const case2xNoCardsFromDealtAttackerWins: ITestCase = {
     rank: TypeCardRank.RANK_6,
     suit: TypeCardSuit.Clubs,
   },
-  deck: [], // Zero
+  deck: [
+    {
+      rank: TypeCardRank.RANK_7,
+      suit: TypeCardSuit.Clubs,
+    },
+    {
+      rank: TypeCardRank.RANK_9,
+      suit: TypeCardSuit.Clubs,
+    },
+  ],
   placedCards: [], // Zero, maybe need to fill
   dealt: [],
   isDealtEnabled: false,
