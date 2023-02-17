@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 
 export declare interface MotionContainerProps {
-  key: string;
+  identKey: string;
   children: React.ReactNode;
 }
 
-export const MotionContainer = ({ key, children }: MotionContainerProps) => {
+export const MotionContainer = ({ identKey, children }: MotionContainerProps) => {
   const pageVariants = {
     initial: {
       opacity: 0,
@@ -26,7 +26,7 @@ export const MotionContainer = ({ key, children }: MotionContainerProps) => {
 
   return (
     <motion.div
-      key={key}
+      key={identKey}
       initial="initial"
       animate="in"
       variants={pageVariants}

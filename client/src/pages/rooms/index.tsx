@@ -5,7 +5,7 @@ import { RoomListContainer } from '../../components/RoomListContainer';
 const RoomsPage = () => {
   return (
     <div className="container">
-      <MotionContainer key="RoomsPage">
+      <MotionContainer identKey="RoomsPage">
         <div className="box-container">
           <RoomCreateContainer />
           <RoomListContainer />
