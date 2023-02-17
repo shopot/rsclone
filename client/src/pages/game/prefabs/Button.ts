@@ -5,6 +5,10 @@ import { TypeButtonStatus } from '../scenes/GameScene';
 export class Button extends Phaser.GameObjects.Sprite {
   scene: Phaser.Scene;
   status: TypeButtonStatus;
+  colors: { primaryColor: Phaser.Display.Color; secondaryColor: Phaser.Display.Color };
+  counter: number;
+  scales: { first: number; second: number };
+  targetScale: number;
   constructor(scene: Phaser.Scene) {
     super(scene, 0, 0, 'buttons', 'btn-start-disabled');
     this.scene = scene;
@@ -16,9 +20,18 @@ export class Button extends Phaser.GameObjects.Sprite {
     this.scene.add.existing(this);
     this.setScale(0.8);
 
+    this.colors = {
+      primaryColor: Phaser.Display.Color.ValueToColor(0xffffff),
+      secondaryColor: Phaser.Display.Color.ValueToColor(0xe8c715),
+    };
+
     this.setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => this.handleClick())
       .removeInteractive();
+
+    this.counter = 1;
+    this.scales = { first: 1, second: 0.8 };
+    this.targetScale = 1;
   }
 
   handleClick() {
@@ -54,5 +67,28 @@ export class Button extends Phaser.GameObjects.Sprite {
     this.status = btnStatus;
     this.on('pointerover', () => this.setScale(0.82));
     this.on('pointerout', () => this.setScale(0.8));
+  }
+
+  animateBeforeStart() {
+    this.setFrame('btn-start');
+    this.scaleAnimation();
+  }
+
+  scaleAnimation() {
+    this.scene.tweens.add({
+      targets: this,
+      scale: this.targetScale,
+      ease: 'Sine.easeInOut',
+      duration: this.counter * 100,
+      onComplete: () => {
+        this.counter++;
+        if (this.counter < 7) {
+          this.targetScale = this.counter % 2 == 0 ? this.scales.second : this.scales.first;
+          this.scaleAnimation();
+        } else {
+          this.update(TypeButtonStatus.Start, true);
+        }
+      },
+    });
   }
 }

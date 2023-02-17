@@ -389,7 +389,9 @@ export class GameScene extends Phaser.Scene {
     if (this.mainButton !== undefined) {
       const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
       if (isFirst && roomStatus === 'WaitingForStart')
-        this.mainButton.update(TypeButtonStatus.Start, true);
+        setTimeout(() => {
+          this.mainButton?.animateBeforeStart();
+        }, 1000);
 
       const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
       const isGame = roomStatus === 'GameInProgress';
