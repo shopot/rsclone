@@ -14,10 +14,14 @@ import cloudsJson from '../../../assets/phaser/clouds.json';
 import bgDark from '../../../assets/phaser/bg_dark.jpg';
 import bgLight from '../../../assets/phaser/bg_light.jpg';
 import chatWrapperPng from '../../../assets/phaser/chatWrapper.png';
+import redCircle from '../../../assets/phaser/red-circle.png';
+
 import cardPlacesound from '../../../assets/sounds/place_card.wav';
 import loserSound from '../../../assets/sounds/loser_v1.mp3';
 import fromDeckSound from '../../../assets/sounds/fromDeck.wav';
 import toBeatenSound from '../../../assets/sounds/toBeaten.wav';
+import newMessage from '../../../assets/sounds/newMessage.mp3';
+
 import { ProgressBar } from '../classes/ProgressBar';
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -33,6 +37,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image('bgDark', bgDark);
     this.load.image('bgLight', bgLight);
     this.load.image('chatWrapper', chatWrapperPng);
+    this.load.image('redCircle', redCircle);
+
     this.load.atlas('cards', cardsPng, cardsJson);
     this.load.atlas('buttons', buttonsPng, buttonsJson);
     this.load.atlas('roundBtns', roundPng, roundJson);
@@ -44,6 +50,7 @@ export class BootScene extends Phaser.Scene {
     this.load.audio('loser', [loserSound]);
     this.load.audio('toBeaten', [toBeatenSound]);
     this.load.audio('fromDeck', [fromDeckSound]);
+    this.load.audio('newMessage', [newMessage]);
 
     this.load.html('formHtml', 'form.html');
   }

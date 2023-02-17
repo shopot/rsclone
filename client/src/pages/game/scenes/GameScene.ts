@@ -57,6 +57,7 @@ export class GameScene extends Phaser.Scene {
         loser: Phaser.Sound.BaseSound;
         toBeaten: Phaser.Sound.BaseSound;
         fromDeck: Phaser.Sound.BaseSound;
+        // newMessage: Phaser.Sound.BaseSound;
       }
     | undefined;
   prevState: TypeGameState | undefined;
@@ -124,8 +125,9 @@ export class GameScene extends Phaser.Scene {
     this.chat = new Chat(this);
   }
 
-  updateChat(chatContent: TypeChatMessage[]) {
+  updateChat(chatContent: TypeChatMessage[], prevChatContent: TypeChatMessage[]) {
     this.chat?.updateChat(chatContent);
+    this.chat?.notify();
   }
 
   createSounds() {
@@ -134,6 +136,7 @@ export class GameScene extends Phaser.Scene {
       loser: this.sound.add('loser'),
       toBeaten: this.sound.add('toBeaten'),
       fromDeck: this.sound.add('fromDeck'),
+      // newMessage: this.sound.add('newMessage'),
     };
   }
 
@@ -153,7 +156,7 @@ export class GameScene extends Phaser.Scene {
     this.prevState = prevState;
     this.state = state;
     if (JSON.stringify(state.chat) !== JSON.stringify(prevState.chat)) {
-      this.updateChat(state.chat);
+      this.updateChat(state.chat, prevState.chat);
     }
     if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
       this.createBubble('Take');

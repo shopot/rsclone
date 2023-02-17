@@ -9,17 +9,20 @@ export class Chat {
   enterKey: Phaser.Input.Keyboard.Key;
   btn: Phaser.GameObjects.Sprite;
   open: boolean;
-  // wrapper: Phaser.GameObjects.Graphics;
   wrapParams: { x: number; y: number };
   formParams: { x: number; y: number };
   chatParams: { x: number; y: number };
   bntParams: { x: number; y: number };
   wrapper: Phaser.GameObjects.Sprite;
+  circle: Phaser.GameObjects.Sprite;
+  newMessagesAmt: Phaser.GameObjects.Text;
+  counter: number;
+  sound: Phaser.Sound.BaseSound;
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.open = false;
     this.wrapParams = { x: config.width - 130, y: 375 };
-    this.formParams = { x: config.width - 255, y: 450 };
+    this.formParams = { x: config.width - 250, y: 450 };
     this.chatParams = { x: config.width - 255, y: 255 };
 
     this.wrapper = this.scene.add
@@ -64,6 +67,21 @@ export class Chat {
       .on('pointerdown', () => this.handleOpenClose())
       .on('pointerover', () => this.btn.setScale(0.75))
       .on('pointerout', () => this.btn.setScale(0.7));
+
+    this.circle = this.scene.add
+      .sprite(this.bntParams.x, this.bntParams.y, 'redCircle')
+      .setScale(0.73)
+      .setAlpha(0);
+
+    this.newMessagesAmt = this.scene.add
+      .text(this.bntParams.x, this.bntParams.y, '', {
+        color: '#fff',
+        font: '22px Arial bold',
+      })
+      .setOrigin(0.5);
+
+    this.counter = 0;
+    this.sound = this.scene.sound.add('newMessage');
   }
 
   updateChat(chatContent: TypeChatMessage[]) {
@@ -107,6 +125,9 @@ export class Chat {
   handleOpenClose() {
     this.open = !this.open;
     if (this.open) {
+      this.counter = 0;
+      this.newMessagesAmt.setText('');
+      this.circle.setAlpha(0);
       this.wrapper
         .setScale(0.2)
         .setAlpha(0.5)
@@ -149,6 +170,15 @@ export class Chat {
       this.wrapper.setAlpha(0);
       this.formHtml.setAlpha(0);
       this.chatText.setAlpha(0);
+    }
+  }
+
+  notify() {
+    if (!this.open) {
+      this.sound.play();
+      this.counter++;
+      this.circle.setAlpha(1);
+      this.newMessagesAmt.setText(this.counter.toString());
     }
   }
 }
