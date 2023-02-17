@@ -144,7 +144,7 @@ export class GameScene extends Phaser.Scene {
         const formInput = this.formHtml?.getChildByName('chat');
         if (formInput instanceof HTMLInputElement && formInput.value !== '') {
           useGameStore.getState().actions.sendMessage(formInput.value);
-          formInput.nodeValue = '';
+          formInput.value = '';
         }
       });
   }
