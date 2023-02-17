@@ -348,6 +348,10 @@ export class Room {
       this.activePlayer = this.attacker;
     }
 
+    if (this.activePlayer.getCardsCount() === 0) {
+      this.passCounterMaxValue -= 1;
+    }
+
     // Move turn to defender from attacker
     if (!this.isDefenderPickup) {
       this.setActivePlayer(this.defender);
@@ -426,13 +430,20 @@ export class Room {
       return true;
     }
 
-    // Move turn back to attacker
-    this.setActivePlayer(this.attacker);
-
     if (this.round.isFinished()) {
       this.setActivePlayer(this.defender);
 
       this.startNextRound();
+    }
+
+    // Move turn back to attacker
+    if (this.attacker.getCardsCount() !== 0) {
+      this.setActivePlayer(this.attacker);
+    } else {
+      this.attacker.setPlayerRole(TypePlayerRole.Waiting);
+      this.attacker = this.getNextAttacker(this.attacker);
+      this.setActivePlayer(this.attacker);
+      this.activePlayer.setPlayerRole(TypePlayerRole.Attacker);
     }
 
     return true;
@@ -498,6 +509,9 @@ export class Room {
     // Check game is finish for defender
     if (this.players.totalCountInGame() === 1) {
       this.activePlayer.addCards(this.round.getRoundCards());
+      // Clean place cards
+      this.round.restart();
+
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
       this.lastLoser = this.activePlayer;
       this.setGameIsOver();
@@ -513,7 +527,15 @@ export class Room {
     }
 
     // Move turn back to attacker
-    this.setActivePlayer(this.attacker);
+    if (this.attacker.getCardsCount() !== 0) {
+      this.setActivePlayer(this.attacker);
+    } else {
+      this.attacker.setPlayerRole(TypePlayerRole.Waiting);
+      this.attacker = this.getNextAttacker(this.attacker);
+      this.setActivePlayer(this.attacker);
+      this.activePlayer.setPlayerRole(TypePlayerRole.Attacker);
+    }
+
     return true;
   }
 
@@ -545,6 +567,8 @@ export class Room {
         player.setPlayerStatus(TypePlayerStatus.YouWinner);
       }
     }
+
+    this.passCounterMaxValue = this.players.totalCountInGame() - 1;
 
     if (this.players.totalCountInGame() === 1) {
       const lastPlayer = this.players.getPlayersInGame()[0];
@@ -804,6 +828,14 @@ export class Room {
 
     // When has two players
     if (playersInGame.length === 2) {
+      // If defender leave as winner
+      if (
+        playersInGame[0].getPlayerRole() !== TypePlayerRole.Defender &&
+        playersInGame[1].getPlayerRole() !== TypePlayerRole.Defender
+      ) {
+        return this.getNextPlayer(currentAttacker);
+      }
+
       return playersInGame[0].getPlayerRole() === TypePlayerRole.Defender
         ? playersInGame[1]
         : playersInGame[0];
@@ -821,11 +853,13 @@ export class Room {
     ].filter(
       (player) =>
         player.getPlayerStatus() === TypePlayerStatus.InGame &&
-        player.getPlayerRole() !== TypePlayerRole.Defender,
+        player.getPlayerRole() !== TypePlayerRole.Defender &&
+        player.getCardsCount() > 0,
     );
 
+    // all attackers are without cards
     if (players.length < 1) {
-      throw new Error('Room::getNextAttacker(): Returns player not found');
+      this.startNextRound();
     }
 
     return players[0];

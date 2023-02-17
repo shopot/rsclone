@@ -1,3 +1,4 @@
+import { MAX_ATTACKER_ROUND_SLOT } from './../shared/constants';
 import { Logger } from '@nestjs/common';
 import { Card } from '../shared/libs/Card';
 import { Room } from '../shared/libs/Room';
@@ -8,7 +9,6 @@ import {
   TypePlayerStatus,
   TypeRoomStatus,
   TypeCard,
-  TypeCardSuit,
 } from '../shared/types';
 import { testCases } from './cases';
 
@@ -46,6 +46,7 @@ export interface ITestCase {
 export class RoomTestFactory {
   room: Room;
   testCase: ITestCase | null;
+  trumpCard: TypeCard;
 
   constructor(room: Room, testName: string) {
     this.room = room;
@@ -67,6 +68,13 @@ export class RoomTestFactory {
     const room = this.room;
     const testCase = this.testCase;
 
+    if (testCase.trumpCard?.suit) {
+      this.trumpCard = testCase.trumpCard;
+    } else {
+      Logger.error('Have no trump card');
+      return;
+    }
+
     // Set room TypeRoomStatus
     room.roomStatus = this.testCase.roomStatus || TypeRoomStatus.GameInProgress;
 
@@ -77,7 +85,12 @@ export class RoomTestFactory {
     room.attacker = players[testCase.attackerIndex];
     room.defender = players[testCase.defenderIndex];
 
-    // init trump
+    // Init deck
+    room.deck.cards = testCase.deck.map((cardDto) => {
+      return this.createCard(cardDto);
+    });
+
+    // Init trump
     room.deck.trump = this.createCard(testCase.trumpCard);
 
     // init player
@@ -91,12 +104,13 @@ export class RoomTestFactory {
       });
     });
 
-    room.deck.cards = testCase.deck.map((cardDto) => {
-      return this.createCard(cardDto);
-    });
-
+    // Init round data
     room.round.attackersCards = [];
     room.round.defenderCards = [];
+    room.round.setDefenderCardsAtRoundStart(room.defender.getCardsCount());
+    room.round.setStartPlayerSocketId(room.activePlayer.getSocketId());
+    room.round.trumpSuit = this.trumpCard.suit;
+    room.round.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
 
     // placedCards: TypePlacedCard[];
     testCase.placedCards.forEach((placedCard) => {
@@ -149,10 +163,6 @@ export class RoomTestFactory {
   }
 
   createCard(dto: TypeCard) {
-    const suit = this.testCase
-      ? this.testCase.trumpCard.suit
-      : TypeCardSuit.Clubs;
-
-    return Card.create(dto, suit);
+    return Card.create(dto, this.trumpCard.suit);
   }
 }
