@@ -1,8 +1,0 @@
-Если defender берет карты (не отбил) и он один:
-  defender = YouLoser
-
-Если defender отбился и он один и у него есть карты:
-  defender = YouLoser
-
-Если defender отбился и никого нет:
-  All set as YouWinner = ничья (Draw)
