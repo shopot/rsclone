@@ -185,7 +185,7 @@ export class Card extends Phaser.GameObjects.Sprite {
         y: config.height / 2 - 20,
         scale: 0.7,
         ease: 'Linear',
-        duration: 150,
+        duration: 100,
         angle: cardAngle,
         onComplete: resolve,
       });

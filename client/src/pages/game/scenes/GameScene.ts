@@ -223,11 +223,15 @@ export class GameScene extends Phaser.Scene {
         }
       });
     });
-    for (const card of this.piles.flat()) {
-      card.setAngle(0);
-      await card.animateToPlayer(defenderInd, this.playerAmt);
-      this.playersCardsSprites[defenderInd].push(card);
-    }
+
+    await Promise.all(
+      this.piles.flat().map(async (card) => {
+        card.setAngle(0);
+        await card.animateToPlayer(defenderInd, this.playerAmt);
+        this.playersCardsSprites[defenderInd].push(card);
+      }),
+    );
+
     this.piles = [];
     this.setEqualPositionAtHands();
     this.updatePlayersText();
