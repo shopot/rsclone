@@ -41,7 +41,7 @@ const RatingPage = () => {
 
   return (
     <div className="container">
-      <MotionContainer key="HistoryPage">
+      <MotionContainer identKey="HistoryPage">
         <div className="box-container">
           <h1 className="heading">Rating Table</h1>
           <Table

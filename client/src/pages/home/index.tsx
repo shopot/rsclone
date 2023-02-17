@@ -9,7 +9,7 @@ import { MotionContainer } from '../../components/MotionContainer';
 const HomePage = () => {
   return (
     <div className="container">
-      <MotionContainer key="HomePage">
+      <MotionContainer identKey="HomePage">
         <div className={styles.innerContainer}>
           <div className={styles.innerLogo}>
             <div>

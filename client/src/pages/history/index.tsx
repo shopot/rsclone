@@ -46,7 +46,7 @@ const HistoryPage = () => {
 
   return (
     <div className="container">
-      <MotionContainer key="HistoryPage">
+      <MotionContainer identKey="HistoryPage">
         <div className="box-container">
           <h1 className="heading">Game History</h1>
           {dataLoaded && (
