@@ -97,6 +97,8 @@ export class RoomTestFactory {
 
     room.round.attackersCards = [];
     room.round.defenderCards = [];
+    room.round.setDefenderCardsAtRoundStart(room.defender.getCardsCount());
+    room.round.setStartPlayerSocketId(room.activePlayer.getSocketId());
 
     // placedCards: TypePlacedCard[];
     testCase.placedCards.forEach((placedCard) => {
