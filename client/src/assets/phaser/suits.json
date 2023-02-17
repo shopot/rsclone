@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "clubs",
+	"frame": {"x":1,"y":1,"w":200,"h":237},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":237},
+	"sourceSize": {"w":200,"h":237}
+},
+{
+	"filename": "diamonds",
+	"frame": {"x":1,"y":239,"w":200,"h":221},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":221},
+	"sourceSize": {"w":200,"h":221}
+},
+{
+	"filename": "hearts",
+	"frame": {"x":1,"y":461,"w":207,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":207,"h":200},
+	"sourceSize": {"w":207,"h":200}
+},
+{
+	"filename": "spades",
+	"frame": {"x":1,"y":662,"w":211,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":211,"h":200},
+	"sourceSize": {"w":211,"h":200}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "suits.png",
+	"format": "RGBA8888",
+	"size": {"w":213,"h":863},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:d4f844cb64d09e14a596df2e915a7b9f:309c3a690c9f97a64b05a519dbac2d4f:4b5aee00cf00eff3c4739973f5c003db$"
+}
+}

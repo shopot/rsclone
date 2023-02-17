@@ -21,6 +21,7 @@ import { Icon } from '../classes/Icon';
 import { ButtonLeave } from '../prefabs/ButtonLeave';
 import { StatusHelper } from '../prefabs/StatusHelper';
 import { Timer } from '../prefabs/Timer';
+import { Chat } from '../classes/Chat';
 // import { Input } from 'postcss';
 
 export const enum TypeButtonStatus {
@@ -62,9 +63,7 @@ export class GameScene extends Phaser.Scene {
   state: TypeGameState | undefined;
   statusHelper: StatusHelper | undefined;
   timer: Timer | undefined;
-  formHtml: Phaser.GameObjects.DOMElement | undefined;
-  chatText: Phaser.GameObjects.Text | undefined;
-  enterKey: Phaser.Input.Keyboard.Key | undefined;
+  chat: Chat | undefined;
 
   constructor() {
     super('Game');
@@ -114,72 +113,19 @@ export class GameScene extends Phaser.Scene {
   create() {
     //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
+    this.createChat();
     this.createButtons();
     this.setPlayers();
     this.createDeck(useGameStore.getState().deckCounter);
     this.createSounds();
-    this.createChat();
   }
 
   createChat() {
-    this.formHtml = this.add
-      .dom(config.width - 255, 450)
-      .createFromCache('formHtml')
-      .setOrigin(0);
-
-    this.chatText = this.add
-      .text(config.width - 255, 250, 'Hello!', {
-        backgroundColor: '#E7F0F9',
-        color: '#000',
-        font: '18px Arial',
-      })
-      .setPadding(10)
-      .setFixedSize(250, 245)
-      .setAlign('justify');
-    // .setWordWrapWidth(245, true);
-
-    this.enterKey = this.input.keyboard
-      .addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
-      .on('down', (event: KeyboardEvent) => {
-        const formInput = this.formHtml?.getChildByName('chat');
-        if (formInput instanceof HTMLInputElement && formInput.value !== '') {
-          useGameStore.getState().actions.sendMessage(formInput.value);
-          formInput.value = '';
-        }
-      });
+    this.chat = new Chat(this);
   }
+
   updateChat(chatContent: TypeChatMessage[]) {
-    const chat: string[] = [];
-    const LINES = 9;
-    const COLS = 29;
-    chatContent.forEach((el) => {
-      const str = `${el.sender.playerName}: ${el.message}`;
-      const strToArr = str.split(' ');
-      const copyArr = [...strToArr];
-
-      const splitWords = (arr: string[]) => {
-        let text = arr[0];
-        for (let i = 1; i < arr.length; i++) {
-          if ((text + arr[i]).length < COLS) {
-            text = text + ' ' + arr[i];
-          } else {
-            return { str: text, ind: i };
-          }
-        }
-        return { str: '', ind: 0 };
-      };
-
-      while (copyArr.join(' ').length > COLS) {
-        const partiallySplit = splitWords(copyArr);
-        chat.push(partiallySplit.str);
-        copyArr.splice(0, partiallySplit.ind);
-      }
-      chat.push(copyArr.join(' '));
-    });
-    while (chat.length > LINES) {
-      chat.shift();
-    }
-    this.chatText?.setText(chat);
+    this.chat?.updateChat(chatContent);
   }
 
   createSounds() {
