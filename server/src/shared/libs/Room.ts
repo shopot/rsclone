@@ -527,7 +527,15 @@ export class Room {
     }
 
     // Move turn back to attacker
-    this.setActivePlayer(this.attacker);
+    if (this.attacker.getCardsCount() !== 0) {
+      this.setActivePlayer(this.attacker);
+    } else {
+      this.attacker.setPlayerRole(TypePlayerRole.Waiting);
+      this.attacker = this.getNextAttacker(this.attacker);
+      this.setActivePlayer(this.attacker);
+      this.activePlayer.setPlayerRole(TypePlayerRole.Attacker);
+    }
+
     return true;
   }
 
