@@ -129,13 +129,13 @@ export class GameScene extends Phaser.Scene {
 
     this.chatText = this.add
       .text(config.width - 255, 250, 'Hello!', {
-        backgroundColor: '#fff',
+        backgroundColor: '#E7F0F9',
         color: '#000',
-        fontStyle: 'bold',
-        font: '18px',
+        font: '18px Arial',
       })
       .setPadding(10)
-      .setFixedSize(250, 245);
+      .setFixedSize(250, 245)
+      .setAlign('justify');
     // .setWordWrapWidth(245, true);
 
     this.enterKey = this.input.keyboard
@@ -150,6 +150,8 @@ export class GameScene extends Phaser.Scene {
   }
   updateChat(chatContent: TypeChatMessage[]) {
     const chat: string[] = [];
+    const LINES = 9;
+    const COLS = 29;
     chatContent.forEach((el) => {
       const str = `${el.sender.playerName}: ${el.message}`;
       const strToArr = str.split(' ');
@@ -158,7 +160,7 @@ export class GameScene extends Phaser.Scene {
       const splitWords = (arr: string[]) => {
         let text = arr[0];
         for (let i = 1; i < arr.length; i++) {
-          if ((text + arr[i]).length < 20) {
+          if ((text + arr[i]).length < COLS) {
             text = text + ' ' + arr[i];
           } else {
             return { str: text, ind: i };
@@ -167,14 +169,14 @@ export class GameScene extends Phaser.Scene {
         return { str: '', ind: 0 };
       };
 
-      while (copyArr.join(' ').length > 20) {
+      while (copyArr.join(' ').length > COLS) {
         const partiallySplit = splitWords(copyArr);
         chat.push(partiallySplit.str);
         copyArr.splice(0, partiallySplit.ind);
       }
       chat.push(copyArr.join(' '));
     });
-    while (chat.length > 12) {
+    while (chat.length > LINES) {
       chat.shift();
     }
     this.chatText?.setText(chat);

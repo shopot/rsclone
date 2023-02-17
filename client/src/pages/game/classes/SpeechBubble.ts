@@ -16,7 +16,7 @@ export class SpeechBubble {
     this.bubble.fillStyle(0x222222, 0.5);
     this.bubble.fillRoundedRect(6, 6, bubbleWidth, bubbleHeight, 16);
     //  Bubble color
-    this.bubble.fillStyle(0xffffff, 1);
+    this.bubble.fillStyle(0xe7f0f9, 1);
     //  Bubble outline line style
     this.bubble.lineStyle(4, 0x565656, 1);
     //  Bubble shape and outline
