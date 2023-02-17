@@ -8,4 +8,5 @@ export const testNames = [
   'case3xAttackerWithNoCardsNoWins',
   'case3xDefenderLoserWith2Cards',
   'case3xLastRoundDrawWins',
+  'case3xDefenderTakes4Cards',
 ];

@@ -7,6 +7,7 @@ import { case2xLastRound6x6AttackerWins } from './case-2x-last-round-6x6-attacke
 import { case3xAttackerWithNoCardsNoWins } from './case-3x-attacker-with-no-cards-no-wins';
 import { case3xDefenderLoserWith2Cards } from './case-3x-defender-loser-with-2-cards';
 import { case3xLastRoundDrawWins } from './case-3x-last-round-draw-wins';
+import { case3xDefenderTakes4Cards } from './case-3x-defender-takes-4-cards';
 
 export const testCases = {
   case2xLastBeatAttackerWins,
@@ -18,4 +19,5 @@ export const testCases = {
   case3xAttackerWithNoCardsNoWins,
   case3xDefenderLoserWith2Cards,
   case3xLastRoundDrawWins,
+  case3xDefenderTakes4Cards,
 };
