@@ -9,7 +9,9 @@ import {
 import { ITestCase } from '../RoomTestFactory';
 
 /**
- * Розыгрыш ничья  двумя игроками, по две карты на руках
+ * По шесть карт, отбивающийся не отбивает последнюю карту, attacker win
+ * почему то у defender не устанавливается статус YOU_LOSER, хотя если ливать
+ * из комнаты все записывается корректно
  */
 
 export const case2xNoCardsFromDealtAttackerWins: ITestCase = {
