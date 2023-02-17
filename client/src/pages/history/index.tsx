@@ -22,6 +22,7 @@ const HistoryPage = () => {
     {
       title: 'Loser',
       dataIndex: 'loser',
+      render: (value: string) => <>{value === 'undefined' ? '-' : value}</>,
     },
     {
       title: 'Duration',
