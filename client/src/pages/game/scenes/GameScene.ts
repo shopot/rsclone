@@ -136,6 +136,7 @@ export class GameScene extends Phaser.Scene {
       })
       .setPadding(10)
       .setFixedSize(250, 245);
+    // .setWordWrapWidth(245, true);
 
     this.enterKey = this.input.keyboard
       .addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
@@ -171,7 +172,7 @@ export class GameScene extends Phaser.Scene {
         chat.push(partiallySplit.str);
         copyArr.splice(0, partiallySplit.ind);
       }
-      chat.push(copyArr[0]);
+      chat.push(copyArr.join(' '));
     });
     while (chat.length > 12) {
       chat.shift();
