@@ -3,6 +3,7 @@ import Table from 'rc-table';
 import listify from 'listify';
 import prettyMs from 'pretty-ms';
 import { useDataStore } from '../../store/dataStore';
+import { MotionContainer } from '../../components/MotionContainer';
 
 const HistoryPage = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -45,16 +46,18 @@ const HistoryPage = () => {
 
   return (
     <div className="container">
-      <div className="box-container">
-        <h1 className="heading">Game History</h1>
-        {dataLoaded && (
-          <Table
-            columns={columns}
-            data={historyResults}
-            rowKey="id"
-          />
-        )}
-      </div>
+      <MotionContainer key="HistoryPage">
+        <div className="box-container">
+          <h1 className="heading">Game History</h1>
+          {dataLoaded && (
+            <Table
+              columns={columns}
+              data={historyResults}
+              rowKey="id"
+            />
+          )}
+        </div>
+      </MotionContainer>
     </div>
   );
 };

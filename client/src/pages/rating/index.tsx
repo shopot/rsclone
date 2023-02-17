@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Table from 'rc-table';
 import { useDataStore } from '../../store/dataStore';
+import { MotionContainer } from '../../components/MotionContainer';
 
 const RatingPage = () => {
   const { ratingResults, actions } = useDataStore();
@@ -40,14 +41,16 @@ const RatingPage = () => {
 
   return (
     <div className="container">
-      <div className="box-container">
-        <h1 className="heading">Rating Table</h1>
-        <Table
-          columns={columns}
-          data={ratingResults}
-          rowKey="id"
-        />
-      </div>
+      <MotionContainer key="HistoryPage">
+        <div className="box-container">
+          <h1 className="heading">Rating Table</h1>
+          <Table
+            columns={columns}
+            data={ratingResults}
+            rowKey="id"
+          />
+        </div>
+      </MotionContainer>
     </div>
   );
 };

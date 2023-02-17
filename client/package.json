@@ -17,6 +17,7 @@
   "dependencies": {
     "compose-function": "^3.0.3",
     "feather-icons": "^4.29.0",
+    "framer-motion": "^9.0.4",
     "listify": "^1.0.3",
     "phaser": "^3.55.2",
     "pretty-ms": "^8.0.0",
