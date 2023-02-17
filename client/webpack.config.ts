@@ -156,7 +156,13 @@ module.exports = {
       },
       {
         test: /\.(avif|jpe?g|png|webp)$/,
+        exclude: path.resolve(__dirname, 'src/assets/phaser'),
         type: 'asset',
+      },
+      {
+        test: /\.(avif|jpe?g|png|webp)$/,
+        include: path.resolve(__dirname, 'src/assets/phaser'),
+        type: 'asset/resource',
       },
       {
         test: /\.svg$/i,
