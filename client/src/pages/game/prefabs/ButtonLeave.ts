@@ -1,21 +1,19 @@
-import { config } from '../index';
 import { useGameStore } from '../../../store/gameStore';
 
 export class ButtonLeave extends Phaser.GameObjects.Sprite {
   scene: Phaser.Scene;
   constructor(scene: Phaser.Scene) {
-    super(scene, 60, 20, 'buttons', 'btn-leave');
+    super(scene, 60, 20, 'roundBtns', 'button-leave');
     this.scene = scene;
     this.scene.add.existing(this);
-    this.setScale(0.5);
+    this.setScale(0.8);
 
     this.setInteractive().on('pointerdown', () => this.handleLeaveRoom());
-    this.on('pointerover', () => this.setScale(0.51));
-    this.on('pointerout', () => this.setScale(0.5));
+    this.on('pointerover', () => this.setScale(0.81));
+    this.on('pointerout', () => this.setScale(0.8));
   }
 
   handleLeaveRoom() {
-    this.setFrame('btn-leave-disabled');
     useGameStore.getState().actions.leaveRoom();
     this.scene.scene.start('End');
     this.removeInteractive();

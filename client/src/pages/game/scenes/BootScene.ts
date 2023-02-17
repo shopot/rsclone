@@ -7,6 +7,8 @@ import suitsPng from '../../../assets/sprites/suits.png';
 import suitsJson from '../../../assets/sprites/suits.json';
 import buttonsPng from '../../../assets/sprites/buttons.png';
 import buttonsJson from '../../../assets/sprites/buttons.json';
+import roundPng from '../../../assets/sprites/roundbtns.png';
+import roundJson from '../../../assets/sprites/roundbtns.json';
 import cloudsPng from '../../../assets/sprites/clouds.png';
 import cloudsJson from '../../../assets/sprites/clouds.json';
 import bgDark from '../../../assets/sprites/bg_dark.jpg';
@@ -31,6 +33,7 @@ export class BootScene extends Phaser.Scene {
     this.load.image('bgLight', bgLight);
     this.load.atlas('cards', cardsPng, cardsJson);
     this.load.atlas('buttons', buttonsPng, buttonsJson);
+    this.load.atlas('roundBtns', roundPng, roundJson);
     this.load.atlas('icons', iconsPng, iconsJson);
     this.load.atlas('suits', suitsPng, suitsJson);
     this.load.atlas('clouds', cloudsPng, cloudsJson);

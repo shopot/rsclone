@@ -21,7 +21,7 @@ import { Icon } from '../classes/Icon';
 import { ButtonLeave } from '../prefabs/ButtonLeave';
 import { StatusHelper } from '../prefabs/StatusHelper';
 import { Timer } from '../prefabs/Timer';
-import { Input } from 'postcss';
+// import { Input } from 'postcss';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
