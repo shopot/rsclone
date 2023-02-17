@@ -16,9 +16,15 @@ const AboutPage = () => {
               determining the trump suit for the current deal
             </li>
             <li>a trump card of any rank beats all cards in the other three suits</li>
-            <li>the player who has the lowest trump card will be the first attacker</li>
+            <li>
+              the player who has the lowest trump card will be the first attacker (first time the
+              game is played)
+            </li>
             <li>the player to the attacker&apos;s left is always the defender</li>
-            <li>there cannot be more than six attacks (five in the first round) in each round</li>
+            <li>
+              as many attacks can be made as the defender has cards up to a maximum of six (five in
+              the 1st round)
+            </li>
             <li>
               the attacker opens their turn by playing a card face up on the table as an attacking
               card
@@ -51,7 +57,7 @@ const AboutPage = () => {
             </li>
             <li>
               if no other players are willing to make another attack or if the defender beats the
-              sixth attack card, the defender has won the round of attacks
+              last attack card, the defender has won the round of attacks
             </li>
             <li>
               in this case all cards from that round of attack are placed in the discard pile and
@@ -66,7 +72,15 @@ const AboutPage = () => {
               at the end of each round of attacks, each player draws new cards from the deck until
               they have six cards in their hand unless the deck has been exhausted
             </li>
+            <li>
+              the main attacker draws as many cards as necessary first, followed by any other
+              attackers in clockwise order, and finally the defender
+            </li>
             <li>the last person left with cards in their hand is the loser (the fool or durak)</li>
+            <li>
+              The player to the fool&apos;s right becomes the first attacker for the next game
+              session
+            </li>
           </ul>
         </section>
       </div>
