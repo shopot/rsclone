@@ -5,7 +5,6 @@ import { MotionContainer } from '../../components/MotionContainer';
 
 const RatingPage = () => {
   const { ratingResults, actions } = useDataStore();
-  console.log(ratingResults);
   useEffect(() => {
     actions.setRatingList();
   }, [actions]);

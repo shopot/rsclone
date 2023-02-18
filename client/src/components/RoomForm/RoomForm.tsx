@@ -74,7 +74,6 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
   };
 
   const handleChangeTestName = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log(event.target.value);
     setTestName(event.target.value);
   };
 
