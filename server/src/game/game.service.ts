@@ -79,6 +79,7 @@ export class GameService {
     const rooms = Array.from(this.rooms).map(([roomId, room]) => {
       return {
         roomId,
+        players: room.getPlayersAsDto(),
         playersCount: room.getPlayersCount(),
         status: room.getRoomStatus(),
       };
