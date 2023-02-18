@@ -84,6 +84,8 @@ export class Room {
   // RoomTestFactory
   testName: string;
 
+  stateHistory: TypeRoomState[];
+
   constructor(
     roomId: string,
     hostPlayer: Player,
@@ -129,6 +131,12 @@ export class Room {
     this.lastCloseDefenderCard = null;
 
     this.testName = testName;
+
+    this.stateHistory = [];
+  }
+
+  public getStateHistory(): TypeRoomState[] {
+    return this.stateHistory;
   }
 
   public getRoomId(): string {
@@ -1007,7 +1015,7 @@ export class Room {
   public getState(): TypeRoomState {
     Logger.debug(this.round);
 
-    return {
+    const state = {
       roomId: this.roomId,
       roomStatus: this.roomStatus || TypeRoomStatus.WaitingForPlayers,
       hostSocketId: this.hostPlayer?.getSocketId(),
@@ -1029,5 +1037,11 @@ export class Room {
       lastOpenAttackerCard: this.lastOpenAttackerCard,
       lastCloseDefenderCard: this.lastCloseDefenderCard,
     };
+
+    if (this.roomStatus === TypeRoomStatus.GameInProgress) {
+      this.stateHistory.push(state);
+    }
+
+    return state;
   }
 }

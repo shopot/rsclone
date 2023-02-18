@@ -1,3 +1,4 @@
+import { History } from './../history/models/history.entity';
 import { getErrorMessage } from '../../shared/helpers';
 import { RatingService } from '../rating/rating.service';
 import { HistoryService } from './../history/history.service';
@@ -11,12 +12,14 @@ import {
   TypeGameError,
 } from '../../shared/types';
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { Player } from '../../shared/libs/Player';
 import { generateRoomId } from '../../shared/utils/generateRoomId';
 import { Room } from '../../shared/libs/Room';
 import { GameReceiveDto } from './dto';
+import { Logger as WinstonLogger } from 'winston';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class GameService {
@@ -28,6 +31,7 @@ export class GameService {
   constructor(
     private historyService: HistoryService,
     private ratingService: RatingService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly gameLogger: WinstonLogger,
   ) {
     this.rooms = new Map();
     this.roomId = '';
@@ -473,6 +477,15 @@ export class GameService {
    */
   public async updateGameHistory(stats: TypeGameStats): Promise<void> {
     if (stats.roomId) {
+      const room = this.getRoomById(stats.roomId);
+
+      // Save state History
+      if (room) {
+        this.gameLogger.info({
+          history: room.getStateHistory(),
+        });
+      }
+
       this.historyService.create(stats);
     }
   }
