@@ -20,7 +20,7 @@ export class RatingService {
    *
    * @returns Array list of Rating
    */
-  public async getAll(): Promise<IReturnRatingDto[]> {
+  public async findAll(): Promise<IReturnRatingDto[]> {
     this.RatingRepository.createQueryBuilder();
 
     const results = await this.RatingRepository.find({
