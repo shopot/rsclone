@@ -15,6 +15,7 @@ import bgDark from '../../../assets/phaser/bg_dark.jpg';
 import bgLight from '../../../assets/phaser/bg_light.jpg';
 import chatWrapperPng from '../../../assets/phaser/chatWrapper.png';
 import redCircle from '../../../assets/phaser/red-circle.png';
+import winWrapper from '../../../assets/phaser/win_wrapper.png';
 
 import cardPlacesound from '../../../assets/sounds/place_card.wav';
 import loserSound from '../../../assets/sounds/loser_v1.mp3';
@@ -40,6 +41,7 @@ export class BootScene extends Phaser.Scene {
     this.load.image('bgLight', bgLight);
     this.load.image('chatWrapper', chatWrapperPng);
     this.load.image('redCircle', redCircle);
+    this.load.image('winWrapper', winWrapper);
 
     this.load.atlas('cards', cardsPng, cardsJson);
     this.load.atlas('buttons', buttonsPng, buttonsJson);

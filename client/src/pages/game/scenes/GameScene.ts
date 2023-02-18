@@ -22,6 +22,7 @@ import { ButtonLeave } from '../prefabs/ButtonLeave';
 import { StatusHelper } from '../prefabs/StatusHelper';
 import { Timer } from '../prefabs/Timer';
 import { Chat } from '../classes/Chat';
+import { Popup } from '../classes/Popup';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -118,6 +119,7 @@ export class GameScene extends Phaser.Scene {
     this.setPlayers();
     this.createDeck(useGameStore.getState().deckCounter);
     this.createSounds();
+    // new Popup(this, this.playersSorted, true);
   }
 
   createChat() {
@@ -142,7 +144,11 @@ export class GameScene extends Phaser.Scene {
   //подписка на румстатус
   async handleRoomStatus(roomStatus: TypeRoomStatus) {
     if (roomStatus === TypeRoomStatus.GameInProgress) await this.startGame();
-    if (roomStatus === TypeRoomStatus.GameIsOver) this.endGame();
+    if (roomStatus === TypeRoomStatus.GameIsOver) {
+      new Popup(this, this.playersSorted, true);
+      //выводить модалку всем
+      // this.endGame();
+    }
   }
 
   endGame() {
@@ -154,6 +160,7 @@ export class GameScene extends Phaser.Scene {
   async handleActions(state: TypeGameState, prevState: TypeGameState) {
     this.prevState = prevState;
     this.state = state;
+    this.handleWinner(state, prevState);
     if (state.players.length != prevState.players.length) {
       this.onPlayerAmtSounds(state.players.length - prevState.players.length);
     }
@@ -414,13 +421,13 @@ export class GameScene extends Phaser.Scene {
         this.mainButton.update(TypeButtonStatus.Take, false);
 
       //если победил, то статус может не соответсвовать!!!
-      const me = useGameStore
-        .getState()
-        .players.filter((player) => player.socketId === this.socketId)[0];
+      // const me = useGameStore
+      //   .getState()
+      //   .players.filter((player) => player.socketId === this.socketId)[0];
 
-      if (me.playerStatus === TypePlayerStatus.YouWinner) {
-        this.mainButton.update(TypeButtonStatus.Take, false);
-      }
+      // if (me.playerStatus === TypePlayerStatus.YouWinner) {
+      //   this.mainButton.update(TypeButtonStatus.Take, false);
+      // }
     }
   }
 
@@ -453,13 +460,31 @@ export class GameScene extends Phaser.Scene {
         const first = this.playersSorted.shift();
         if (first !== undefined) this.playersSorted.push(first);
       }
-
-      //для победителя сделать модалку
-      if (me.playerStatus === TypePlayerStatus.YouWinner) {
-        console.log('WINNER');
-      }
     }
     this.playersCards = this.playersSorted.map((set) => set.cards);
+  }
+
+  handleWinner(state: TypeGameState, prevState: TypeGameState) {
+    const me = state.players.filter((player) => player.socketId === this.socketId)[0];
+    const winnersIds = state.players
+      .filter((player) => player.playerStatus === TypePlayerStatus.YouWinner)
+      .map((el) => el.socketId);
+    const prevWinnersIds = prevState.players
+      .filter((player) => player.playerStatus === TypePlayerStatus.YouWinner)
+      .map((el) => el.socketId);
+    if (winnersIds.length !== 0) {
+      winnersIds.forEach((player: any) => {
+        //для победителя значок делать, видимый всем
+      });
+    }
+    //для победителя сделать модалку
+    if (
+      winnersIds.includes(me.socketId) &&
+      !prevWinnersIds.includes(me.socketId) &&
+      useGameStore.getState().roomStatus !== TypeRoomStatus.GameIsOver
+    ) {
+      new Popup(this, this.playersSorted, false);
+    }
   }
 
   createHands() {
