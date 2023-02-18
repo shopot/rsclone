@@ -1,13 +1,8 @@
-import React from 'react';
 import styles from './TopMenu.m.scss';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { TypeRoute } from '../../shared/types';
 
 export const TopMenu = () => {
-  const params = useParams();
-
-  console.log(params);
-
   return (
     <nav>
       <ul className={styles.navList}>

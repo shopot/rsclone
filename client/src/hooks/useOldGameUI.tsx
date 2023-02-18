@@ -17,8 +17,6 @@ export const useOldGameUI = (flag = IS_OLD_GAME_UI_ENABLED) => {
     } else {
       navigate(`/game/${data.roomId}`);
     }
-
-    console.log(data);
   };
 
   return [isOldGameUI, setOldGameUI, redirectToGamePage] as const;
