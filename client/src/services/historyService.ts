@@ -9,7 +9,7 @@ const schema: JTDSchemaType<TypeHistoryItem[]> = {
   elements: {
     properties: {
       id: { type: 'int32' },
-      // roomId: { type: 'string' },
+      roomId: { type: 'string' },
       players: { elements: { type: 'string' } },
       loser: { type: 'string' },
       duration: { type: 'int32' },
