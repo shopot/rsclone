@@ -15,7 +15,7 @@ export const RoomListContainer = () => {
 
   const roomsList = rooms
     .map((room) => {
-      const { roomId, playersCount, status } = room;
+      const { roomId, players, playersCount, status } = room;
 
       const isCanJoin =
         room.playersCount < MAX_NUMBER_OF_PLAYERS &&
@@ -23,6 +23,7 @@ export const RoomListContainer = () => {
 
       return {
         roomId,
+        players,
         playersCount,
         isCanJoin,
       };
