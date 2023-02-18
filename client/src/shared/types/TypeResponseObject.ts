@@ -7,6 +7,7 @@ import { TypeServerError } from './TypeServerError';
 
 export type TypeRoomDto = {
   roomId: string;
+  players: TypePlayerDto[];
   playersCount: number;
   status: TypeRoomStatus;
 };

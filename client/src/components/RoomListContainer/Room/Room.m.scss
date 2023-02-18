@@ -7,17 +7,20 @@
 }
 
 .disabled {
-  opacity: .7;
+  opacity: 0.7;
 }
 
 .roomListItem {
   width: 100%;
   min-width: 480px;
   display: grid;
-  grid-template: [row1-room] auto / [column1-uid] auto [column2-players] 1fr [column3-actions] 160px;
+  grid-template:
+    'column-uid         column-players     column-actions'
+    'column-playernames column-playernames column-playernames'
+    / auto 1fr 160px;
   justify-content: space-between;
   align-items: center;
-  gap: 0 10px;
+  gap: 5px 10px;
   padding: 6px 10px;
 
   &:not(:last-child) {
@@ -26,11 +29,11 @@
 }
 
 .roomListItemId {
-  grid-area: column1-uid;
+  grid-area: column-uid;
 }
 
 .roomListItemPlayers {
-  grid-area: column2-players;
+  grid-area: column-players;
   justify-self: center;
   background-color: transparent;
   opacity: 0.7;
@@ -39,11 +42,25 @@
 
   &:not(.disabled) {
     opacity: 1;
-
   }
 }
 
 .roomListItemAction {
-  grid-area: column3-actions;
+  grid-area: column-actions;
   justify-self: end;
+}
+
+.roomListPlayerNicknames {
+  border-width: 0;
+  border-top-width: 2px;
+  border-style: solid;
+  border-image: linear-gradient(
+      0.25turn,
+      rgba(255 255 255 / 10%) 10%,
+      rgba(255 255 255 / 70%),
+      rgba(255 255 255 / 10%) 100%
+    )
+    30;
+  grid-area: column-playernames;
+  font-size: 0.875rem;
 }

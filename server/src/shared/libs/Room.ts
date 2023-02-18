@@ -10,6 +10,7 @@ import { Logger } from '@nestjs/common';
 import { Round } from './Round';
 import {
   TypePlayerStatus,
+  TypePlayerDto,
   TypeRoomStatus,
   TypeCardRank,
   TypePlayerRole,
@@ -143,6 +144,10 @@ export class Room {
 
   public getPlayers(): Players {
     return this.players;
+  }
+
+  public getPlayersAsDto(): TypePlayerDto[] {
+    return this.players.getPlayersAsDto();
   }
 
   public getRoomStatus(): TypeRoomStatus {
