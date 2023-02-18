@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { IS_OLD_GAME_UI_ENABLED } from '../../app/config';
 import { avatars, getPlayerAvatarIdx, validateAvatarIdx } from '../../shared/avatars';
-import { AVATAR_PREFIX, UNIQUE_LOCALSTORAGE_PREFIX } from '../../shared/constants';
+import {
+  AVATAR_PREFIX,
+  UNIQUE_LOCALSTORAGE_PREFIX,
+  MINIMUM_NICKNAME_LENGTH,
+  MAXIMUM_NICKNAME_LENGTH,
+} from '../../shared/constants';
 import { testNames } from '../../shared/tests/testNames';
 import styles from './RoomForm.m.scss';
 
@@ -13,7 +18,11 @@ type TypePlayerSettings = {
 
 export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
   const validateName = (playerName: string) => {
-    if (playerName.match(/^[a-zA-Z0-9а-яА-Я_\s]+$/) && playerName.length > 3) {
+    if (
+      playerName.match(/^[a-zA-Z0-9а-яА-Я_\s]+$/) &&
+      playerName.length >= MINIMUM_NICKNAME_LENGTH &&
+      playerName.length <= MAXIMUM_NICKNAME_LENGTH
+    ) {
       return true;
     }
 
@@ -100,6 +109,8 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
             autoComplete="off"
             spellCheck="false"
             value={playerName}
+            minLength={MINIMUM_NICKNAME_LENGTH}
+            maxLength={MAXIMUM_NICKNAME_LENGTH}
             onChange={handleChangePlayerName}
             id="player-name"
             placeholder="Enter your Nickname"
