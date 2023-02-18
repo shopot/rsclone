@@ -1,5 +1,5 @@
-import { getErrorMessage } from './../shared/helpers';
-import { RatingService } from './../rating/rating.service';
+import { getErrorMessage } from '../../shared/helpers';
+import { RatingService } from '../rating/rating.service';
 import { HistoryService } from './../history/history.service';
 import {
   TypePlayerMember,
@@ -9,13 +9,13 @@ import {
   TypeCard,
   TypeGameStats,
   TypeGameError,
-} from './../shared/types';
+} from '../../shared/types';
 
 import { Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import { Player } from '../shared/libs/Player';
-import { generateRoomId } from '../shared/utils/generateRoomId';
-import { Room } from '../shared/libs/Room';
+import { Player } from '../../shared/libs/Player';
+import { generateRoomId } from '../../shared/utils/generateRoomId';
+import { Room } from '../../shared/libs/Room';
 import { GameReceiveDto } from './dto';
 
 @Injectable()

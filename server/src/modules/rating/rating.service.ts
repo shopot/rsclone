@@ -1,5 +1,5 @@
-import { TypeSortOrder } from './../shared/types';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { TypeSortOrder } from '../../shared/types';
+import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { RATING_ROWS_LIMIT } from './constants';
 import { ICreateRatingDto, IReturnRatingDto, IUpdateRatingDto } from './dto';
