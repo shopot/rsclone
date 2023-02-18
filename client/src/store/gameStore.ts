@@ -14,6 +14,7 @@ import {
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { socketIOService } from '../shared/api/socketio';
+import { IS_DEVELOPMENT_MODE } from '../app/config';
 
 export type TypeGameState = {
   isOnline: boolean;
@@ -60,7 +61,9 @@ export const useGameStore = create<TypeGameState>()(
     });
 
     socketIOService.listen<{ data: TypeGameState }>(TypeSocketEvent.GameUpdateState, ({ data }) => {
-      console.log(data);
+      if (IS_DEVELOPMENT_MODE) {
+        console.log(data);
+      }
 
       set({ ...data, error: data.error ?? null });
     });

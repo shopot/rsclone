@@ -1,8 +1,6 @@
-import { History } from '../history/models/history.entity';
-import { Rating } from '../rating/models/rating.entity';
+import { History } from '../modules/history/models/history.entity';
+import { Rating } from '../modules/rating/models/rating.entity';
 import { DataSource } from 'typeorm';
-
-console.log(__dirname);
 
 export const databaseProviders = [
   {

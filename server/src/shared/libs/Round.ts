@@ -42,21 +42,18 @@ export class Round {
     this.maxRoundSlots = MAX_ATTACKER_ROUND_SLOT;
   }
 
-  public attack(cardDto: TypeCard) {
+  public attack(card: Card) {
     // Has limit, can't add new card
     if (this.attackersCards.length >= this.maxRoundSlots) {
       return false;
     }
-
-    // Create card
-    const card = Card.create(cardDto, this.trumpSuit);
 
     // It is a first card
     if (this.attackersCards.length === 0) {
       this.attackersCards.push(card);
 
       // Save last open card
-      this.lastOpenAttackerCard = cardDto;
+      this.lastOpenAttackerCard = card.getCardDto();
 
       return true;
     }
@@ -68,7 +65,7 @@ export class Round {
       )
     ) {
       // Save last open card
-      this.lastOpenAttackerCard = cardDto;
+      this.lastOpenAttackerCard = card.getCardDto();
 
       this.attackersCards.push(card);
 
@@ -78,18 +75,16 @@ export class Round {
     return false;
   }
 
-  public defend(cardDto: TypeCard) {
+  public defend(card: Card) {
     // Check is beating or not, check card, etc.
     // If is beating then returns true;
     const lastAttackCard = this.attackersCards[this.attackersCards.length - 1];
-
-    const card = Card.create(cardDto, this.trumpSuit);
 
     if (card.canBeat(lastAttackCard, this.trumpSuit)) {
       this.defenderCards.push(card);
 
       // Save last close card
-      this.lastCloseDefenderCard = cardDto;
+      this.lastCloseDefenderCard = card.getCardDto();
 
       return true;
     }

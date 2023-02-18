@@ -1,4 +1,5 @@
 import { RoomTestFactory } from './../../test-factory/RoomTestFactory';
+import { Card } from './Card';
 import { Deck } from './Deck';
 import { Player } from './Player';
 import {
@@ -10,6 +11,7 @@ import { Logger } from '@nestjs/common';
 import { Round } from './Round';
 import {
   TypePlayerStatus,
+  TypePlayerDto,
   TypeRoomStatus,
   TypeCardRank,
   TypePlayerRole,
@@ -25,7 +27,7 @@ import {
   TypeGameAction,
 } from '../types';
 import { Players } from './Players';
-import { GameService } from '../../game/game.service';
+import { GameService } from '../../modules/game/game.service';
 
 /**
  * Class Room
@@ -143,6 +145,10 @@ export class Room {
 
   public getPlayers(): Players {
     return this.players;
+  }
+
+  public getPlayersAsDto(): TypePlayerDto[] {
+    return this.players.getPlayersAsDto();
   }
 
   public getRoomStatus(): TypeRoomStatus {
@@ -304,11 +310,24 @@ export class Room {
   /**
    * Give one card from attacker
    */
-  public setAttackerOpen(card: TypeCard): TypeGameError | true {
+  public setAttackerOpen(cardDto: TypeCard): TypeGameError | true {
     if (this.activePlayer.getPlayerRole() !== TypePlayerRole.Attacker) {
       return {
         type: TypeGameErrorType.OpenCardFailed,
         message: "Active player doesn't have Attacker role",
+      };
+    }
+
+    const card = Card.create(cardDto, this.deck.getTrumpSuit());
+
+    if (
+      !this.activePlayer
+        .getCards()
+        .some((playerCard) => playerCard.isEqual(card))
+    ) {
+      return {
+        type: TypeGameErrorType.OpenCardFailed,
+        message: `Active attacker doesn't have card ${card}`,
       };
     }
 
@@ -368,11 +387,24 @@ export class Room {
   /**
    * Give one card from defender
    */
-  public setDefenderClose(card: TypeCard): TypeGameError | true {
+  public setDefenderClose(cardDto: TypeCard): TypeGameError | true {
     if (this.activePlayer.getPlayerRole() !== TypePlayerRole.Defender) {
       return {
         type: TypeGameErrorType.CloseCardFailed,
         message: "Active player doesn't have Defender role",
+      };
+    }
+
+    const card = Card.create(cardDto, this.deck.getTrumpSuit());
+
+    if (
+      !this.activePlayer
+        .getCards()
+        .some((playerCard) => playerCard.isEqual(card))
+    ) {
+      return {
+        type: TypeGameErrorType.CloseCardFailed,
+        message: `Active defender doesn't have card ${card}`,
       };
     }
 

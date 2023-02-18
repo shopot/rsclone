@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../database/';
-import { RatingGateway } from './rating.gateway';
+import { DatabaseModule } from '../../database';
 import { ratingProviders } from './rating.providers';
 import { RatingService } from './rating.service';
+import { RatingController } from './rating.controller';
 
 @Module({
-  providers: [RatingGateway, RatingService, ...ratingProviders],
+  providers: [RatingService, ...ratingProviders],
   imports: [DatabaseModule],
   exports: [RatingService],
+  controllers: [RatingController],
 })
 export class RatingModule {}

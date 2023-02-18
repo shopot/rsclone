@@ -15,7 +15,7 @@ import {
   TypeRoomEvent,
   TypeRoomList,
   TypeServerResponse,
-} from '../shared/types';
+} from '../../shared/types';
 import { GameReceiveDto } from './dto';
 import { GameService } from './game.service';
 

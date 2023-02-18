@@ -1,5 +1,5 @@
-import { TypeSortOrder } from './../shared/types';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { TypeSortOrder } from '../../shared/types';
+import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { RATING_ROWS_LIMIT } from './constants';
 import { ICreateRatingDto, IReturnRatingDto, IUpdateRatingDto } from './dto';
@@ -20,7 +20,7 @@ export class RatingService {
    *
    * @returns Array list of Rating
    */
-  public async getAll(): Promise<IReturnRatingDto[]> {
+  public async findAll(): Promise<IReturnRatingDto[]> {
     this.RatingRepository.createQueryBuilder();
 
     const results = await this.RatingRepository.find({

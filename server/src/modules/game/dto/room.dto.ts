@@ -1,4 +1,4 @@
-import { TypeRoomStatus } from '../../shared/types';
+import { TypeRoomStatus } from '../../../shared/types';
 
 export class RoomDto {
   readonly roomId: string;
