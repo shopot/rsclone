@@ -79,6 +79,13 @@ select {
   text-transform: uppercase;
 }
 
+.error-message {
+  padding: 5px;
+  border-radius: 5px;
+  background-color: constants.$error-color;
+  text-align: center;
+}
+
 .feather {
   width: 24px;
   height: 24px;

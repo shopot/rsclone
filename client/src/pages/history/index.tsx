@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Table from 'rc-table';
 import listify from 'listify';
 import prettyMs from 'pretty-ms';
@@ -6,12 +6,10 @@ import { useDataStore } from '../../store/dataStore';
 import { MotionContainer } from '../../components/MotionContainer';
 
 const HistoryPage = () => {
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const { historyResults, actions } = useDataStore();
+  const { history, actions } = useDataStore();
 
   useEffect(() => {
-    actions.setHistoryList();
-    setDataLoaded(true);
+    void actions.setHistoryList();
   }, [actions]);
 
   const columns = [
@@ -49,10 +47,11 @@ const HistoryPage = () => {
       <MotionContainer identKey="HistoryPage">
         <div className="box-container">
           <h1 className="heading">Game History</h1>
-          {dataLoaded && (
+          {history.error && <p className="error-message">{history.error}</p>}
+          {history.data && (
             <Table
               columns={columns}
-              data={historyResults}
+              data={history.data}
               rowKey="id"
             />
           )}

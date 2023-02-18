@@ -4,9 +4,9 @@ import { useDataStore } from '../../store/dataStore';
 import { MotionContainer } from '../../components/MotionContainer';
 
 const RatingPage = () => {
-  const { ratingResults, actions } = useDataStore();
+  const { rating, actions } = useDataStore();
   useEffect(() => {
-    actions.setRatingList();
+    void actions.setRatingList();
   }, [actions]);
 
   const columns = [
@@ -43,11 +43,14 @@ const RatingPage = () => {
       <MotionContainer identKey="HistoryPage">
         <div className="box-container">
           <h1 className="heading">Rating Table</h1>
-          <Table
-            columns={columns}
-            data={ratingResults}
-            rowKey="id"
-          />
+          {rating.error && <p className="error-message">{rating.error}</p>}
+          {rating.data && (
+            <Table
+              columns={columns}
+              data={rating.data}
+              rowKey="id"
+            />
+          )}
         </div>
       </MotionContainer>
     </div>
