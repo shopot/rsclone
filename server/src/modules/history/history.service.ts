@@ -20,7 +20,7 @@ export class HistoryService {
    *
    * @returns Array list of history
    */
-  public async getAll(): Promise<IReturnHistoryDto[]> {
+  public async findAll(): Promise<IReturnHistoryDto[]> {
     const results = await this.historyRepository.find({
       order: {
         id: TypeSortOrder.Desc,
