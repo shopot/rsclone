@@ -13,3 +13,5 @@ export * from './TypeRoute';
 export * from './TypeResponseObject';
 export * from './TypeChatMessage';
 export * from './TypeGameAction';
+export * from './TypeHistoryItem';
+export * from './TypeRatingItem';
