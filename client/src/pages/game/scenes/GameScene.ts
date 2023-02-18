@@ -22,7 +22,6 @@ import { ButtonLeave } from '../prefabs/ButtonLeave';
 import { StatusHelper } from '../prefabs/StatusHelper';
 import { Timer } from '../prefabs/Timer';
 import { Chat } from '../classes/Chat';
-// import { Input } from 'postcss';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -53,10 +52,12 @@ export class GameScene extends Phaser.Scene {
   prevPlacedCards: TypePlacedCard[] = [];
   sounds:
     | {
-        placeCard: Phaser.Sound.BaseSound;
-        loser: Phaser.Sound.BaseSound;
+        // placeCard: Phaser.Sound.BaseSound;
+        // loser: Phaser.Sound.BaseSound;
         toBeaten: Phaser.Sound.BaseSound;
-        fromDeck: Phaser.Sound.BaseSound;
+        newPlayer: Phaser.Sound.BaseSound;
+        playerLeft: Phaser.Sound.BaseSound;
+        // fromDeck: Phaser.Sound.BaseSound;
         // newMessage: Phaser.Sound.BaseSound;
       }
     | undefined;
@@ -132,10 +133,12 @@ export class GameScene extends Phaser.Scene {
 
   createSounds() {
     this.sounds = {
-      placeCard: this.sound.add('placeCard'),
-      loser: this.sound.add('loser'),
+      // placeCard: this.sound.add('placeCard'),
+      // loser: this.sound.add('loser'),
       toBeaten: this.sound.add('toBeaten'),
-      fromDeck: this.sound.add('fromDeck'),
+      newPlayer: this.sound.add('newPlayer'),
+      playerLeft: this.sound.add('playerLeft'),
+      // fromDeck: this.sound.add('fromDeck'),
       // newMessage: this.sound.add('newMessage'),
     };
   }
@@ -155,6 +158,9 @@ export class GameScene extends Phaser.Scene {
   async handleActions(state: TypeGameState, prevState: TypeGameState) {
     this.prevState = prevState;
     this.state = state;
+    if (state.players.length != prevState.players.length) {
+      this.onPlayerAmtSounds(state.players.length - prevState.players.length);
+    }
     if (JSON.stringify(state.chat) !== JSON.stringify(prevState.chat)) {
       this.updateChat(state.chat, prevState.chat);
     }
@@ -187,6 +193,11 @@ export class GameScene extends Phaser.Scene {
       await this.checkDealt(state.dealt);
     }
     this.colorNickname();
+  }
+
+  onPlayerAmtSounds(difference: number) {
+    if (difference > 0) this.sounds?.newPlayer.play();
+    else this.sounds?.playerLeft.play();
   }
 
   colorNickname() {
@@ -259,7 +270,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleClick() {
-    this.sounds?.placeCard.play({ volume: 0.5 });
+    // this.sounds?.placeCard.play({ volume: 0.5 });
     console.log('`````````handle click`````````````');
     const params = { isAttacker: false, cardToMoveValue: '', pileInd: -1, pileLength: 0 };
 
