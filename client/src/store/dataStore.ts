@@ -1,64 +1,42 @@
 import { create } from 'zustand';
-import { socketIOService } from '../shared/api/socketio';
-import { TypeSocketEvent } from '../shared/types/TypeSocketEvent';
-
-type TypeHistoryItem = {
-  id: number;
-  players: string[];
-  loser: string;
-  duration: number;
-  rounds: number;
-  createdAt: number;
-};
-
-type TypeRatingItem = {
-  id: number;
-  player: string;
-  wins: number;
-  total: number;
-  lastGameAt: number;
-};
+import { historyService } from '../services/historyService';
+import { ratingService } from '../services/ratingService';
+import { TypeHistoryItem } from '../shared/types/TypeHistoryItem';
+import { TypeRatingItem } from '../shared/types';
 
 type TypeDataState = {
-  historyResults: TypeHistoryItem[];
-  ratingResults: TypeRatingItem[];
-  isOnline: boolean;
+  history: {
+    data: TypeHistoryItem[] | null;
+    error: string | null;
+  };
+
+  rating: {
+    data: TypeRatingItem[] | null;
+    error: string | null;
+  };
 
   actions: {
-    setHistoryList: () => void;
-    setRatingList: () => void;
+    setHistoryList: () => Promise<void>;
+    setRatingList: () => Promise<void>;
   };
 };
 
 export const useDataStore = create<TypeDataState>((set) => {
-  socketIOService.listen(TypeSocketEvent.Connect, () => {
-    set({ isOnline: true });
-  });
-
-  socketIOService.listen(TypeSocketEvent.Disconnect, () => {
-    set({ isOnline: false });
-  });
-
-  socketIOService.listen<TypeHistoryItem[]>(TypeSocketEvent.HistoryGetList, (state) => {
-    // Вот тут возможно нужно получить старый стейт и если оба пусты то пропустить обновление стейта
-    set({ historyResults: state });
-  });
-
-  socketIOService.listen<TypeRatingItem[]>(TypeSocketEvent.RatingGetList, (state) => {
-    set({ ratingResults: state });
-  });
-
   return {
-    historyResults: [],
-    ratingResults: [],
-    isOnline: false,
+    history: { data: null, error: null },
+    rating: { data: null, error: null },
 
     actions: {
-      setHistoryList() {
-        socketIOService.emit(TypeSocketEvent.HistoryGetList, { data: {} });
+      async setHistoryList() {
+        const result = await historyService.getAll();
+
+        set({ history: result });
       },
-      setRatingList() {
-        socketIOService.emit(TypeSocketEvent.RatingGetList, { data: {} });
+
+      async setRatingList() {
+        const result = await ratingService.getAll();
+
+        set({ rating: result });
       },
     },
   };
