@@ -1,3 +1,4 @@
+import { createHistoryLogger } from './../helpers/createHistoryLogger';
 import { RoomTestFactory } from './../../test-factory/RoomTestFactory';
 import { Card } from './Card';
 import { Deck } from './Deck';
@@ -28,6 +29,7 @@ import {
 } from '../types';
 import { Players } from './Players';
 import { GameService } from '../../modules/game/game.service';
+import { Logger as WinstonLogger } from 'winston';
 
 /**
  * Class Room
@@ -84,7 +86,7 @@ export class Room {
   // RoomTestFactory
   testName: string;
 
-  stateHistory: TypeRoomState[];
+  historyLogger: WinstonLogger;
 
   constructor(
     roomId: string,
@@ -132,11 +134,7 @@ export class Room {
 
     this.testName = testName;
 
-    this.stateHistory = [];
-  }
-
-  public getStateHistory(): TypeRoomState[] {
-    return this.stateHistory;
+    this.historyLogger = createHistoryLogger(roomId);
   }
 
   public getRoomId(): string {
@@ -1038,9 +1036,8 @@ export class Room {
       lastCloseDefenderCard: this.lastCloseDefenderCard,
     };
 
-    if (this.roomStatus === TypeRoomStatus.GameInProgress) {
-      this.stateHistory.push(state);
-    }
+    // Write history
+    this.historyLogger.info(state);
 
     return state;
   }
