@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../database/';
+import { DatabaseModule } from '../../database';
 import { RatingGateway } from './rating.gateway';
 import { ratingProviders } from './rating.providers';
 import { RatingService } from './rating.service';

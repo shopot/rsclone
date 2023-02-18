@@ -1,4 +1,4 @@
-import { TypeCard } from './../../shared/types';
+import { TypeCard } from '../../../shared/types';
 
 export class GameReceiveDto {
   readonly roomId: string;

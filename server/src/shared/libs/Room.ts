@@ -26,7 +26,7 @@ import {
   TypeGameAction,
 } from '../types';
 import { Players } from './Players';
-import { GameService } from '../../game/game.service';
+import { GameService } from '../../modules/game/game.service';
 
 /**
  * Class Room

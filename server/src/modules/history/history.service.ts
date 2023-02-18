@@ -1,4 +1,4 @@
-import { TypeSortOrder } from './../shared/types';
+import { TypeSortOrder } from './../../shared/types';
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { HISTORY_ROWS_LIMIT } from './constants';
