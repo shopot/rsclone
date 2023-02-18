@@ -52,13 +52,11 @@ export class GameScene extends Phaser.Scene {
   prevPlacedCards: TypePlacedCard[] = [];
   sounds:
     | {
-        // placeCard: Phaser.Sound.BaseSound;
         // loser: Phaser.Sound.BaseSound;
         toBeaten: Phaser.Sound.BaseSound;
         newPlayer: Phaser.Sound.BaseSound;
         playerLeft: Phaser.Sound.BaseSound;
-        // fromDeck: Phaser.Sound.BaseSound;
-        // newMessage: Phaser.Sound.BaseSound;
+        fromDeck: Phaser.Sound.BaseSound;
       }
     | undefined;
   prevState: TypeGameState | undefined;
@@ -133,13 +131,11 @@ export class GameScene extends Phaser.Scene {
 
   createSounds() {
     this.sounds = {
-      // placeCard: this.sound.add('placeCard'),
       // loser: this.sound.add('loser'),
       toBeaten: this.sound.add('toBeaten'),
       newPlayer: this.sound.add('newPlayer'),
       playerLeft: this.sound.add('playerLeft'),
-      // fromDeck: this.sound.add('fromDeck'),
-      // newMessage: this.sound.add('newMessage'),
+      fromDeck: this.sound.add('fromDeck'),
     };
   }
 
@@ -261,16 +257,16 @@ export class GameScene extends Phaser.Scene {
     console.log('````````````handle pass````````````````');
 
     const angle = 180 / (this.piles.flat().length + 1);
+    this.sounds?.toBeaten.play({ volume: 0.5, loop: true });
     for (const card of this.piles.flat()) {
       const ind = this.piles.flat().indexOf(card);
-      this.sounds?.toBeaten.play({ volume: 0.5 });
       await card.animateToBeaten(angle + ind * angle, ind);
     }
+    this.sounds?.toBeaten.stop();
     this.piles = [];
   }
 
   async handleClick() {
-    // this.sounds?.placeCard.play({ volume: 0.5 });
     console.log('`````````handle click`````````````');
     const params = { isAttacker: false, cardToMoveValue: '', pileInd: -1, pileLength: 0 };
 

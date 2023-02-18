@@ -9,6 +9,11 @@ export class Card extends Phaser.GameObjects.Sprite {
   cardType?: TypeCard;
   colors: { primaryColor: Phaser.Display.Color; secondaryColor: Phaser.Display.Color };
   highlighted: boolean;
+  sounds: {
+    placeCard: Phaser.Sound.BaseSound;
+    // loser: this.sound.add('loser'),
+    // fromDeck: Phaser.Sound.BaseSound;
+  };
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -34,6 +39,12 @@ export class Card extends Phaser.GameObjects.Sprite {
       .on('pointerdown', () => this.onCardClick())
       .on('pointerover', () => this.shiftCard(true))
       .on('pointerout', () => this.shiftCard(false));
+
+    this.sounds = {
+      placeCard: this.scene.sound.add('placeCard'),
+      // loser: this.sound.add('loser'),
+      // fromDeck: this.scene.sound.add('fromDeck'),
+    };
   }
   shiftCard(status: boolean) {
     const shift = status ? 5 : -5;
@@ -154,6 +165,7 @@ export class Card extends Phaser.GameObjects.Sprite {
   }
 
   async animateToTable(pileIndex: number, isAttacking: boolean, piles: number, me: boolean) {
+    this.sounds.placeCard.play({ volume: 0.8, loop: true });
     await new Promise((resolve) => {
       this.makeNotClickable();
       if (!me) this.open();
@@ -174,6 +186,7 @@ export class Card extends Phaser.GameObjects.Sprite {
       });
       this.setDepth(isAttacking ? 2 : 100);
     });
+    this.sounds.placeCard.stop();
   }
 
   async animateToBeaten(cardAngle: number, index: number) {
