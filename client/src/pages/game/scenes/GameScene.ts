@@ -738,7 +738,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async updateCardsPosOnTable() {
-    if (this.piles.length === 4 || this.piles.length === 7) {
+    if (this.piles.length === 4) {
       await Promise.all(
         this.piles.map(async (set, pileInd) => {
           await Promise.all(

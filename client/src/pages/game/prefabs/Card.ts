@@ -64,9 +64,9 @@ export class Card extends Phaser.GameObjects.Sprite {
     const isSocketActive = socketId === useGameStore.getState().activeSocketId;
     const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
     if (isSocketActive && this.cardType !== undefined && isGameOn) {
-      console.log('``````````click to server``````````````')
-      console.log(this.cardType, 'this.cardType')
-      console.log(this.value, 'this.value')
+      console.log('``````````click to server``````````````');
+      console.log(this.cardType, 'this.cardType');
+      console.log(this.value, 'this.value');
       const thisPlayer = useGameStore
         .getState()
         .players.filter((player) => player.socketId === socketId)[0];
@@ -173,8 +173,7 @@ export class Card extends Phaser.GameObjects.Sprite {
       this.makeNotClickable();
       if (!me) this.open();
       const positionArray = isAttacking ? config.placesForAttack : config.placesForDefend;
-      const params =
-        piles <= 3 ? positionArray[3] : piles <= 6 ? positionArray[6] : positionArray[12];
+      const params = piles <= 3 ? positionArray[3] : positionArray[6];
       const cardAngle = isAttacking ? -15 : -5;
 
       this.scene.tweens.add({
