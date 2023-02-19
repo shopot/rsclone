@@ -13,13 +13,14 @@ export class Popup {
   playerText?: Phaser.GameObjects.Text;
   avatar?: Phaser.GameObjects.Sprite;
   aword?: Phaser.GameObjects.Sprite;
-
-  text?: Phaser.GameObjects.Text;
-  loserText?: Phaser.GameObjects.Text;
+  alphas: { onWin: number; onEnd: number };
+  depthes: { onWin: number; onEnd: number };
 
   constructor(scene: Phaser.Scene, players: TypePlayer[], isGameOver: boolean) {
     this.scene = scene;
     this.colors = { winner: 0x00ff00, loser: 0xee0808 };
+    this.alphas = { onWin: 0.85, onEnd: 1 };
+    this.depthes = { onWin: 200, onEnd: 300 };
     this.titleTexts = { onWin: 'Congrats! You are not a fool!', onEnd: 'The game is over' };
 
     if (!isGameOver) {
@@ -31,44 +32,16 @@ export class Popup {
     }
   }
 
-  onEnd(players: TypePlayer[]) {
-    const loser = players.find((player) => player.playerStatus === TypePlayerStatus.YouLoser);
-
-    if (loser) {
-      //добавить картинку с колпаком на  аватарке лузера
-      this.text = this.scene.add
-        .text(config.width / 2, config.height / 2 - 30, 'The loser is', {
-          color: '#fff',
-          font: '25px Arial bold',
-        })
-        .setOrigin(0.5)
-        .setDepth(201);
-      this.loserText = this.scene.add
-        .text(config.width / 2, config.height / 2 + 70, `${loser.playerName}`, {
-          color: '#fff',
-          font: '30px Arial bold',
-        })
-        .setOrigin(0.5)
-        .setDepth(201);
-    } else {
-      this.text = this.scene.add
-        .text(config.width / 2, config.height / 2 - 30, 'drawn game', {
-          color: '#fff',
-          font: '25px Arial bold',
-        })
-        .setOrigin(0.5)
-        .setDepth(201);
-    }
-  }
-
   createPopup(status: boolean, player: TypePlayer | undefined) {
     const titleText = status ? this.titleTexts.onEnd : this.titleTexts.onWin;
     const color = status ? this.colors.loser : this.colors.winner;
+    const opacity = status ? this.alphas.onEnd : this.alphas.onWin;
+    const zIndex = status ? this.depthes.onEnd : this.depthes.onWin;
 
     this.wrapper = this.scene.add
       .sprite(config.width / 2, config.height / 2 - 30, 'winWrapper')
-      .setAlpha(0.85)
-      .setDepth(200)
+      .setAlpha(opacity)
+      .setDepth(zIndex)
       .setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => this.destroyPopup());
 
@@ -80,7 +53,7 @@ export class Popup {
         font: '30px Arial bold',
       })
       .setOrigin(0.5)
-      .setDepth(201);
+      .setDepth(zIndex + 1);
 
     this.rectangle = this.scene.add
       .graphics()
@@ -88,7 +61,7 @@ export class Popup {
       .lineStyle(2, color, 1)
       .fillRoundedRect(config.width / 2 - 250, config.height / 2 - 30, 500, 100, 10)
       .strokeRoundedRect(config.width / 2 - 250, config.height / 2 - 30, 500, 100, 10)
-      .setDepth(201);
+      .setDepth(zIndex + 1);
 
     if (player !== undefined) {
       const text = status ? 'The fool is:' : 'The winner is:';
@@ -98,26 +71,26 @@ export class Popup {
           color: '#fff',
           font: '25px Arial bold',
         })
-        .setDepth(201);
+        .setDepth(zIndex + 1);
 
       this.playerName = this.scene.add
         .text(config.width / 3 + 70, config.height / 2 + 25, player.playerName, {
           color: '#fff',
           font: '25px Arial bold',
         })
-        .setDepth(201);
+        .setDepth(zIndex + 1);
 
       this.avatar = this.scene.add
         .sprite(config.width / 3 - 20, config.height / 2 - 10, 'icons', player.playerAvatar)
         .setOrigin(0, 0)
-        .setDepth(201);
+        .setDepth(zIndex + 1);
 
       const hat = status ? 'foolscap' : 'crown';
       this.aword = this.scene.add
         .sprite(config.width / 3 + 30, config.height / 2 - 22, 'aword', hat)
         .setScale(0.8)
         .setAngle(20)
-        .setDepth(201);
+        .setDepth(zIndex + 1);
     } else {
       this.playerText = this.scene.add
         .text(config.width / 2, config.height / 2 + 15, 'Drawn game', {
@@ -125,7 +98,7 @@ export class Popup {
           font: '30px Arial bold',
         })
         .setOrigin(0.5)
-        .setDepth(201);
+        .setDepth(zIndex + 1);
     }
   }
 

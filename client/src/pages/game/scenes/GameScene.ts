@@ -485,6 +485,9 @@ export class GameScene extends Phaser.Scene {
         this.mainButton.update(TypeButtonStatus.Take, true);
       else if (isGame && !isSocketActive && !isAttacker)
         this.mainButton.update(TypeButtonStatus.Take, false);
+      else if (isSocketActive && isAttacker && !isPileOnTable) {
+        this.mainButton.update(TypeButtonStatus.Pass, false);
+      }
 
       //если победил, то статус может не соответсвовать!!!
       // const me = useGameStore
