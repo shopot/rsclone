@@ -563,6 +563,8 @@ export class Room {
     if (this.round.isFinished()) {
       this.GivePickedUpCardsToDefender();
       this.startNextRound();
+
+      return true;
     }
 
     // Move turn back to attacker
