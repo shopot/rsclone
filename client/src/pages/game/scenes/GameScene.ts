@@ -198,6 +198,11 @@ export class GameScene extends Phaser.Scene {
       await this.checkDealt(state.dealt);
     }
     this.colorNickname();
+    if (
+      state.lastGameAction === TypeGameAction.AttackerPass ||
+      state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp
+    )
+      this.handleHighlight();
   }
 
   onPlayerAmtSounds(difference: number) {
@@ -385,7 +390,10 @@ export class GameScene extends Phaser.Scene {
   handleHighlight() {
     const imIActive = useGameStore.getState().activeSocketId === this.socketId;
     if (!imIActive) this.removeHighlight();
-    else this.createHighlight();
+    else {
+      this.piles.flat().forEach((card) => card.removeHighlight());
+      this.createHighlight();
+    }
   }
 
   createHighlight() {
