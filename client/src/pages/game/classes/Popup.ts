@@ -120,10 +120,11 @@ export class Popup {
         .setDepth(201);
     } else {
       this.playerText = this.scene.add
-        .text(config.width / 3 + 70, config.height / 2 - 15, 'drawn game', {
+        .text(config.width / 2, config.height / 2 + 15, 'Drawn game', {
           color: '#fff',
           font: '30px Arial bold',
         })
+        .setOrigin(0.5)
         .setDepth(201);
     }
   }
