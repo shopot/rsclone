@@ -72,14 +72,14 @@ export class Chat {
       .on('pointerout', () => this.btn.setScale(0.7));
 
     this.circle = this.scene.add
-      .sprite(this.bntParams.x, this.bntParams.y, 'redCircle')
-      .setScale(0.73)
+      .sprite(this.bntParams.x + 20, this.bntParams.y - 20, 'redCircle')
+      .setScale(0.4)
       .setAlpha(0);
 
     this.newMessagesAmt = this.scene.add
-      .text(this.bntParams.x, this.bntParams.y, '', {
+      .text(this.bntParams.x + 20, this.bntParams.y - 20, '', {
         color: '#fff',
-        font: '22px Arial bold',
+        font: '13px Arial bold',
       })
       .setOrigin(0.5);
 
