@@ -87,6 +87,7 @@ export class Room {
   testName: string;
 
   historyLogger: WinstonLogger;
+  stateHash: string;
 
   constructor(
     roomId: string,
@@ -135,6 +136,7 @@ export class Room {
     this.testName = testName;
 
     this.historyLogger = createHistoryLogger(roomId);
+    this.stateHash = '';
   }
 
   public getRoomId(): string {
@@ -1038,7 +1040,12 @@ export class Room {
     };
 
     // Write history
-    this.historyLogger.info(state);
+    const hash = JSON.stringify(state);
+
+    if (hash !== this.stateHash) {
+      this.stateHash = hash;
+      this.historyLogger.info(state);
+    }
 
     return state;
   }
