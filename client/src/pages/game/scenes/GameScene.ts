@@ -14,6 +14,7 @@ import {
   TypeGameAction,
   TypePlacedCard,
   TypePlayer,
+  TypePlayerRole,
   TypePlayerStatus,
   TypeRoomStatus,
 } from '../../../shared/types';
@@ -177,13 +178,14 @@ export class GameScene extends Phaser.Scene {
       this.createBubble('Pass');
       this.updateHelper('passes');
     }
+    // if (
+    //   JSON.stringify(state.lastCloseDefenderCard) !==
+    //     JSON.stringify(prevState.lastCloseDefenderCard) ||
+    //   JSON.stringify(state.lastOpenAttackerCard) !== JSON.stringify(prevState.lastOpenAttackerCard)
+    // ) {
+    await this.handleClick();
+    // }
     if (
-      JSON.stringify(state.lastCloseDefenderCard) !==
-        JSON.stringify(prevState.lastCloseDefenderCard) ||
-      JSON.stringify(state.lastOpenAttackerCard) !== JSON.stringify(prevState.lastOpenAttackerCard)
-    ) {
-      await this.handleClick();
-    } else if (
       JSON.stringify(state.lastCloseDefenderCard) ===
         JSON.stringify(prevState.lastCloseDefenderCard) &&
       JSON.stringify(state.lastOpenAttackerCard) === JSON.stringify(prevState.lastOpenAttackerCard)
@@ -227,6 +229,7 @@ export class GameScene extends Phaser.Scene {
 
   async handleTake() {
     console.log('``````handle take````````````');
+    this.removeHighlight();
     const spriteValueFromPile = this.piles.flat()[0].value;
 
     let defenderInd = -1;
@@ -262,7 +265,7 @@ export class GameScene extends Phaser.Scene {
   }
   async handlePass() {
     console.log('````````````handle pass````````````````');
-
+    this.removeHighlight();
     const angle = 180 / (this.piles.flat().length + 1);
     this.sounds?.toBeaten.play({ volume: 0.5, loop: true });
     for (const card of this.piles.flat()) {
@@ -324,44 +327,54 @@ export class GameScene extends Phaser.Scene {
       }
     }
     console.log(params, 'params');
+
+    // JSON.stringify(state.lastCloseDefenderCard) !==
+    //     JSON.stringify(prevState.lastCloseDefenderCard) ||
+    //   JSON.stringify(state.lastOpenAttackerCard) !== JSON.stringify(prevState.lastOpenAttackerCard)
+
     const sprite = this.playersCardsSprites
       .flat()
-      .filter((card) => card.value === params.cardToMoveValue)[0];
-    await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe);
-    console.log(sprite, 'sprite');
+      .find((card) => card.value === params.cardToMoveValue);
+    if (sprite) {
+      await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe);
+      console.log(sprite, 'sprite');
 
-    const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
-    console.log(player, 'player');
+      const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
+      console.log(player, 'player');
 
-    const playerInd = this.playersCardsSprites.indexOf(player);
-    console.log(playerInd, 'playerInd');
+      const playerInd = this.playersCardsSprites.indexOf(player);
+      console.log(playerInd, 'playerInd');
 
-    const spriteInd = this.playersCardsSprites[playerInd].indexOf(sprite);
-    console.log(spriteInd, 'spriteInd');
+      const spriteInd = this.playersCardsSprites[playerInd].indexOf(sprite);
+      console.log(spriteInd, 'spriteInd');
 
-    this.playersCardsSprites[playerInd].splice(spriteInd, 1);
-    params.isAttacker ? this.piles.push([sprite]) : this.piles[params.pileLength - 1].push(sprite);
-    console.log(this.playersCardsSprites[playerInd], 'this.playersCardsSprites[playerInd]');
-    this.setEqualPositionAtHands();
-    this.updatePlayersText();
-    await this.updateCardsPosOnTable();
+      this.playersCardsSprites[playerInd].splice(spriteInd, 1);
+      params.isAttacker
+        ? this.piles.push([sprite])
+        : this.piles[params.pileLength - 1].push(sprite);
+      this.handleHighlight();
+      console.log(this.playersCardsSprites[playerInd], 'this.playersCardsSprites[playerInd]');
+      this.setEqualPositionAtHands();
+      this.updatePlayersText();
+      await this.updateCardsPosOnTable();
 
-    //далее перенаправляем на тейк и пасс, если есть
-    if (
-      this.state?.lastGameAction === TypeGameAction.AttackerPass &&
-      this.state.placedCards.length === 0
-    ) {
-      await this.handlePass();
-      await this.checkDealt(this.state.dealt);
-    } else if (this.state?.lastGameAction === TypeGameAction.DefenderTakesCards) {
-      await this.handleTake();
-      await this.checkDealt(this.state.dealt);
-    } else if (
-      this.state?.lastGameAction === TypeGameAction.DefenderMoveCard &&
-      this.state.placedCards.length === 0
-    ) {
-      await this.handlePass();
-      await this.checkDealt(this.state.dealt);
+      //далее перенаправляем на тейк и пасс, если есть
+      if (
+        this.state?.lastGameAction === TypeGameAction.AttackerPass &&
+        this.state.placedCards.length === 0
+      ) {
+        await this.handlePass();
+        await this.checkDealt(this.state.dealt);
+      } else if (this.state?.lastGameAction === TypeGameAction.DefenderTakesCards) {
+        await this.handleTake();
+        await this.checkDealt(this.state.dealt);
+      } else if (
+        this.state?.lastGameAction === TypeGameAction.DefenderMoveCard &&
+        this.state.placedCards.length === 0
+      ) {
+        await this.handlePass();
+        await this.checkDealt(this.state.dealt);
+      }
     }
   }
 
@@ -369,15 +382,52 @@ export class GameScene extends Phaser.Scene {
     //определить, кто нажимал ранее и у него проигрывать звук неправильного клика
   }
 
-  // highlightCards() {
-  //   //вызвать, когда мой статут фо1лс и кинута карта (pile имеет нечетные подмассивы)
-  //   //подсветит, чем можно бить по возрастанию
-  //   //когда мой статус тру и у меня есть карты того же значения, что и на столе
-  //   //подсветит такие же карты, чтобы подкинуть
-  //   [...this.playersCardsSprites].flat().forEach((card) => card.removeHighlight());
-  //   const targets = [this.playersCardsSprites[0][5], this.playersCardsSprites[0][10]];
-  //   targets.forEach((card) => card.highlight());
-  // }
+  handleHighlight() {
+    const imIActive = useGameStore.getState().activeSocketId === this.socketId;
+    if (!imIActive) this.removeHighlight();
+    else this.createHighlight();
+  }
+
+  createHighlight() {
+    const myCards = this.playersCardsSprites[0];
+    const myTrumpCards = myCards.filter((el) => el.cardType?.suit === this.trump.suit);
+    const me = useGameStore
+      .getState()
+      .players.filter((player) => player.socketId === this.socketId)[0];
+    const isAttacker = me.playerRole === TypePlayerRole.Attacker;
+    const isDefender = me.playerRole === TypePlayerRole.Defender;
+    const target = this.piles.flat()[this.piles.flat().length - 1].cardType;
+    if (isDefender) {
+      if (target?.suit === this.trump.suit) {
+        myTrumpCards.forEach((card) => {
+          if (card.cardType && card.cardType?.rank > target.rank) {
+            card.highlight();
+          }
+        });
+      } else {
+        myCards.forEach((card) => {
+          if (
+            target &&
+            card.cardType &&
+            card.cardType?.suit === target?.suit &&
+            card.cardType?.rank > target?.rank
+          ) {
+            card.highlight();
+          }
+        });
+        myTrumpCards.forEach((card) => card.highlight());
+      }
+    } else if (isAttacker) {
+      const targetsRanks = this.piles.flat().map((card) => card.cardType?.rank);
+      const goodToClick = myCards.filter((card) => targetsRanks.includes(card.cardType?.rank));
+      goodToClick.forEach((card) => card.highlight());
+    }
+  }
+
+  removeHighlight() {
+    this.playersCardsSprites[0].forEach((card) => card.removeHighlight());
+    this.piles.flat().forEach((card) => card.removeHighlight());
+  }
 
   createBg() {
     const bg = this.add.sprite(config.width / 2, config.height / 2, 'bgDark');

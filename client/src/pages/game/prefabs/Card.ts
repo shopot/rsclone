@@ -124,7 +124,7 @@ export class Card extends Phaser.GameObjects.Sprite {
       from: 1,
       to: 100,
       ease: 'Linear',
-      duration: 500,
+      duration: 80,
       onUpdate: (tween) => {
         const value = tween.getValue();
         const colorObj = Phaser.Display.Color.Interpolate.ColorWithColor(
