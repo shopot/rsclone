@@ -385,6 +385,8 @@ export class Room {
     if (this.isDefenderPickup && this.round.isFinished()) {
       this.GivePickedUpCardsToDefender();
       this.startNextRound();
+
+      return true;
     }
 
     return true;
@@ -440,6 +442,7 @@ export class Room {
       if (this.players.totalCountInGame() === 0) {
         this.lastLoser = null;
         this.setGameIsOver();
+
         return true;
       }
 
@@ -451,11 +454,13 @@ export class Room {
         this.attacker.setPlayerStatus(TypePlayerStatus.YouLoser);
         this.lastLoser = this.attacker;
         this.setGameIsOver();
+
         return true;
       }
 
       this.activePlayer = this.getNextPlayer(this.activePlayer);
       this.startNextRound();
+
       return true;
     }
 
@@ -465,13 +470,14 @@ export class Room {
       this.activePlayer.setPlayerStatus(TypePlayerStatus.YouLoser);
       this.lastLoser = this.activePlayer;
       this.setGameIsOver();
+
       return true;
     }
 
     if (this.round.isFinished()) {
       this.setActivePlayer(this.defender);
-
       this.startNextRound();
+
       return true;
     }
 
@@ -524,6 +530,8 @@ export class Room {
 
     if (this.attacker === this.defender) {
       this.startNextRound();
+
+      return true;
     }
 
     return true;
@@ -563,6 +571,8 @@ export class Room {
     if (this.round.isFinished()) {
       this.GivePickedUpCardsToDefender();
       this.startNextRound();
+
+      return true;
     }
 
     // Move turn back to attacker
@@ -897,7 +907,7 @@ export class Room {
     );
 
     // all attackers are without cards
-    if (players.length < 1) {
+    if (players.length === 0) {
       this.startNextRound();
     }
 
