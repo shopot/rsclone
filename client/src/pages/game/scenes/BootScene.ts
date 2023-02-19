@@ -13,6 +13,8 @@ import cloudsPng from '../../../assets/phaser/clouds.png';
 import cloudsJson from '../../../assets/phaser/clouds.json';
 import shieldSwordPng from '../../../assets/phaser/shield_sword.png';
 import shieldSwordJson from '../../../assets/phaser/shield_sword.json';
+import hatPng from '../../../assets/phaser/hat.png';
+import hatJson from '../../../assets/phaser/hat.json';
 
 import bgDark from '../../../assets/phaser/bg_dark.jpg';
 import bgLight from '../../../assets/phaser/bg_light.jpg';
@@ -53,6 +55,7 @@ export class BootScene extends Phaser.Scene {
     this.load.atlas('suits', suitsPng, suitsJson);
     this.load.atlas('clouds', cloudsPng, cloudsJson);
     this.load.atlas('shieldSword', shieldSwordPng, shieldSwordJson);
+    this.load.atlas('aword', hatPng, hatJson);
 
     this.load.audio('placeCard', [cardPlacesound]);
     this.load.audio('loser', [loserSound]);

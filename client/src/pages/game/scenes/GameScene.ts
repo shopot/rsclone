@@ -120,7 +120,7 @@ export class GameScene extends Phaser.Scene {
     this.createButtons();
     this.createDeck(useGameStore.getState().deckCounter);
     this.createSounds();
-    // new Popup(this, this.playersSorted, true);
+    // new Popup(this, this.playersSorted, false);
   }
 
   createChat() {

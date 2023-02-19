@@ -1,0 +1,28 @@
+{"frames": [
+
+{
+	"filename": "crown",
+	"frame": {"x":1,"y":1,"w":64,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
+	"sourceSize": {"w":64,"h":64}
+},
+{
+	"filename": "foolscap",
+	"frame": {"x":66,"y":1,"w":134,"h":100},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":134,"h":100},
+	"sourceSize": {"w":134,"h":100}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "hat.png",
+	"format": "RGBA8888",
+	"size": {"w":201,"h":102},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:86d8f2ceba5f312acde4d6bdeef68361:1b69c4465dba7559fb2d85ff8b7e9a84:a210b3ecab7a3cd17cac7ec77bddd153$"
+}
+}
