@@ -11,6 +11,9 @@ import roundPng from '../../../assets/phaser/roundbtns.png';
 import roundJson from '../../../assets/phaser/roundbtns.json';
 import cloudsPng from '../../../assets/phaser/clouds.png';
 import cloudsJson from '../../../assets/phaser/clouds.json';
+import shieldSwordPng from '../../../assets/phaser/shield_sword.png';
+import shieldSwordJson from '../../../assets/phaser/shield_sword.json';
+
 import bgDark from '../../../assets/phaser/bg_dark.jpg';
 import bgLight from '../../../assets/phaser/bg_light.jpg';
 import chatWrapperPng from '../../../assets/phaser/chatWrapper.png';
@@ -49,6 +52,7 @@ export class BootScene extends Phaser.Scene {
     this.load.atlas('icons', iconsPng, iconsJson);
     this.load.atlas('suits', suitsPng, suitsJson);
     this.load.atlas('clouds', cloudsPng, cloudsJson);
+    this.load.atlas('shieldSword', shieldSwordPng, shieldSwordJson);
 
     this.load.audio('placeCard', [cardPlacesound]);
     this.load.audio('loser', [loserSound]);

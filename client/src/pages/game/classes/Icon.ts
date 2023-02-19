@@ -16,6 +16,7 @@ export class Icon {
   bubble: SpeechBubble | undefined;
   cloud: Phaser.GameObjects.Sprite;
   cloudColors: { attacker: number; defender: number; other: number };
+  shieldSword: Phaser.GameObjects.Sprite;
   constructor(
     scene: Phaser.Scene,
     index: number,
@@ -36,13 +37,17 @@ export class Icon {
 
     const textY = index === 0 ? this.spriteY - 55 : this.spriteY + 40;
     this.cloud = this.scene.add
-      .sprite(this.x - 10, textY - 15, 'clouds', 'blue')
+      .sprite(this.x - 20, textY - 13, 'clouds', 'blue')
       .setScale(1.7)
       .setOrigin(0, 0)
       .setTint(this.cloudColors.other)
-      // .setAlpha(0.7);
       .setAlpha(0);
-    this.text = new Nickname(this.scene, this.x + 10, textY - 5, nickname);
+    this.text = new Nickname(this.scene, this.x + 30, textY - 5, nickname);
+    this.shieldSword = this.scene.add
+      .sprite(this.x - 0, textY - 7, 'shieldSword', 'shield')
+      .setScale(0.5)
+      .setOrigin(0, 0)
+      .setAlpha(0);
   }
 
   destroy() {
@@ -69,7 +74,7 @@ export class Icon {
   }
 
   colorCloud(role: TypePlayerRole) {
-    const params = { color: 0, opacity: 0 };
+    const params = { color: 0, opacity: 0, texture: '' };
     params.color =
       role === TypePlayerRole.Attacker
         ? this.cloudColors.attacker
@@ -77,6 +82,8 @@ export class Icon {
         ? this.cloudColors.defender
         : this.cloudColors.other;
     params.opacity = role === TypePlayerRole.Attacker || role === TypePlayerRole.Defender ? 0.7 : 0;
+    params.texture = role === TypePlayerRole.Attacker ? 'sword' : 'shield';
     this.cloud.setTint(params.color).setAlpha(params.opacity);
+    this.shieldSword.setFrame(params.texture).setAlpha(params.opacity);
   }
 }
