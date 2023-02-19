@@ -81,12 +81,6 @@ export class GameScene extends Phaser.Scene {
       (data) => this.sortPlayersData(data),
     );
 
-    // updateButton
-    // useGameStore.subscribe(
-    //   (state) => [state.roomStatus, state.activeSocketId, state.currentRound.toString()],
-    //   (arr) => this.updateButton(arr),
-    // );
-
     // handleRoomStatus
     useGameStore.subscribe(
       (state) => state.roomStatus,
@@ -147,7 +141,6 @@ export class GameScene extends Phaser.Scene {
     if (roomStatus === TypeRoomStatus.GameInProgress) await this.startGame();
     if (roomStatus === TypeRoomStatus.GameIsOver) {
       new Popup(this, this.playersSorted, true);
-      //выводить модалку всем
       // this.endGame();
     }
   }
@@ -208,7 +201,7 @@ export class GameScene extends Phaser.Scene {
       state.activeSocketId !== prevState.activeSocketId ||
       state.currentRound !== prevState.currentRound
     )
-     this.updateButton(state.roomStatus, state.activeSocketId);
+      this.updateButton(state.roomStatus, state.activeSocketId);
   }
 
   onPlayerAmtSounds(difference: number) {
@@ -320,8 +313,6 @@ export class GameScene extends Phaser.Scene {
         params.cardToMoveValue = this.getCardTexture(cardToMoveType);
       }
       params.pileInd = params.isAttacker ? this.piles.length : this.piles.length - 1;
-      // params.pileInd = 5;
-      // params.pileLength = 6;
       params.pileLength = params.isAttacker ? this.piles.length + 1 : this.piles.length;
     }
 
@@ -338,10 +329,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
     console.log(params, 'params');
-
-    // JSON.stringify(state.lastCloseDefenderCard) !==
-    //     JSON.stringify(prevState.lastCloseDefenderCard) ||
-    //   JSON.stringify(state.lastOpenAttackerCard) !== JSON.stringify(prevState.lastOpenAttackerCard)
 
     const sprite = this.playersCardsSprites
       .flat()
@@ -488,15 +475,6 @@ export class GameScene extends Phaser.Scene {
       else if (isSocketActive && isAttacker && !isPileOnTable) {
         this.mainButton.update(TypeButtonStatus.Pass, false);
       }
-
-      //если победил, то статус может не соответсвовать!!!
-      // const me = useGameStore
-      //   .getState()
-      //   .players.filter((player) => player.socketId === this.socketId)[0];
-
-      // if (me.playerStatus === TypePlayerStatus.YouWinner) {
-      //   this.mainButton.update(TypeButtonStatus.Take, false);
-      // }
     }
   }
 
