@@ -435,8 +435,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   createButtons() {
-    if (this.socketId === useGameStore.getState().players[0].socketId)
-      this.mainButton = new Button(this);
+    this.mainButton = new Button(this);
+    if (this.socketId !== useGameStore.getState().players[0].socketId) {
+      this.mainButton.setAlpha(0);
+    }
     new ButtonLeave(this);
   }
 

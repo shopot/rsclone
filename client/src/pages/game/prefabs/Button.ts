@@ -37,13 +37,13 @@ export class Button extends Phaser.GameObjects.Sprite {
   handleClick() {
     if (this.status === TypeButtonStatus.Start) {
       useGameStore.getState().actions.startGame();
-      this.setFrame('btn-start-disabled');
+      this.alphaAnimation(0);
     } else if (this.status === TypeButtonStatus.Take) {
       useGameStore.getState().actions.defenderTake();
-      this.setFrame('btn-take-disabled');
+      this.alphaAnimation(0);
     } else if (this.status === TypeButtonStatus.Pass) {
       useGameStore.getState().actions.attackerPass();
-      this.setFrame('btn-pass-disabled');
+      this.alphaAnimation(0);
     }
     this.removeInteractive();
   }
@@ -54,13 +54,12 @@ export class Button extends Phaser.GameObjects.Sprite {
 
   makeInactive(btnStatus: TypeButtonStatus) {
     this.removeInteractive();
-    if (btnStatus === TypeButtonStatus.Start) this.setFrame('btn-start-disabled');
-    else if (btnStatus === TypeButtonStatus.Take) this.setFrame('btn-take-disabled');
-    else if (btnStatus === TypeButtonStatus.Pass) this.setFrame('btn-pass-disabled');
+    this.alphaAnimation(0);
   }
 
   makeInteractive(btnStatus: TypeButtonStatus) {
     this.setInteractive({ cursor: 'pointer' });
+    this.alphaAnimation(1);
     if (btnStatus === TypeButtonStatus.Start) this.setFrame('btn-start');
     else if (btnStatus === TypeButtonStatus.Take) this.setFrame('btn-take');
     else if (btnStatus === TypeButtonStatus.Pass) this.setFrame('btn-pass');
@@ -88,6 +87,16 @@ export class Button extends Phaser.GameObjects.Sprite {
           this.update(TypeButtonStatus.Start, true);
         }
       },
+    });
+  }
+
+  alphaAnimation(targetValue: number) {
+    this.scene.tweens.add({
+      targets: this,
+      ease: 'Sine.easeInOut',
+      alpha: targetValue,
+      duration: 200,
+      // onComplete: ,
     });
   }
 }
