@@ -116,8 +116,8 @@ export class GameScene extends Phaser.Scene {
     //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
     this.createChat();
-    this.createButtons();
     this.setPlayers();
+    this.createButtons();
     this.createDeck(useGameStore.getState().deckCounter);
     this.createSounds();
     // new Popup(this, this.playersSorted, true);
@@ -435,7 +435,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   createButtons() {
-    this.mainButton = new Button(this);
+    if (this.socketId === useGameStore.getState().players[0].socketId)
+      this.mainButton = new Button(this);
     new ButtonLeave(this);
   }
 
