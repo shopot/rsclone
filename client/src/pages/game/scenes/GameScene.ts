@@ -193,7 +193,8 @@ export class GameScene extends Phaser.Scene {
     this.colorNickname();
     if (
       state.lastGameAction === TypeGameAction.AttackerPass ||
-      state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp
+      state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp ||
+      state.placedCards.length === 0
     )
       this.handleHighlight();
     if (
@@ -382,10 +383,14 @@ export class GameScene extends Phaser.Scene {
 
   handleHighlight() {
     const imIActive = useGameStore.getState().activeSocketId === this.socketId;
+    const tableSprites = this.piles.flat();
+    const mySprites = this.playersCardsSprites[0];
     if (!imIActive) this.removeHighlight();
-    else {
-      this.piles.flat().forEach((card) => card.removeHighlight());
+    else if (mySprites && imIActive && tableSprites.length !== 0 && mySprites.length !== 0) {
+      tableSprites.forEach((card) => card.removeHighlight());
       this.createHighlight();
+    } else if (mySprites && imIActive && tableSprites.length === 0 && mySprites.length !== 0) {
+      this.playersCardsSprites[0].forEach((card) => card.removeHighlight());
     }
   }
 
@@ -426,8 +431,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   removeHighlight() {
-    this.playersCardsSprites[0].forEach((card) => card.removeHighlight());
-    this.piles.flat().forEach((card) => card.removeHighlight());
+    const mySprites = this.playersCardsSprites[0];
+    if (mySprites.length !== 0) mySprites.forEach((card) => card.removeHighlight());
+    const tableSprites = this.piles.flat();
+    if (tableSprites.length !== 0) tableSprites.forEach((card) => card.removeHighlight());
   }
 
   createBg() {
