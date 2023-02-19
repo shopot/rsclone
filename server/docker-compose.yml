@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   backend:
     container_name: nestjs-api
@@ -6,7 +7,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 5003:5003
+      # Add PORT=5003 for NestJS app, DOCKER_HOST_PORT=5003 for public port
+      - ${PORT}:${DOCKER_HOST_PORT}
     env_file:
       - .env
+    volumes:
+      - ./db:/app/db
     restart: always
