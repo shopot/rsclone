@@ -82,10 +82,10 @@ export class GameScene extends Phaser.Scene {
     );
 
     // updateButton
-    useGameStore.subscribe(
-      (state) => [state.roomStatus, state.activeSocketId],
-      (arr) => this.updateButton(arr),
-    );
+    // useGameStore.subscribe(
+    //   (state) => [state.roomStatus, state.activeSocketId, state.currentRound.toString()],
+    //   (arr) => this.updateButton(arr),
+    // );
 
     // handleRoomStatus
     useGameStore.subscribe(
@@ -203,6 +203,12 @@ export class GameScene extends Phaser.Scene {
       state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp
     )
       this.handleHighlight();
+    if (
+      state.roomStatus !== prevState.roomStatus ||
+      state.activeSocketId !== prevState.activeSocketId ||
+      state.currentRound !== prevState.currentRound
+    )
+     this.updateButton(state.roomStatus, state.activeSocketId);
   }
 
   onPlayerAmtSounds(difference: number) {
@@ -458,9 +464,8 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  //подписка на [state.roomStatus, state.activeSocketId]
-  updateButton(arr: string[]) {
-    const [roomStatus, activeSocketId] = arr;
+  //подписка на [state.roomStatus, state.activeSocketId, round]
+  updateButton(roomStatus: string, activeSocketId: string) {
     if (this.mainButton !== undefined) {
       const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
       if (isFirst && roomStatus === 'WaitingForStart')
