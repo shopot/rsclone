@@ -27,11 +27,13 @@ export class Chat {
 
     this.wrapper = this.scene.add
       .sprite(this.wrapParams.x, this.wrapParams.y, 'chatWrapper')
+      .setDepth(200)
       .setAlpha(0);
     this.formHtml = this.scene.add
       .dom(this.formParams.x, this.formParams.y)
       .createFromCache('formHtml')
       .setOrigin(0)
+      .setDepth(201)
       .setAlpha(0);
 
     this.chatText = this.scene.add
@@ -43,6 +45,7 @@ export class Chat {
       .setPadding(6)
       .setFixedSize(250, 240)
       .setAlign('justify')
+      .setDepth(202)
       .setAlpha(0)
       .setWordWrapWidth(245, true);
 
@@ -133,7 +136,7 @@ export class Chat {
         .setAlpha(0.5)
         .setTint(0xfbc82f)
         .setPosition(this.bntParams.x, this.bntParams.y)
-        .setDepth(10);
+        .setDepth(200);
       this.scene.tweens.add({
         targets: this.btn,
         scale: 2,
@@ -162,8 +165,8 @@ export class Chat {
         duration: 300,
         onComplete: () => {
           this.wrapper.setDepth(0);
-          this.formHtml.setAlpha(1).setDepth(1);
-          this.chatText.setAlpha(1).setDepth(1);
+          this.formHtml.setAlpha(1).setDepth(201);
+          this.chatText.setAlpha(1).setDepth(202);
         },
       });
     } else {
