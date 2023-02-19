@@ -472,6 +472,7 @@ export class Room {
       this.setActivePlayer(this.defender);
 
       this.startNextRound();
+      return true;
     }
 
     // Move turn back to attacker
