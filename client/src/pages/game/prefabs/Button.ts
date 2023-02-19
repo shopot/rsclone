@@ -70,7 +70,6 @@ export class Button extends Phaser.GameObjects.Sprite {
   }
 
   animateBeforeStart() {
-    this.setFrame('btn-start');
     this.scaleAnimation();
   }
 
