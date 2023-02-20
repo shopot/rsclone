@@ -1,5 +1,5 @@
 import Ajv, { JTDSchemaType } from 'ajv/dist/jtd';
-import ky from 'ky';
+import axios from 'axios';
 import { TypeRatingItem } from '../shared/types';
 import { HTTP_ENDPOINT } from '../app/config';
 
@@ -19,13 +19,19 @@ const schema: JTDSchemaType<TypeRatingItem[]> = {
 
 const validate = ajv.compile(schema);
 
+type TypeRatingResponse = {
+  data: TypeRatingItem[];
+};
+
 export const ratingService = {
   async getAll() {
     try {
-      const json = await ky.get('rating', { prefixUrl: HTTP_ENDPOINT }).json();
+      const { data } = await axios.get<TypeRatingResponse>('rating', {
+        baseURL: HTTP_ENDPOINT,
+      });
 
-      if (validate(json)) {
-        return { data: json, error: null };
+      if (validate(data)) {
+        return { data, error: null };
       }
       return { data: null, error: 'Data validation error' };
     } catch (error) {

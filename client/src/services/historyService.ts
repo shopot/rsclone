@@ -1,5 +1,5 @@
 import Ajv, { JTDSchemaType } from 'ajv/dist/jtd';
-import ky from 'ky';
+import axios from 'axios';
 import { TypeHistoryItem } from '../shared/types/TypeHistoryItem';
 import { HTTP_ENDPOINT } from '../app/config';
 
@@ -21,13 +21,17 @@ const schema: JTDSchemaType<TypeHistoryItem[]> = {
 
 const validate = ajv.compile(schema);
 
+type TypeHistoryResponse = {
+  data: TypeHistoryItem[];
+};
+
 export const historyService = {
   async getAll() {
     try {
-      const json = await ky.get('history', { prefixUrl: HTTP_ENDPOINT }).json();
+      const data = await axios.get<TypeHistoryResponse>('history', { baseURL: HTTP_ENDPOINT });
 
-      if (validate(json)) {
-        return { data: json, error: null };
+      if (validate(data)) {
+        return { data, error: null };
       }
       return { data: null, error: 'Data validation error' };
     } catch (error) {
