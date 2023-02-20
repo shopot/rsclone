@@ -1,18 +1,19 @@
 import axios, { isAxiosError } from 'axios';
 import { JWTTokenValidator } from '../shared/validators/JWTTokenValidator';
 import { APIErrorValidator } from '../shared/validators/APIErrorValidator';
+import { TypeJWTTokens } from '../shared/types';
 import { HTTP_ENDPOINT } from '../app/config';
 
 export const authService = {
   async login(username: string, password: string) {
     try {
-      const json = await axios.post(
+      const { data } = await axios.post<TypeJWTTokens>(
         'auth/signin',
         { username, password },
         { baseURL: HTTP_ENDPOINT },
       );
-      if (JWTTokenValidator(json)) {
-        return { data: json, error: null };
+      if (JWTTokenValidator(data)) {
+        return { data, error: null };
       }
       return { data: null, error: 'Data validation error' };
     } catch (error) {
@@ -31,13 +32,13 @@ export const authService = {
 
   async register(username: string, password: string) {
     try {
-      const json = await axios.post(
+      const { data } = await axios.post<TypeJWTTokens>(
         'auth/signup',
         { username, password },
         { baseURL: HTTP_ENDPOINT },
       );
-      if (JWTTokenValidator(json)) {
-        return { data: json, error: null };
+      if (JWTTokenValidator(data)) {
+        return { data, error: null };
       }
       return { data: null, error: 'Data validation error' };
     } catch (error) {

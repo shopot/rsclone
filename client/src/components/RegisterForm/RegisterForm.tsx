@@ -57,7 +57,6 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
   const handleSubmit = async ({ username, password }: FormValues) => {
     console.log('username', username, 'password', password);
     const result = await authService.register(username, password);
-    console.log(result);
     if (result.data) {
       setToken(result.data);
       navigate(TypeRoute.Rooms);
