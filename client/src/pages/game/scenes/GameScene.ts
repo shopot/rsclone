@@ -504,9 +504,18 @@ export class GameScene extends Phaser.Scene {
           new Popup(this, this.playersSorted, true);
         }, 200);
       } else {
-        setTimeout(() => {
-          new Popup(this, this.playersSorted, true, true);
-        }, 200);
+        const currPlayersId = this.state?.players.map((player) => player.socketId);
+        const prevPlayersId = this.prevState?.players.map((player) => player.socketId);
+
+        if (currPlayersId && prevPlayersId) {
+          const playerLeftId = prevPlayersId.filter((el) => !currPlayersId.includes(el))[0];
+          const playerLeft = this.prevState?.players.filter(
+            (el) => el.socketId === playerLeftId,
+          )[0];
+          setTimeout(() => {
+            new Popup(this, this.playersSorted, true, playerLeft);
+          }, 200);
+        }
       }
     }
   }
