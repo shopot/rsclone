@@ -252,8 +252,17 @@ export class GameScene extends Phaser.Scene {
       state.lastGameAction === TypeGameAction.AttackerPass ||
       state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp ||
       state.placedCards.length === 0
-    )
+    ) {
       this.handleHighlight();
+    }
+
+    if (
+      (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp &&
+        state.placedCards.length === 0) ||
+      (state.lastGameAction === TypeGameAction.DefenderTakesCards && state.placedCards.length !== 0)
+    ) {
+      this.checkGameOver();
+    }
     if (
       state.roomStatus !== prevState.roomStatus ||
       state.activeSocketId !== prevState.activeSocketId ||
@@ -314,6 +323,7 @@ export class GameScene extends Phaser.Scene {
     this.piles = [];
     this.setEqualPositionAtHands();
     this.updatePlayersText();
+    this.checkGameOver();
   }
 
   createBubble(text: string) {
@@ -336,6 +346,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.sounds?.toBeaten.stop();
     this.piles = [];
+    this.checkGameOver();
   }
 
   async handleClick() {
@@ -343,19 +354,25 @@ export class GameScene extends Phaser.Scene {
     const params = { isAttacker: false, cardToMoveValue: '', pileInd: -1, pileLength: 0 };
 
     params.isAttacker = this.state?.lastGameAction === TypeGameAction.AttackerMoveCard;
+    console.log(params.isAttacker, 'params.isAttacker');
     params.pileInd = params.isAttacker ? this.piles.length : this.piles.length - 1;
-    console.log(this.piles);
+    console.log(this.piles, 'this.piles');
     params.pileLength = params.isAttacker ? this.piles.length + 1 : this.piles.length;
+    console.log(params.pileLength, 'params.pileLength');
     const prevActivePlayerID = this.prevState?.activeSocketId || '';
+    console.log(prevActivePlayerID, 'prevActivePlayerID');
     const isMe = prevActivePlayerID === this.socketId;
+    console.log(isMe, 'isMe');
     //если есть карты на столе в текущем стейте (не бито, не тейк)
     if (this.state?.placedCards.length !== 0) {
       console.log('normal');
       const cardToMoveType = params.isAttacker
         ? this.state?.lastOpenAttackerCard
         : this.state?.lastCloseDefenderCard;
+      console.log(cardToMoveType, 'cardToMoveType');
       if (cardToMoveType) {
         params.cardToMoveValue = this.getCardTexture(cardToMoveType);
+        console.log(params.cardToMoveValue, 'params.cardToMoveValue');
       }
     }
 
@@ -391,6 +408,8 @@ export class GameScene extends Phaser.Scene {
     const sprite = this.playersCardsSprites
       .flat()
       .find((card) => card.value === params.cardToMoveValue);
+    console.log(sprite, 'sprite');
+
     if (sprite) {
       await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe);
       console.log(sprite, 'sprite');
@@ -431,12 +450,19 @@ export class GameScene extends Phaser.Scene {
         await this.handlePass();
         await this.checkDealt(this.state.dealt);
       }
-      if (this.state?.roomStatus === TypeRoomStatus.GameIsOver) {
-        this.removeHighlight();
-        setTimeout(() => {
-          new Popup(this, this.playersSorted, true);
-        }, 1000);
-      }
+      this.checkGameOver();
+    }
+  }
+
+  checkGameOver() {
+    console.log('``````checkGameOver````````````');
+    if (this.state?.roomStatus === TypeRoomStatus.GameIsOver) {
+      this.removeHighlight();
+      this.mainButton?.update(TypeButtonStatus.Pass, false);
+      this.icons.forEach((icon) => icon.colorBorder(false));
+      setTimeout(() => {
+        new Popup(this, this.playersSorted, true);
+      }, 200);
     }
   }
 
@@ -589,13 +615,9 @@ export class GameScene extends Phaser.Scene {
     const prevWinnersIds = prevState.players
       .filter((player) => player.playerStatus === TypePlayerStatus.YouWinner)
       .map((el) => el.socketId);
-    if (winnersIds.length !== 0) {
-      winnersIds.forEach((player: any) => {
-        //для победителя значок делать, видимый всем
-      });
-    }
     //для победителя сделать модалку
     if (
+      winnersIds &&
       winnersIds.includes(me.socketId) &&
       !prevWinnersIds.includes(me.socketId) &&
       useGameStore.getState().roomStatus !== TypeRoomStatus.GameIsOver

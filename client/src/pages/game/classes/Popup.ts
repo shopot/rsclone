@@ -40,66 +40,75 @@ export class Popup {
 
     this.wrapper = this.scene.add
       .sprite(config.width / 2, config.height / 2 - 30, 'winWrapper')
-      .setAlpha(opacity)
+      .setAlpha(0)
       .setDepth(zIndex)
       .setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => this.destroyPopup());
+    this.scene.tweens.add({
+      targets: this.wrapper,
+      alpha: opacity,
+      ease: 'Sine.easeInOut',
+      duration: 500,
+      onComplete: () => createContent(),
+    });
 
-    this.border = this.scene.add.graphics().lineStyle(4, 0xfbc82f, 1);
+    const createContent = () => {
+      this.border = this.scene.add.graphics().lineStyle(4, 0xfbc82f, 1);
 
-    this.title = this.scene.add
-      .text(config.width / 2, config.height / 2 - 130, titleText, {
-        color: '#fff',
-        font: '30px Arial bold',
-      })
-      .setOrigin(0.5)
-      .setDepth(zIndex + 1);
-
-    this.rectangle = this.scene.add
-      .graphics()
-      .fillStyle(color, 0.6)
-      .lineStyle(2, color, 1)
-      .fillRoundedRect(config.width / 2 - 250, config.height / 2 - 30, 500, 100, 10)
-      .strokeRoundedRect(config.width / 2 - 250, config.height / 2 - 30, 500, 100, 10)
-      .setDepth(zIndex + 1);
-
-    if (player !== undefined) {
-      const text = status ? 'The fool is:' : 'The winner is:';
-
-      this.playerText = this.scene.add
-        .text(config.width / 3 + 70, config.height / 2 - 15, text, {
-          color: '#fff',
-          font: '25px Arial bold',
-        })
-        .setDepth(zIndex + 1);
-
-      this.playerName = this.scene.add
-        .text(config.width / 3 + 70, config.height / 2 + 25, player.playerName, {
-          color: '#fff',
-          font: '25px Arial bold',
-        })
-        .setDepth(zIndex + 1);
-
-      this.avatar = this.scene.add
-        .sprite(config.width / 3 - 20, config.height / 2 - 10, 'icons', player.playerAvatar)
-        .setOrigin(0, 0)
-        .setDepth(zIndex + 1);
-
-      const hat = status ? 'foolscap' : 'crown';
-      this.aword = this.scene.add
-        .sprite(config.width / 3 + 30, config.height / 2 - 22, 'aword', hat)
-        .setScale(0.8)
-        .setAngle(20)
-        .setDepth(zIndex + 1);
-    } else {
-      this.playerText = this.scene.add
-        .text(config.width / 2, config.height / 2 + 15, 'Drawn game', {
+      this.title = this.scene.add
+        .text(config.width / 2, config.height / 2 - 130, titleText, {
           color: '#fff',
           font: '30px Arial bold',
         })
         .setOrigin(0.5)
         .setDepth(zIndex + 1);
-    }
+
+      this.rectangle = this.scene.add
+        .graphics()
+        .fillStyle(color, 0.6)
+        .lineStyle(2, color, 1)
+        .fillRoundedRect(config.width / 2 - 250, config.height / 2 - 30, 500, 100, 10)
+        .strokeRoundedRect(config.width / 2 - 250, config.height / 2 - 30, 500, 100, 10)
+        .setDepth(zIndex + 1);
+
+      if (player !== undefined) {
+        const text = status ? 'The fool is:' : 'The winner is:';
+
+        this.playerText = this.scene.add
+          .text(config.width / 3 + 70, config.height / 2 - 15, text, {
+            color: '#fff',
+            font: '25px Arial bold',
+          })
+          .setDepth(zIndex + 1);
+
+        this.playerName = this.scene.add
+          .text(config.width / 3 + 70, config.height / 2 + 25, player.playerName, {
+            color: '#fff',
+            font: '25px Arial bold',
+          })
+          .setDepth(zIndex + 1);
+
+        this.avatar = this.scene.add
+          .sprite(config.width / 3 - 20, config.height / 2 - 10, 'icons', player.playerAvatar)
+          .setOrigin(0, 0)
+          .setDepth(zIndex + 1);
+
+        const hat = status ? 'foolscap' : 'crown';
+        this.aword = this.scene.add
+          .sprite(config.width / 3 + 30, config.height / 2 - 22, 'aword', hat)
+          .setScale(0.8)
+          .setAngle(20)
+          .setDepth(zIndex + 1);
+      } else {
+        this.playerText = this.scene.add
+          .text(config.width / 2, config.height / 2 + 15, 'Drawn game', {
+            color: '#fff',
+            font: '30px Arial bold',
+          })
+          .setOrigin(0.5)
+          .setDepth(zIndex + 1);
+      }
+    };
   }
 
   destroyPopup() {
