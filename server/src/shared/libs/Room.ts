@@ -369,6 +369,16 @@ export class Room {
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
+
+      // gameover if defender agreed to pickup and attacked drops his last card
+      // and becomes winner
+      if (this.isDefenderPickup && this.players.totalCountInGame() === 1) {
+        this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
+        this.lastLoser = this.defender;
+        this.setGameIsOver();
+        return true;
+      }
+
       this.attacker = this.getNextAttacker(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
       // Change active player
