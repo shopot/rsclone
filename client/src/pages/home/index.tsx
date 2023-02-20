@@ -1,15 +1,40 @@
-import styles from './styles.m.scss';
+import { useState } from 'react';
+import { MotionContainer } from '../../components/MotionContainer';
+import { ModalContainer } from '../../components/ModalContainer';
+import { LoginForm } from '../../components/LoginForm';
+import { RegisterForm } from '../../components/RegisterForm';
+import useModal from '../../hooks/useModal';
+import cardsSet from '../../assets/cards-set.webp';
 import durakLogoText from '../../assets/durak-logo-text.webp';
 import durakLogoHat from '../../assets/durak-logo-hat.webp';
-import cardsSet from '../../assets/cards-set.webp';
-import { TypeRoute } from '../../shared/types';
-import { Link } from 'react-router-dom';
-import { MotionContainer } from '../../components/MotionContainer';
+import styles from './styles.m.scss';
 
 const HomePage = () => {
+  const [formIdx, setFormIdx] = useState(0);
+  const handleChangeForm = () => {
+    setFormIdx((prev) => (prev + 1) % forms.length);
+  };
+  const forms = [
+    <LoginForm
+      key="loginform"
+      onChangeForm={handleChangeForm}
+    />,
+    <RegisterForm
+      key="registerform"
+      onChangeForm={handleChangeForm}
+    />,
+  ];
+  const [isOpen, toggle] = useModal();
+
   return (
     <div className="container">
       <MotionContainer identKey="HomePage">
+        <ModalContainer
+          isOpen={isOpen}
+          toggle={toggle}
+        >
+          {forms[formIdx]}
+        </ModalContainer>
         <div className={styles.innerContainer}>
           <div className={styles.innerLogo}>
             <div>
@@ -39,15 +64,13 @@ const HomePage = () => {
             </div>
           </div>
           <div className={styles.startWrapper}>
-            <Link
-              to={TypeRoute.Rooms}
+            <button
               className={styles.startButton}
+              type="button"
+              onClick={toggle}
             >
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span> Start
-            </Link>
+              Start
+            </button>
           </div>
         </div>
       </MotionContainer>

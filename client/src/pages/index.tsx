@@ -6,7 +6,6 @@ import GamePageOld from './gameold';
 import HistoryPage from './history';
 import HomePage from './home';
 import RatingPage from './rating';
-import RegistrationPage from './registration';
 import { Layout } from '../components/Layout';
 import { TypeRoute } from '../shared/types';
 import RoomPage from './rooms';
@@ -47,10 +46,6 @@ const PageRouting = () => {
       <Route
         path={TypeRoute.GameOld}
         element={<GamePageOld />}
-      />
-      <Route
-        path={TypeRoute.Registration}
-        element={<RegistrationPage />}
       />
       <Route
         path={TypeRoute.All}
