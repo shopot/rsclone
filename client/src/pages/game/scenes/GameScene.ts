@@ -256,13 +256,13 @@ export class GameScene extends Phaser.Scene {
       this.handleHighlight();
     }
 
-    if (
-      (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp &&
-        state.placedCards.length === 0) ||
-      (state.lastGameAction === TypeGameAction.DefenderTakesCards && state.placedCards.length !== 0)
-    ) {
-      this.checkGameOver();
-    }
+    // if (
+    //   (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp &&
+    //     state.placedCards.length === 0) ||
+    //   (state.lastGameAction === TypeGameAction.DefenderTakesCards && state.placedCards.length !== 0)
+    // ) {
+    this.checkGameOver();
+    // }
     if (
       state.roomStatus !== prevState.roomStatus ||
       state.activeSocketId !== prevState.activeSocketId ||
@@ -323,7 +323,7 @@ export class GameScene extends Phaser.Scene {
     this.piles = [];
     this.setEqualPositionAtHands();
     this.updatePlayersText();
-    this.checkGameOver();
+    // this.checkGameOver();
   }
 
   createBubble(text: string) {
@@ -346,7 +346,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.sounds?.toBeaten.stop();
     this.piles = [];
-    this.checkGameOver();
+    // this.checkGameOver();
   }
 
   async handleClick() {
@@ -364,7 +364,12 @@ export class GameScene extends Phaser.Scene {
     const isMe = prevActivePlayerID === this.socketId;
     console.log(isMe, 'isMe');
     //если есть карты на столе в текущем стейте (не бито, не тейк)
-    if (this.state?.placedCards.length !== 0) {
+    const placedArr = useGameStore
+      .getState()
+      .placedCards.map((obj) => [obj.attacker, obj.defender])
+      .flat()
+      .filter(Boolean);
+    if (this.state?.placedCards.length !== 0 && placedArr.length > this.piles.flat().length) {
       console.log('normal');
       const cardToMoveType = params.isAttacker
         ? this.state?.lastOpenAttackerCard
@@ -449,14 +454,49 @@ export class GameScene extends Phaser.Scene {
       ) {
         await this.handlePass();
         await this.checkDealt(this.state.dealt);
+      } else if (
+        this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp &&
+        this.state?.roomStatus === TypeRoomStatus.GameIsOver
+      ) {
+        await this.handleTake();
       }
-      this.checkGameOver();
+      await this.checkGameOver();
     }
   }
 
-  checkGameOver() {
+  async checkGameOver() {
     console.log('``````checkGameOver````````````');
     if (this.state?.roomStatus === TypeRoomStatus.GameIsOver) {
+      console.log('``````check lastGameAction: "DefenderDecidesToPickUp"  ````````````');
+      const isPickingUp = this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp;
+      console.log(isPickingUp, 'isPickingUp');
+      if (isPickingUp) {
+        const lastDefender = this.prevState?.players.find(
+          (player) => player.playerRole === TypePlayerRole.Defender,
+        );
+        console.log(lastDefender, 'lastDefender');
+
+        if (lastDefender) {
+          const defender = this.playersSorted.filter(
+            (el) => el.socketId === lastDefender.socketId,
+          )[0];
+          console.log(defender, 'defender');
+          const defenderInd = this.playersSorted.indexOf(defender);
+          console.log(defenderInd, 'defenderInd');
+
+          await Promise.all(
+            this.piles.flat().map(async (card) => {
+              card.setAngle(0);
+              await card.animateToPlayer(defenderInd, this.playerAmt);
+              this.playersCardsSprites[defenderInd].push(card);
+            }),
+          );
+
+          this.piles = [];
+          this.setEqualPositionAtHands();
+          this.updatePlayersText();
+        }
+      }
       this.removeHighlight();
       this.mainButton?.update(TypeButtonStatus.Pass, false);
       this.icons.forEach((icon) => icon.colorBorder(false));
