@@ -1,5 +1,6 @@
+import { AuthModule } from '../modules/auth/auth.module';
+import { UserModule } from '../modules/user/user.module';
 import { Module } from '@nestjs/common';
-
 import { GameModule } from '../modules/game/game.module';
 import { HistoryModule } from '../modules/history/history.module';
 import { RatingModule } from '../modules/rating/rating.module';
@@ -10,6 +11,8 @@ import appLoggerConfig from './app-logger.config';
 
 @Module({
   imports: [
+    AuthModule,
+    UserModule,
     GameModule,
     HistoryModule,
     RatingModule,
