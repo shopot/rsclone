@@ -376,7 +376,8 @@ export class Room {
     }
 
     if (this.activePlayer.getCardsCount() === 0) {
-      this.passCounterMaxValue -= 1;
+      // set pass max value
+      this.decrementPassCounterMaxValue();
     }
 
     // Move turn to defender from attacker
@@ -669,7 +670,8 @@ export class Room {
   private setPlayerAsWinner(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
     player.setPlayerRole(TypePlayerRole.Waiting);
-    this.passCounterMaxValue -= 1;
+    // set pass max value
+    this.decrementPassCounterMaxValue();
   }
 
   private getPlayersForDealt(): Player[] {
@@ -993,6 +995,12 @@ export class Room {
       const isLoser =
         this.lastLoser && this.lastLoser.getPlayerName() === playerName;
       await this.gameService.updatePlayerStats(playerName, isLoser ? 0 : 1);
+    }
+  }
+
+  decrementPassCounterMaxValue() {
+    if (this.passCounterMaxValue > 1 && this.players.totalCountInGame() > 1) {
+      this.passCounterMaxValue -= 1;
     }
   }
 
