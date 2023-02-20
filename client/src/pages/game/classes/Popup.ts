@@ -16,7 +16,12 @@ export class Popup {
   alphas: { onWin: number; onEnd: number };
   depthes: { onWin: number; onEnd: number };
 
-  constructor(scene: Phaser.Scene, players: TypePlayer[], isGameOver: boolean) {
+  constructor(
+    scene: Phaser.Scene,
+    players: TypePlayer[],
+    isGameOver: boolean,
+    playerLeft?: TypePlayer,
+  ) {
     this.scene = scene;
     this.colors = { winner: 0x00ff00, loser: 0xee0808 };
     this.alphas = { onWin: 0.85, onEnd: 1 };
@@ -27,12 +32,16 @@ export class Popup {
       const me = players[0];
       this.createPopup(false, me);
     } else {
-      const loser = players.find((player) => player.playerStatus === TypePlayerStatus.YouLoser);
-      this.createPopup(true, loser);
+      if (playerLeft) {
+        this.createPopup(true, playerLeft);
+      } else {
+        const loser = players.find((player) => player.playerStatus === TypePlayerStatus.YouLoser);
+        this.createPopup(true, loser);
+      }
     }
   }
 
-  createPopup(status: boolean, player: TypePlayer | undefined) {
+  createPopup(status: boolean, player?: TypePlayer | undefined) {
     const titleText = status ? this.titleTexts.onEnd : this.titleTexts.onWin;
     const color = status ? this.colors.loser : this.colors.winner;
     const opacity = status ? this.alphas.onEnd : this.alphas.onWin;

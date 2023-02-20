@@ -114,7 +114,6 @@ export class GameScene extends Phaser.Scene {
     this.createButtons();
     this.createDeck(useGameStore.getState().deckCounter);
     this.createSounds();
-    // new Popup(this, this.playersSorted, false);
   }
 
   createChat() {
@@ -500,9 +499,15 @@ export class GameScene extends Phaser.Scene {
       this.removeHighlight();
       this.mainButton?.update(TypeButtonStatus.Pass, false);
       this.icons.forEach((icon) => icon.colorBorder(false));
-      setTimeout(() => {
-        new Popup(this, this.playersSorted, true);
-      }, 200);
+      if (this.state?.players.length === this.prevState?.players.length) {
+        setTimeout(() => {
+          new Popup(this, this.playersSorted, true);
+        }, 200);
+      } else {
+        setTimeout(() => {
+          new Popup(this, this.playersSorted, true, true);
+        }, 200);
+      }
     }
   }
 
@@ -561,7 +566,7 @@ export class GameScene extends Phaser.Scene {
 
   removeHighlight() {
     const mySprites = this.playersCardsSprites[0];
-    if (mySprites.length !== 0) mySprites.forEach((card) => card.removeHighlight());
+    if (mySprites && mySprites.length !== 0) mySprites.forEach((card) => card.removeHighlight());
     const tableSprites = this.piles.flat();
     if (tableSprites.length !== 0) tableSprites.forEach((card) => card.removeHighlight());
   }
