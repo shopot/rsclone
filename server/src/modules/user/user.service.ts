@@ -1,8 +1,10 @@
+import { UPLOADED_FILES_DESTINATION } from './../../config/index';
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto';
+import { readFileSync } from 'fs';
 
 @Injectable()
 export class UserService {
@@ -40,5 +42,13 @@ export class UserService {
 
   async update(userId: number, dto: UpdateUserDto) {
     this.userRepository.update(userId, { ...dto });
+  }
+
+  async imageBuffer(imgpath: string) {
+    return readFileSync(`${UPLOADED_FILES_DESTINATION}/${imgpath}`);
+  }
+
+  async uploadAvatar(userId: number, fileName: string) {
+    this.update(userId, { avatar: fileName });
   }
 }

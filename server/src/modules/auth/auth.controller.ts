@@ -11,15 +11,9 @@ import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
-import { TypePayload } from './types';
+import { hasUser } from './helpers';
 
-declare module 'express' {
-  interface Request {
-    user?: TypePayload;
-  }
-}
-
-@Controller('auth')
+@Controller('/v1/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -36,7 +30,7 @@ export class AuthController {
   @UseGuards(AccessTokenGuard)
   @Get('logout')
   logout(@Req() req: Request) {
-    if (this.hasUser(req)) {
+    if (hasUser(req)) {
       const userId = req.user['sub'] || 0;
       this.authService.logout(userId);
     } else {
@@ -47,16 +41,12 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   refreshTokens(@Req() req: Request) {
-    if (this.hasUser(req)) {
+    if (hasUser(req)) {
       const userId = req.user['sub'] || 0;
       const refreshToken = req.user['refreshToken'] || '';
       return this.authService.refreshTokens(userId, refreshToken);
     } else {
       throw new BadRequestException('Data is incorrect');
     }
-  }
-
-  hasUser(req: Request): req is Request & { user: TypePayload } {
-    return 'user' in req;
   }
 }
