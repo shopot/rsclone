@@ -18,7 +18,7 @@
 
 .accountLink {
   color: color.adjust(constants.$text-color, $alpha: -0.4);
-  border-bottom: 1px solid transparent;
+  border-bottom: 1px dashed transparent;
   transition: border 0.3s ease-in-out;
 
   &:hover {
