@@ -4,3 +4,4 @@ export const AVATAR_PREFIX = 'avatar';
 export const MINIMUM_NICKNAME_LENGTH = 4;
 export const MAXIMUM_NICKNAME_LENGTH = 32;
 export const MINIMUM_PASSWORD_LENGTH = 8;
+export const JWT_TOKEN_LS_KEY = 'jwtTokens';
