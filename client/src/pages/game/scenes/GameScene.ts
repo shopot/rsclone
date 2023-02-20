@@ -463,39 +463,60 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  async checkGameOver() {
-    console.log('``````checkGameOver````````````');
-    if (this.state?.roomStatus === TypeRoomStatus.GameIsOver) {
-      console.log('``````check lastGameAction: "DefenderDecidesToPickUp"  ````````````');
-      const isPickingUp = this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp;
-      console.log(isPickingUp, 'isPickingUp');
-      if (isPickingUp) {
+  async handleActionsBeforeGameOver() {
+    console.log('``````check lastGameAction: "DefenderDecidesToPickUp"  ````````````');
+    console.log('``````check lastGameAction: "AttackerMoveCard"  ````````````');
+    const isPickingUp = this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp;
+    console.log(isPickingUp, 'isPickingUp');
+    const didAttackerMove = this.state?.lastGameAction === TypeGameAction.AttackerMoveCard;
+    console.log(didAttackerMove, 'didAttackerMove');
+
+    if (isPickingUp || didAttackerMove) {
+      let defenderInd = -1;
+      if (didAttackerMove) {
+        const loser = this.state?.players.find(
+          (player) => player.playerStatus === TypePlayerStatus.YouLoser,
+        );
+        console.log(loser, 'loser');
+        if (loser) {
+          const defender = this.playersSorted.filter((el) => el.socketId === loser.socketId)[0];
+          console.log(defender, 'defender');
+          defenderInd = this.playersSorted.indexOf(defender);
+        }
+      } else {
         const lastDefender = this.prevState?.players.find(
           (player) => player.playerRole === TypePlayerRole.Defender,
         );
         console.log(lastDefender, 'lastDefender');
-
         if (lastDefender) {
           const defender = this.playersSorted.filter(
             (el) => el.socketId === lastDefender.socketId,
           )[0];
           console.log(defender, 'defender');
-          const defenderInd = this.playersSorted.indexOf(defender);
-          console.log(defenderInd, 'defenderInd');
-
-          await Promise.all(
-            this.piles.flat().map(async (card) => {
-              card.setAngle(0);
-              await card.animateToPlayer(defenderInd, this.playerAmt);
-              this.playersCardsSprites[defenderInd].push(card);
-            }),
-          );
-
-          this.piles = [];
-          this.setEqualPositionAtHands();
-          this.updatePlayersText();
+          defenderInd = this.playersSorted.indexOf(defender);
         }
       }
+      console.log(defenderInd, 'defenderInd');
+
+      await Promise.all(
+        this.piles.flat().map(async (card) => {
+          card.setAngle(0);
+          await card.animateToPlayer(defenderInd, this.playerAmt);
+          this.playersCardsSprites[defenderInd].push(card);
+        }),
+      );
+
+      this.piles = [];
+      this.setEqualPositionAtHands();
+      this.updatePlayersText();
+    }
+  }
+
+  async checkGameOver() {
+    console.log('``````checkGameOver````````````');
+    if (this.state?.roomStatus === TypeRoomStatus.GameIsOver) {
+      await this.handleActionsBeforeGameOver();
+
       this.removeHighlight();
       this.mainButton?.update(TypeButtonStatus.Pass, false);
       this.icons.forEach((icon) => icon.colorBorder(false));
