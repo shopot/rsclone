@@ -139,10 +139,67 @@ export class GameScene extends Phaser.Scene {
   //подписка на румстатус
   async handleRoomStatus(roomStatus: TypeRoomStatus) {
     if (roomStatus === TypeRoomStatus.GameInProgress) await this.startGame();
-    if (roomStatus === TypeRoomStatus.GameIsOver) {
-      new Popup(this, this.playersSorted, true);
-      // this.endGame();
-    }
+    // if (roomStatus === TypeRoomStatus.GameIsOver) {
+    //   console.log('`````````GameIsOver`````````````');
+    //   new Popup(this, this.playersSorted, true);
+
+    // const placedCards = this.state?.placedCards;
+    // console.log(placedCards, 'placedCards');
+
+    // const lastActiveID = this.prevState?.activeSocketId;
+    // console.log(lastActiveID, 'lastActiveID');
+
+    // const isMe = this.socketId === lastActiveID;
+    // console.log(isMe, 'isMe');
+
+    // const pileLength = this.piles.length;
+    // console.log(pileLength, 'pileLength');
+
+    // const lastActivePlayer = this.prevState?.players.find(
+    //   (player) => player.socketId === lastActiveID,
+    // );
+    // console.log(lastActivePlayer, 'lastActivePlayer');
+
+    // if (placedCards && lastActivePlayer) {
+    //   const isAttaker = lastActivePlayer.playerRole === TypePlayerRole.Attacker;
+    //   console.log(isAttaker, 'isAttaker');
+
+    //   const lastPlacedCard = isAttaker
+    //     ? placedCards[placedCards.length - 1].attacker
+    //     : placedCards[placedCards.length - 1].defender;
+    //   console.log(lastPlacedCard, 'lastPlacedCard');
+
+    //   if (lastPlacedCard) {
+    //     const lastPlacedCardValue = this.getCardTexture(lastPlacedCard);
+    //     console.log(lastPlacedCardValue, 'lastPlacedCardValue');
+
+    //     const sprite = this.playersCardsSprites
+    //       .flat()
+    //       .find((card) => card.value === lastPlacedCardValue);
+    //     if (sprite) {
+    //       await sprite.animateToTable(pileLength - 1, isAttaker, pileLength, isMe);
+    //       console.log(sprite, 'sprite');
+
+    //       const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
+    //       console.log(player, 'player');
+
+    //       const playerInd = this.playersCardsSprites.indexOf(player);
+    //       console.log(playerInd, 'playerInd');
+
+    //       const spriteInd = this.playersCardsSprites[playerInd].indexOf(sprite);
+    //       console.log(spriteInd, 'spriteInd');
+
+    //       this.playersCardsSprites[playerInd].splice(spriteInd, 1);
+    //       this.setEqualPositionAtHands();
+    //       this.updatePlayersText();
+    //       await this.updateCardsPosOnTable();
+    //       this.removeHighlight();
+    //       new Popup(this, this.playersSorted, true);
+    //     }
+    //   }
+    // }
+    // this.endGame();
+    // }
   }
 
   endGame() {
@@ -373,6 +430,12 @@ export class GameScene extends Phaser.Scene {
       ) {
         await this.handlePass();
         await this.checkDealt(this.state.dealt);
+      }
+      if (this.state?.roomStatus === TypeRoomStatus.GameIsOver) {
+        this.removeHighlight();
+        setTimeout(() => {
+          new Popup(this, this.playersSorted, true);
+        }, 1000);
       }
     }
   }
