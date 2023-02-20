@@ -1,3 +1,4 @@
+import { UPLOADED_FILES_DESTINATION } from './../config/index';
 import { AuthModule } from '../modules/auth/auth.module';
 import { UserModule } from '../modules/user/user.module';
 import { Module } from '@nestjs/common';
@@ -8,6 +9,8 @@ import { DatabaseModule } from '../database';
 import { ConfigModule } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import appLoggerConfig from './app-logger.config';
+import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import appLoggerConfig from './app-logger.config';
       envFilePath: '.env',
     }),
     WinstonModule.forRoot(appLoggerConfig),
+    MulterModule.register({
+      storage: memoryStorage(),
+    }),
   ],
 })
 export class AppModule {}
