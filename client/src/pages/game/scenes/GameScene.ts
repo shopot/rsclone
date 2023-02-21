@@ -66,6 +66,7 @@ export class GameScene extends Phaser.Scene {
   statusHelper: StatusHelper | undefined;
   timer: Timer | undefined;
   chat: Chat | undefined;
+  popupOnOver = false;
 
   constructor() {
     super('Game');
@@ -457,7 +458,7 @@ export class GameScene extends Phaser.Scene {
 
   async checkGameOver() {
     console.log('``````checkGameOver````````````');
-    if (this.state?.roomStatus === TypeRoomStatus.GameIsOver) {
+    if (this.state?.roomStatus === TypeRoomStatus.GameIsOver && this.popupOnOver === false) {
       await this.handleActionsBeforeGameOver();
 
       this.removeHighlight();
@@ -466,6 +467,7 @@ export class GameScene extends Phaser.Scene {
       if (this.state?.players.length === this.prevState?.players.length) {
         setTimeout(() => {
           new Popup(this, this.playersSorted, true);
+          this.popupOnOver = true;
         }, 200);
       } else {
         const currPlayersId = this.state?.players.map((player) => player.socketId);
@@ -478,6 +480,7 @@ export class GameScene extends Phaser.Scene {
           )[0];
           setTimeout(() => {
             new Popup(this, this.playersSorted, true, playerLeft);
+            this.popupOnOver = true;
           }, 200);
         }
       }
