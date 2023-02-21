@@ -4,14 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import * as Yup from 'yup';
 import { JWTTokenValidator } from '../../shared/validators/JWTTokenValidator';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { TypeJWTTokens, TypeRoute } from '../../shared/types';
 import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
   MINIMUM_PASSWORD_LENGTH,
-  UNIQUE_LOCALSTORAGE_PREFIX,
-  JWT_TOKEN_LS_KEY,
 } from '../../shared/constants';
 import logo from '../../assets/durak-logo-text.webp';
 import styles from './styles.m.scss';
@@ -47,18 +44,10 @@ interface FormValues {
 export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
   const navigate = useNavigate();
   const [APIError, setAPIError] = useState<string | null>(null);
-  const [token, setToken] = useLocalStorage<TypeJWTTokens>(
-    UNIQUE_LOCALSTORAGE_PREFIX,
-    JWT_TOKEN_LS_KEY,
-    { accessToken: '', refreshToken: '' },
-    JWTTokenValidator,
-  );
-
   const handleSubmit = async ({ username, password }: FormValues) => {
     console.log('username', username, 'password', password);
     const result = await authService.register(username, password);
     if (result.data) {
-      setToken(result.data);
       navigate(TypeRoute.Rooms);
     }
 
