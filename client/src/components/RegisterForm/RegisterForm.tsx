@@ -8,6 +8,7 @@ import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
   MINIMUM_PASSWORD_LENGTH,
+  REDIRECT_TIMEOUT,
 } from '../../shared/constants';
 import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
@@ -44,6 +45,8 @@ interface FormValues {
 export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
   const navigate = useNavigate();
   const [APIError, setAPIError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   const handleSubmit = async ({ username, password }: FormValues) => {
     console.log('username', username, 'password', password);
     const result = await simpleApiClient.fetch(
@@ -54,7 +57,11 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
     );
 
     if (result.data) {
-      navigate(TypeRoute.About);
+      setSuccessMessage('Registration successful. Redirecting...');
+      setAPIError(null);
+      setTimeout(() => {
+        navigate(TypeRoute.About);
+      }, REDIRECT_TIMEOUT);
     }
 
     if (result.error) {
@@ -115,6 +122,7 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
             {(msg) => <div className={styles.formError}>{msg}</div>}
           </ErrorMessage>
           {APIError && <div className={styles.formError}>{APIError}</div>}
+          {successMessage && <div className={styles.formSuccess}>{successMessage}</div>}
 
           <button
             className={`btn ${styles.submitButton}`}

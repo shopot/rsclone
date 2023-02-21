@@ -1,0 +1,5 @@
+@mixin message($color) {
+  padding: 5px 10px;
+  background-color: $color;
+  text-align: center;
+}
