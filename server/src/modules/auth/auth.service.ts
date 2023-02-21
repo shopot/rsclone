@@ -7,6 +7,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
@@ -141,5 +142,15 @@ export class AuthService {
       maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
     });
+  }
+
+  async getUserProfile(userId: number) {
+    const user = await this.usersService.findById(userId);
+
+    if (user) {
+      return user;
+    }
+
+    throw new NotFoundException('User not found');
   }
 }
