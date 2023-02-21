@@ -1,6 +1,7 @@
 import { config } from '../index';
 import { useGameStore } from '../../../store/gameStore';
 import { TypeButtonStatus } from '../scenes/GameScene';
+import { TypeRoomStatus } from '../../../shared/types';
 
 export class Button extends Phaser.GameObjects.Sprite {
   scene: Phaser.Scene;
@@ -54,7 +55,12 @@ export class Button extends Phaser.GameObjects.Sprite {
 
   makeInactive(btnStatus: TypeButtonStatus) {
     this.removeInteractive();
-    this.alphaAnimation(0);
+    if (useGameStore.getState().roomStatus === TypeRoomStatus.WaitingForPlayers) {
+      this.setFrame('btn-start-disabled');
+      this.setAlpha(1);
+    } else {
+      this.alphaAnimation(0);
+    }
   }
 
   makeInteractive(btnStatus: TypeButtonStatus) {
@@ -84,7 +90,14 @@ export class Button extends Phaser.GameObjects.Sprite {
           this.targetScale = this.counter % 2 == 0 ? this.scales.second : this.scales.first;
           this.scaleAnimation();
         } else {
-          this.update(TypeButtonStatus.Start, true);
+          //если за время анимации вышли
+          this.counter = 1;
+          const didLeave = useGameStore.getState().roomStatus === TypeRoomStatus.WaitingForPlayers;
+          if (didLeave) {
+            this.update(TypeButtonStatus.Start, false);
+          } else {
+            this.update(TypeButtonStatus.Start, true);
+          }
         }
       },
     });
@@ -96,7 +109,7 @@ export class Button extends Phaser.GameObjects.Sprite {
       ease: 'Sine.easeInOut',
       alpha: targetValue,
       duration: 200,
-      // onComplete: ,
+      // onComplete: () => {},
     });
   }
 }
