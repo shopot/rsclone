@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/authService';
 import * as Yup from 'yup';
-import { JWTTokenValidator } from '../../shared/validators/JWTTokenValidator';
-import { TypeJWTTokens, TypeRoute } from '../../shared/types';
+import { TypeRoute } from '../../shared/types';
 import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
@@ -44,14 +42,14 @@ interface FormValues {
 export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
   const navigate = useNavigate();
   const [APIError, setAPIError] = useState<string | null>(null);
-  const handleSubmit = async ({ username, password }: FormValues) => {
+  const handleSubmit = ({ username, password }: FormValues) => {
     console.log('username', username, 'password', password);
-    const result = await authService.register(username, password);
-    if (result.data) {
-      navigate(TypeRoute.Rooms);
-    }
+    // const result = await authService.register(username, password);
+    // if (result.data) {
+    //   navigate(TypeRoute.Rooms);
+    // }
 
-    setAPIError(result.error);
+    // setAPIError(result.error);
   };
 
   return (
