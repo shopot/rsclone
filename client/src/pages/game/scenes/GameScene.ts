@@ -613,6 +613,21 @@ export class GameScene extends Phaser.Scene {
   }
   //подписка на state.players
   sortPlayersData(players: TypePlayer[]) {
+    //если вышел 1 из виннеров
+    const isGame = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
+    if (isGame && this.playersSortedPrev.length !== this.playersSorted.length) {
+      const currPlayersId = this.state?.players.map((player) => player.socketId);
+      const prevPlayersId = this.prevState?.players.map((player) => player.socketId);
+      if (currPlayersId && prevPlayersId) {
+        const playerLeftId = prevPlayersId.filter((el) => !currPlayersId.includes(el))[0];
+        const playerLeft = this.prevState?.players.filter((el) => el.socketId === playerLeftId)[0];
+        if (playerLeft) {
+          playerLeft.playerRole = TypePlayerRole.Unknown;
+          playerLeft.playerStatus = TypePlayerStatus.InGame;
+          playerLeft.cards = [];
+        }
+      }
+    }
     this.playersSortedPrev = [...this.playersSorted];
     const me = players.find((player) => player.socketId === this.socketId);
     this.playersSorted = [...useGameStore.getState().players];
