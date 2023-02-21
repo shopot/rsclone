@@ -59,7 +59,7 @@ export class AuthService {
   }
 
   async logout(userId: number) {
-    this.usersService.update(userId, { refreshToken: 'undefined' });
+    await this.usersService.update(userId, { refreshToken: 'undefined' });
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
@@ -127,21 +127,37 @@ export class AuthService {
     };
   }
 
-  storeTokenInCookie(res: Response, authTokens: TypeTokens) {
-    res.cookie('userId', authTokens.userId, {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
-    });
+  setAuthCookie(res: Response, authTokens: TypeTokens) {
+    res
+      .cookie('userId', authTokens.userId, {
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        httpOnly: true,
+      })
+      .cookie(JWT_COOKIE_NAMES.accessToken, authTokens.accessToken, {
+        maxAge: 1000 * 60 * 15,
+        httpOnly: true,
+      })
+      .cookie(JWT_COOKIE_NAMES.refreshToken, authTokens.refreshToken, {
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        httpOnly: true,
+      });
+  }
 
-    res.cookie(JWT_COOKIE_NAMES.accessToken, authTokens.accessToken, {
-      maxAge: 1000 * 60 * 15,
-      httpOnly: true,
-    });
-
-    res.cookie(JWT_COOKIE_NAMES.refreshToken, authTokens.refreshToken, {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
-    });
+  clearAuthCookie(res: Response) {
+    // Delete auth cookie and refresh cookie
+    res
+      .clearCookie(JWT_COOKIE_NAMES.accessToken, {
+        signed: true,
+        httpOnly: true,
+      })
+      .clearCookie(JWT_COOKIE_NAMES.refreshToken, {
+        signed: true,
+        httpOnly: true,
+      })
+      .clearCookie('userId', {
+        signed: true,
+        httpOnly: true,
+      });
   }
 
   async getUserProfile(userId: number) {

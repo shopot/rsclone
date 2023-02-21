@@ -7,12 +7,13 @@ import { COOKIE_SECRET } from './config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(cookieParser(COOKIE_SECRET));
-
   // Cross-origin resource sharing (CORS)
   app.enableCors({
-    origin: '*',
+    origin: true,
+    credentials: true,
   });
+
+  app.use(cookieParser(COOKIE_SECRET));
 
   const configService: ConfigService = app.get<ConfigService>(ConfigService);
 
