@@ -10,5 +10,7 @@ export const enum JWT_COOKIE_NAMES {
   refreshToken = 'refreshToken',
 }
 
+export const DEFAULT_AVATAR = 'default-avatar.webp';
+
 //  Cookie Secret
 export const COOKIE_SECRET = 'Pw0Qvr2iPTq+70DtURs+F1Eo0Hd0WIAg7KbE';
