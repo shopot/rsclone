@@ -418,6 +418,7 @@ export class GameScene extends Phaser.Scene {
           (player) => player.playerStatus === TypePlayerStatus.YouLoser,
         );
         console.log(loser, 'loser');
+        //если игрок вышел, то loser undefined
         if (loser) {
           const defender = this.playersSorted.filter((el) => el.socketId === loser.socketId)[0];
           console.log(defender, 'defender');
@@ -438,17 +439,19 @@ export class GameScene extends Phaser.Scene {
       }
       console.log(defenderInd, 'defenderInd');
 
-      await Promise.all(
-        this.piles.flat().map(async (card) => {
-          card.setAngle(0);
-          await card.animateToPlayer(defenderInd, this.playerAmt);
-          this.playersCardsSprites[defenderInd].push(card);
-        }),
-      );
+      if (defenderInd !== -1) {
+        await Promise.all(
+          this.piles.flat().map(async (card) => {
+            card.setAngle(0);
+            await card.animateToPlayer(defenderInd, this.playerAmt);
+            this.playersCardsSprites[defenderInd].push(card);
+          }),
+        );
 
-      this.piles = [];
-      this.setEqualPositionAtHands();
-      this.updatePlayersText();
+        this.piles = [];
+        this.setEqualPositionAtHands();
+        this.updatePlayersText();
+      }
     }
   }
 
