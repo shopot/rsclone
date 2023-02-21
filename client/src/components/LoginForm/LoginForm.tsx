@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { authService } from '../../services/authService';
 import * as Yup from 'yup';
@@ -7,6 +8,7 @@ import {
   MAXIMUM_NICKNAME_LENGTH,
   MINIMUM_PASSWORD_LENGTH,
 } from '../../shared/constants';
+import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
 import styles from './styles.m.scss';
 
@@ -34,12 +36,14 @@ interface FormValues {
 }
 
 export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
+  const navigate = useNavigate();
   const [APIError, setAPIError] = useState<string | null>(null);
 
   const handleSubmit = async ({ username, password }: FormValues) => {
-    console.log('username', username, 'password', password);
     const result = await authService.login(username, password);
-    console.log(result);
+    if (result.data) {
+      navigate(TypeRoute.Rooms);
+    }
 
     setAPIError(result.error);
   };

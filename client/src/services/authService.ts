@@ -1,20 +1,22 @@
 import axios, { isAxiosError } from 'axios';
 import { JWTTokenValidator } from '../shared/validators/JWTTokenValidator';
 import { APIErrorValidator } from '../shared/validators/APIErrorValidator';
-import { TypeJWTTokens } from '../shared/types';
+import { LoginMessageValidator } from '../shared/validators/LoginMessage';
+import { TypeJWTTokens, TypeLoginMessage } from '../shared/types';
 import { HTTP_ENDPOINT } from '../app/config';
 
 export const authService = {
   async login(username: string, password: string) {
     try {
-      const { data } = await axios.post<TypeJWTTokens>(
+      const { data } = await axios.post<TypeLoginMessage>(
         'auth/signin',
         { username, password },
         { baseURL: HTTP_ENDPOINT },
       );
-      if (JWTTokenValidator(data)) {
+      if (LoginMessageValidator(data)) {
         return { data, error: null };
       }
+      console.log('DATA', data);
       return { data: null, error: 'Data validation error' };
     } catch (error) {
       if (isAxiosError(error) && error.response && APIErrorValidator(error.response.data)) {
