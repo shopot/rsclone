@@ -4,6 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { LoginRegisterMessageValidator } from '../../shared/validators/LoginRegisterMessageValidator';
 import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../../shared/api';
+import { REDIRECT_TIMEOUT } from '../../shared/constants';
 import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
 import styles from './styles.m.scss';
@@ -26,6 +27,7 @@ interface FormValues {
 export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
   const navigate = useNavigate();
   const [APIError, setAPIError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async ({ username, password }: FormValues) => {
     const result = await simpleApiClient.fetch(
@@ -36,7 +38,11 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
     );
 
     if (result.data) {
-      navigate(TypeRoute.Rooms);
+      setSuccessMessage('Login successful. Redirecting...');
+      setAPIError(null);
+      setTimeout(() => {
+        navigate(TypeRoute.Rooms);
+      }, REDIRECT_TIMEOUT);
     }
 
     if (result.error) {
@@ -87,6 +93,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
             {(msg) => <div className={styles.formError}>{msg}</div>}
           </ErrorMessage>
           {APIError && <div className={styles.formError}>{APIError}</div>}
+          {successMessage && <div className={styles.formSuccess}>{successMessage}</div>}
 
           <button
             className={`btn ${styles.submitButton}`}
