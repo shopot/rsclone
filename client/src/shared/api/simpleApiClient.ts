@@ -1,4 +1,5 @@
 import axios, { isAxiosError } from 'axios';
+import createAuthRefreshInterceptor from 'axios-auth-refresh';
 import { ValidateFunction } from 'ajv';
 import { APIErrorValidator } from '../validators/APIErrorValidator';
 import { HTTP_ENDPOINT } from '../../app/config/index';
@@ -26,6 +27,12 @@ const instance = axios.create({
   baseURL: HTTP_ENDPOINT,
   withCredentials: true,
 });
+
+const refreshAuthLogic = async () => {
+  await axios.get(ApiEndpoint.AuthRefresh, { baseURL: HTTP_ENDPOINT, withCredentials: true });
+};
+
+createAuthRefreshInterceptor(instance, refreshAuthLogic);
 
 export const simpleApiClient = {
   async fetch<T, U>(
@@ -60,11 +67,13 @@ export const simpleApiClient = {
         try {
           const response = await instance.get<T>(endpoint);
 
+          console.log(response);
           if (dataValidator(response.data)) {
             return { data: response.data, error: null };
           }
           return { data: null, error: 'Data validation error' };
         } catch (error) {
+          console.log('ERROR', error);
           if (isAxiosError(error) && error.response && APIErrorValidator(error.response.data)) {
             return {
               data: null,
