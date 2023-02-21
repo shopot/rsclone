@@ -1,4 +1,8 @@
-import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from './../../config/index';
+import {
+  JWT_ACCESS_SECRET,
+  JWT_REFRESH_SECRET,
+  JWT_COOKIE_NAMES,
+} from './../../config/index';
 import {
   BadRequestException,
   ForbiddenException,
@@ -9,6 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthDto } from './dto/auth.dto';
 import { UserService } from '../user/user.service';
 import { TypeTokens } from './types';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -62,10 +67,12 @@ export class AuthService {
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
+
     const refreshTokenMatches = await argon2.verify(
       user.refreshToken,
       refreshToken,
     );
+
     if (!refreshTokenMatches) {
       throw new ForbiddenException('Access Denied');
     }
@@ -113,8 +120,26 @@ export class AuthService {
     ]);
 
     return {
+      userId,
       accessToken,
       refreshToken,
     };
+  }
+
+  storeTokenInCookie(res: Response, authTokens: TypeTokens) {
+    res.cookie('userId', authTokens.userId, {
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      httpOnly: true,
+    });
+
+    res.cookie(JWT_COOKIE_NAMES.accessToken, authTokens.accessToken, {
+      maxAge: 1000 * 60 * 15,
+      httpOnly: true,
+    });
+
+    res.cookie(JWT_COOKIE_NAMES.refreshToken, authTokens.refreshToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      httpOnly: true,
+    });
   }
 }

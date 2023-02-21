@@ -1,7 +1,8 @@
-import { JWT_ACCESS_SECRET } from './../../../config/index';
+import { JWT_ACCESS_SECRET, JWT_COOKIE_NAMES } from './../../../config/index';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Request } from 'express';
 
 type JwtPayload = {
   sub: string;
@@ -12,12 +13,24 @@ type JwtPayload = {
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        AccessTokenStrategy.extractJWT,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
+      ignoreExpiration: false,
       secretOrKey: JWT_ACCESS_SECRET,
     });
   }
 
   validate(payload: JwtPayload) {
     return payload;
+  }
+
+  private static extractJWT(req: Request): string | null {
+    if (req.cookies && JWT_COOKIE_NAMES.accessToken in req.cookies) {
+      return req.cookies[JWT_COOKIE_NAMES.accessToken];
+    }
+
+    return null;
   }
 }
