@@ -67,7 +67,7 @@ export class Popup {
       this.title = this.scene.add
         .text(config.width / 2, config.height / 2 - 130, titleText, {
           color: '#fff',
-          font: '30px Arial bold',
+          font: '40px Signika',
         })
         .setOrigin(0.5)
         .setDepth(zIndex + 1);
@@ -86,14 +86,14 @@ export class Popup {
         this.playerText = this.scene.add
           .text(config.width / 3 + 70, config.height / 2 - 15, text, {
             color: '#fff',
-            font: '25px Arial bold',
+            font: '25px Signika',
           })
           .setDepth(zIndex + 1);
 
         this.playerName = this.scene.add
           .text(config.width / 3 + 70, config.height / 2 + 25, player.playerName, {
             color: '#fff',
-            font: '25px Arial bold',
+            font: '25px Signika',
           })
           .setDepth(zIndex + 1);
 
@@ -112,7 +112,7 @@ export class Popup {
         this.playerText = this.scene.add
           .text(config.width / 2, config.height / 2 + 15, 'Drawn game', {
             color: '#fff',
-            font: '30px Arial bold',
+            font: '30px Signika',
           })
           .setOrigin(0.5)
           .setDepth(zIndex + 1);

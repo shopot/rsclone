@@ -4,7 +4,7 @@ export class Nickname extends Phaser.GameObjects.Text {
     this.scene = scene;
     this.scene.add.existing(this);
     this.setStyle({
-      font: '20px',
+      font: '20px Signika',
       color: '#FFFFFF',
       strokeThickness: 1,
       stroke: '#FFFFFF',

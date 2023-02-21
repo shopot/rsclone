@@ -4,7 +4,7 @@ export class Timer extends Phaser.GameObjects.Text {
   counter: number;
   constructor(scene: Phaser.Scene, hand: { width: number; height: number; startX: number }) {
     super(scene, hand.startX + hand.width / 2, config.height - config.cardSize.h - 35, '', {
-      font: '20px',
+      font: '20px Signika',
       color: '#FFFFFF',
       strokeThickness: 1,
       stroke: '#FFFFFF',

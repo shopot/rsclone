@@ -40,7 +40,7 @@ export class SpeechBubble {
       .lineBetween(point1X, point1Y, point3X, point3Y);
 
     this.content = this.scene.add.text(0, 0, quote, {
-      // fontFamily: 'Arial',
+      fontFamily: 'Signika',
       color: '#000000',
       align: 'center',
       wordWrap: { width: bubbleWidth - bubblePadding * 2 },

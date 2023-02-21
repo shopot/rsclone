@@ -40,7 +40,7 @@ export class Chat {
       .text(this.chatParams.x, this.chatParams.y, 'chatbot: Start chatting here )', {
         backgroundColor: '#E7F0F9',
         color: '#000',
-        font: '18px Arial',
+        font: '18px',
       })
       .setPadding(6)
       .setFixedSize(250, 240)
@@ -79,7 +79,7 @@ export class Chat {
     this.newMessagesAmt = this.scene.add
       .text(this.bntParams.x + 20, this.bntParams.y - 20, '', {
         color: '#fff',
-        font: '13px Arial bold',
+        font: '13px Signika',
       })
       .setOrigin(0.5);
 

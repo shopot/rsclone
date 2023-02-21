@@ -115,6 +115,7 @@ export class GameScene extends Phaser.Scene {
     this.createButtons();
     this.createDeck(useGameStore.getState().deckCounter);
     this.createSounds();
+    new Popup(this, this.playersSorted, true);
     // this.icons.forEach((icon, ind) => {
     //   icon.offline(ind);
     // })

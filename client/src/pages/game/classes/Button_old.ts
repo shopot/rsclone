@@ -27,7 +27,7 @@ export class Button {
 
     this.btnText = this.scene.add
       .text(this.params.x + 100, this.params.y + 30, TypeButtonStatus.Start, {
-        font: '30px',
+        font: '30px Signika',
         color: this.textColors.inactive.toString(),
         strokeThickness: 1,
         stroke: this.textColors.inactive.toString(),

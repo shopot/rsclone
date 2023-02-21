@@ -10,7 +10,7 @@ export class StatusHelper extends Phaser.GameObjects.Text {
     this.coordY = config.height - config.cardSize.h - 30;
     this.scene.add.existing(this);
     this.setStyle({
-      font: '20px',
+      font: '20px Signika',
       color: '#FFFFFF',
       strokeThickness: 1,
       stroke: '#FFFFFF',
