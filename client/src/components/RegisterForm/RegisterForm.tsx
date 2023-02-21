@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { TypeRoute } from '../../shared/types';
+import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../../shared/api';
+import { LoginRegisterMessageValidator } from '../../shared/validators';
 import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
   MINIMUM_PASSWORD_LENGTH,
 } from '../../shared/constants';
+import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
 import styles from './styles.m.scss';
 
@@ -42,14 +44,22 @@ interface FormValues {
 export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
   const navigate = useNavigate();
   const [APIError, setAPIError] = useState<string | null>(null);
-  const handleSubmit = ({ username, password }: FormValues) => {
+  const handleSubmit = async ({ username, password }: FormValues) => {
     console.log('username', username, 'password', password);
-    // const result = await authService.register(username, password);
-    // if (result.data) {
-    //   navigate(TypeRoute.Rooms);
-    // }
+    const result = await simpleApiClient.fetch(
+      HTTPRequestMethod.POST,
+      ApiEndpoint.AuthSignup,
+      LoginRegisterMessageValidator,
+      { username, password },
+    );
 
-    // setAPIError(result.error);
+    if (result.data) {
+      navigate(TypeRoute.About);
+    }
+
+    if (result.error) {
+      setAPIError(result.error);
+    }
   };
 
   return (
