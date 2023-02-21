@@ -33,22 +33,23 @@ export class AuthController {
   async login(
     @Body() data: AuthDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<void> {
     const authTokens = await this.authService.signIn(data);
-    this.authService.storeTokenInCookie(res, authTokens);
+    this.authService.setAuthCookie(res, authTokens);
 
     const user = await this.authService.getUserProfile(authTokens.userId);
 
-    res.status(200).send({
-      data: {
-        userId: user.id,
-        username: user.username,
-        avatar: user.avatar,
-      },
-      message: 'ok',
-    });
-    return;
-    // return tokens;
+    res
+      .status(200)
+      .send({
+        data: {
+          userId: user.id,
+          username: user.username,
+          avatar: user.avatar,
+        },
+        message: 'ok',
+      })
+      .end();
   }
 
   @UseGuards(AccessTokenGuard)
@@ -58,22 +59,7 @@ export class AuthController {
       const userId = req.user['sub'] || 0;
 
       this.authService.logout(userId);
-
-      // Delete auth cookie and refresh cookie
-      res.clearCookie(JWT_COOKIE_NAMES.accessToken, {
-        signed: true,
-        httpOnly: true,
-      });
-
-      res.clearCookie(JWT_COOKIE_NAMES.refreshToken, {
-        signed: true,
-        httpOnly: true,
-      });
-
-      res.clearCookie('userId', {
-        signed: true,
-        httpOnly: true,
-      });
+      this.authService.clearAuthCookie(res);
 
       res.send({ message: 'success' }).end();
     } else {
@@ -95,7 +81,7 @@ export class AuthController {
       refreshToken,
     );
 
-    this.authService.storeTokenInCookie(res, newAuthTokens);
+    this.authService.setAuthCookie(res, newAuthTokens);
     res.status(200).send({ message: 'ok' });
     return;
   }
