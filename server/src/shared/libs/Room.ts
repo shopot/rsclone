@@ -829,7 +829,14 @@ export class Room {
       this.lastLoser = null;
     }
 
-    this.players.remove(leavePlayer);
+    if (
+      this.isGameInProgress() &&
+      leavePlayer.getPlayerStatus() !== TypePlayerStatus.InGame
+    ) {
+      leavePlayer.setPlayerStatus(TypePlayerStatus.Offline);
+    } else {
+      this.players.remove(leavePlayer);
+    }
 
     if (
       this.getRoomStatus() === TypeRoomStatus.WaitingForStart &&
@@ -1020,9 +1027,15 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
+    // Set player roles to Waiting; kick offline players
+    const offlinePlayers = [];
     for (const player of this.players) {
       player.setPlayerRole(TypePlayerRole.Waiting);
+      if (player.getPlayerStatus() === TypePlayerStatus.Offline) {
+        offlinePlayers.push(player);
+      }
     }
+    offlinePlayers.forEach((player) => this.players.remove(player));
 
     this.updateGameStats();
   }
