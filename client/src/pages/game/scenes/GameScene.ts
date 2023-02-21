@@ -115,6 +115,9 @@ export class GameScene extends Phaser.Scene {
     this.createButtons();
     this.createDeck(useGameStore.getState().deckCounter);
     this.createSounds();
+    // this.icons.forEach((icon, ind) => {
+    //   icon.offline(ind);
+    // })
   }
 
   createChat() {
@@ -167,13 +170,7 @@ export class GameScene extends Phaser.Scene {
       this.createBubble('Pass');
       this.updateHelper('passes');
     }
-    // if (
-    //   JSON.stringify(state.lastCloseDefenderCard) !==
-    //     JSON.stringify(prevState.lastCloseDefenderCard) ||
-    //   JSON.stringify(state.lastOpenAttackerCard) !== JSON.stringify(prevState.lastOpenAttackerCard)
-    // ) {
     await this.handleClick();
-    // }
     if (
       JSON.stringify(state.lastCloseDefenderCard) ===
         JSON.stringify(prevState.lastCloseDefenderCard) &&
@@ -187,6 +184,7 @@ export class GameScene extends Phaser.Scene {
       await this.checkDealt(state.dealt);
     }
     this.colorNickname();
+    this.handleOfflinePlayer();
     if (
       state.lastGameAction === TypeGameAction.AttackerPass ||
       state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp ||
@@ -194,14 +192,7 @@ export class GameScene extends Phaser.Scene {
     ) {
       this.handleHighlight();
     }
-
-    // if (
-    //   (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp &&
-    //     state.placedCards.length === 0) ||
-    //   (state.lastGameAction === TypeGameAction.DefenderTakesCards && state.placedCards.length !== 0)
-    // ) {
     await this.checkGameOver();
-    // }
     if (
       state.roomStatus !== prevState.roomStatus ||
       state.activeSocketId !== prevState.activeSocketId ||
@@ -219,6 +210,18 @@ export class GameScene extends Phaser.Scene {
     const playersRoles = this.playersSorted.map((player) => player.playerRole);
     this.icons.forEach((icon, ind) => {
       icon.colorCloud(playersRoles[ind]);
+    });
+  }
+
+  handleOfflinePlayer() {
+    console.log('```````handleOfflinePlayer````````````````');
+    const playerStatuses = this.playersSorted.map((player) => player.playerStatus);
+    console.log(playerStatuses, 'playerStatuses');
+    this.icons.forEach((icon, ind) => {
+      if (playerStatuses[ind] === TypePlayerStatus.Offline) {
+        console.log(ind, 'ind');
+        icon.offline(ind);
+      }
     });
   }
 
@@ -578,7 +581,6 @@ export class GameScene extends Phaser.Scene {
         }, 1000);
       } else if (isFirst && roomStatus === TypeRoomStatus.WaitingForPlayers) {
         this.mainButton?.update(TypeButtonStatus.Start, false);
-        // this.mainButton?.setAlpha(1);
       }
 
       const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
@@ -858,7 +860,8 @@ export class GameScene extends Phaser.Scene {
     const cardsWithoutMainPlayer = [...this.playersCards];
     cardsWithoutMainPlayer.splice(0, 1);
     this.playersText.forEach((text, i) => {
-      text.setText(cardsWithoutMainPlayer[i].length.toString());
+      if (Array.isArray(cardsWithoutMainPlayer[i]))
+        text.setText(cardsWithoutMainPlayer[i].length.toString());
     });
   }
 

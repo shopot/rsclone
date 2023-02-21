@@ -86,4 +86,13 @@ export class Icon {
     this.cloud.setTint(params.color).setAlpha(params.opacity);
     this.shieldSword.setFrame(params.texture).setAlpha(params.opacity);
   }
+
+  offline(ind: number) {
+    const y = ind === 0 ? this.spriteY + 55 : this.spriteY - 75;
+    const offlineIcon = this.scene.add
+      .sprite(this.x - 58, y, 'offline')
+      .setScale(1)
+      .setOrigin(0, 0)
+      .setAlpha(1);
+  }
 }
