@@ -1,29 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { authService } from '../../services/authService';
 import * as Yup from 'yup';
-import {
-  MINIMUM_NICKNAME_LENGTH,
-  MAXIMUM_NICKNAME_LENGTH,
-  MINIMUM_PASSWORD_LENGTH,
-} from '../../shared/constants';
+import { LoginMessageValidator } from '../../shared/validators/LoginMessageValidator';
+import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../../shared/api';
 import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
 import styles from './styles.m.scss';
 
 const LoginSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(MINIMUM_NICKNAME_LENGTH, `Must be ${MINIMUM_NICKNAME_LENGTH} characters or more`)
-    .max(MAXIMUM_NICKNAME_LENGTH, `Must be ${MAXIMUM_NICKNAME_LENGTH} characters or less`)
-    .required('Required'),
+  username: Yup.string().required('Required'),
 
-  password: Yup.string()
-    .matches(/^(?=.*[a-z])/, 'Must contain at least one lowercase character')
-    .matches(/^(?=.*[A-Z])/, 'Must contain at least one uppercase character')
-    .matches(/^(?=.*\d)/, 'Must contain at least one digit')
-    .min(MINIMUM_PASSWORD_LENGTH, `Must be ${MINIMUM_PASSWORD_LENGTH} characters or more`)
-    .required('Required'),
+  password: Yup.string().required('Required'),
 });
 
 interface LoginFormProps {
@@ -40,12 +28,20 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
   const [APIError, setAPIError] = useState<string | null>(null);
 
   const handleSubmit = async ({ username, password }: FormValues) => {
-    const result = await authService.login(username, password);
+    const result = await simpleApiClient.fetch(
+      HTTPRequestMethod.POST,
+      ApiEndpoint.AuthSignin,
+      LoginMessageValidator,
+      { username, password },
+    );
+
     if (result.data) {
       navigate(TypeRoute.Rooms);
     }
 
-    setAPIError(result.error);
+    if (result.error) {
+      setAPIError(result.error);
+    }
   };
 
   return (
