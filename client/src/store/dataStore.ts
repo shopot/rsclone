@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { historyService } from '../services/historyService';
-import { ratingService } from '../services/ratingService';
+import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../shared/api';
+import { HistoryValidator, RatingValidator } from '../shared/validators';
 import { TypeHistoryItem } from '../shared/types/TypeHistoryItem';
 import { TypeRatingItem } from '../shared/types';
 
@@ -28,13 +28,21 @@ export const useDataStore = create<TypeDataState>((set) => {
 
     actions: {
       async setHistoryList() {
-        const result = await historyService.getAll();
+        const result = await simpleApiClient.fetch(
+          HTTPRequestMethod.GET,
+          ApiEndpoint.History,
+          HistoryValidator,
+        );
 
         set({ history: result });
       },
 
       async setRatingList() {
-        const result = await ratingService.getAll();
+        const result = await simpleApiClient.fetch(
+          HTTPRequestMethod.GET,
+          ApiEndpoint.Rating,
+          RatingValidator,
+        );
 
         set({ rating: result });
       },

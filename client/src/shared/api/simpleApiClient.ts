@@ -1,19 +1,20 @@
+import axios, { isAxiosError } from 'axios';
+import { ValidateFunction } from 'ajv';
+import { APIErrorValidator } from '../validators/APIErrorValidator';
 import { HTTP_ENDPOINT } from '../../app/config/index';
-import axios from 'axios';
 
 export const enum ApiEndpoint {
   AuthSignup = 'auth/signup',
-  AuthSignin = 'auth/signup',
+  AuthSignin = 'auth/signin',
   AuthLogout = 'auth/logout',
   AuthRefresh = 'auth/refresh',
+  History = 'history',
+  Rating = 'rating',
 }
 
 export const enum HTTPRequestMethod {
   POST = 'POST',
   GET = 'GET',
-  DELETE = 'DELETE',
-  PUT = 'PUT',
-  PATCH = 'PATCH',
 }
 
 export interface RequestDto {
@@ -27,15 +28,54 @@ const instance = axios.create({
 });
 
 export const simpleApiClient = {
-  async fetch(method: HTTPRequestMethod, endpoint: ApiEndpoint, data: RequestDto = {}) {
+  async fetch<T, U>(
+    method: HTTPRequestMethod,
+    endpoint: ApiEndpoint,
+    dataValidator: ValidateFunction<U>,
+    data: RequestDto = {},
+  ) {
     switch (method) {
       case HTTPRequestMethod.POST: {
-        const res = await instance.post(endpoint, { ...data });
-        return res;
+        try {
+          const response = await instance.post<T>(endpoint, { ...data });
+
+          if (dataValidator(response.data)) {
+            return { data: response.data, error: null };
+          }
+          return { data: null, error: 'Data validation error' };
+        } catch (error) {
+          if (isAxiosError(error) && error.response && APIErrorValidator(error.response.data)) {
+            return {
+              data: null,
+              error: `${error.response.data.statusCode} ${error.response.data.error}: ${error.response.data.message}`,
+            };
+          }
+          return {
+            data: null,
+            error: error instanceof Error ? error.message : `Unknown ${method} error`,
+          };
+        }
       }
       case HTTPRequestMethod.GET: {
-        const res = await instance.get(endpoint);
-        return res;
+        try {
+          const response = await instance.get<T>(endpoint);
+
+          if (dataValidator(response.data)) {
+            return { data: response.data, error: null };
+          }
+          return { data: null, error: 'Data validation error' };
+        } catch (error) {
+          if (isAxiosError(error) && error.response && APIErrorValidator(error.response.data)) {
+            return {
+              data: null,
+              error: `${error.response.data.statusCode} ${error.response.data.error}: ${error.response.data.message}`,
+            };
+          }
+          return {
+            data: null,
+            error: error instanceof Error ? error.message : `Unknown ${method} error`,
+          };
+        }
       }
     }
   },
