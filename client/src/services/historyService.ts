@@ -28,7 +28,10 @@ type TypeHistoryResponse = {
 export const historyService = {
   async getAll() {
     try {
-      const data = await axios.get<TypeHistoryResponse>('history', { baseURL: HTTP_ENDPOINT });
+      const data = await axios.get<TypeHistoryResponse>('history', {
+        baseURL: HTTP_ENDPOINT,
+        withCredentials: true,
+      });
 
       if (validate(data)) {
         return { data, error: null };
