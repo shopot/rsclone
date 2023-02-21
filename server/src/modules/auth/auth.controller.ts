@@ -20,8 +20,16 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
-  signup(@Body() createUserDto: AuthDto) {
-    return this.authService.signUp(createUserDto);
+  async signup(
+    @Body() dto: AuthDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const authTokens = await this.authService.signUp(dto);
+    this.authService.setAuthCookie(res, authTokens);
+
+    const data = await this.authService.getUserProfile(authTokens.userId);
+
+    res.status(201).send({ data, message: 'created' }).end();
   }
 
   /**
@@ -31,25 +39,15 @@ export class AuthController {
    */
   @Post('signin')
   async login(
-    @Body() data: AuthDto,
+    @Body() dto: AuthDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    const authTokens = await this.authService.signIn(data);
+    const authTokens = await this.authService.signIn(dto);
     this.authService.setAuthCookie(res, authTokens);
 
-    const user = await this.authService.getUserProfile(authTokens.userId);
+    const data = await this.authService.getUserProfile(authTokens.userId);
 
-    res
-      .status(200)
-      .send({
-        data: {
-          userId: user.id,
-          username: user.username,
-          avatar: user.avatar,
-        },
-        message: 'ok',
-      })
-      .end();
+    res.status(200).send({ data, message: 'ok' }).end();
   }
 
   @UseGuards(AccessTokenGuard)
@@ -61,7 +59,7 @@ export class AuthController {
       this.authService.logout(userId);
       this.authService.clearAuthCookie(res);
 
-      res.send({ message: 'success' }).end();
+      res.status(200).send({ message: 'success' }).end();
     } else {
       throw new BadRequestException('Bad request');
     }
@@ -82,7 +80,7 @@ export class AuthController {
     );
 
     this.authService.setAuthCookie(res, newAuthTokens);
-    res.status(200).send({ message: 'ok' });
+    res.status(200).send({ message: 'success' });
     return;
   }
 }

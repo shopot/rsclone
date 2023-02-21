@@ -16,6 +16,16 @@ import { UserService } from '../user/user.service';
 import { TypeTokens } from './types';
 import { Response } from 'express';
 
+const authCookieOptions = {
+  maxAge: 1000 * 60 * 60 * 24 * 7,
+  httpOnly: true,
+};
+
+const clearCookieOptions = {
+  signed: true,
+  ...authCookieOptions,
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -35,6 +45,7 @@ export class AuthService {
     const newUser = await this.usersService.create({ ...dto, hash });
     const tokens = await this.getTokens(newUser.id, newUser.username);
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
+
     return tokens;
   }
 
@@ -129,42 +140,36 @@ export class AuthService {
 
   setAuthCookie(res: Response, authTokens: TypeTokens) {
     res
-      .cookie('userId', authTokens.userId, {
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-        httpOnly: true,
-      })
-      .cookie(JWT_COOKIE_NAMES.accessToken, authTokens.accessToken, {
-        maxAge: 1000 * 60 * 15,
-        httpOnly: true,
-      })
-      .cookie(JWT_COOKIE_NAMES.refreshToken, authTokens.refreshToken, {
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-        httpOnly: true,
-      });
+      .cookie('userId', authTokens.userId, authCookieOptions)
+      .cookie(
+        JWT_COOKIE_NAMES.accessToken,
+        authTokens.accessToken,
+        authCookieOptions,
+      )
+      .cookie(
+        JWT_COOKIE_NAMES.refreshToken,
+        authTokens.refreshToken,
+        authCookieOptions,
+      );
   }
 
   clearAuthCookie(res: Response) {
     // Delete auth cookie and refresh cookie
     res
-      .clearCookie(JWT_COOKIE_NAMES.accessToken, {
-        signed: true,
-        httpOnly: true,
-      })
-      .clearCookie(JWT_COOKIE_NAMES.refreshToken, {
-        signed: true,
-        httpOnly: true,
-      })
-      .clearCookie('userId', {
-        signed: true,
-        httpOnly: true,
-      });
+      .clearCookie(JWT_COOKIE_NAMES.accessToken, clearCookieOptions)
+      .clearCookie(JWT_COOKIE_NAMES.refreshToken, clearCookieOptions)
+      .clearCookie('userId', clearCookieOptions);
   }
 
   async getUserProfile(userId: number) {
     const user = await this.usersService.findById(userId);
 
     if (user) {
-      return user;
+      return {
+        userId: user.id,
+        username: user.username,
+        avatar: user.avatar,
+      };
     }
 
     throw new NotFoundException('User not found');
