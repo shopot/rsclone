@@ -1,5 +1,4 @@
-export type TypeTokens = {
-  userId: number;
+export type TypeJWTTokens = {
   accessToken: string;
   refreshToken: string;
 };

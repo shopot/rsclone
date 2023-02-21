@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { authService } from '../../services/authService';
 import * as Yup from 'yup';
 import {
   MINIMUM_NICKNAME_LENGTH,
@@ -26,7 +28,22 @@ interface LoginFormProps {
   onChangeForm: () => void;
 }
 
+interface FormValues {
+  username: string;
+  password: string;
+}
+
 export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
+  const [APIError, setAPIError] = useState<string | null>(null);
+
+  const handleSubmit = async ({ username, password }: FormValues) => {
+    console.log('username', username, 'password', password);
+    const result = await authService.login(username, password);
+    console.log(result);
+
+    setAPIError(result.error);
+  };
+
   return (
     <div className={styles.contents}>
       <img
@@ -45,7 +62,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
           password: '',
         }}
         validationSchema={LoginSchema}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={handleSubmit}
       >
         <Form
           className={styles.form}
@@ -69,6 +86,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
           <ErrorMessage name="password">
             {(msg) => <div className={styles.formError}>{msg}</div>}
           </ErrorMessage>
+          {APIError && <div className={styles.formError}>{APIError}</div>}
 
           <button
             className={`btn ${styles.submitButton}`}

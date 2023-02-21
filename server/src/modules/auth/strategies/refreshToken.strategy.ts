@@ -1,4 +1,4 @@
-import { JWT_REFRESH_SECRET } from './../../../config/index';
+import { JWT_REFRESH_SECRET, JWT_COOKIE_NAMES } from './../../../config/index';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
@@ -12,17 +12,27 @@ export class RefreshTokenStrategy extends PassportStrategy(
 ) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        RefreshTokenStrategy.extractJWT,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
+      ignoreExpiration: false,
       secretOrKey: JWT_REFRESH_SECRET,
       passReqToCallback: true,
     });
   }
 
   validate(req: Request, payload: TypePayload) {
-    const refreshToken = req
-      ?.get('Authorization')
-      ?.replace('Bearer', '')
-      .trim();
+    const refreshToken = req.cookies.refresh;
+
     return { ...payload, refreshToken };
+  }
+
+  private static extractJWT(req: Request): string | null {
+    if (req.cookies && JWT_COOKIE_NAMES.refreshToken in req.cookies) {
+      return req.cookies[JWT_COOKIE_NAMES.refreshToken];
+    }
+
+    return null;
   }
 }

@@ -1,9 +1,17 @@
+import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useNavigate } from 'react-router-dom';
+import { authService } from '../../services/authService';
 import * as Yup from 'yup';
+import { JWTTokenValidator } from '../../shared/validators/JWTTokenValidator';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { TypeJWTTokens, TypeRoute } from '../../shared/types';
 import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
   MINIMUM_PASSWORD_LENGTH,
+  UNIQUE_LOCALSTORAGE_PREFIX,
+  JWT_TOKEN_LS_KEY,
 } from '../../shared/constants';
 import logo from '../../assets/durak-logo-text.webp';
 import styles from './styles.m.scss';
@@ -30,7 +38,33 @@ interface RegisterFormProps {
   onChangeForm: () => void;
 }
 
+interface FormValues {
+  username: string;
+  password: string;
+  passwordConfirm: string;
+}
+
 export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
+  const navigate = useNavigate();
+  const [APIError, setAPIError] = useState<string | null>(null);
+  const [token, setToken] = useLocalStorage<TypeJWTTokens>(
+    UNIQUE_LOCALSTORAGE_PREFIX,
+    JWT_TOKEN_LS_KEY,
+    { accessToken: '', refreshToken: '' },
+    JWTTokenValidator,
+  );
+
+  const handleSubmit = async ({ username, password }: FormValues) => {
+    console.log('username', username, 'password', password);
+    const result = await authService.register(username, password);
+    if (result.data) {
+      setToken(result.data);
+      navigate(TypeRoute.Rooms);
+    }
+
+    setAPIError(result.error);
+  };
+
   return (
     <div className={styles.contents}>
       <img
@@ -50,7 +84,7 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
           passwordConfirm: '',
         }}
         validationSchema={RegisterSchema}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={handleSubmit}
       >
         <Form
           className={styles.form}
@@ -83,6 +117,7 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
           <ErrorMessage name="passwordConfirm">
             {(msg) => <div className={styles.formError}>{msg}</div>}
           </ErrorMessage>
+          {APIError && <div className={styles.formError}>{APIError}</div>}
 
           <button
             className={`btn ${styles.submitButton}`}

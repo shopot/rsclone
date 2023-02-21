@@ -5,15 +5,17 @@ import {
   Get,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { JWT_COOKIE_NAMES } from '../../config';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
 import { hasUser } from './helpers';
 
-@Controller('/v1/auth')
+@Controller('v1/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -22,31 +24,70 @@ export class AuthController {
     return this.authService.signUp(createUserDto);
   }
 
+  /**
+   * Login method
+   * @param {AuthDto} data
+   * @returns
+   */
   @Post('signin')
-  signin(@Body() data: AuthDto) {
-    return this.authService.signIn(data);
+  async login(
+    @Body() data: AuthDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const authTokens = await this.authService.signIn(data);
+    this.authService.storeTokenInCookie(res, authTokens);
+
+    res.status(200).send({ message: 'ok' });
+    return;
+    // return tokens;
   }
 
   @UseGuards(AccessTokenGuard)
   @Get('logout')
-  logout(@Req() req: Request) {
+  logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     if (hasUser(req)) {
       const userId = req.user['sub'] || 0;
+
       this.authService.logout(userId);
+
+      // Delete auth cookie and refresh cookie
+      res.clearCookie(JWT_COOKIE_NAMES.accessToken, {
+        signed: true,
+        httpOnly: true,
+      });
+
+      res.clearCookie(JWT_COOKIE_NAMES.refreshToken, {
+        signed: true,
+        httpOnly: true,
+      });
+
+      res.clearCookie('userId', {
+        signed: true,
+        httpOnly: true,
+      });
+
+      res.send({ msg: 'success' }).end();
     } else {
-      throw new BadRequestException('Data is incorrect');
+      throw new BadRequestException('Bad request');
     }
   }
 
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
-  refreshTokens(@Req() req: Request) {
-    if (hasUser(req)) {
-      const userId = req.user['sub'] || 0;
-      const refreshToken = req.user['refreshToken'] || '';
-      return this.authService.refreshTokens(userId, refreshToken);
-    } else {
-      throw new BadRequestException('Data is incorrect');
-    }
+  async refreshTokens(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies[JWT_COOKIE_NAMES.refreshToken];
+    const userId = req.cookies.userId || 0;
+
+    const newAuthTokens = await this.authService.refreshTokens(
+      userId,
+      refreshToken,
+    );
+
+    this.authService.storeTokenInCookie(res, newAuthTokens);
+    res.status(200).send({ message: 'ok' });
+    return;
   }
 }
