@@ -1,9 +1,9 @@
 import Ajv, { JTDSchemaType } from 'ajv/dist/jtd';
-import { TypeLoginMessage } from '../types';
+import { TypeLoginRegisterMessage } from '../types';
 
 const ajv = new Ajv();
 
-const schema: JTDSchemaType<TypeLoginMessage> = {
+const schema: JTDSchemaType<TypeLoginRegisterMessage> = {
   properties: {
     data: {
       properties: {
@@ -12,8 +12,8 @@ const schema: JTDSchemaType<TypeLoginMessage> = {
         avatar: { type: 'string' },
       },
     },
-    message: { enum: ['ok'] },
+    message: { enum: ['ok', 'created'] },
   },
 };
 
-export const LoginMessageValidator = ajv.compile(schema);
+export const LoginRegisterMessageValidator = ajv.compile(schema);

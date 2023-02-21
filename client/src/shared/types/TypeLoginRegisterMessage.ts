@@ -1,8 +1,8 @@
-export type TypeLoginMessage = {
+export type TypeLoginRegisterMessage = {
   data: {
     userId: number;
     username: string;
     avatar: string;
   };
-  message: 'ok';
+  message: 'ok' | 'created';
 };

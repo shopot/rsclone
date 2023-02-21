@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { LoginMessageValidator } from '../../shared/validators/LoginMessageValidator';
+import { LoginRegisterMessageValidator } from '../../shared/validators/LoginRegisterMessageValidator';
 import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../../shared/api';
 import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
@@ -31,7 +31,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
     const result = await simpleApiClient.fetch(
       HTTPRequestMethod.POST,
       ApiEndpoint.AuthSignin,
-      LoginMessageValidator,
+      LoginRegisterMessageValidator,
       { username, password },
     );
 
