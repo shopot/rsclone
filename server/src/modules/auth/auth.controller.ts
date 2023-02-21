@@ -37,7 +37,16 @@ export class AuthController {
     const authTokens = await this.authService.signIn(data);
     this.authService.storeTokenInCookie(res, authTokens);
 
-    res.status(200).send({ message: 'ok' });
+    const user = await this.authService.getUserProfile(authTokens.userId);
+
+    res.status(200).send({
+      data: {
+        userId: user.id,
+        username: user.username,
+        avatar: user.avatar,
+      },
+      message: 'ok',
+    });
     return;
     // return tokens;
   }
@@ -66,7 +75,7 @@ export class AuthController {
         httpOnly: true,
       });
 
-      res.send({ msg: 'success' }).end();
+      res.send({ message: 'success' }).end();
     } else {
       throw new BadRequestException('Bad request');
     }

@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import {
   Controller,
   Get,
+  Logger,
   Param,
   Post,
   Req,
@@ -15,8 +16,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { SharpPipe } from './pipes';
 import { AccessTokenGuard } from '../auth/guards';
 import { Request, Response } from 'express';
+import { of } from 'rxjs';
 
-@Controller('/v1/user')
+@Controller('v1/user')
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -36,10 +38,14 @@ export class UserController {
     }
   }
 
-  @Get(':imgpath')
-  findProfileImage(@Param('imgpath') imgpath: string, @Res() res: Response) {
-    const file = this.userService.imageBuffer(imgpath);
-    res.contentType('image/*');
-    res.send(file);
+  @Get('avatar/:imagename')
+  async findProfileImage(
+    @Param('imagename') imagename: string,
+    @Res() res: Response,
+  ) {
+    const imagePath = await this.userService.getImagePath(imagename);
+
+    Logger.debug(imagePath);
+    return of(res.sendFile(imagePath));
   }
 }
