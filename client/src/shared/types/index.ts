@@ -17,4 +17,4 @@ export * from './TypeHistoryItem';
 export * from './TypeRatingItem';
 export * from './TypeJWTTokens';
 export * from './TypeAPIError';
-export * from './TypeLoginMessage';
+export * from './TypeLoginRegisterMessage';
