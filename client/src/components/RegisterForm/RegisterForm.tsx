@@ -14,7 +14,7 @@ import {
   JWT_TOKEN_LS_KEY,
 } from '../../shared/constants';
 import logo from '../../assets/durak-logo-text.webp';
-import styles from './styles.m.scss';
+import styles from './RegisterForm.m.scss';
 
 const RegisterSchema = Yup.object().shape({
   username: Yup.string()
@@ -68,6 +68,7 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
   return (
     <div className={styles.contents}>
       <img
+        className={styles.formLogo}
         src={logo}
         alt="Game logo"
       />

@@ -8,7 +8,7 @@ import {
   MINIMUM_PASSWORD_LENGTH,
 } from '../../shared/constants';
 import logo from '../../assets/durak-logo-text.webp';
-import styles from './styles.m.scss';
+import styles from './LoginForm.m.scss';
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string()
@@ -47,6 +47,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
   return (
     <div className={styles.contents}>
       <img
+        className={styles.formLogo}
         src={logo}
         alt="Game logo"
       />
