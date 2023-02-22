@@ -34,6 +34,11 @@ export class Popup {
     this.depths = { onWin: 200, onEnd: 300 };
     this.titleTexts = { onWin: 'Congrats! You are not a fool!', onEnd: 'The game is over' };
 
+    useGameStore.subscribe(
+      (state) => state.players.length,
+      (data) => this.setStartBtnInactive(data),
+    );
+
     if (!isGameOver) {
       const me = players[0];
       this.createPopup(false, isFirst, me);
@@ -161,6 +166,7 @@ export class Popup {
           })
           .setOrigin(0.5)
           .setDepth(zIndex + 1);
+
         this.startBtn = this.scene.add
           .sprite(config.width / 2 + 140, config.height / 2 + 80, 'buttons', 'btn-start')
           .setScale(0.8)
@@ -189,5 +195,11 @@ export class Popup {
     this.startBtn?.destroy();
     this.openBtnText?.destroy();
     this.startBtnText?.destroy();
+  }
+
+  setStartBtnInactive(playersAmt: number) {
+    if (playersAmt < 2) {
+      this.startBtn?.setFrame('btn-start-disabled').removeInteractive();
+    }
   }
 }
