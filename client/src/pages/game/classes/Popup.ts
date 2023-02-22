@@ -139,8 +139,8 @@ export class Popup {
           .setDepth(zIndex + 1)
           .setInteractive({ cursor: 'pointer' })
           .on('pointerdown', () => {
-            useGameStore.getState().actions.openRoom();
             this.destroyPopup();
+            useGameStore.getState().actions.openRoom();
           })
           .on('pointerover', () => this.openBtn?.setScale(0.83))
           .on('pointerout', () => this.openBtn?.setScale(0.8));

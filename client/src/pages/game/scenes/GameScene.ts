@@ -147,8 +147,9 @@ export class GameScene extends Phaser.Scene {
   //подписка на румстатус
   async handleRoomStatus(roomStatus: TypeRoomStatus) {
     if (roomStatus === TypeRoomStatus.GameInProgress) {
-      if (this.state?.roomStatus !== TypeRoomStatus.GameIsOver) await this.startGame();
-      else await this.restartGame();
+      // if (this.state?.roomStatus !== TypeRoomStatus.GameIsOver) await this.startGame();
+      // else await this.restartGame();
+      await this.restartGame();
     }
   }
 
@@ -496,11 +497,6 @@ export class GameScene extends Phaser.Scene {
 
   async checkGameOver() {
     console.log('``````checkGameOver````````````');
-    console.log(
-      this.state?.roomStatus === TypeRoomStatus.GameIsOver,
-      'this.state?.roomStatus === TypeRoomStatus.GameIsOver',
-    );
-    console.log(this.popupOnOver === false, 'this.popupOnOver === false');
     if (this.state?.roomStatus === TypeRoomStatus.GameIsOver && this.popupOnOver === false) {
       await this.handleActionsBeforeGameOver();
 
@@ -508,6 +504,7 @@ export class GameScene extends Phaser.Scene {
       this.removeHighlight();
       this.mainButton?.update(TypeButtonStatus.Pass, false);
       this.icons.forEach((icon) => icon.colorBorder(false));
+      this.timer?.stopTimer();
       if (this.state?.players.length === this.prevState?.players.length) {
         setTimeout(() => {
           const popup = new Popup(this, this.playersSorted, true, isFirst);

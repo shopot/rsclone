@@ -2,6 +2,7 @@ import { config } from '../index';
 
 export class Timer extends Phaser.GameObjects.Text {
   counter: number;
+  clock: Phaser.Time.TimerEvent;
   constructor(scene: Phaser.Scene, hand: { width: number; height: number; startX: number }) {
     super(scene, hand.startX + hand.width / 2, config.height - config.cardSize.h - 35, '', {
       font: '20px Signika',
@@ -13,7 +14,7 @@ export class Timer extends Phaser.GameObjects.Text {
     this.scene.add.existing(this);
 
     this.counter = 0;
-    this.scene.time.addEvent({
+    this.clock = this.scene.time.addEvent({
       delay: 1000,
       callback: () => {
         this.counter++;
@@ -26,5 +27,10 @@ export class Timer extends Phaser.GameObjects.Text {
       callbackScope: this,
       loop: true,
     });
+  }
+
+  stopTimer() {
+    this.clock.remove();
+    this.destroy();
   }
 }
