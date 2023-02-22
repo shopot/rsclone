@@ -191,7 +191,9 @@ export class GameScene extends Phaser.Scene {
   async handleActions(state: TypeGameState, prevState: TypeGameState) {
     this.prevState = prevState;
     this.state = state;
-    // if (prevState.roomStatus !== TypeRoomStatus.GameIsOver) {
+    if (state.roomStatus === TypeRoomStatus.GameIsOver) {
+      this.handleOfflinePlayerAfterGameOver(state.players, prevState.players);
+    }
     this.handleWinner(state, prevState);
     if (state.players.length != prevState.players.length) {
       this.onPlayerAmtSounds(state.players.length - prevState.players.length);
@@ -238,7 +240,6 @@ export class GameScene extends Phaser.Scene {
       state.currentRound !== prevState.currentRound
     )
       this.updateButton(state.roomStatus, state.activeSocketId);
-    // }
   }
 
   onPlayerAmtSounds(difference: number) {
@@ -263,6 +264,18 @@ export class GameScene extends Phaser.Scene {
         icon.offline(ind);
       }
     });
+  }
+  handleOfflinePlayerAfterGameOver(players: TypePlayer[], prevPlayers: TypePlayer[]) {
+    const currPlayersIDs = players.map((el) => el.socketId);
+    const prevPlayersIDs = prevPlayers.map((el) => el.socketId);
+    if (currPlayersIDs !== prevPlayersIDs) {
+      const playersLeftIds = prevPlayersIDs.filter((el) => !currPlayersIDs.includes(el));
+      this.icons.forEach((icon, ind) => {
+        if (playersLeftIds.includes(icon.socketId)) {
+          icon.offline(ind);
+        }
+      });
+    }
   }
 
   updateHelper(status: string) {
@@ -312,7 +325,7 @@ export class GameScene extends Phaser.Scene {
     const prevActiveIcon = this.icons.find(
       (icon) => icon.socketId === this.prevState?.activeSocketId,
     );
-    if (prevActiveIcon !== undefined) {
+    if (prevActiveIcon !== undefined && this.state?.roomStatus !== TypeRoomStatus.GameIsOver) {
       const me = this.prevState?.activeSocketId === this.socketId;
       prevActiveIcon.createBubble(text, me);
     }
