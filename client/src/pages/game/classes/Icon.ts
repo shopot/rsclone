@@ -17,6 +17,7 @@ export class Icon {
   cloud: Phaser.GameObjects.Sprite;
   cloudColors: { attacker: number; defender: number; other: number };
   shieldSword: Phaser.GameObjects.Sprite;
+  offlineIcon: Phaser.GameObjects.Sprite;
   constructor(
     scene: Phaser.Scene,
     index: number,
@@ -48,13 +49,22 @@ export class Icon {
       .setScale(0.5)
       .setOrigin(0, 0)
       .setAlpha(0);
+    const y = index === 0 ? this.spriteY + 55 : this.spriteY - 75;
+    this.offlineIcon = this.scene.add
+      .sprite(this.x - 58, y, 'offline')
+      .setScale(1)
+      .setOrigin(0, 0)
+      .setAlpha(0);
   }
 
-  destroy() {
+  destroyIcon() {
     this.pic.destroy();
     this.border.destroy();
     this.text.destroy();
-    // this.destroy();
+    this.offlineIcon?.destroy();
+    this.cloud.destroy();
+    this.shieldSword.destroy();
+    this.bubble?.destroy();
   }
 
   colorBorder(status: boolean) {
@@ -88,11 +98,12 @@ export class Icon {
   }
 
   offline(ind: number) {
-    const y = ind === 0 ? this.spriteY + 55 : this.spriteY - 75;
-    const offlineIcon = this.scene.add
-      .sprite(this.x - 58, y, 'offline')
-      .setScale(1)
-      .setOrigin(0, 0)
-      .setAlpha(1);
+    this.offlineIcon.setAlpha(1);
+    // const y = ind === 0 ? this.spriteY + 55 : this.spriteY - 75;
+    // this.offlineIcon = this.scene.add
+    //   .sprite(this.x - 58, y, 'offline')
+    //   .setScale(1)
+    //   .setOrigin(0, 0)
+    //   .setAlpha(1);
   }
 }

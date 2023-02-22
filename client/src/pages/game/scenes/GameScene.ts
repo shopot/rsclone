@@ -164,6 +164,7 @@ export class GameScene extends Phaser.Scene {
     this.playersCardsSprites.flat().forEach((el) => el.destroy());
     this.playersCardsSprites = [];
     this.playersText.forEach((el) => el.setText(''));
+    this.playersText = [];
     this.piles.flat().forEach((el) => el.destroy());
     this.piles = [];
     this.dealtSprites.flat().forEach((el) => el.destroy());
@@ -174,6 +175,9 @@ export class GameScene extends Phaser.Scene {
     this.playersSortedPrev = [];
     this.trumpCard?.destroy();
     this.suit?.destroy();
+
+    //удалить столы,  иконки и прочее и перерисовать
+    this.setPlayers();
     this.trump = useGameStore.getState().trumpCard;
     await this.startGame();
   }
@@ -650,7 +654,8 @@ export class GameScene extends Phaser.Scene {
     const roomStatus = useGameStore.getState().roomStatus;
     if (
       roomStatus === TypeRoomStatus.WaitingForStart ||
-      roomStatus === TypeRoomStatus.WaitingForPlayers
+      roomStatus === TypeRoomStatus.WaitingForPlayers ||
+      roomStatus === TypeRoomStatus.GameInProgress
     ) {
       const players = useGameStore.getState().players;
       this.playerAmt = players.length;
@@ -753,7 +758,7 @@ export class GameScene extends Phaser.Scene {
   createIcons() {
     //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
     if (this.icons.length !== 0) {
-      this.icons.forEach((el) => el.destroy());
+      this.icons.forEach((el) => el.destroyIcon());
       this.icons = [];
     }
     for (let i = 0; i < this.playersSorted.length; i++) {
