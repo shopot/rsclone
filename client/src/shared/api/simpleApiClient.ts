@@ -21,10 +21,20 @@ export interface RequestDto {
   password?: string;
 }
 
+/**
+ * Resolve only if the status code is less than 500
+ * @param {number} status
+ * @returns
+ */
+const axiosValidateStatus = (status: number) => {
+  return status >= 200 && status < 500;
+};
+
 const axiosOptions = {
   baseURL: HTTP_ENDPOINT,
   withCredentials: true,
   headers: { Accept: 'application/json' },
+  validateStatus: axiosValidateStatus,
 };
 
 const instance = axios.create(axiosOptions);
