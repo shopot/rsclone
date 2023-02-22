@@ -83,4 +83,14 @@ export class AuthController {
     res.status(200).send({ message: 'success' });
     return;
   }
+
+  @UseGuards(AccessTokenGuard)
+  @Get('whoami')
+  async whoami(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const userId = req.cookies.userId || 0;
+
+    const data = await this.authService.getUserProfile(userId);
+
+    res.status(200).send({ data, message: 'ok' }).end();
+  }
 }
