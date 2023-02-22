@@ -266,7 +266,8 @@ export class GameScene extends Phaser.Scene {
     if (
       state.roomStatus !== prevState.roomStatus ||
       state.activeSocketId !== prevState.activeSocketId ||
-      state.currentRound !== prevState.currentRound
+      state.currentRound !== prevState.currentRound ||
+      state.players.length !== prevState.players.length
     )
       this.updateButton(state.roomStatus, state.activeSocketId);
   }
@@ -641,6 +642,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   createButtons() {
+    console.log('```````````````createButtons`````````````')
     this.mainButton = new Button(this);
     if (this.socketId !== useGameStore.getState().players[0].socketId) {
       this.mainButton.setAlpha(0);
