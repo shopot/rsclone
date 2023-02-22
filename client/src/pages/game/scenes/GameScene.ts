@@ -159,6 +159,7 @@ export class GameScene extends Phaser.Scene {
     this.popups.forEach((el) => el.destroyPopup());
     this.deckCards.forEach((el) => el.destroy());
     this.deckCards = [];
+    this.deckText?.destroy();
     this.createDeck(36);
     this.playersCardsSprites.flat().forEach((el) => el.destroy());
     this.playersCardsSprites = [];
