@@ -46,16 +46,33 @@ export class SpeechBubble {
       wordWrap: { width: bubbleWidth - bubblePadding * 2 },
     });
 
+    // const b = this.content.getBounds();
+
+    // this.content.setPosition(
+    //   this.bubble.x + bubbleWidth / 2 - b.width / 2,
+    //   this.bubble.y + bubbleHeight / 2 - b.height / 2,
+    // );
+  }
+
+  destroy() {
+    this.bubble.destroy();
+    this.content.destroy();
+  }
+
+  setVisibility(num: number) {
+    this.bubble.setAlpha(num);
+    this.content.setAlpha(num);
+  }
+
+  changeText(text: string) {
+    const bubbleWidth = 100;
+    const bubbleHeight = 40;
+    this.content.setText(text);
     const b = this.content.getBounds();
 
     this.content.setPosition(
       this.bubble.x + bubbleWidth / 2 - b.width / 2,
       this.bubble.y + bubbleHeight / 2 - b.height / 2,
     );
-  }
-
-  destroy() {
-    this.bubble.destroy();
-    this.content.destroy();
   }
 }

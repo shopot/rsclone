@@ -13,7 +13,7 @@ export class Icon {
   socketId: string;
   x: number;
   spriteY: number;
-  bubble: SpeechBubble | undefined;
+  bubble: SpeechBubble;
   cloud: Phaser.GameObjects.Sprite;
   cloudColors: { attacker: number; defender: number; other: number };
   shieldSword: Phaser.GameObjects.Sprite;
@@ -50,11 +50,16 @@ export class Icon {
       .setOrigin(0, 0)
       .setAlpha(0);
     const y = index === 0 ? this.spriteY + 55 : this.spriteY - 75;
+
     this.offlineIcon = this.scene.add
       .sprite(this.x - 58, y, 'offline')
       .setScale(1)
       .setOrigin(0, 0)
       .setAlpha(0);
+
+    const me = index === 0 ? true : false;
+    this.bubble = new SpeechBubble(this.scene, '', this.x, this.spriteY, me);
+    this.bubble.setVisibility(0);
   }
 
   destroyIcon() {
@@ -64,7 +69,7 @@ export class Icon {
     this.offlineIcon?.destroy();
     this.cloud.destroy();
     this.shieldSword.destroy();
-    this.bubble?.destroy();
+    this.bubble.destroy();
   }
 
   colorBorder(status: boolean) {
@@ -73,13 +78,16 @@ export class Icon {
   }
 
   createBubble(text: string, me: boolean) {
-    this.bubble = new SpeechBubble(this.scene, text, this.x, this.spriteY, me);
-    this.destroyBubble();
+    // this.bubble = new SpeechBubble(this.scene, text, this.x, this.spriteY, me);
+
+    this.bubble.changeText(text);
+    this.bubble.setVisibility(1);
+    this.hideBubble();
   }
 
-  destroyBubble() {
+  hideBubble() {
     setTimeout(() => {
-      this.bubble?.destroy();
+      this.bubble.setVisibility(0);
     }, 3000);
   }
 
@@ -99,11 +107,5 @@ export class Icon {
 
   offline(ind: number) {
     this.offlineIcon.setAlpha(1);
-    // const y = ind === 0 ? this.spriteY + 55 : this.spriteY - 75;
-    // this.offlineIcon = this.scene.add
-    //   .sprite(this.x - 58, y, 'offline')
-    //   .setScale(1)
-    //   .setOrigin(0, 0)
-    //   .setAlpha(1);
   }
 }

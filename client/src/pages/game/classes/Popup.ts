@@ -141,7 +141,7 @@ export class Popup {
 
       if (isFirst) {
         this.openBtnText = this.scene.add
-          .text(config.width / 2 - 140, config.height / 2 + 30, 'Open new room', {
+          .text(config.width / 2 - 140, config.height / 2 + 30, 'Open the room', {
             color: '#fff',
             font: '18px Signika',
           })
