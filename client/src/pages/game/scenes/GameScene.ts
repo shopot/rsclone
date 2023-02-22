@@ -663,6 +663,7 @@ export class GameScene extends Phaser.Scene {
     if (this.mainButton !== undefined) {
       const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
       if (isFirst && roomStatus === TypeRoomStatus.WaitingForStart) {
+        this.mainButton?.setAlpha(1);
         setTimeout(() => {
           this.mainButton?.animateBeforeStart();
         }, 1000);
