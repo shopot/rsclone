@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../../shared/api';
-import { LoginRegisterMessageValidator } from '../../shared/validators';
+import { authService } from '../../services/authService';
 import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
@@ -48,24 +47,18 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async ({ username, password }: FormValues) => {
-    console.log('username', username, 'password', password);
-    const result = await simpleApiClient.fetch(
-      HTTPRequestMethod.POST,
-      ApiEndpoint.AuthSignup,
-      LoginRegisterMessageValidator,
-      { username, password },
-    );
+    const result = await authService.register(username, password);
 
     if (result.data) {
-      setSuccessMessage('Registration successful. Redirecting...');
+      setSuccessMessage('Login successful. Redirecting...');
       setAPIError(null);
       setTimeout(() => {
-        navigate(TypeRoute.About);
+        navigate(TypeRoute.Rooms);
       }, REDIRECT_TIMEOUT);
     }
 
     if (result.error) {
-      setAPIError(result.error);
+      setAPIError(`HTTP status ${result.error.statusCode}: ${result.error.message}`);
     }
   };
 

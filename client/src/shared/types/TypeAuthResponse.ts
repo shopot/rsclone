@@ -1,4 +1,5 @@
-export type TypeLoginRegisterMessage = {
+export type TypeAuthResponse = {
+  statusCode: number;
   data: {
     userId: number;
     username: string;

@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { LoginRegisterMessageValidator } from '../../shared/validators/LoginRegisterMessageValidator';
-import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../../shared/api';
+import { authService } from '../../services/authService';
 import { REDIRECT_TIMEOUT } from '../../shared/constants';
 import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
@@ -30,12 +29,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async ({ username, password }: FormValues) => {
-    const result = await simpleApiClient.fetch(
-      HTTPRequestMethod.POST,
-      ApiEndpoint.AuthSignin,
-      LoginRegisterMessageValidator,
-      { username, password },
-    );
+    const result = await authService.login(username, password);
 
     if (result.data) {
       setSuccessMessage('Login successful. Redirecting...');
@@ -46,7 +40,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
     }
 
     if (result.error) {
-      setAPIError(result.error);
+      setAPIError(`HTTP status ${result.error.statusCode}: ${result.error.message}`);
     }
   };
 
