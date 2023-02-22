@@ -67,6 +67,9 @@ export class GameScene extends Phaser.Scene {
   timer: Timer | undefined;
   chat: Chat | undefined;
   popupOnOver = false;
+  beaten: Card[] = [];
+  popups: Popup[] = [];
+  suit?: Suit;
 
   constructor() {
     super('Game');
@@ -143,11 +146,34 @@ export class GameScene extends Phaser.Scene {
 
   //подписка на румстатус
   async handleRoomStatus(roomStatus: TypeRoomStatus) {
-    if (
-      roomStatus === TypeRoomStatus.GameInProgress &&
-      this.state?.roomStatus !== TypeRoomStatus.GameIsOver
-    )
-      await this.startGame();
+    if (roomStatus === TypeRoomStatus.GameInProgress) {
+      if (this.state?.roomStatus !== TypeRoomStatus.GameIsOver) await this.startGame();
+      else await this.restartGame();
+    }
+  }
+
+  async restartGame() {
+    console.log('``````````````clean before restart``````````````');
+    this.popupOnOver = false;
+    this.popups.forEach((el) => el.destroyPopup());
+    this.deckCards.forEach((el) => el.destroy());
+    this.deckCards = [];
+    this.createDeck(36);
+    this.playersCardsSprites.flat().forEach((el) => el.destroy());
+    this.playersCardsSprites = [];
+    this.playersText.forEach((el) => el.setText(''));
+    this.piles.flat().forEach((el) => el.destroy());
+    this.piles = [];
+    this.dealtSprites.flat().forEach((el) => el.destroy());
+    this.dealtSprites = [];
+    this.beaten.flat().forEach((el) => el.destroy());
+    this.beaten = [];
+    this.prevDealt = [];
+    this.playersSortedPrev = [];
+    this.trumpCard?.destroy();
+    this.suit?.destroy();
+    this.trump = useGameStore.getState().trumpCard;
+    await this.startGame();
   }
 
   endGame() {
@@ -159,58 +185,54 @@ export class GameScene extends Phaser.Scene {
   async handleActions(state: TypeGameState, prevState: TypeGameState) {
     this.prevState = prevState;
     this.state = state;
-    if (prevState.roomStatus !== TypeRoomStatus.GameIsOver) {
-      this.handleWinner(state, prevState);
-      if (state.players.length != prevState.players.length) {
-        this.onPlayerAmtSounds(state.players.length - prevState.players.length);
-      }
-      if (JSON.stringify(state.chat) !== JSON.stringify(prevState.chat)) {
-        this.updateChat(state.chat, prevState.chat);
-      }
-      if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
-        this.createBubble('Take');
-        this.updateHelper('takes');
-      } else if (
-        state.lastGameAction === TypeGameAction.AttackerPass ||
-        state.lastGameAction === TypeGameAction.DefenderTakesCards
-      ) {
-        this.createBubble('Pass');
-        this.updateHelper('passes');
-      }
-      await this.handleClick();
-      if (
-        JSON.stringify(state.lastCloseDefenderCard) ===
-          JSON.stringify(prevState.lastCloseDefenderCard) &&
-        JSON.stringify(state.lastOpenAttackerCard) ===
-          JSON.stringify(prevState.lastOpenAttackerCard)
-      ) {
-        if (
-          state.lastGameAction === TypeGameAction.AttackerPass &&
-          state.placedCards.length === 0
-        ) {
-          await this.handlePass();
-        } else if (state.lastGameAction === TypeGameAction.DefenderTakesCards) {
-          await this.handleTake();
-        }
-        await this.checkDealt(state.dealt);
-      }
-      this.colorNickname();
-      this.handleOfflinePlayer();
-      if (
-        state.lastGameAction === TypeGameAction.AttackerPass ||
-        state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp ||
-        state.placedCards.length === 0
-      ) {
-        this.handleHighlight();
-      }
-      await this.checkGameOver();
-      if (
-        state.roomStatus !== prevState.roomStatus ||
-        state.activeSocketId !== prevState.activeSocketId ||
-        state.currentRound !== prevState.currentRound
-      )
-        this.updateButton(state.roomStatus, state.activeSocketId);
+    // if (prevState.roomStatus !== TypeRoomStatus.GameIsOver) {
+    this.handleWinner(state, prevState);
+    if (state.players.length != prevState.players.length) {
+      this.onPlayerAmtSounds(state.players.length - prevState.players.length);
     }
+    if (JSON.stringify(state.chat) !== JSON.stringify(prevState.chat)) {
+      this.updateChat(state.chat, prevState.chat);
+    }
+    if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
+      this.createBubble('Take');
+      this.updateHelper('takes');
+    } else if (
+      state.lastGameAction === TypeGameAction.AttackerPass ||
+      state.lastGameAction === TypeGameAction.DefenderTakesCards
+    ) {
+      this.createBubble('Pass');
+      this.updateHelper('passes');
+    }
+    await this.handleClick();
+    if (
+      JSON.stringify(state.lastCloseDefenderCard) ===
+        JSON.stringify(prevState.lastCloseDefenderCard) &&
+      JSON.stringify(state.lastOpenAttackerCard) === JSON.stringify(prevState.lastOpenAttackerCard)
+    ) {
+      if (state.lastGameAction === TypeGameAction.AttackerPass && state.placedCards.length === 0) {
+        await this.handlePass();
+      } else if (state.lastGameAction === TypeGameAction.DefenderTakesCards) {
+        await this.handleTake();
+      }
+      await this.checkDealt(state.dealt);
+    }
+    this.colorNickname();
+    this.handleOfflinePlayer();
+    if (
+      state.lastGameAction === TypeGameAction.AttackerPass ||
+      state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp ||
+      state.placedCards.length === 0
+    ) {
+      this.handleHighlight();
+    }
+    await this.checkGameOver();
+    if (
+      state.roomStatus !== prevState.roomStatus ||
+      state.activeSocketId !== prevState.activeSocketId ||
+      state.currentRound !== prevState.currentRound
+    )
+      this.updateButton(state.roomStatus, state.activeSocketId);
+    // }
   }
 
   onPlayerAmtSounds(difference: number) {
@@ -297,6 +319,7 @@ export class GameScene extends Phaser.Scene {
     for (const card of this.piles.flat()) {
       const ind = this.piles.flat().indexOf(card);
       await card.animateToBeaten(angle + ind * angle, ind);
+      this.beaten.push(card);
     }
     this.sounds?.toBeaten.stop();
     this.piles = [];
@@ -473,6 +496,11 @@ export class GameScene extends Phaser.Scene {
 
   async checkGameOver() {
     console.log('``````checkGameOver````````````');
+    console.log(
+      this.state?.roomStatus === TypeRoomStatus.GameIsOver,
+      'this.state?.roomStatus === TypeRoomStatus.GameIsOver',
+    );
+    console.log(this.popupOnOver === false, 'this.popupOnOver === false');
     if (this.state?.roomStatus === TypeRoomStatus.GameIsOver && this.popupOnOver === false) {
       await this.handleActionsBeforeGameOver();
 
@@ -482,7 +510,8 @@ export class GameScene extends Phaser.Scene {
       this.icons.forEach((icon) => icon.colorBorder(false));
       if (this.state?.players.length === this.prevState?.players.length) {
         setTimeout(() => {
-          new Popup(this, this.playersSorted, true, isFirst);
+          const popup = new Popup(this, this.playersSorted, true, isFirst);
+          this.popups.push(popup);
           this.popupOnOver = true;
         }, 200);
       } else {
@@ -495,7 +524,8 @@ export class GameScene extends Phaser.Scene {
             (el) => el.socketId === playerLeftId,
           )[0];
           setTimeout(() => {
-            new Popup(this, this.playersSorted, true, isFirst, playerLeft);
+            const popup = new Popup(this, this.playersSorted, true, isFirst, playerLeft);
+            this.popups.push(popup);
             this.popupOnOver = true;
           }, 200);
         }
@@ -586,52 +616,52 @@ export class GameScene extends Phaser.Scene {
 
   //подписка на [state.roomStatus, state.activeSocketId, round]
   updateButton(roomStatus: string, activeSocketId: string) {
-    if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
-      if (this.mainButton !== undefined) {
-        const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
-        if (isFirst && roomStatus === TypeRoomStatus.WaitingForStart) {
-          setTimeout(() => {
-            this.mainButton?.animateBeforeStart();
-          }, 1000);
-        } else if (isFirst && roomStatus === TypeRoomStatus.WaitingForPlayers) {
-          this.mainButton?.update(TypeButtonStatus.Start, false);
-        }
+    // if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
+    if (this.mainButton !== undefined) {
+      const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
+      if (isFirst && roomStatus === TypeRoomStatus.WaitingForStart) {
+        setTimeout(() => {
+          this.mainButton?.animateBeforeStart();
+        }, 1000);
+      } else if (isFirst && roomStatus === TypeRoomStatus.WaitingForPlayers) {
+        this.mainButton?.update(TypeButtonStatus.Start, false);
+      }
 
-        const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
-        const isGame = roomStatus === 'GameInProgress';
-        const isSocketActive = activeSocketId === this.socketId;
-        const isPileOnTable = useGameStore.getState().placedCards.length != 0;
-        if (isSocketActive && isAttacker && isPileOnTable)
-          this.mainButton.update(TypeButtonStatus.Pass, true);
-        else if (!isSocketActive && isAttacker && isPileOnTable)
-          this.mainButton.update(TypeButtonStatus.Pass, false);
-        else if (isGame && isSocketActive && !isAttacker)
-          this.mainButton.update(TypeButtonStatus.Take, true);
-        else if (isGame && !isSocketActive && !isAttacker)
-          this.mainButton.update(TypeButtonStatus.Take, false);
-        else if (isSocketActive && isAttacker && !isPileOnTable) {
-          this.mainButton.update(TypeButtonStatus.Pass, false);
-        }
+      const isAttacker = this.playersSorted[0].playerRole === 'Attacker';
+      const isGame = roomStatus === 'GameInProgress';
+      const isSocketActive = activeSocketId === this.socketId;
+      const isPileOnTable = useGameStore.getState().placedCards.length != 0;
+      if (isSocketActive && isAttacker && isPileOnTable)
+        this.mainButton.update(TypeButtonStatus.Pass, true);
+      else if (!isSocketActive && isAttacker && isPileOnTable)
+        this.mainButton.update(TypeButtonStatus.Pass, false);
+      else if (isGame && isSocketActive && !isAttacker)
+        this.mainButton.update(TypeButtonStatus.Take, true);
+      else if (isGame && !isSocketActive && !isAttacker)
+        this.mainButton.update(TypeButtonStatus.Take, false);
+      else if (isSocketActive && isAttacker && !isPileOnTable) {
+        this.mainButton.update(TypeButtonStatus.Pass, false);
       }
     }
+    // }
   }
 
   //подписка на state.players.length
   setPlayers() {
-    if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
-      const roomStatus = useGameStore.getState().roomStatus;
-      if (
-        roomStatus === TypeRoomStatus.WaitingForStart ||
-        roomStatus === TypeRoomStatus.WaitingForPlayers
-      ) {
-        const players = useGameStore.getState().players;
-        this.playerAmt = players.length;
-        this.sortPlayersData(players);
-        this.createHands();
-        this.createIcons();
-        this.createHelper();
-      }
+    // if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
+    const roomStatus = useGameStore.getState().roomStatus;
+    if (
+      roomStatus === TypeRoomStatus.WaitingForStart ||
+      roomStatus === TypeRoomStatus.WaitingForPlayers
+    ) {
+      const players = useGameStore.getState().players;
+      this.playerAmt = players.length;
+      this.sortPlayersData(players);
+      this.createHands();
+      this.createIcons();
+      this.createHelper();
     }
+    // }
   }
 
   createHelper() {
@@ -639,35 +669,33 @@ export class GameScene extends Phaser.Scene {
   }
   //подписка на state.players
   sortPlayersData(players: TypePlayer[]) {
-    if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
-      //если вышел 1 из виннеров
-      const isGame = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
-      if (isGame && this.playersSortedPrev.length !== this.playersSorted.length) {
-        const currPlayersId = this.state?.players.map((player) => player.socketId);
-        const prevPlayersId = this.prevState?.players.map((player) => player.socketId);
-        if (currPlayersId && prevPlayersId) {
-          const playerLeftId = prevPlayersId.filter((el) => !currPlayersId.includes(el))[0];
-          const playerLeft = this.prevState?.players.filter(
-            (el) => el.socketId === playerLeftId,
-          )[0];
-          if (playerLeft) {
-            playerLeft.playerRole = TypePlayerRole.Unknown;
-            playerLeft.playerStatus = TypePlayerStatus.InGame;
-            playerLeft.cards = [];
-          }
+    // if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
+    //если вышел 1 из виннеров
+    const isGame = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
+    if (isGame && this.playersSortedPrev.length !== this.playersSorted.length) {
+      const currPlayersId = this.state?.players.map((player) => player.socketId);
+      const prevPlayersId = this.prevState?.players.map((player) => player.socketId);
+      if (currPlayersId && prevPlayersId) {
+        const playerLeftId = prevPlayersId.filter((el) => !currPlayersId.includes(el))[0];
+        const playerLeft = this.prevState?.players.filter((el) => el.socketId === playerLeftId)[0];
+        if (playerLeft) {
+          playerLeft.playerRole = TypePlayerRole.Unknown;
+          playerLeft.playerStatus = TypePlayerStatus.InGame;
+          playerLeft.cards = [];
         }
       }
-      this.playersSortedPrev = [...this.playersSorted];
-      const me = players.find((player) => player.socketId === this.socketId);
-      this.playersSorted = [...useGameStore.getState().players];
-      if (me !== undefined) {
-        while (this.playersSorted.indexOf(me) !== 0) {
-          const first = this.playersSorted.shift();
-          if (first !== undefined) this.playersSorted.push(first);
-        }
-      }
-      this.playersCards = this.playersSorted.map((set) => set.cards);
     }
+    this.playersSortedPrev = [...this.playersSorted];
+    const me = players.find((player) => player.socketId === this.socketId);
+    this.playersSorted = [...useGameStore.getState().players];
+    if (me !== undefined) {
+      while (this.playersSorted.indexOf(me) !== 0) {
+        const first = this.playersSorted.shift();
+        if (first !== undefined) this.playersSorted.push(first);
+      }
+    }
+    this.playersCards = this.playersSorted.map((set) => set.cards);
+    // }
   }
 
   handleWinner(state: TypeGameState, prevState: TypeGameState) {
@@ -685,7 +713,8 @@ export class GameScene extends Phaser.Scene {
       !prevWinnersIds.includes(me.socketId) &&
       useGameStore.getState().roomStatus !== TypeRoomStatus.GameIsOver
     ) {
-      new Popup(this, this.playersSorted, false, false);
+      const popup = new Popup(this, this.playersSorted, false, false);
+      this.popups.push(popup);
     }
   }
 
@@ -740,15 +769,15 @@ export class GameScene extends Phaser.Scene {
 
   //подписка на state.activeSocketId
   colorIcon(activeId: string) {
-    if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
-      if (useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress) {
-        this.icons.forEach((icon) => icon.colorBorder(false));
-        const activeIcon = this.icons.find((icon) => icon.socketId === activeId);
-        if (activeIcon !== undefined) {
-          activeIcon.colorBorder(true);
-        }
+    // if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
+    if (useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress) {
+      this.icons.forEach((icon) => icon.colorBorder(false));
+      const activeIcon = this.icons.find((icon) => icon.socketId === activeId);
+      if (activeIcon !== undefined) {
+        activeIcon.colorBorder(true);
       }
     }
+    // }
   }
 
   createDeck(deckAmt: number) {
@@ -768,7 +797,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   createTrumpSuit() {
-    new Suit(this, this.trump.suit);
+    this.suit = new Suit(this, this.trump.suit);
   }
 
   getCardTexture(card: TypeCard) {
@@ -786,18 +815,15 @@ export class GameScene extends Phaser.Scene {
     return texture.rank + texture.suit;
   }
 
-  //подписка на state.roomStatus
   async startGame() {
-    if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
-      this.trump = useGameStore.getState().trumpCard;
-      this.createTrumpSuit();
-      this.createTimer();
-      await this.createTrumpCard();
-      await this.createCardSprites(useGameStore.getState().dealt, 1);
-      this.createCardsText();
-      //иначе, если до игры он же был активный, то не меняется
-      this.colorIcon(useGameStore.getState().activeSocketId);
-    }
+    this.trump = useGameStore.getState().trumpCard;
+    this.createTrumpSuit();
+    this.createTimer();
+    await this.createTrumpCard();
+    await this.createCardSprites(useGameStore.getState().dealt, 1);
+    this.createCardsText();
+    //иначе, если до игры он же был активный, то не меняется
+    this.colorIcon(useGameStore.getState().activeSocketId);
   }
 
   createTimer() {
