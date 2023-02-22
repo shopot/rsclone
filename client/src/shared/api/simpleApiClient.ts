@@ -7,6 +7,7 @@ export const enum ApiEndpoint {
   AuthSignin = 'auth/signin',
   AuthLogout = 'auth/logout',
   AuthRefresh = 'auth/refresh',
+  AuthWhoAmI = 'auth/whoami',
   History = 'history',
   Rating = 'rating',
 }
