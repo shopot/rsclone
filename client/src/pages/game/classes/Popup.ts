@@ -18,6 +18,8 @@ export class Popup {
   depths: { onWin: number; onEnd: number };
   openBtn?: Phaser.GameObjects.Sprite;
   startBtn?: Phaser.GameObjects.Sprite;
+  openBtnText?: Phaser.GameObjects.Text;
+  startBtnText?: Phaser.GameObjects.Text;
 
   constructor(
     scene: Phaser.Scene,
@@ -50,7 +52,7 @@ export class Popup {
     const color = status ? this.colors.loser : this.colors.winner;
     const opacity = status ? this.alphas.onEnd : this.alphas.onWin;
     const zIndex = status ? this.depths.onEnd : this.depths.onWin;
-    const shift = isFirst ? -60 : -20;
+    const shift = isFirst ? -80 : -20;
 
     this.wrapper = this.scene.add
       .sprite(config.width / 2, config.height / 2 - 30, 'winWrapper')
@@ -133,6 +135,13 @@ export class Popup {
       }
 
       if (isFirst) {
+        this.openBtnText = this.scene.add
+          .text(config.width / 2 - 140, config.height / 2 + 30, 'Open new room', {
+            color: '#fff',
+            font: '18px Signika',
+          })
+          .setOrigin(0.5)
+          .setDepth(zIndex + 1);
         this.openBtn = this.scene.add
           .sprite(config.width / 2 - 140, config.height / 2 + 80, 'buttons', 'btn-open')
           .setScale(0.8)
@@ -145,6 +154,13 @@ export class Popup {
           .on('pointerover', () => this.openBtn?.setScale(0.83))
           .on('pointerout', () => this.openBtn?.setScale(0.8));
 
+        this.startBtnText = this.scene.add
+          .text(config.width / 2 + 140, config.height / 2 + 30, 'Restart the game', {
+            color: '#fff',
+            font: '18px Signika',
+          })
+          .setOrigin(0.5)
+          .setDepth(zIndex + 1);
         this.startBtn = this.scene.add
           .sprite(config.width / 2 + 140, config.height / 2 + 80, 'buttons', 'btn-start')
           .setScale(0.8)
@@ -171,5 +187,7 @@ export class Popup {
     this.aword?.destroy();
     this.openBtn?.destroy();
     this.startBtn?.destroy();
+    this.openBtnText?.destroy();
+    this.startBtnText?.destroy();
   }
 }
