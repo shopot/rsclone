@@ -914,8 +914,11 @@ export class GameScene extends Phaser.Scene {
     const cardsWithoutMainPlayer = [...this.playersCards];
     cardsWithoutMainPlayer.splice(0, 1);
     this.playersText.forEach((text, i) => {
-      if (Array.isArray(cardsWithoutMainPlayer[i]))
-        text.setText(cardsWithoutMainPlayer[i].length.toString());
+      if (Array.isArray(cardsWithoutMainPlayer[i])) {
+        const content =
+          cardsWithoutMainPlayer[i].length <= 1 ? '' : cardsWithoutMainPlayer[i].length.toString();
+        text.setText(content);
+      }
     });
   }
 
