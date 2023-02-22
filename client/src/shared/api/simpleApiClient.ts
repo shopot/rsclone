@@ -48,21 +48,34 @@ createAuthRefreshInterceptor(instance, async () => {
 });
 
 export const simpleApiClient = {
-  async fetch<T>(method: HTTPRequestMethod, endpoint: ApiEndpoint, data: RequestDto = {}) {
+  async fetch<T>(
+    method: HTTPRequestMethod,
+    endpoint: ApiEndpoint,
+    data: RequestDto = {},
+  ): Promise<IResponseObject<T>> {
     switch (method) {
       case HTTPRequestMethod.POST: {
         try {
-          const res = await instance.post<T>(endpoint, { ...data });
-          return res;
+          const res = await instance.post(endpoint, { ...data });
+
+          return {
+            status: res.status,
+            statusText: res.statusText,
+            data: <T>res.data,
+          };
         } catch (error) {
           return this.getResponseError(error);
         }
       }
       case HTTPRequestMethod.GET: {
         try {
-          const res = await instance.get<T>(endpoint);
+          const res = await instance.get(endpoint);
 
-          return res;
+          return {
+            status: res.status,
+            statusText: res.statusText,
+            data: <T>res.data,
+          };
         } catch (error) {
           return this.getResponseError(error);
         }
@@ -73,14 +86,20 @@ export const simpleApiClient = {
   getResponseError(error: unknown) {
     if (isAxiosError(error)) {
       return {
-        statusCode: error.status,
-        message: error.message,
+        status: error.status || 400,
+        statusText: error.message,
       };
     }
 
     return {
-      statusCode: 400,
-      message: 'An unexpected error occurred',
+      status: 400,
+      statusText: 'An unexpected error occurred',
     };
   },
 };
+
+export interface IResponseObject<T> {
+  status: number;
+  statusText: string;
+  data?: T;
+}

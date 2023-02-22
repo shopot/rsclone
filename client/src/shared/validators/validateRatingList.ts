@@ -1,8 +1,6 @@
 import Ajv, { JTDSchemaType } from 'ajv/dist/jtd';
 import { TypeRatingItem } from '../types';
 
-const ajv = new Ajv();
-
 const schema: JTDSchemaType<TypeRatingItem[]> = {
   elements: {
     properties: {
@@ -15,4 +13,4 @@ const schema: JTDSchemaType<TypeRatingItem[]> = {
   },
 };
 
-export const RatingValidator = ajv.compile(schema);
+export const validateRatingList = new Ajv().compile(schema);

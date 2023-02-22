@@ -2,11 +2,15 @@ import { useEffect } from 'react';
 import Table from 'rc-table';
 import { useDataStore } from '../../store/dataStore';
 import { MotionContainer } from '../../components/MotionContainer';
+import { ratingService } from '../../services';
 
 const RatingPage = () => {
   const { rating, actions } = useDataStore();
+
   useEffect(() => {
-    void actions.setRatingList();
+    void actions.setRatingList(async () => {
+      return await ratingService.getAll();
+    });
   }, [actions]);
 
   const columns = [
@@ -43,11 +47,11 @@ const RatingPage = () => {
       <MotionContainer identKey="HistoryPage">
         <div className="box-container">
           <h1 className="heading">Rating Table</h1>
-          {rating.error && <p className="error-message">{rating.error}</p>}
-          {rating.data && (
+          {rating.length === 0 && <p className="error-message">No data!</p>}
+          {rating.length > 0 && (
             <Table
               columns={columns}
-              data={rating.data}
+              data={rating}
               rowKey="id"
             />
           )}
