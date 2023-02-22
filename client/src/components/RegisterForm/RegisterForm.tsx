@@ -1,20 +1,18 @@
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/authService';
 import * as Yup from 'yup';
-import { JWTTokenValidator } from '../../shared/validators/JWTTokenValidator';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { TypeJWTTokens, TypeRoute } from '../../shared/types';
+import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../../shared/api';
+import { LoginRegisterMessageValidator } from '../../shared/validators';
 import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
   MINIMUM_PASSWORD_LENGTH,
-  UNIQUE_LOCALSTORAGE_PREFIX,
-  JWT_TOKEN_LS_KEY,
+  REDIRECT_TIMEOUT,
 } from '../../shared/constants';
+import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
-import styles from './styles.m.scss';
+import styles from './RegisterForm.m.scss';
 
 const RegisterSchema = Yup.object().shape({
   username: Yup.string()
@@ -47,27 +45,34 @@ interface FormValues {
 export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
   const navigate = useNavigate();
   const [APIError, setAPIError] = useState<string | null>(null);
-  const [token, setToken] = useLocalStorage<TypeJWTTokens>(
-    UNIQUE_LOCALSTORAGE_PREFIX,
-    JWT_TOKEN_LS_KEY,
-    { accessToken: '', refreshToken: '' },
-    JWTTokenValidator,
-  );
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async ({ username, password }: FormValues) => {
     console.log('username', username, 'password', password);
-    const result = await authService.register(username, password);
+    const result = await simpleApiClient.fetch(
+      HTTPRequestMethod.POST,
+      ApiEndpoint.AuthSignup,
+      LoginRegisterMessageValidator,
+      { username, password },
+    );
+
     if (result.data) {
-      setToken(result.data);
-      navigate(TypeRoute.Rooms);
+      setSuccessMessage('Registration successful. Redirecting...');
+      setAPIError(null);
+      setTimeout(() => {
+        navigate(TypeRoute.About);
+      }, REDIRECT_TIMEOUT);
     }
 
-    setAPIError(result.error);
+    if (result.error) {
+      setAPIError(result.error);
+    }
   };
 
   return (
     <div className={styles.contents}>
       <img
+        className={styles.gameLogo}
         src={logo}
         alt="Game logo"
       />
@@ -118,6 +123,7 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
             {(msg) => <div className={styles.formError}>{msg}</div>}
           </ErrorMessage>
           {APIError && <div className={styles.formError}>{APIError}</div>}
+          {successMessage && <div className={styles.formSuccess}>{successMessage}</div>}
 
           <button
             className={`btn ${styles.submitButton}`}

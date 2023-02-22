@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../app/styles/constants';
+@use '../../app/styles/mixins';
 
 .registrationPage {
   min-height: 100vh;
@@ -34,11 +35,19 @@
 }
 
 .formError {
-  padding: 5px 10px;
-  background-color: constants.$error-color;
-  text-align: center;
+  @include mixins.message(constants.$error-color);
+}
+
+.formSuccess {
+  @include mixins.message(constants.$success-color);
 }
 
 .submitButton {
   margin-top: 1.5em;
+}
+
+.gameLogo {
+  width: 100%;
+  max-width: 300px;
+  margin: 2rem auto;
 }
