@@ -7,7 +7,7 @@ import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../../shared/ap
 import { REDIRECT_TIMEOUT } from '../../shared/constants';
 import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
-import styles from './styles.m.scss';
+import styles from './LoginForm.m.scss';
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string().required('Required'),
@@ -53,6 +53,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
   return (
     <div className={styles.contents}>
       <img
+        className={styles.gameLogo}
         src={logo}
         alt="Game logo"
       />
