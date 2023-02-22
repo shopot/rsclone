@@ -197,8 +197,10 @@ export class GameScene extends Phaser.Scene {
       this.handleOfflinePlayerAfterGameOver(state.players, prevState.players);
     }
     if (
-      prevState.roomStatus === TypeRoomStatus.GameIsOver &&
-      state.roomStatus === TypeRoomStatus.WaitingForStart
+      (prevState.roomStatus === TypeRoomStatus.GameIsOver &&
+        state.roomStatus === TypeRoomStatus.WaitingForStart) ||
+      (prevState.roomStatus === TypeRoomStatus.GameIsOver &&
+        state.roomStatus === TypeRoomStatus.WaitingForPlayers)
     ) {
       this.cleanOut();
     }
@@ -642,7 +644,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   createButtons() {
-    console.log('```````````````createButtons`````````````')
+    console.log('```````````````createButtons`````````````');
     this.mainButton = new Button(this);
     if (this.socketId !== useGameStore.getState().players[0].socketId) {
       this.mainButton.setAlpha(0);
