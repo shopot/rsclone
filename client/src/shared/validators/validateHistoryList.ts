@@ -1,8 +1,6 @@
 import Ajv, { JTDSchemaType } from 'ajv/dist/jtd';
 import { TypeHistoryItem } from '../types';
 
-const ajv = new Ajv();
-
 const schema: JTDSchemaType<TypeHistoryItem[]> = {
   elements: {
     properties: {
@@ -17,4 +15,4 @@ const schema: JTDSchemaType<TypeHistoryItem[]> = {
   },
 };
 
-export const HistoryValidator = ajv.compile(schema);
+export const validateHistoryList = new Ajv().compile(schema);

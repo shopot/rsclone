@@ -1,4 +1,4 @@
 export * from './APIErrorValidator';
-export * from './HistoryValidator';
+export * from './validateHistoryList';
 export * from './LoginRegisterMessageValidator';
-export * from './RatingValidator';
+export * from './validateRatingList';
