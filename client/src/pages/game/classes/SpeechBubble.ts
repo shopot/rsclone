@@ -45,13 +45,6 @@ export class SpeechBubble {
       align: 'center',
       wordWrap: { width: bubbleWidth - bubblePadding * 2 },
     });
-
-    // const b = this.content.getBounds();
-
-    // this.content.setPosition(
-    //   this.bubble.x + bubbleWidth / 2 - b.width / 2,
-    //   this.bubble.y + bubbleHeight / 2 - b.height / 2,
-    // );
   }
 
   destroy() {

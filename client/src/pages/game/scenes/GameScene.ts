@@ -347,7 +347,6 @@ export class GameScene extends Phaser.Scene {
     this.piles = [];
     this.setEqualPositionAtHands();
     this.updatePlayersText();
-    // this.checkGameOver();
   }
 
   createBubble(text: string) {
@@ -371,7 +370,6 @@ export class GameScene extends Phaser.Scene {
     }
     this.sounds?.toBeaten.stop();
     this.piles = [];
-    // this.checkGameOver();
   }
 
   async handleClick() {
@@ -660,7 +658,6 @@ export class GameScene extends Phaser.Scene {
 
   //подписка на [state.roomStatus, state.activeSocketId, round]
   updateButton(roomStatus: string, activeSocketId: string) {
-    // if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
     if (this.mainButton !== undefined) {
       const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
       if (isFirst && roomStatus === TypeRoomStatus.WaitingForStart) {
@@ -687,12 +684,10 @@ export class GameScene extends Phaser.Scene {
         this.mainButton.update(TypeButtonStatus.Pass, false);
       }
     }
-    // }
   }
 
   //подписка на state.players.length
   setPlayers() {
-    // if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
     const roomStatus = useGameStore.getState().roomStatus;
     if (
       roomStatus === TypeRoomStatus.WaitingForStart ||
@@ -706,7 +701,6 @@ export class GameScene extends Phaser.Scene {
       this.createIcons();
       this.createHelper();
     }
-    // }
   }
 
   createHelper() {
@@ -714,7 +708,6 @@ export class GameScene extends Phaser.Scene {
   }
   //подписка на state.players
   sortPlayersData(players: TypePlayer[]) {
-    // if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
     //если вышел 1 из виннеров
     const isGame = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
     if (isGame && this.playersSortedPrev.length !== this.playersSorted.length) {
@@ -740,7 +733,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
     this.playersCards = this.playersSorted.map((set) => set.cards);
-    // }
   }
 
   handleWinner(state: TypeGameState, prevState: TypeGameState) {
@@ -751,7 +743,6 @@ export class GameScene extends Phaser.Scene {
     const prevWinnersIds = prevState.players
       .filter((player) => player.playerStatus === TypePlayerStatus.YouWinner)
       .map((el) => el.socketId);
-    //для победителя сделать модалку
     if (
       winnersIds &&
       winnersIds.includes(me.socketId) &&
@@ -814,7 +805,6 @@ export class GameScene extends Phaser.Scene {
 
   //подписка на state.activeSocketId
   colorIcon(activeId: string) {
-    // if (this.prevState?.roomStatus !== TypeRoomStatus.GameIsOver) {
     if (useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress) {
       this.icons.forEach((icon) => icon.colorBorder(false));
       const activeIcon = this.icons.find((icon) => icon.socketId === activeId);
@@ -822,7 +812,6 @@ export class GameScene extends Phaser.Scene {
         activeIcon.colorBorder(true);
       }
     }
-    // }
   }
 
   createDeck(deckAmt: number) {

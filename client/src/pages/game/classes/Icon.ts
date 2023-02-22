@@ -33,7 +33,6 @@ export class Icon {
     this.x = tableSizes[index].startX;
     this.spriteY = index === 0 ? config.height - config.cardSize.h + 25 : 82;
     this.pic = new IconPic(this.scene, this.x - 40, this.spriteY, 'icons', avatar);
-    //должен меняться цвет рамки на зеленый, когда ходит и на серый после
     this.border = new IconBorder(this.scene, this.x - 68, this.spriteY - 27, 55, 55, 5);
 
     const textY = index === 0 ? this.spriteY - 55 : this.spriteY + 40;
@@ -78,8 +77,6 @@ export class Icon {
   }
 
   createBubble(text: string, me: boolean) {
-    // this.bubble = new SpeechBubble(this.scene, text, this.x, this.spriteY, me);
-
     this.bubble.changeText(text);
     this.bubble.setVisibility(1);
     this.hideBubble();
