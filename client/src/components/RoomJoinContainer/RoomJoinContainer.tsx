@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import useModal from '../../hooks/useModal';
+import { useModal } from '../../hooks';
 import { useOldGameUI } from '../../hooks/useOldGameUI';
 import { socketIOService } from '../../shared/api/socketio';
 import { TypeResponseObject, TypeSocketEvent } from '../../shared/types';

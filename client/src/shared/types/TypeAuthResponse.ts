@@ -1,9 +1,11 @@
+export type TypeAuthUser = {
+  userId: number;
+  username: string;
+  avatar: string;
+};
+
 export type TypeAuthResponse = {
   statusCode: number;
-  data: {
-    userId: number;
-    username: string;
-    avatar: string;
-  };
+  data: TypeAuthUser;
   message: 'ok' | 'created';
 };
