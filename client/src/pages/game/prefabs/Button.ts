@@ -70,7 +70,7 @@ export class Button extends Phaser.GameObjects.Sprite {
     else if (btnStatus === TypeButtonStatus.Take) this.setFrame('btn-take');
     else if (btnStatus === TypeButtonStatus.Pass) this.setFrame('btn-pass');
     this.status = btnStatus;
-    this.on('pointerover', () => this.setScale(0.82));
+    this.on('pointerover', () => this.setScale(0.83));
     this.on('pointerout', () => this.setScale(0.8));
   }
 

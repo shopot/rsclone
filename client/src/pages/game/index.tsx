@@ -3,6 +3,7 @@ import { useGame } from '../../app/hooks/useGame';
 import { BootScene } from './scenes/BootScene';
 import { EndScene } from './scenes/EndScene';
 import { GameScene } from './scenes/GameScene';
+import { RestartScene } from './scenes/RestartScene';
 
 export const config = {
   type: Phaser.AUTO,
@@ -16,7 +17,7 @@ export const config = {
   depth: { bg: -5, suit: -4, trumpCard: -3 },
   parent: 'game-content',
   cardSize: { w: 150 * 0.7, h: 225 * 0.7 },
-  scene: [BootScene, GameScene, EndScene],
+  scene: [BootScene, GameScene, EndScene, RestartScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
