@@ -29,7 +29,7 @@ export class AuthController {
 
     const data = await this.authService.getUserProfile(authTokens.userId);
 
-    res.status(201).send({ data, message: 'created' }).end();
+    res.status(201).send({ statusCode: 201, data, message: 'created' }).end();
   }
 
   /**
@@ -47,7 +47,7 @@ export class AuthController {
 
     const data = await this.authService.getUserProfile(authTokens.userId);
 
-    res.status(200).send({ data, message: 'ok' }).end();
+    res.status(200).send({ statusCode: 200, data, message: 'ok' }).end();
   }
 
   @UseGuards(AccessTokenGuard)
@@ -59,7 +59,7 @@ export class AuthController {
       this.authService.logout(userId);
       this.authService.clearAuthCookie(res);
 
-      res.status(200).send({ message: 'success' }).end();
+      res.status(200).send({ statusCode: 200, message: 'success' }).end();
     } else {
       throw new BadRequestException('Bad request');
     }
@@ -80,7 +80,7 @@ export class AuthController {
     );
 
     this.authService.setAuthCookie(res, newAuthTokens);
-    res.status(200).send({ message: 'success' });
+    res.status(200).send({ statusCode: 200, message: 'success' });
     return;
   }
 
@@ -91,6 +91,6 @@ export class AuthController {
 
     const data = await this.authService.getUserProfile(userId);
 
-    res.status(200).send({ data, message: 'ok' }).end();
+    res.status(200).send({ statusCode: 200, data, message: 'ok' }).end();
   }
 }
