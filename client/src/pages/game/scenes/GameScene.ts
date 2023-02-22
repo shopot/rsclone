@@ -116,7 +116,7 @@ export class GameScene extends Phaser.Scene {
     this.createChat();
     this.setPlayers();
     this.createButtons();
-    this.createDeck(useGameStore.getState().deckCounter);
+    this.createDeck(36);
     this.createSounds();
     // const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
     // new Popup(this, this.playersSorted, true, isFirst);
@@ -147,13 +147,12 @@ export class GameScene extends Phaser.Scene {
   //подписка на румстатус
   async handleRoomStatus(roomStatus: TypeRoomStatus) {
     if (roomStatus === TypeRoomStatus.GameInProgress) {
-      // if (this.state?.roomStatus !== TypeRoomStatus.GameIsOver) await this.startGame();
-      // else await this.restartGame();
       await this.restartGame();
     }
   }
 
-  async restartGame() {
+  cleanOut() {
+    // this.scene.start('Restart');
     console.log('``````````````clean before restart``````````````');
     this.popupOnOver = false;
     this.popups.forEach((el) => el.destroyPopup());
@@ -175,9 +174,12 @@ export class GameScene extends Phaser.Scene {
     this.playersSortedPrev = [];
     this.trumpCard?.destroy();
     this.suit?.destroy();
-
-    //удалить столы,  иконки и прочее и перерисовать
     this.setPlayers();
+  }
+
+  async restartGame() {
+    this.cleanOut();
+    console.log('```````````````restartGame```````````````````');
     this.trump = useGameStore.getState().trumpCard;
     await this.startGame();
   }
@@ -194,36 +196,63 @@ export class GameScene extends Phaser.Scene {
     if (state.roomStatus === TypeRoomStatus.GameIsOver) {
       this.handleOfflinePlayerAfterGameOver(state.players, prevState.players);
     }
-    this.handleWinner(state, prevState);
+    if (
+      prevState.roomStatus === TypeRoomStatus.GameIsOver &&
+      state.roomStatus === TypeRoomStatus.WaitingForStart
+    ) {
+      this.cleanOut();
+    }
+    if (
+      state.roomStatus === TypeRoomStatus.GameInProgress ||
+      state.roomStatus === TypeRoomStatus.GameIsOver
+    )
+      this.handleWinner(state, prevState);
     if (state.players.length != prevState.players.length) {
       this.onPlayerAmtSounds(state.players.length - prevState.players.length);
     }
     if (JSON.stringify(state.chat) !== JSON.stringify(prevState.chat)) {
       this.updateChat(state.chat, prevState.chat);
     }
-    if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
-      this.createBubble('Take');
-      this.updateHelper('takes');
-    } else if (
-      state.lastGameAction === TypeGameAction.AttackerPass ||
-      state.lastGameAction === TypeGameAction.DefenderTakesCards
-    ) {
-      this.createBubble('Pass');
-      this.updateHelper('passes');
-    }
-    await this.handleClick();
+
     if (
-      JSON.stringify(state.lastCloseDefenderCard) ===
-        JSON.stringify(prevState.lastCloseDefenderCard) &&
-      JSON.stringify(state.lastOpenAttackerCard) === JSON.stringify(prevState.lastOpenAttackerCard)
+      state.roomStatus === TypeRoomStatus.GameInProgress ||
+      state.roomStatus === TypeRoomStatus.GameIsOver
     ) {
-      if (state.lastGameAction === TypeGameAction.AttackerPass && state.placedCards.length === 0) {
-        await this.handlePass();
-      } else if (state.lastGameAction === TypeGameAction.DefenderTakesCards) {
-        await this.handleTake();
+      if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
+        this.createBubble('Take');
+        this.updateHelper('takes');
+      } else if (
+        state.lastGameAction === TypeGameAction.AttackerPass ||
+        state.lastGameAction === TypeGameAction.DefenderTakesCards
+      ) {
+        this.createBubble('Pass');
+        this.updateHelper('passes');
       }
-      await this.checkDealt(state.dealt);
+      await this.handleClick();
     }
+
+    if (
+      state.roomStatus === TypeRoomStatus.GameInProgress ||
+      state.roomStatus === TypeRoomStatus.GameIsOver
+    ) {
+      if (
+        JSON.stringify(state.lastCloseDefenderCard) ===
+          JSON.stringify(prevState.lastCloseDefenderCard) &&
+        JSON.stringify(state.lastOpenAttackerCard) ===
+          JSON.stringify(prevState.lastOpenAttackerCard)
+      ) {
+        if (
+          state.lastGameAction === TypeGameAction.AttackerPass &&
+          state.placedCards.length === 0
+        ) {
+          await this.handlePass();
+        } else if (state.lastGameAction === TypeGameAction.DefenderTakesCards) {
+          await this.handleTake();
+        }
+        await this.checkDealt(state.dealt);
+      }
+    }
+
     this.colorNickname();
     this.handleOfflinePlayer();
     if (
