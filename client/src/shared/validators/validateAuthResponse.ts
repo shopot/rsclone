@@ -1,10 +1,11 @@
 import Ajv, { JTDSchemaType } from 'ajv/dist/jtd';
-import { TypeLoginRegisterMessage } from '../types';
+import { TypeAuthResponse } from '../types';
 
 const ajv = new Ajv();
 
-const schema: JTDSchemaType<TypeLoginRegisterMessage> = {
+const schema: JTDSchemaType<TypeAuthResponse> = {
   properties: {
+    statusCode: { type: 'int32' },
     data: {
       properties: {
         userId: { type: 'int32' },
@@ -16,4 +17,4 @@ const schema: JTDSchemaType<TypeLoginRegisterMessage> = {
   },
 };
 
-export const LoginRegisterMessageValidator = ajv.compile(schema);
+export const validateAuthResponse = ajv.compile(schema);
