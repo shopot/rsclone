@@ -3,7 +3,7 @@ import { MotionContainer } from '../../components/MotionContainer';
 import { ModalContainer } from '../../components/ModalContainer';
 import { LoginForm } from '../../components/LoginForm';
 import { RegisterForm } from '../../components/RegisterForm';
-import useModal from '../../hooks/useModal';
+import { useModal } from '../../hooks';
 import cardsSet from '../../assets/cards-set.webp';
 import durakLogoText from '../../assets/durak-logo-text.webp';
 import durakLogoHat from '../../assets/durak-logo-hat.webp';

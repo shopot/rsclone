@@ -50,12 +50,9 @@ export const authService = {
     );
 
     if (response.status === 200 && validateAuthResponse(response.data)) {
-      return { data: response.data };
-    } else if (validateAPIError(response)) {
-      const error: TypeAPIError = response.data;
-      return { error };
-    } else {
-      return { error: { statusCode: response.status, message: response.statusText } };
+      return response.data?.data || null;
     }
+
+    return null;
   },
 };
