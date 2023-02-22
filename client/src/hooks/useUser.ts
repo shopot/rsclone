@@ -6,22 +6,25 @@ export const useUser = () => {
   const [user, setUser] = useState<TypeAuthUser | null>(null);
   const [isUserAuth, setIsUserAuth] = useState(false);
 
-  const getUserDetails = async () => {
+  const changeUserAuth = async () => {
     const userAuth = await authService.whoami();
 
     if (userAuth !== null) {
       setUser(userAuth);
       setIsUserAuth(true);
+    } else {
+      setUser(null);
+      setIsUserAuth(false);
     }
   };
 
-  const setAuthenticated = () => {
-    void getUserDetails();
+  const toggleAuth = () => {
+    void changeUserAuth();
   };
 
   useEffect(() => {
-    void getUserDetails();
+    void changeUserAuth();
   }, []);
 
-  return { user, isUserAuth, setAuthenticated };
+  return { user, isUserAuth, toggleAuth };
 };

@@ -5,7 +5,7 @@ import './index.scss';
 import { useUser } from '../hooks';
 
 const App = () => {
-  const { user, isUserAuth, setAuthenticated } = useUser();
+  const { user, isUserAuth, toggleAuth } = useUser();
 
   console.log(user, isUserAuth);
 
