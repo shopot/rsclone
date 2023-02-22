@@ -903,6 +903,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async animateFromDeckToPlayers() {
+    this.sounds?.fromDeck.play({ volume: 0.8, loop: true });
     await Promise.all(
       this.dealtSprites.map(async (arr) => {
         for (const sprite of arr) {
@@ -910,6 +911,7 @@ export class GameScene extends Phaser.Scene {
         }
       }),
     );
+    this.sounds?.fromDeck.stop();
 
     this.setEqualPositionAtHands();
     this.dealtSprites = [];

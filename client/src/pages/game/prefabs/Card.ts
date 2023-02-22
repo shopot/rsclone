@@ -168,8 +168,15 @@ export class Card extends Phaser.GameObjects.Sprite {
     });
   }
 
-  async animateToTable(pileIndex: number, isAttacking: boolean, piles: number, me: boolean) {
-    this.sounds.placeCard.play({ volume: 0.8, loop: true });
+  async animateToTable(
+    pileIndex: number,
+    isAttacking: boolean,
+    piles: number,
+    me: boolean,
+    vol?: number,
+  ) {
+    // const vol = volumeLevel ? volumeLevel : 0.8;
+    this.sounds.placeCard.play({ volume: vol, loop: true });
     await new Promise((resolve) => {
       this.makeNotClickable();
       if (!me) this.open();
@@ -226,6 +233,6 @@ export class Card extends Phaser.GameObjects.Sprite {
 
   async redrawTable(cardindex: number, pileIndex: number, piles: number) {
     const isAttacking = cardindex === 0 ? true : false;
-    await this.animateToTable(pileIndex, isAttacking, piles, true);
+    await this.animateToTable(pileIndex, isAttacking, piles, true, 0);
   }
 }

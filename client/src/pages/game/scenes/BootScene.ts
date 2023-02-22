@@ -25,7 +25,7 @@ import offline from '../../../assets/phaser/offline.png';
 
 import cardPlacesound from '../../../assets/sounds/place_card.wav';
 import loserSound from '../../../assets/sounds/loser_v1.mp3';
-import fromDeckSound from '../../../assets/sounds/fromDeck.wav';
+import fromDeckSound from '../../../assets/sounds/fromDeck.mp3';
 import toBeatenSound from '../../../assets/sounds/toBeaten.wav';
 import newMessage from '../../../assets/sounds/newMessage.mp3';
 import newPlayer from '../../../assets/sounds/newPlayer.mp3';
