@@ -7,6 +7,7 @@ export const enum ApiEndpoint {
   AuthSignin = 'auth/signin',
   AuthLogout = 'auth/logout',
   AuthRefresh = 'auth/refresh',
+  AuthWhoAmI = 'auth/whoami',
   History = 'history',
   Rating = 'rating',
 }
@@ -21,20 +22,10 @@ export interface RequestDto {
   password?: string;
 }
 
-/**
- * Resolve only if the status code is less than 500
- * @param {number} status
- * @returns
- */
-const axiosValidateStatus = (status: number) => {
-  return status >= 200 && status < 500;
-};
-
 const axiosOptions = {
   baseURL: HTTP_ENDPOINT,
   withCredentials: true,
   headers: { Accept: 'application/json' },
-  validateStatus: axiosValidateStatus,
 };
 
 const instance = axios.create(axiosOptions);
@@ -64,7 +55,7 @@ export const simpleApiClient = {
             data: <T>res.data,
           };
         } catch (error) {
-          return this.getResponseError(error);
+          return this.getResponseError<T>(error);
         }
       }
       case HTTPRequestMethod.GET: {
@@ -77,14 +68,28 @@ export const simpleApiClient = {
             data: <T>res.data,
           };
         } catch (error) {
-          return this.getResponseError(error);
+          return this.getResponseError<T>(error);
         }
       }
     }
   },
 
-  getResponseError(error: unknown) {
+  getResponseError<TT>(error: unknown) {
     if (isAxiosError(error)) {
+      const { response } = error;
+
+      if (
+        typeof response?.status === 'number' &&
+        response?.status >= 400 &&
+        response?.status < 500
+      ) {
+        return {
+          status: response.status,
+          statusText: response?.statusText || 'An unexpected error occurred',
+          data: <TT>response?.data,
+        };
+      }
+
       return {
         status: error.status || 400,
         statusText: error.message,
