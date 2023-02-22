@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Req,
   Res,
@@ -29,7 +30,7 @@ export class AuthController {
 
     const data = await this.authService.getUserProfile(authTokens.userId);
 
-    res.status(201).send({ statusCode: 201, data, message: 'created' }).end();
+    return { statusCode: 201, data, message: 'created' };
   }
 
   /**
@@ -38,16 +39,14 @@ export class AuthController {
    * @returns
    */
   @Post('signin')
-  async login(
-    @Body() dto: AuthDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<void> {
+  @HttpCode(200)
+  async login(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
     const authTokens = await this.authService.signIn(dto);
     this.authService.setAuthCookie(res, authTokens);
 
     const data = await this.authService.getUserProfile(authTokens.userId);
 
-    res.status(200).send({ statusCode: 200, data, message: 'ok' }).end();
+    return { statusCode: 200, data, message: 'ok' };
   }
 
   @UseGuards(AccessTokenGuard)
@@ -59,7 +58,7 @@ export class AuthController {
       this.authService.logout(userId);
       this.authService.clearAuthCookie(res);
 
-      res.status(200).send({ statusCode: 200, message: 'success' }).end();
+      return { statusCode: 200, message: 'success' };
     } else {
       throw new BadRequestException('Bad request');
     }
@@ -80,17 +79,16 @@ export class AuthController {
     );
 
     this.authService.setAuthCookie(res, newAuthTokens);
-    res.status(200).send({ statusCode: 200, message: 'success' });
-    return;
+    return { statusCode: 200, message: 'success' };
   }
 
   @UseGuards(AccessTokenGuard)
   @Get('whoami')
-  async whoami(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async whoami(@Req() req: Request) {
     const userId = req.cookies.userId || 0;
 
     const data = await this.authService.getUserProfile(userId);
 
-    res.status(200).send({ statusCode: 200, data, message: 'ok' }).end();
+    return { statusCode: 200, data, message: 'ok' };
   }
 }
