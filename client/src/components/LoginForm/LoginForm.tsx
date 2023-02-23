@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { authService } from '../../services/authService';
+import { useUserStore } from '../../store/userStore';
 import { REDIRECT_TIMEOUT } from '../../shared/constants';
 import { TypeRoute } from '../../shared/types';
 import logo from '../../assets/durak-logo-text.webp';
@@ -25,6 +26,7 @@ interface FormValues {
 
 export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
   const navigate = useNavigate();
+  const { actions } = useUserStore();
   const [APIError, setAPIError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -34,6 +36,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
     if (result.data) {
       setSuccessMessage('Login successful. Redirecting...');
       setAPIError(null);
+      await actions.setUser();
       setTimeout(() => {
         navigate(TypeRoute.Rooms);
       }, REDIRECT_TIMEOUT);
