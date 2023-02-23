@@ -84,7 +84,11 @@ export class Popup {
     });
 
     const createContent = () => {
-      this.border = this.scene.add.graphics().lineStyle(4, 0xfbc82f, 1);
+      this.border = this.scene.add
+        .graphics()
+        .lineStyle(2, 0xfbc82f, 1)
+        .strokeRoundedRect(config.width / 4, config.height / 4 - 30, 640, 360, 10)
+        .setDepth(zIndex + 1);
 
       this.title = this.scene.add
         .text(config.width / 2, config.height / 2 - 150, titleText, {
@@ -113,6 +117,8 @@ export class Popup {
             color: '#fff',
             font: '25px Signika',
           })
+          .setAlpha(0.8)
+          .setStroke('#000', 2)
           .setDepth(zIndex + 1);
 
         this.playerName = this.scene.add
@@ -120,6 +126,7 @@ export class Popup {
             color: '#fff',
             font: '25px Signika',
           })
+          .setShadow(4, 2, '#000', 5)
           .setDepth(zIndex + 1);
 
         this.avatar = this.scene.add

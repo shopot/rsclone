@@ -118,8 +118,8 @@ export class GameScene extends Phaser.Scene {
     this.createButtons();
     this.createDeck(36);
     this.createSounds();
-    const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
-    new Popup(this, this.playersSorted, true, isFirst);
+    // const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
+    // new Popup(this, this.playersSorted, true, isFirst);
     // this.icons.forEach((icon, ind) => {
     //   icon.offline(ind);
     // })
@@ -965,11 +965,11 @@ export class GameScene extends Phaser.Scene {
   squeezeCardsAtHands() {
     this.calculatePositions();
     this.playersCardsSprites.forEach((set, i) => {
-      set.forEach((card, ind) => {
-        card.shiftOnHand(this.cardsCoords[i][ind]);
-        // card.setPosition(this.cardsCoords[i][ind][0], this.cardsCoords[i][ind][1]);
-        // card.setDepth(this.cardsCoords[i][ind][2]);
-      });
+      if (Array.isArray(set)) {
+        set.forEach((card, ind) => {
+          card.shiftOnHand(this.cardsCoords[i][ind]);
+        });
+      }
     });
     // this.playersCardsSprites.forEach((set, i) => {
     //   handSize.startX = this.handSizes[i].startX;
