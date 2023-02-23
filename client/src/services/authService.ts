@@ -33,7 +33,7 @@ export const authService = {
       },
     );
 
-    if (response.status === 200 && validateAuthResponse(response.data)) {
+    if (response.status === 201 && validateAuthResponse(response.data)) {
       return { data: response.data };
     } else if (validateAPIError(response)) {
       const error: TypeAPIError = response.data;
