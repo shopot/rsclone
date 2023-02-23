@@ -84,7 +84,7 @@ export class Room {
   lastCloseDefenderCard: TypeCard | null;
 
   // RoomTestFactory
-  testName: string;
+  testCaseName: string;
 
   historyLogger: WinstonLogger;
   stateHash: string;
@@ -93,7 +93,7 @@ export class Room {
     roomId: string,
     hostPlayer: Player,
     gameService: GameService,
-    testName = '',
+    testCaseName = '',
   ) {
     this.roomId = roomId;
 
@@ -133,7 +133,7 @@ export class Room {
     this.lastOpenAttackerCard = null;
     this.lastCloseDefenderCard = null;
 
-    this.testName = testName;
+    this.testCaseName = testCaseName;
 
     this.historyLogger = createHistoryLogger(roomId);
     this.stateHash = '';
@@ -225,8 +225,8 @@ export class Room {
     this.round.setStartPlayerSocketId(this.activePlayer.getSocketId());
 
     // RoomTestFactory load case for testing
-    if (this.testName !== '') {
-      const test = new RoomTestFactory(this, this.testName);
+    if (this.testCaseName !== '') {
+      const test = new RoomTestFactory(this, this.testCaseName);
       test.create();
     }
 
