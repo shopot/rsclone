@@ -30,13 +30,13 @@ const HomePage = () => {
       onChangeForm={handleChangeForm}
     />,
   ];
-  const [isOpen, toggle] = useModal();
+  const [isOpen, toggle] = useModal(!!refererPage);
 
   return (
     <div className="container">
       <MotionContainer identKey="HomePage">
         <ModalContainer
-          isOpen={isOpen || !!refererPage}
+          isOpen={isOpen}
           toggle={toggle}
         >
           {forms[formIdx]}

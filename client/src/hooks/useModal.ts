@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-export const useModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
+export const useModal = (initialOpenStatus = false) => {
+  const [isOpen, setIsOpen] = useState(initialOpenStatus);
 
   const toggle = () => {
     setIsOpen(!isOpen);
