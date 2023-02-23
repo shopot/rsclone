@@ -12,4 +12,5 @@ export enum TypeServerErrorType {
   GameRoomOpenFailed = 'GameRoomOpenFailed',
   GameRoomNotFound = 'GameRoomNotFound',
   MessageSendFailed = 'MessageSendFailed',
+  UserNotFound = 'UserNotFound',
 }
