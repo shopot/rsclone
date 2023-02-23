@@ -1,0 +1,27 @@
+@use '../../app/styles/constants';
+
+.avatars {
+  min-width: 400px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 1em;
+}
+
+.avatar {
+  box-sizing: content-box;
+  border: 2px solid transparent;
+  transition: transform 0.25s ease-in-out;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  img {
+    border-radius: 5px;
+  }
+}
+
+.avatarChosen {
+  border: 2px solid constants.$outline-color;
+  border-radius: 5px;
+}

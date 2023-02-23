@@ -49,6 +49,16 @@ export const TopMenu = () => {
             About
           </NavLink>
         </li>
+        <li>
+          <NavLink
+            className={({ isActive }) =>
+              isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+            }
+            to={TypeRoute.Profile}
+          >
+            Profile
+          </NavLink>
+        </li>
         {user && (
           <li>
             <Link
