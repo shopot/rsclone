@@ -10,6 +10,7 @@ export const enum ApiEndpoint {
   AuthWhoAmI = 'auth/whoami',
   History = 'history',
   Rating = 'rating',
+  UploadAvatar = 'user/upload',
 }
 
 export const enum HTTPRequestMethod {
@@ -43,11 +44,14 @@ export const simpleApiClient = {
     method: HTTPRequestMethod,
     endpoint: ApiEndpoint,
     data: RequestDto = {},
+    formData?: FormData,
   ): Promise<IResponseObject<T>> {
     switch (method) {
       case HTTPRequestMethod.POST: {
         try {
-          const res = await instance.post(endpoint, { ...data });
+          const res = formData
+            ? await instance.post(endpoint, formData)
+            : await instance.post(endpoint, { ...data });
 
           return {
             status: res.status,
