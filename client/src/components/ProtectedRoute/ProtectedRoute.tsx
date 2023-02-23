@@ -9,8 +9,6 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps): React.ReactEl
   const location = useLocation();
   const { user } = useUserStore();
 
-  console.log('USER', user);
-
   if (!user) {
     return (
       <Navigate

@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { authService } from '../../services/authService';
+import { useUserStore } from '../../store/userStore';
 import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
@@ -32,6 +33,7 @@ const RegisterSchema = Yup.object().shape({
 });
 
 interface RegisterFormProps {
+  refererPage: string | null;
   onChangeForm: () => void;
 }
 
@@ -41,8 +43,9 @@ interface FormValues {
   passwordConfirm: string;
 }
 
-export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
+export const RegisterForm = ({ refererPage, onChangeForm }: RegisterFormProps) => {
   const navigate = useNavigate();
+  const { actions } = useUserStore();
   const [APIError, setAPIError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -52,8 +55,9 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
     if (result.data) {
       setSuccessMessage('Login successful. Redirecting...');
       setAPIError(null);
+      await actions.setUser();
       setTimeout(() => {
-        navigate(TypeRoute.Rooms);
+        navigate(refererPage ?? TypeRoute.Rooms, { replace: true });
       }, REDIRECT_TIMEOUT);
     }
 

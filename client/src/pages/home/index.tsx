@@ -1,15 +1,19 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MotionContainer } from '../../components/MotionContainer';
 import { ModalContainer } from '../../components/ModalContainer';
 import { LoginForm } from '../../components/LoginForm';
 import { RegisterForm } from '../../components/RegisterForm';
 import { useModal } from '../../hooks';
+import { validateLocationState } from '../../shared/validators';
 import cardsSet from '../../assets/cards-set.webp';
 import durakLogoText from '../../assets/durak-logo-text.webp';
 import durakLogoHat from '../../assets/durak-logo-hat.webp';
 import styles from './styles.m.scss';
 
 const HomePage = () => {
+  const locationState: unknown = useLocation().state;
+  const refererPage = validateLocationState(locationState) ? locationState.from.pathname : null;
   const [formIdx, setFormIdx] = useState(0);
   const handleChangeForm = () => {
     setFormIdx((prev) => (prev + 1) % forms.length);
@@ -17,10 +21,12 @@ const HomePage = () => {
   const forms = [
     <LoginForm
       key="loginform"
+      refererPage={refererPage}
       onChangeForm={handleChangeForm}
     />,
     <RegisterForm
       key="registerform"
+      refererPage={refererPage}
       onChangeForm={handleChangeForm}
     />,
   ];

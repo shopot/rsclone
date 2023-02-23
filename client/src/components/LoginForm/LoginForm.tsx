@@ -16,6 +16,7 @@ const LoginSchema = Yup.object().shape({
 });
 
 interface LoginFormProps {
+  refererPage: string | null;
   onChangeForm: () => void;
 }
 
@@ -24,7 +25,7 @@ interface FormValues {
   password: string;
 }
 
-export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
+export const LoginForm = ({ refererPage, onChangeForm }: LoginFormProps) => {
   const navigate = useNavigate();
   const { actions } = useUserStore();
   const [APIError, setAPIError] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export const LoginForm = ({ onChangeForm }: LoginFormProps) => {
       setAPIError(null);
       await actions.setUser();
       setTimeout(() => {
-        navigate(TypeRoute.Rooms);
+        navigate(refererPage ?? TypeRoute.Rooms, { replace: true });
       }, REDIRECT_TIMEOUT);
     }
 

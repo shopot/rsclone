@@ -7,6 +7,7 @@ type TypeUserState = {
 
   actions: {
     setUser: () => Promise<void>;
+    logout: () => Promise<void>;
   };
 };
 

@@ -1,8 +1,11 @@
 import styles from './TopMenu.m.scss';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
+import { useUserStore } from '../../store/userStore';
 import { TypeRoute } from '../../shared/types';
 
 export const TopMenu = () => {
+  const { user, actions } = useUserStore();
+
   return (
     <nav>
       <ul className={styles.navList}>
@@ -56,6 +59,19 @@ export const TopMenu = () => {
             About
           </NavLink>
         </li>
+        {user && (
+          <li>
+            <Link
+              className={styles.navLink}
+              onClick={() => {
+                void actions.logout();
+              }}
+              to={TypeRoute.Home}
+            >
+              Logout
+            </Link>
+          </li>
+        )}
       </ul>
     </nav>
   );
