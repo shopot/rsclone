@@ -54,7 +54,6 @@ export class GameScene extends Phaser.Scene {
   prevPlacedCards: TypePlacedCard[] = [];
   sounds:
     | {
-        // loser: Phaser.Sound.BaseSound;
         toBeaten: Phaser.Sound.BaseSound;
         newPlayer: Phaser.Sound.BaseSound;
         playerLeft: Phaser.Sound.BaseSound;
@@ -136,7 +135,6 @@ export class GameScene extends Phaser.Scene {
 
   createSounds() {
     this.sounds = {
-      // loser: this.sound.add('loser'),
       toBeaten: this.sound.add('toBeaten'),
       newPlayer: this.sound.add('newPlayer'),
       playerLeft: this.sound.add('playerLeft'),
@@ -365,7 +363,7 @@ export class GameScene extends Phaser.Scene {
     console.log('````````````handle pass````````````````');
     this.removeHighlight();
     const angle = 180 / (this.piles.flat().length + 1);
-    this.sounds?.toBeaten.play({ volume: 0.5, loop: true });
+    this.sounds?.toBeaten.play({ volume: 0.1, loop: true });
     for (const card of this.piles.flat()) {
       const ind = this.piles.flat().indexOf(card);
       await card.animateToBeaten(angle + ind * angle, ind);

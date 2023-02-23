@@ -30,6 +30,7 @@ import toBeatenSound from '../../../assets/sounds/toBeaten.wav';
 import newMessage from '../../../assets/sounds/newMessage.mp3';
 import newPlayer from '../../../assets/sounds/newPlayer.mp3';
 import playerLeft from '../../../assets/sounds/playerLeft.mp3';
+import startActive from '../../../assets/sounds/startActive.mp3';
 
 import { ProgressBar } from '../classes/ProgressBar';
 export class BootScene extends Phaser.Scene {
@@ -66,6 +67,7 @@ export class BootScene extends Phaser.Scene {
     this.load.audio('newMessage', [newMessage]);
     this.load.audio('newPlayer', [newPlayer]);
     this.load.audio('playerLeft', [playerLeft]);
+    this.load.audio('startActive', [startActive]);
 
     this.load.html('formHtml', 'form.html');
   }

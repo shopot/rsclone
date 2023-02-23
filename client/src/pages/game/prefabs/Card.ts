@@ -43,8 +43,6 @@ export class Card extends Phaser.GameObjects.Sprite {
 
     this.sounds = {
       placeCard: this.scene.sound.add('placeCard'),
-      // loser: this.sound.add('loser'),
-      // fromDeck: this.scene.sound.add('fromDeck'),
     };
   }
   shiftCard(status: boolean) {

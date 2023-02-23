@@ -10,6 +10,7 @@ export class Button extends Phaser.GameObjects.Sprite {
   counter: number;
   scales: { first: number; second: number };
   targetScale: number;
+  sounds: { startActive: Phaser.Sound.BaseSound };
   constructor(scene: Phaser.Scene) {
     super(scene, 0, 0, 'buttons', 'btn-start-disabled');
     this.scene = scene;
@@ -33,6 +34,10 @@ export class Button extends Phaser.GameObjects.Sprite {
     this.counter = 1;
     this.scales = { first: 1, second: 0.8 };
     this.targetScale = 1;
+
+    this.sounds = {
+      startActive: this.scene.sound.add('startActive'),
+    };
   }
 
   handleClick() {
@@ -83,10 +88,10 @@ export class Button extends Phaser.GameObjects.Sprite {
       targets: this,
       scale: this.targetScale,
       ease: 'Sine.easeInOut',
-      duration: this.counter * 100,
+      duration: 800 - this.counter * 100,
       onComplete: () => {
         this.counter++;
-        if (this.counter < 7) {
+        if (this.counter < 8) {
           this.targetScale = this.counter % 2 == 0 ? this.scales.second : this.scales.first;
           this.scaleAnimation();
         } else {
@@ -97,6 +102,14 @@ export class Button extends Phaser.GameObjects.Sprite {
             this.update(TypeButtonStatus.Start, false);
           } else {
             this.update(TypeButtonStatus.Start, true);
+            this.setScale(1.2);
+            this.sounds.startActive.play({ volume: 1, loop: false });
+            this.scene.tweens.add({
+              targets: this,
+              scale: 0.8,
+              ease: 'Sine.easeInOut',
+              duration: 200,
+            });
           }
         }
       },

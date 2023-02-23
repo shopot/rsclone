@@ -20,6 +20,7 @@ export class Popup {
   startBtn?: Phaser.GameObjects.Sprite;
   openBtnText?: Phaser.GameObjects.Text;
   startBtnText?: Phaser.GameObjects.Text;
+  sounds: { loser: Phaser.Sound.BaseSound };
 
   constructor(
     scene: Phaser.Scene,
@@ -33,6 +34,9 @@ export class Popup {
     this.alphas = { onWin: 0.85, onEnd: 1 };
     this.depths = { onWin: 200, onEnd: 300 };
     this.titleTexts = { onWin: 'Congrats! You are not a fool!', onEnd: 'The game is over' };
+    this.sounds = {
+      loser: this.scene.sound.add('loser'),
+    };
 
     useGameStore.subscribe(
       (state) => state.players.length,
@@ -99,6 +103,9 @@ export class Popup {
       if (player !== undefined) {
         const text = status ? 'The fool is:' : 'The winner is:';
 
+        if (status) {
+          this.sounds.loser.play({ volume: 0.5, loop: false });
+        }
         this.playerText = this.scene.add
           .text(config.width / 3 + 70, config.height / 2 - 15 + shift, text, {
             color: '#fff',
