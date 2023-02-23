@@ -36,7 +36,7 @@ const HomePage = () => {
     <div className="container">
       <MotionContainer identKey="HomePage">
         <ModalContainer
-          isOpen={isOpen}
+          isOpen={isOpen || !!refererPage}
           toggle={toggle}
         >
           {forms[formIdx]}
