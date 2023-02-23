@@ -32,7 +32,7 @@ export class Popup {
     playerLeft?: TypePlayer,
   ) {
     this.scene = scene;
-    this.colors = { winner: 0x00ff00, loser: 0xee0808 };
+    this.colors = { winner: 0x00ff00, loser: 0x990000 };
     this.alphas = { onWin: 0.85, onEnd: 1 };
     this.depths = { onWin: 200, onEnd: 300 };
     this.titleTexts = { onWin: 'Congrats! You are not a fool!', onEnd: 'The game is over' };
