@@ -1,4 +1,4 @@
-export const testNames = [
+export const testCaseNames = [
   'case2xLastBeatAttackerWins',
   'case2xLastRoundDrawWins',
   'case2xLastRoundCardsInDeck',
