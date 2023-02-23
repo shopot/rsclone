@@ -15,7 +15,6 @@ export class Popup {
   avatar?: Phaser.GameObjects.Sprite;
   aword?: Phaser.GameObjects.Sprite;
   alphas: { onWin: number; onEnd: number };
-  depths: { onWin: number; onEnd: number };
   openBtn?: Phaser.GameObjects.Sprite;
   startBtn?: Phaser.GameObjects.Sprite;
   openBtnText?: Phaser.GameObjects.Text;
@@ -24,6 +23,7 @@ export class Popup {
   leaveBtnText?: Phaser.GameObjects.Text;
   leaveBtn?: Phaser.GameObjects.Sprite;
   whiteBorder?: Phaser.GameObjects.Graphics;
+  depths: { onWin: number; onEnd: number; onHostLeave: number };
 
   constructor(
     scene: Phaser.Scene,
@@ -35,7 +35,7 @@ export class Popup {
     this.scene = scene;
     this.colors = { winner: 0x00ff00, loser: 0x990000 };
     this.alphas = { onWin: 0.85, onEnd: 1 };
-    this.depths = { onWin: 200, onEnd: 300 };
+    this.depths = { onWin: 200, onEnd: 300, onHostLeave: 400 };
     this.titleTexts = { onWin: 'Congrats! You are not a fool!', onEnd: 'The game is over' };
     this.sounds = {
       loser: this.scene.sound.add('loser'),
@@ -52,6 +52,8 @@ export class Popup {
     } else {
       if (playerLeft) {
         this.createPopup(true, isFirst, playerLeft);
+      } else if (players.length === 0) {
+        this.createPopup(true, isFirst, undefined, true);
       } else {
         const loser = players.find((player) => player.playerStatus === TypePlayerStatus.YouLoser);
         this.createPopup(true, isFirst, loser);
@@ -59,11 +61,21 @@ export class Popup {
     }
   }
 
-  createPopup(status: boolean, isFirst: boolean, player?: TypePlayer | undefined) {
+  createPopup(
+    status: boolean,
+    isFirst: boolean,
+    player?: TypePlayer | undefined,
+    didHostLeave?: boolean,
+  ) {
     const titleText = status ? this.titleTexts.onEnd : this.titleTexts.onWin;
     const color = status ? this.colors.loser : this.colors.winner;
     const opacity = status ? this.alphas.onEnd : this.alphas.onWin;
-    const zIndex = status ? this.depths.onEnd : this.depths.onWin;
+    const zIndex = didHostLeave
+      ? this.depths.onHostLeave
+      : status
+      ? this.depths.onEnd
+      : this.depths.onWin;
+
     const shift = isFirst ? -80 : -20;
 
     this.wrapper = this.scene.add
@@ -152,8 +164,9 @@ export class Popup {
           .setAngle(20)
           .setDepth(zIndex + 1);
       } else {
+        const text = didHostLeave ? 'The host has left, you are the host now' : 'Drawn game';
         this.playerText = this.scene.add
-          .text(config.width / 2, config.height / 2 + 15 + shift, 'Drawn game', {
+          .text(config.width / 2, config.height / 2 + 15 + shift, text, {
             color: '#fff',
             font: '30px Signika',
           })
