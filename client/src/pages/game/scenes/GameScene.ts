@@ -442,7 +442,7 @@ export class GameScene extends Phaser.Scene {
     console.log(sprite, 'sprite');
 
     if (sprite) {
-      await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe);
+      await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe, 0.8);
       console.log(sprite, 'sprite');
 
       const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
@@ -903,7 +903,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async animateFromDeckToPlayers() {
-    this.sounds?.fromDeck.play({ volume: 0.8, loop: true });
+    this.sounds?.fromDeck.play({ volume: 0.8, loop: false });
     await Promise.all(
       this.dealtSprites.map(async (arr) => {
         for (const sprite of arr) {

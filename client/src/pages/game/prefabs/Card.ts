@@ -173,9 +173,8 @@ export class Card extends Phaser.GameObjects.Sprite {
     isAttacking: boolean,
     piles: number,
     me: boolean,
-    vol?: number,
+    vol: number,
   ) {
-    // const vol = volumeLevel ? volumeLevel : 0.8;
     this.sounds.placeCard.play({ volume: vol, loop: true });
     await new Promise((resolve) => {
       this.makeNotClickable();
