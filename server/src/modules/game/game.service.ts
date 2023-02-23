@@ -511,17 +511,18 @@ export class GameService {
    * @param {string} player
    * @param {number} wins - Player is win = 1 or else 0
    */
-  public async updatePlayerStats(player: string, wins: number) {
+  public async updatePlayerStats(userId: number, player: string, wins: number) {
     const playerInfo = await this.ratingService.findOne(player);
 
     if (playerInfo) {
       this.ratingService.update({
+        userId,
         player,
         wins: playerInfo.wins + wins,
         total: playerInfo.total + 1,
       });
     } else {
-      this.ratingService.create({ player, wins, total: 1 });
+      this.ratingService.create({ userId, player, wins, total: 1 });
     }
   }
 

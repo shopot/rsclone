@@ -44,7 +44,7 @@ export class Room {
   /** Players list in this room */
   players: Players;
   /** Names of of players who started the game (used for stats purposes) */
-  startingPlayerNames: string[];
+  startingPlayerNames: { userId: number; playerName: string }[];
   /** Chat messages */
   chat: TypeChatMessage[];
   /** Deck of cards */
@@ -182,7 +182,10 @@ export class Room {
     // Save starting player names
     this.startingPlayerNames = [];
     for (const player of this.players) {
-      this.startingPlayerNames.push(player.playerName);
+      this.startingPlayerNames.push({
+        userId: player.userId,
+        playerName: player.playerName,
+      });
     }
 
     // Clear old chat messages
@@ -979,7 +982,9 @@ export class Room {
     // Update stats
     this.gameStats = {
       roomId: this.roomId,
-      players: this.startingPlayerNames.join('#'),
+      players: this.startingPlayerNames
+        .map((player) => player.playerName)
+        .join('#'),
       loser: this.lastLoser ? this.lastLoser.getPlayerName() : 'undefined',
       duration: Date.now() - this.gameTimeStart,
       rounds: this.currentRound,
@@ -989,10 +994,14 @@ export class Room {
     await this.gameService.updateGameHistory(this.gameStats);
 
     // Update players stats
-    for (const playerName of this.startingPlayerNames) {
+    for (const player of this.startingPlayerNames) {
       const isLoser =
-        this.lastLoser && this.lastLoser.getPlayerName() === playerName;
-      await this.gameService.updatePlayerStats(playerName, isLoser ? 0 : 1);
+        this.lastLoser && this.lastLoser.getPlayerName() === player.playerName;
+      await this.gameService.updatePlayerStats(
+        player.userId,
+        player.playerName,
+        isLoser ? 0 : 1,
+      );
     }
   }
 
