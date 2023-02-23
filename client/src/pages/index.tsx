@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router';
+import { ProtectedRoute } from '../components/ProtectedRoute/ProtectedRoute';
 import NotFound from './404';
 import AboutPage from './about';
 import GamePage from './game';
@@ -28,7 +29,11 @@ const PageRouting = () => {
         />
         <Route
           path={TypeRoute.About}
-          element={<AboutPage />}
+          element={
+            <ProtectedRoute>
+              <AboutPage />
+            </ProtectedRoute>
+          }
         />
         <Route
           path={TypeRoute.History}
