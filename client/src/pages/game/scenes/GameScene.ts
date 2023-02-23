@@ -945,8 +945,15 @@ export class GameScene extends Phaser.Scene {
     this.cardsCoords = [];
     const border = 8;
     const handSize = { ...this.handSizes[0] };
+    const isOver = useGameStore.getState().roomStatus === TypeRoomStatus.GameIsOver;
     const playersCardsSorted = this.playersSorted.map((player) => player.cards);
-    playersCardsSorted.forEach((set, i) => {
+    const playersSpritesSorted = this.playersCardsSprites.map((arr) =>
+      arr.map((sprite) => sprite.cardType),
+    );
+
+    const array = isOver ? playersSpritesSorted : playersCardsSorted;
+
+    array.forEach((set, i) => {
       handSize.startX = this.handSizes[i].startX;
       handSize.width = this.handSizes[i].width;
       const shift = (handSize.width - border * 2 - config.cardSize.w) / (set.length - 1);
@@ -965,11 +972,9 @@ export class GameScene extends Phaser.Scene {
   squeezeCardsAtHands() {
     this.calculatePositions();
     this.playersCardsSprites.forEach((set, i) => {
-      if (Array.isArray(set)) {
-        set.forEach((card, ind) => {
-          card.shiftOnHand(this.cardsCoords[i][ind]);
-        });
-      }
+      set.forEach((card, ind) => {
+        card.shiftOnHand(this.cardsCoords[i][ind]);
+      });
     });
     // this.playersCardsSprites.forEach((set, i) => {
     //   handSize.startX = this.handSizes[i].startX;
