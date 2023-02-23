@@ -23,6 +23,7 @@ export class Popup {
   sounds: { loser: Phaser.Sound.BaseSound };
   leaveBtnText?: Phaser.GameObjects.Text;
   leaveBtn?: Phaser.GameObjects.Sprite;
+  whiteBorder?: Phaser.GameObjects.Graphics;
 
   constructor(
     scene: Phaser.Scene,
@@ -96,14 +97,19 @@ export class Popup {
           font: '35px Signika',
         })
         .setOrigin(0.5)
+        .setShadow(4, 2, '#000', 5)
+        .setDepth(zIndex + 1);
+
+      this.whiteBorder = this.scene.add
+        .graphics()
+        .lineStyle(2, 0xffffff, 0.8)
+        .strokeRoundedRect(config.width / 2 - 259, config.height / 2 - 29 + shift, 518, 98, 10)
         .setDepth(zIndex + 1);
 
       this.rectangle = this.scene.add
         .graphics()
         .fillStyle(color, 0.6)
-        .lineStyle(2, color, 1)
         .fillRoundedRect(config.width / 2 - 260, config.height / 2 - 30 + shift, 520, 100, 10)
-        .strokeRoundedRect(config.width / 2 - 260, config.height / 2 - 30 + shift, 520, 100, 10)
         .setDepth(zIndex + 1);
 
       if (player !== undefined) {
@@ -126,7 +132,7 @@ export class Popup {
             color: '#fff',
             font: '25px Signika',
           })
-          .setShadow(4, 2, '#000', 5)
+          .setShadow(2, 1, '#000', 2)
           .setDepth(zIndex + 1);
 
         this.avatar = this.scene.add
@@ -234,11 +240,13 @@ export class Popup {
     this.startBtnText?.destroy();
     this.leaveBtn?.destroy();
     this.leaveBtnText?.destroy();
+    this.whiteBorder?.destroy();
   }
 
   setStartBtnInactive(playersAmt: number) {
     if (playersAmt < 2) {
-      this.startBtn?.setFrame('btn-start-disabled').removeInteractive();
+      this.startBtn?.setFrame('btn-start-disabled');
+      this.startBtn?.removeInteractive();
     }
   }
 }
