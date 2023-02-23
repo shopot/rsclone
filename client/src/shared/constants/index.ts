@@ -5,3 +5,4 @@ export const MINIMUM_NICKNAME_LENGTH = 4;
 export const MAXIMUM_NICKNAME_LENGTH = 32;
 export const MINIMUM_PASSWORD_LENGTH = 8;
 export const REDIRECT_TIMEOUT = 3000;
+export const AVATAR_SIZE = 60; // 60x60 pixels
