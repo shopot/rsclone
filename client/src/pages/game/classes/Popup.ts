@@ -214,6 +214,8 @@ export class Popup {
           .on('pointerover', () => this.startBtn?.setScale(0.83))
           .on('pointerout', () => this.startBtn?.setScale(0.8));
 
+        this.setStartBtnInactive(useGameStore.getState().players.length);
+
         this.leaveBtnText = this.scene.add
           .text(config.width / 2 + 180, config.height / 2 + 30, 'Leave the room', {
             color: '#fff',

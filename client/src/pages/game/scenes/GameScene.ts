@@ -310,7 +310,8 @@ export class GameScene extends Phaser.Scene {
     //если вышел host после окнчания игры
     if (players.length !== prevPlayers.length) {
       const isFirst = players[0].socketId === this.socketId;
-      if (isFirst) new Popup(this, [], true, isFirst);
+      const wasFirst = prevPlayers[0].socketId === this.socketId;
+      if (isFirst && isFirst !== wasFirst) new Popup(this, [], true, isFirst);
     }
   }
 
