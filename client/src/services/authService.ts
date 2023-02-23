@@ -55,4 +55,8 @@ export const authService = {
 
     return null;
   },
+
+  async logout() {
+    await simpleApiClient.fetch(HTTPRequestMethod.GET, ApiEndpoint.AuthLogout);
+  },
 };

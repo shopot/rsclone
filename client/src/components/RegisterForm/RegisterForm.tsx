@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { authService } from '../../services/authService';
+import { useUserStore } from '../../store/userStore';
 import {
   MINIMUM_NICKNAME_LENGTH,
   MAXIMUM_NICKNAME_LENGTH,
@@ -32,6 +33,7 @@ const RegisterSchema = Yup.object().shape({
 });
 
 interface RegisterFormProps {
+  refererPage: string | null;
   onChangeForm: () => void;
 }
 
@@ -41,8 +43,9 @@ interface FormValues {
   passwordConfirm: string;
 }
 
-export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
+export const RegisterForm = ({ refererPage, onChangeForm }: RegisterFormProps) => {
   const navigate = useNavigate();
+  const { actions } = useUserStore();
   const [APIError, setAPIError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -52,8 +55,9 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
     if (result.data) {
       setSuccessMessage('Login successful. Redirecting...');
       setAPIError(null);
+      await actions.setUser();
       setTimeout(() => {
-        navigate(TypeRoute.Rooms);
+        navigate(refererPage ?? TypeRoute.Rooms, { replace: true });
       }, REDIRECT_TIMEOUT);
     }
 
@@ -69,63 +73,67 @@ export const RegisterForm = ({ onChangeForm }: RegisterFormProps) => {
         src={logo}
         alt="Game logo"
       />
-      <button
-        type="button"
-        onClick={onChangeForm}
-      >
-        <p className={styles.accountLink}>Have an account?</p>
-      </button>
-      <Formik
-        initialValues={{
-          username: '',
-          password: '',
-          passwordConfirm: '',
-        }}
-        validationSchema={RegisterSchema}
-        onSubmit={handleSubmit}
-      >
-        <Form
-          className={styles.form}
-          autoComplete="off"
-        >
-          <Field
-            name="username"
-            type="text"
-            required
-            placeholder="username"
-          />
-          <ErrorMessage name="username">
-            {(msg) => <div className={styles.formError}>{msg}</div>}
-          </ErrorMessage>
-          <Field
-            name="password"
-            type="password"
-            required
-            placeholder="password"
-          />
-          <ErrorMessage name="password">
-            {(msg) => <div className={styles.formError}>{msg}</div>}
-          </ErrorMessage>
-          <Field
-            name="passwordConfirm"
-            type="password"
-            required
-            placeholder="confirm password"
-          />
-          <ErrorMessage name="passwordConfirm">
-            {(msg) => <div className={styles.formError}>{msg}</div>}
-          </ErrorMessage>
-          {APIError && <div className={styles.formError}>{APIError}</div>}
-          {successMessage && <div className={styles.formSuccess}>{successMessage}</div>}
-
+      {!successMessage && (
+        <>
           <button
-            className={`btn ${styles.submitButton}`}
-            type="submit"
+            type="button"
+            onClick={onChangeForm}
           >
-            register
+            <p className={styles.accountLink}>Have an account?</p>
           </button>
-        </Form>
-      </Formik>
+          <Formik
+            initialValues={{
+              username: '',
+              password: '',
+              passwordConfirm: '',
+            }}
+            validationSchema={RegisterSchema}
+            onSubmit={handleSubmit}
+          >
+            <Form
+              className={styles.form}
+              autoComplete="off"
+            >
+              <Field
+                name="username"
+                type="text"
+                required
+                placeholder="username"
+              />
+              <ErrorMessage name="username">
+                {(msg) => <div className={styles.formError}>{msg}</div>}
+              </ErrorMessage>
+              <Field
+                name="password"
+                type="password"
+                required
+                placeholder="password"
+              />
+              <ErrorMessage name="password">
+                {(msg) => <div className={styles.formError}>{msg}</div>}
+              </ErrorMessage>
+              <Field
+                name="passwordConfirm"
+                type="password"
+                required
+                placeholder="confirm password"
+              />
+              <ErrorMessage name="passwordConfirm">
+                {(msg) => <div className={styles.formError}>{msg}</div>}
+              </ErrorMessage>
+              {APIError && <div className={styles.formError}>{APIError}</div>}
+
+              <button
+                className={`btn ${styles.submitButton}`}
+                type="submit"
+              >
+                register
+              </button>
+            </Form>
+          </Formik>
+        </>
+      )}
+      {successMessage && <div className={styles.formSuccess}>{successMessage}</div>}
     </div>
   );
 };
