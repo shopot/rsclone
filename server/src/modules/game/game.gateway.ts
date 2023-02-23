@@ -16,7 +16,7 @@ import {
   TypeRoomList,
   TypeServerResponse,
 } from '../../shared/types';
-import { GameReceiveDto } from './dto';
+import { GameReceiveDto, RoomCreateDto, RoomJoinDto } from './dto';
 import { GameService } from './game.service';
 
 @Injectable()
@@ -66,16 +66,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
 
   /**
    * Create room event
-   * @param {GameReceiveDto} data
+   * @param {RoomCreateDto} data - receive userId and testCaseName
    * @param {Socket} client
    * @returns
    */
   @SubscribeMessage(TypeRoomEvent.GameCreateRoom)
-  handleGameCreateRoom(
-    @MessageBody('data') data: GameReceiveDto,
+  async handleGameCreateRoom(
+    @MessageBody('data') data: RoomCreateDto,
     @ConnectedSocket() client: Socket,
-  ): void {
-    const results = this.gameService.createRoom(data, client);
+  ): Promise<void> {
+    const results = await this.gameService.createRoom(data, client);
 
     this.emitEvent(TypeRoomEvent.GameCreateRoom, results, client);
 
@@ -89,11 +89,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    * @param {Socket} client
    */
   @SubscribeMessage(TypeRoomEvent.GameJoinRoom)
-  handleGameJoinRoom(
-    @MessageBody('data') data: GameReceiveDto,
+  async handleGameJoinRoom(
+    @MessageBody('data') data: RoomJoinDto,
     @ConnectedSocket() client: Socket,
-  ): void {
-    const results = this.gameService.joinRoom(data, client);
+  ): Promise<void> {
+    const results = await this.gameService.joinRoom(data, client);
 
     this.emitEvent(TypeRoomEvent.GameJoinRoom, results, client);
 

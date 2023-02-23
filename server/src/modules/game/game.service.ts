@@ -1,3 +1,4 @@
+import { UserService } from './../user/user.service';
 import { getErrorMessage } from '../../shared/helpers';
 import { RatingService } from '../rating/rating.service';
 import { HistoryService } from './../history/history.service';
@@ -16,7 +17,7 @@ import { Socket, Server } from 'socket.io';
 import { Player } from '../../shared/libs/Player';
 import { generateRoomId } from '../../shared/utils/generateRoomId';
 import { Room } from '../../shared/libs/Room';
-import { GameReceiveDto } from './dto';
+import { GameReceiveDto, RoomCreateDto, RoomJoinDto } from './dto';
 
 @Injectable()
 export class GameService {
@@ -28,6 +29,7 @@ export class GameService {
   constructor(
     private historyService: HistoryService,
     private ratingService: RatingService,
+    private userService: UserService,
   ) {
     this.rooms = new Map();
     this.roomId = '';
@@ -97,13 +99,26 @@ export class GameService {
    * @param {Socket} socket - Socket client owner emitter
    * @returns {TypeServerResponse } - Server response object
    */
-  public createRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { playerName, playerAvatar } = data;
+  public async createRoom(
+    data: RoomCreateDto,
+    socket: Socket,
+  ): Promise<TypeServerResponse> {
+    const { userId, testCaseName } = data;
+
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.UserNotFound,
+        message: 'User not found.',
+      });
+    }
 
     const hostPlayer = new Player(
       socket,
-      playerName,
-      playerAvatar,
+      user.id,
+      user.username,
+      user.avatar,
       TypePlayerMember.Host,
     );
 
@@ -118,9 +133,9 @@ export class GameService {
     socket.join(this.roomId);
 
     // RoomTestFactory
-    const testName = data.testName || '';
+    const _testCaseName = testCaseName || '';
 
-    this.room = new Room(this.roomId, hostPlayer, this, testName);
+    this.room = new Room(this.roomId, hostPlayer, this, _testCaseName);
 
     this.rooms.set(this.roomId, this.room);
 
@@ -136,8 +151,20 @@ export class GameService {
    * @param {Socket} client - Socket client owner emitter
    * @returns {TypeServerResponse } - Server response object
    */
-  public joinRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { roomId, playerName, playerAvatar } = data;
+  public async joinRoom(
+    data: RoomJoinDto,
+    socket: Socket,
+  ): Promise<TypeServerResponse> {
+    const { userId, roomId } = data;
+
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.UserNotFound,
+        message: 'User not found.',
+      });
+    }
 
     this.initRoom(roomId);
 
@@ -149,8 +176,9 @@ export class GameService {
 
     const player = new Player(
       socket,
-      playerName,
-      playerAvatar,
+      user.id,
+      user.username,
+      user.avatar,
       TypePlayerMember.Regular,
     );
 
