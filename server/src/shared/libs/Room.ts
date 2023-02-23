@@ -188,6 +188,8 @@ export class Room {
     // Clear old chat messages
     this.chat = [];
 
+    this.isDefenderPickup = false;
+
     // Start new deck
     this.deck = new Deck();
 
