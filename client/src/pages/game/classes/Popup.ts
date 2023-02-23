@@ -21,6 +21,8 @@ export class Popup {
   openBtnText?: Phaser.GameObjects.Text;
   startBtnText?: Phaser.GameObjects.Text;
   sounds: { loser: Phaser.Sound.BaseSound };
+  leaveBtnText?: Phaser.GameObjects.Text;
+  leaveBtn?: Phaser.GameObjects.Sprite;
 
   constructor(
     scene: Phaser.Scene,
@@ -96,8 +98,8 @@ export class Popup {
         .graphics()
         .fillStyle(color, 0.6)
         .lineStyle(2, color, 1)
-        .fillRoundedRect(config.width / 2 - 250, config.height / 2 - 30 + shift, 500, 100, 10)
-        .strokeRoundedRect(config.width / 2 - 250, config.height / 2 - 30 + shift, 500, 100, 10)
+        .fillRoundedRect(config.width / 2 - 260, config.height / 2 - 30 + shift, 520, 100, 10)
+        .strokeRoundedRect(config.width / 2 - 260, config.height / 2 - 30 + shift, 520, 100, 10)
         .setDepth(zIndex + 1);
 
       if (player !== undefined) {
@@ -148,14 +150,14 @@ export class Popup {
 
       if (isFirst) {
         this.openBtnText = this.scene.add
-          .text(config.width / 2 - 140, config.height / 2 + 30, 'Open the room', {
+          .text(config.width / 2 - 180, config.height / 2 + 30, 'Open the room', {
             color: '#fff',
             font: '18px Signika',
           })
           .setOrigin(0.5)
           .setDepth(zIndex + 1);
         this.openBtn = this.scene.add
-          .sprite(config.width / 2 - 140, config.height / 2 + 80, 'buttons', 'btn-open')
+          .sprite(config.width / 2 - 180, config.height / 2 + 80, 'buttons', 'btn-open')
           .setScale(0.8)
           .setDepth(zIndex + 1)
           .setInteractive({ cursor: 'pointer' })
@@ -167,7 +169,7 @@ export class Popup {
           .on('pointerout', () => this.openBtn?.setScale(0.8));
 
         this.startBtnText = this.scene.add
-          .text(config.width / 2 + 140, config.height / 2 + 30, 'Restart the game', {
+          .text(config.width / 2, config.height / 2 + 30, 'Restart the game', {
             color: '#fff',
             font: '18px Signika',
           })
@@ -175,7 +177,7 @@ export class Popup {
           .setDepth(zIndex + 1);
 
         this.startBtn = this.scene.add
-          .sprite(config.width / 2 + 140, config.height / 2 + 80, 'buttons', 'btn-start')
+          .sprite(config.width / 2, config.height / 2 + 80, 'buttons', 'btn-start')
           .setScale(0.8)
           .setDepth(zIndex + 1)
           .setInteractive({ cursor: 'pointer' })
@@ -185,6 +187,27 @@ export class Popup {
           })
           .on('pointerover', () => this.startBtn?.setScale(0.83))
           .on('pointerout', () => this.startBtn?.setScale(0.8));
+
+        this.leaveBtnText = this.scene.add
+          .text(config.width / 2 + 180, config.height / 2 + 30, 'Leave the room', {
+            color: '#fff',
+            font: '18px Signika',
+          })
+          .setOrigin(0.5)
+          .setDepth(zIndex + 1);
+
+        this.leaveBtn = this.scene.add
+          .sprite(config.width / 2 + 180, config.height / 2 + 80, 'buttons', 'btn-leave')
+          .setScale(0.8)
+          .setDepth(zIndex + 1)
+          .setInteractive({ cursor: 'pointer' })
+          .on('pointerdown', () => {
+            this.destroyPopup();
+            useGameStore.getState().actions.leaveRoom();
+            this.scene.scene.start('End');
+          })
+          .on('pointerover', () => this.leaveBtn?.setScale(0.83))
+          .on('pointerout', () => this.leaveBtn?.setScale(0.8));
       }
     };
   }
@@ -202,6 +225,8 @@ export class Popup {
     this.startBtn?.destroy();
     this.openBtnText?.destroy();
     this.startBtnText?.destroy();
+    this.leaveBtn?.destroy();
+    this.leaveBtnText?.destroy();
   }
 
   setStartBtnInactive(playersAmt: number) {
