@@ -69,6 +69,7 @@ export class GameScene extends Phaser.Scene {
   beaten: Card[] = [];
   popups: Popup[] = [];
   suit?: Suit;
+  cardsCoords: number[][][] = [];
 
   constructor() {
     super('Game');
@@ -346,7 +347,7 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.piles = [];
-    this.setEqualPositionAtHands();
+    this.squeezeCardsAtHands();
     this.updatePlayersText();
   }
 
@@ -458,7 +459,7 @@ export class GameScene extends Phaser.Scene {
         : this.piles[params.pileLength - 1].push(sprite);
       this.handleHighlight();
       console.log(this.playersCardsSprites[playerInd], 'this.playersCardsSprites[playerInd]');
-      this.setEqualPositionAtHands();
+      this.squeezeCardsAtHands();
       this.updatePlayersText();
       await this.updateCardsPosOnTable();
 
@@ -535,7 +536,7 @@ export class GameScene extends Phaser.Scene {
         );
 
         this.piles = [];
-        this.setEqualPositionAtHands();
+        this.squeezeCardsAtHands();
         this.updatePlayersText();
       }
     }
@@ -892,29 +893,98 @@ export class GameScene extends Phaser.Scene {
         const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
         item.positionDeckCard(ind === 0);
         arr.push(item);
-        if (round > 1) this.playersCardsSprites[ind].push(item);
+        // if (round > 1) this.playersCardsSprites[ind].push(item);
       });
       this.dealtSprites.push(arr);
-      if (round <= 1) this.playersCardsSprites.push(arr);
+      // if (round <= 1) this.playersCardsSprites.push(arr);
     });
     await this.animateFromDeckToPlayers();
+    this.dealtToPlayers(round);
+  }
+
+  dealtToPlayers(round: number) {
+    this.dealtSprites.forEach((set, ind) => {
+      const arr: Card[] = [];
+      set.forEach((el) => {
+        arr.push(el);
+        if (round > 1) this.playersCardsSprites[ind].push(el);
+      });
+      if (round <= 1) this.playersCardsSprites.push(arr);
+    });
+    this.dealtSprites = [];
   }
 
   async animateFromDeckToPlayers() {
+    this.squeezeCardsAtHands();
+    const positions = [...this.cardsCoords];
+    positions.forEach((arr, i) =>
+      arr.splice(0, this.cardsCoords[i].length - this.dealtSprites[i].length),
+    );
+    console.log(positions, '``````````positions```````````````');
+
     this.sounds?.fromDeck.play({ volume: 0.8, loop: false });
     await Promise.all(
-      this.dealtSprites.map(async (arr) => {
+      this.dealtSprites.map(async (arr, i) => {
         for (const sprite of arr) {
-          await sprite.animateToPlayer(this.dealtSprites.indexOf(arr), this.dealtSprites.length);
+          await sprite.animateToPlayer1(
+            i,
+            positions[i][arr.indexOf(sprite)][0],
+            positions[i][arr.indexOf(sprite)][1],
+          );
         }
       }),
     );
     this.sounds?.fromDeck.stop();
 
-    this.setEqualPositionAtHands();
-    this.dealtSprites = [];
+    // this.setEqualPositionAtHands();
     this.updateDeck();
     this.updatePlayersText();
+  }
+
+  calculatePositions() {
+    this.cardsCoords = [];
+    const border = 8;
+    const handSize = { ...this.handSizes[0] };
+    const playersCardsSorted = this.playersSorted.map((player) => player.cards);
+    playersCardsSorted.forEach((set, i) => {
+      handSize.startX = this.handSizes[i].startX;
+      handSize.width = this.handSizes[i].width;
+      const shift = (handSize.width - border * 2 - config.cardSize.w) / (set.length - 1);
+      const y = i === 0 ? config.height - config.cardSize.h / 2 : 30; //partially visible
+
+      const arr: number[][] = [];
+      set.forEach((card, ind) => {
+        let x = handSize.startX + config.cardSize.w / 2 + ind * shift + border;
+        if (set.length === 1) x = handSize.startX + config.cardSize.w / 2 + border;
+        arr.push([x, y, ind + 1]);
+      });
+      this.cardsCoords.push(arr);
+    });
+  }
+
+  squeezeCardsAtHands() {
+    this.calculatePositions();
+    this.playersCardsSprites.forEach((set, i) => {
+      set.forEach((card, ind) => {
+        card.shiftOnHand(this.cardsCoords[i][ind]);
+        // card.setPosition(this.cardsCoords[i][ind][0], this.cardsCoords[i][ind][1]);
+        // card.setDepth(this.cardsCoords[i][ind][2]);
+      });
+    });
+    // this.playersCardsSprites.forEach((set, i) => {
+    //   handSize.startX = this.handSizes[i].startX;
+    //   handSize.width = this.handSizes[i].width;
+    //   const shift =
+    //     (handSize.width - border * 2 - config.cardSize.w) / (playersCardsSorted[i].length - 1);
+    //   const y = i === 0 ? config.height - config.cardSize.h / 2 : 30; //partially visible
+
+    //   set.forEach((card, ind) => {
+    //     let x = handSize.startX + config.cardSize.w / 2 + ind * shift + border;
+    //     if (set.length === 1) x = handSize.startX + config.cardSize.w / 2 + border;
+    //     card.setPosition(x, y);
+    //     card.setDepth(ind + 1);
+    //   });
+    // });
   }
 
   updateDeck() {
@@ -970,23 +1040,5 @@ export class GameScene extends Phaser.Scene {
         }),
       );
     }
-  }
-
-  setEqualPositionAtHands() {
-    const border = 8;
-    const handSize = { ...this.handSizes[0] };
-    this.playersCardsSprites.forEach((set, i) => {
-      handSize.startX = this.handSizes[i].startX;
-      handSize.width = this.handSizes[i].width;
-      const shift = (handSize.width - border * 2 - config.cardSize.w) / (set.length - 1);
-      const y = i === 0 ? config.height - config.cardSize.h / 2 : 30; //partially visible
-
-      set.forEach((card, ind) => {
-        let x = handSize.startX + config.cardSize.w / 2 + ind * shift + border;
-        if (set.length === 1) x = handSize.startX + config.cardSize.w / 2 + border;
-        card.setPosition(x, y);
-        card.setDepth(ind + 1);
-      });
-    });
   }
 }
