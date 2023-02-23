@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useModal } from '../../hooks';
 import { useOldGameUI } from '../../hooks/useOldGameUI';
 import { socketIOService } from '../../shared/api/socketio';
+import { useUserStore } from '../../store/userStore';
 import { TypeResponseObject, TypeSocketEvent } from '../../shared/types';
 import { ModalContainer } from '../ModalContainer';
 import { RoomForm } from '../RoomForm';
@@ -9,6 +10,7 @@ import { RoomForm } from '../RoomForm';
 export const RoomJoinContainer = ({ isCanJoin, roomId }: IRoomJoinContainerProps) => {
   const [isOpen, toggle] = useModal();
   const [isOldGameUI, setOldGameUI, redirectToGamePage] = useOldGameUI();
+  const { user } = useUserStore();
 
   useEffect(() => {
     // Subscribe to GameJoinRoom event
@@ -23,16 +25,11 @@ export const RoomJoinContainer = ({ isCanJoin, roomId }: IRoomJoinContainerProps
     };
   }, [redirectToGamePage, isOldGameUI]);
 
-  const handleJoinRoom = (
-    playerName: string,
-    playerAvatar: string,
-    testName: string,
-    oldGameUI: boolean,
-  ): void => {
+  const handleJoinRoom = (testCaseName: string, oldGameUI: boolean): void => {
     toggle();
     setOldGameUI(oldGameUI);
     socketIOService.emit(TypeSocketEvent.GameJoinRoom, {
-      data: { roomId, playerName, playerAvatar },
+      data: { roomId, userId: user?.userId },
     });
   };
 
