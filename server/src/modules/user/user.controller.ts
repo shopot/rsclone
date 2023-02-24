@@ -26,14 +26,14 @@ export class UserController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('image'))
   uploadImage(
-    @UploadedFile(SharpPipe) image: Express.Multer.File,
+    @UploadedFile(SharpPipe) imageFilename: string,
     @Req() req: Request,
   ) {
     if (hasUser(req)) {
       const userId = req.cookies.userId || 0;
 
       if (userId) {
-        this.userService.uploadAvatar(userId, image.filename);
+        this.userService.uploadAvatar(userId, imageFilename);
       }
     }
   }
