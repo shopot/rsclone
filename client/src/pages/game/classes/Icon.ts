@@ -18,6 +18,8 @@ export class Icon {
   cloudColors: { attacker: number; defender: number; other: number };
   shieldSword: Phaser.GameObjects.Sprite;
   offlineIcon: Phaser.GameObjects.Sprite;
+  hat: Phaser.GameObjects.Sprite;
+  hasHat = false;
   constructor(
     scene: Phaser.Scene,
     index: number,
@@ -59,6 +61,11 @@ export class Icon {
     const me = index === 0 ? true : false;
     this.bubble = new SpeechBubble(this.scene, '', this.x, this.spriteY, me);
     this.bubble.setVisibility(0);
+    this.hat = this.scene.add
+      .sprite(this.x - 19, this.spriteY - 38, 'aword', 'crown')
+      .setScale(0.6)
+      .setAngle(20)
+      .setAlpha(0);
   }
 
   destroyIcon() {
@@ -69,6 +76,7 @@ export class Icon {
     this.cloud.destroy();
     this.shieldSword.destroy();
     this.bubble.destroy();
+    this.hat.destroy();
   }
 
   colorBorder(status: boolean) {
@@ -104,5 +112,11 @@ export class Icon {
 
   offline(ind: number) {
     this.offlineIcon.setAlpha(1);
+  }
+
+  makeHat(ind: number, status: boolean) {
+    if (!status) this.hat.setFrame('foolscap').setAlpha(1);
+    else this.hat.setAlpha(1);
+    this.hasHat = true;
   }
 }

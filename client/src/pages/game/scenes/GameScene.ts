@@ -742,15 +742,26 @@ export class GameScene extends Phaser.Scene {
     const prevWinnersIds = prevState.players
       .filter((player) => player.playerStatus === TypePlayerStatus.YouWinner)
       .map((el) => el.socketId);
+
+    const isGameOver = state.roomStatus === TypeRoomStatus.GameIsOver;
     if (
       winnersIds &&
       winnersIds.includes(me.socketId) &&
       !prevWinnersIds.includes(me.socketId) &&
-      useGameStore.getState().roomStatus !== TypeRoomStatus.GameIsOver
+      !isGameOver
     ) {
       const popup = new Popup(this, this.playersSorted, false, false);
       this.popups.push(popup);
     }
+
+    const loserId = state.players
+      .filter((player) => player.playerStatus === TypePlayerStatus.YouLoser)
+      .map((el) => el.socketId)[0];
+    this.icons.forEach((icon, i) => {
+      if (winnersIds.includes(icon.socketId) && !icon.hasHat) {
+        icon.makeHat(i, true);
+      } else if (icon.socketId === loserId && !icon.hasHat) icon.makeHat(i, false);
+    });
   }
 
   createHands() {
