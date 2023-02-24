@@ -333,6 +333,8 @@ export class GameScene extends Phaser.Scene {
   async handleTake() {
     console.log('``````handle take````````````');
     this.removeHighlight();
+    this.calculatePositions();
+
     const spriteValueFromPile = this.piles.flat()[0].value;
 
     let defenderInd = -1;
@@ -353,7 +355,7 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.piles = [];
-    this.handleCardsAtHandsBeforeMove();
+    await this.handleCardsAtHandsAfterMove();
     this.updatePlayersText();
   }
 
