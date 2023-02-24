@@ -4,7 +4,7 @@ import { useUserStore } from '../../store/userStore';
 import { TypeRoute } from '../../shared/types';
 
 export const TopMenu = () => {
-  const { user, actions } = useUserStore();
+  const { isAuthenticated, actions } = useUserStore();
 
   return (
     <nav>
@@ -59,7 +59,7 @@ export const TopMenu = () => {
             About
           </NavLink>
         </li>
-        {user && (
+        {isAuthenticated && (
           <li>
             <Link
               className={styles.navLink}
