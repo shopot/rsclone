@@ -1,6 +1,8 @@
+import { storageService } from './storageService';
 import { simpleApiClient, HTTPRequestMethod, ApiEndpoint } from '../shared/api';
 import { validateAPIError, validateAuthResponse } from '../shared/validators';
 import { TypeAuthResponse, TypeAPIError } from '../shared/types';
+import { LOCALSTORAGE_AUTH_KEY } from '../shared/constants';
 
 export const authService = {
   async login(username: string, password: string) {
@@ -58,5 +60,9 @@ export const authService = {
 
   async logout() {
     await simpleApiClient.fetch(HTTPRequestMethod.GET, ApiEndpoint.AuthLogout);
+  },
+
+  isAuth() {
+    return storageService.has(LOCALSTORAGE_AUTH_KEY);
   },
 };

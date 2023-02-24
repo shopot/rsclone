@@ -1,7 +1,7 @@
-import styles from './TopMenu.m.scss';
 import { NavLink, Link } from 'react-router-dom';
 import { useUserStore } from '../../store/userStore';
 import { TypeRoute } from '../../shared/types';
+import styles from './TopMenu.m.scss';
 
 export const TopMenu = () => {
   const { user, actions } = useUserStore();
@@ -9,16 +9,6 @@ export const TopMenu = () => {
   return (
     <nav>
       <ul className={styles.navList}>
-        <li>
-          <NavLink
-            className={({ isActive }) =>
-              isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
-            }
-            to={TypeRoute.Home}
-          >
-            Home
-          </NavLink>
-        </li>
         <li>
           <NavLink
             className={({ isActive }) =>
