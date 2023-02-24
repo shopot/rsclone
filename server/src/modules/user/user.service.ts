@@ -9,18 +9,33 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto';
 import { existsSync } from 'fs';
 import * as path from 'path';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject('USER_REPOSITORY')
     private userRepository: Repository<User>,
+    private configService: ConfigService,
   ) {}
 
   async findById(userId: number): Promise<User | null> {
-    return this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: { id: userId },
     });
+
+    if (user && user.avatar) {
+      const baseUrl =
+        this.configService.get<string>('APP_URL') || 'http://localhost';
+      const port = this.configService.get<string>('PORT') || 3000;
+
+      return {
+        ...user,
+        avatar: `${baseUrl}:${port}/v1/user/avatar/${user.avatar}`,
+      };
+    }
+
+    return user;
   }
 
   async findByUsername(username: string): Promise<User | null> {
