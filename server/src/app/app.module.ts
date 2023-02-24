@@ -22,6 +22,7 @@ import { memoryStorage } from 'multer';
     DatabaseModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
+      isGlobal: true,
     }),
     WinstonModule.forRoot(appLoggerConfig),
     MulterModule.register({
