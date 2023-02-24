@@ -30,7 +30,7 @@ export class UserController {
     @Req() req: Request,
   ) {
     if (hasUser(req)) {
-      const userId = req.user['sub'] || 0;
+      const userId = req.cookies.userId || 0;
 
       if (userId) {
         this.userService.uploadAvatar(userId, image.filename);
