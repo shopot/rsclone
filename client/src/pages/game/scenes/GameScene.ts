@@ -353,7 +353,7 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.piles = [];
-    this.squeezeCardsAtHands();
+    this.handleCardsAtHandsBeforeMove();
     this.updatePlayersText();
   }
 
@@ -465,7 +465,7 @@ export class GameScene extends Phaser.Scene {
         : this.piles[params.pileLength - 1].push(sprite);
       this.handleHighlight();
       console.log(this.playersCardsSprites[playerInd], 'this.playersCardsSprites[playerInd]');
-      this.squeezeCardsAtHands();
+      this.handleCardsAtHandsBeforeMove();
       this.updatePlayersText();
       await this.updateCardsPosOnTable();
 
@@ -542,7 +542,7 @@ export class GameScene extends Phaser.Scene {
         );
 
         this.piles = [];
-        this.squeezeCardsAtHands();
+        this.handleCardsAtHandsBeforeMove();
         this.updatePlayersText();
       }
     }
@@ -885,13 +885,12 @@ export class GameScene extends Phaser.Scene {
         const item = new Card(this, 0, 0, 'cards', this.getCardTexture(el), el);
         item.positionDeckCard(ind === 0);
         arr.push(item);
-        // if (round > 1) this.playersCardsSprites[ind].push(item);
       });
       this.dealtSprites.push(arr);
-      // if (round <= 1) this.playersCardsSprites.push(arr);
     });
     await this.animateFromDeckToPlayers();
     this.dealtToPlayers(round);
+    await this.handleCardsAtHandsAfterMove();
   }
 
   dealtToPlayers(round: number) {
@@ -907,12 +906,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   async animateFromDeckToPlayers() {
-    this.squeezeCardsAtHands();
-    const positions = [...this.cardsCoords];
+    this.handleCardsAtHandsBeforeMove();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const positions: number[][][] = JSON.parse(JSON.stringify(this.cardsCoords));
     positions.forEach((arr, i) =>
       arr.splice(0, this.cardsCoords[i].length - this.dealtSprites[i].length),
     );
-    console.log(positions, '``````````positions```````````````');
 
     this.sounds?.fromDeck.play({ volume: 0.8, loop: false });
     await Promise.all(
@@ -928,7 +927,6 @@ export class GameScene extends Phaser.Scene {
     );
     this.sounds?.fromDeck.stop();
 
-    // this.setEqualPositionAtHands();
     this.updateDeck();
     this.updatePlayersText();
   }
@@ -961,27 +959,62 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  squeezeCardsAtHands() {
-    this.calculatePositions();
+  shiftCardsAtHands() {
     this.playersCardsSprites.forEach((set, i) => {
       set.forEach((card, ind) => {
         card.shiftOnHand(this.cardsCoords[i][ind]);
       });
     });
-    // this.playersCardsSprites.forEach((set, i) => {
-    //   handSize.startX = this.handSizes[i].startX;
-    //   handSize.width = this.handSizes[i].width;
-    //   const shift =
-    //     (handSize.width - border * 2 - config.cardSize.w) / (playersCardsSorted[i].length - 1);
-    //   const y = i === 0 ? config.height - config.cardSize.h / 2 : 30; //partially visible
+  }
 
-    //   set.forEach((card, ind) => {
-    //     let x = handSize.startX + config.cardSize.w / 2 + ind * shift + border;
-    //     if (set.length === 1) x = handSize.startX + config.cardSize.w / 2 + border;
-    //     card.setPosition(x, y);
-    //     card.setDepth(ind + 1);
-    //   });
-    // });
+  handleCardsAtHandsBeforeMove() {
+    this.calculatePositions();
+    this.shiftCardsAtHands();
+  }
+
+  async handleCardsAtHandsAfterMove() {
+    await this.moveCardsAtHandsToCenter();
+    this.sortCards();
+    this.shiftCardsAtHands();
+  }
+
+  async moveCardsAtHandsToCenter() {
+    await Promise.all(
+      this.playersCardsSprites.map(async (set, i) => {
+        await Promise.all(
+          set.map(async (card) => {
+            await card.animateToPlayer(i, this.playersCardsSprites.length);
+          }),
+        );
+      }),
+    );
+  }
+
+  sortCards() {
+    const newArr: Card[][] = [];
+    this.playersCardsSprites.map((arr) => {
+      arr.sort((a, b) => {
+        if (a.cardType && b.cardType && a.cardType.rank < b.cardType.rank) {
+          return -1;
+        } else if (a.cardType && b.cardType && a.cardType.rank > b.cardType.rank) {
+          return 1;
+        }
+        return 0;
+      });
+      arr.sort((a, b) => {
+        if (a.cardType && b.cardType && a.cardType.suit < b.cardType.suit) {
+          return -1;
+        } else if (a.cardType && b.cardType && a.cardType.suit > b.cardType.suit) {
+          return 1;
+        }
+        return 0;
+      });
+      const trumpCards = arr.filter((card) => card.cardType?.suit === this.trump.suit);
+      const notTrumpCards = arr.filter((card) => card.cardType?.suit !== this.trump.suit);
+      arr = [...notTrumpCards, ...trumpCards];
+      newArr.push(arr);
+    });
+    this.playersCardsSprites = newArr;
   }
 
   updateDeck() {
