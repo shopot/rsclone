@@ -21,6 +21,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
+  @HttpCode(201)
   async signup(
     @Body() dto: AuthDto,
     @Res({ passthrough: true }) res: Response,
