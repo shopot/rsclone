@@ -16,14 +16,6 @@ const PageRouting = () => {
     <Routes>
       <Route element={<Layout />}>
         <Route
-          path={TypeRoute.Home}
-          element={<HomePage />}
-        />
-        <Route
-          index
-          element={<HomePage />}
-        />
-        <Route
           path={TypeRoute.Rooms}
           element={
             <ProtectedRoute>
@@ -56,6 +48,11 @@ const PageRouting = () => {
           }
         />
       </Route>
+
+      <Route
+        path={TypeRoute.Home}
+        element={<HomePage />}
+      />
       <Route
         path={TypeRoute.Game}
         element={

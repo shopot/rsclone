@@ -33,7 +33,7 @@ const HomePage = () => {
   const [isOpen, toggle] = useModal(!!refererPage);
 
   return (
-    <div className="container">
+    <div className={styles.container}>
       <MotionContainer identKey="HomePage">
         <ModalContainer
           isOpen={isOpen}

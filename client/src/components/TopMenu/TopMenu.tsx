@@ -1,25 +1,14 @@
 import { NavLink, Link } from 'react-router-dom';
 import { useUserStore } from '../../store/userStore';
-import { authService } from '../../services';
 import { TypeRoute } from '../../shared/types';
 import styles from './TopMenu.m.scss';
 
 export const TopMenu = () => {
-  const { actions } = useUserStore();
+  const { user, actions } = useUserStore();
 
   return (
     <nav>
       <ul className={styles.navList}>
-        <li>
-          <NavLink
-            className={({ isActive }) =>
-              isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
-            }
-            to={TypeRoute.Home}
-          >
-            Home
-          </NavLink>
-        </li>
         <li>
           <NavLink
             className={({ isActive }) =>
@@ -60,7 +49,7 @@ export const TopMenu = () => {
             About
           </NavLink>
         </li>
-        {authService.isAuth() && (
+        {user && (
           <li>
             <Link
               className={styles.navLink}
