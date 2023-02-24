@@ -8,11 +8,7 @@ const App = () => {
   const { actions } = useUserStore();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      await actions.setUser();
-    };
-
-    fetchUser().catch((error) => console.error(error));
+    actions.setUser().catch((error) => console.error(error));
   }, [actions]);
 
   return <PageRouting />;
