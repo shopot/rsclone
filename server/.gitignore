@@ -39,3 +39,6 @@ docs
 
 # SQLite Game DB
 db/durak_online.db
+
+# Uploads
+uploads
