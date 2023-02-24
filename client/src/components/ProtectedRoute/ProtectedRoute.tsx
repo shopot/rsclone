@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useUserStore } from '../../store/userStore';
+import { authService } from '../../services';
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
@@ -8,9 +7,8 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps): React.ReactElement => {
   const location = useLocation();
-  const { isAuthenticated } = useUserStore();
 
-  if (!isAuthenticated) {
+  if (!authService.isAuth()) {
     return (
       <Navigate
         to="/"

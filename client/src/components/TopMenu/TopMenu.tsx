@@ -1,10 +1,11 @@
-import styles from './TopMenu.m.scss';
 import { NavLink, Link } from 'react-router-dom';
 import { useUserStore } from '../../store/userStore';
+import { authService } from '../../services';
 import { TypeRoute } from '../../shared/types';
+import styles from './TopMenu.m.scss';
 
 export const TopMenu = () => {
-  const { isAuthenticated, actions } = useUserStore();
+  const { actions } = useUserStore();
 
   return (
     <nav>
@@ -59,7 +60,7 @@ export const TopMenu = () => {
             About
           </NavLink>
         </li>
-        {isAuthenticated && (
+        {authService.isAuth() && (
           <li>
             <Link
               className={styles.navLink}

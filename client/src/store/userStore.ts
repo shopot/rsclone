@@ -6,7 +6,6 @@ import { LOCALSTORAGE_AUTH_KEY } from '../shared/constants';
 
 type TypeUserState = {
   user: TypeAuthUser | null;
-  isAuthenticated: boolean;
 
   actions: {
     setUser: () => Promise<void>;
@@ -17,7 +16,6 @@ type TypeUserState = {
 export const useUserStore = create<TypeUserState>((set) => {
   return {
     user: null,
-    isAuthenticated: storageService.has(LOCALSTORAGE_AUTH_KEY),
 
     actions: {
       async setUser() {
