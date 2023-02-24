@@ -22,6 +22,8 @@ export const useUserStore = create<TypeUserState>((set) => {
         const result = await authService.whoami();
         if (result) {
           storageService.set(LOCALSTORAGE_AUTH_KEY, 'yes');
+        } else {
+          storageService.remove(LOCALSTORAGE_AUTH_KEY);
         }
         set({ user: result });
       },
