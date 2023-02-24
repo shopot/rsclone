@@ -70,6 +70,7 @@ export class GameScene extends Phaser.Scene {
   popups: Popup[] = [];
   suit?: Suit;
   cardsCoords: number[][][] = [];
+  cardsChanged: boolean[] = [];
 
   constructor() {
     super('Game');
@@ -975,26 +976,30 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleCardsAtHandsAfterMove() {
-    await this.moveCardsAtHandsToCenter();
     this.sortCards();
+    await this.moveCardsAtHandsToCenter();
     this.shiftCardsAtHands();
   }
 
   async moveCardsAtHandsToCenter() {
     await Promise.all(
       this.playersCardsSprites.map(async (set, i) => {
-        await Promise.all(
-          set.map(async (card) => {
-            await card.animateToPlayer(i, this.playersCardsSprites.length);
-          }),
-        );
+        if (this.cardsChanged[i] === true) {
+          await Promise.all(
+            set.map(async (card) => {
+              await card.animateToPlayer(i, this.playersCardsSprites.length);
+            }),
+          );
+        }
       }),
     );
   }
 
   sortCards() {
-    const newArr: Card[][] = [];
+    this.cardsChanged = [];
+    const newPlayersCardsSprites: Card[][] = [];
     this.playersCardsSprites.map((arr) => {
+      const oldArr = [...arr];
       arr.sort((a, b) => {
         if (a.cardType && b.cardType && a.cardType.rank < b.cardType.rank) {
           return -1;
@@ -1013,10 +1018,12 @@ export class GameScene extends Phaser.Scene {
       });
       const trumpCards = arr.filter((card) => card.cardType?.suit === this.trump.suit);
       const notTrumpCards = arr.filter((card) => card.cardType?.suit !== this.trump.suit);
-      arr = [...notTrumpCards, ...trumpCards];
-      newArr.push(arr);
+      const newArr = [...notTrumpCards, ...trumpCards];
+      newPlayersCardsSprites.push(newArr);
+      if (JSON.stringify(oldArr) === JSON.stringify(newArr)) this.cardsChanged.push(false);
+      else this.cardsChanged.push(true);
     });
-    this.playersCardsSprites = newArr;
+    this.playersCardsSprites = newPlayersCardsSprites;
   }
 
   updateDeck() {
