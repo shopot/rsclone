@@ -20,9 +20,6 @@ export class User {
   @Column({ default: () => 'unixepoch()' })
   createdAt: number;
 
-  @Column({
-    default: () => 'unixepoch()',
-    onUpdate: 'unixepoch()',
-  })
+  @Column({ default: () => 'unixepoch()' })
   updatedAt: number;
 }

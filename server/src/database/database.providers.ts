@@ -1,4 +1,4 @@
-import { User } from './../modules/user/user.entity';
+import { User } from '../modules/user/models/user.entity';
 import { History } from '../modules/history/models/history.entity';
 import { Rating } from '../modules/rating/models/rating.entity';
 import { DataSource } from 'typeorm';
