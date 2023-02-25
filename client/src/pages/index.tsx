@@ -7,6 +7,7 @@ import GamePageOld from './gameold';
 import HistoryPage from './history';
 import HomePage from './home';
 import RatingPage from './rating';
+import ProfilePage from './profile';
 import { Layout } from '../components/Layout';
 import { TypeRoute } from '../shared/types';
 import RoomPage from './rooms';
@@ -44,6 +45,14 @@ const PageRouting = () => {
           element={
             <ProtectedRoute>
               <RatingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={TypeRoute.Profile}
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
