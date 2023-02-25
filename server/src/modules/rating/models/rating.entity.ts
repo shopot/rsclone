@@ -5,6 +5,9 @@ export class Rating {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ nullable: false })
+  userId: number;
+
   @Column({ length: 32, nullable: false })
   player: string;
 

@@ -13,6 +13,7 @@ export enum TypeGameErrorType {
   GameRoomNotFound = 'GameRoomNotFound',
   MessageSendFailed = 'MessageSendFailed',
   UnknownError = 'UnknownError',
+  UserNotFound = 'UserNotFound',
 }
 
 export type TypeGameError = {

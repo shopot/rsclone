@@ -40,35 +40,35 @@ export class RatingService {
   /**
    * Create new Rating row
    *
-   * @param createRatingDto
+   * @param {ICreateRatingDto} dto
    * @returns
    */
-  async create(createRatingDto: ICreateRatingDto): Promise<void> {
+  async create(dto: ICreateRatingDto): Promise<void> {
     try {
-      await this.RatingRepository.save(createRatingDto, {
+      await this.RatingRepository.save(dto, {
         reload: false,
       });
     } catch {
       this.logger.error('Insert createRatingDto:');
-      this.logger.error(createRatingDto);
+      this.logger.error(dto);
     }
   }
 
   /**
    * Update Rating row
    *
-   * @param updateRatingDto
+   * @param {IUpdateRatingDto} dto
    */
-  async update(updateRatingDto: IUpdateRatingDto): Promise<void> {
+  async update(dto: IUpdateRatingDto): Promise<void> {
     try {
       this.RatingRepository.createQueryBuilder()
         .update(Rating)
-        .set({ ...updateRatingDto })
-        .where('player = :player', { player: updateRatingDto.player })
+        .set({ ...dto })
+        .where('userId = :userId', { userId: dto.userId })
         .execute();
     } catch {
       this.logger.error('Update updateRatingDto:');
-      this.logger.error(updateRatingDto);
+      this.logger.error(dto);
     }
   }
 }

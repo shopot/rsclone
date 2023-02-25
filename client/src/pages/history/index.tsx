@@ -4,12 +4,15 @@ import listify from 'listify';
 import prettyMs from 'pretty-ms';
 import { useDataStore } from '../../store/dataStore';
 import { MotionContainer } from '../../components/MotionContainer';
+import { historyService } from '../../services/historyService';
 
 const HistoryPage = () => {
   const { history, actions } = useDataStore();
 
   useEffect(() => {
-    void actions.setHistoryList();
+    void actions.setHistoryList(async () => {
+      return await historyService.getAll();
+    });
   }, [actions]);
 
   const columns = [
@@ -47,11 +50,11 @@ const HistoryPage = () => {
       <MotionContainer identKey="HistoryPage">
         <div className="box-container">
           <h1 className="heading">Game History</h1>
-          {history.error && <p className="error-message">{history.error}</p>}
-          {history.data && (
+          {history.length === 0 && <p className="error-message">No data.</p>}
+          {history.length > 0 && (
             <Table
               columns={columns}
-              data={history.data}
+              data={history}
               rowKey="id"
             />
           )}

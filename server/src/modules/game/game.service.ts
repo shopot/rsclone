@@ -1,3 +1,5 @@
+import { TypeChatMessage } from './../../shared/types/TypeChatMessage';
+import { UserService } from './../user/user.service';
 import { getErrorMessage } from '../../shared/helpers';
 import { RatingService } from '../rating/rating.service';
 import { HistoryService } from './../history/history.service';
@@ -16,7 +18,7 @@ import { Socket, Server } from 'socket.io';
 import { Player } from '../../shared/libs/Player';
 import { generateRoomId } from '../../shared/utils/generateRoomId';
 import { Room } from '../../shared/libs/Room';
-import { GameReceiveDto } from './dto';
+import { GameReceiveDto, RoomCreateDto, RoomJoinDto } from './dto';
 
 @Injectable()
 export class GameService {
@@ -28,6 +30,7 @@ export class GameService {
   constructor(
     private historyService: HistoryService,
     private ratingService: RatingService,
+    private userService: UserService,
   ) {
     this.rooms = new Map();
     this.roomId = '';
@@ -97,13 +100,26 @@ export class GameService {
    * @param {Socket} socket - Socket client owner emitter
    * @returns {TypeServerResponse } - Server response object
    */
-  public createRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { playerName, playerAvatar } = data;
+  public async createRoom(
+    data: RoomCreateDto,
+    socket: Socket,
+  ): Promise<TypeServerResponse> {
+    const { userId, testCaseName } = data;
+
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.UserNotFound,
+        message: 'User not found.',
+      });
+    }
 
     const hostPlayer = new Player(
       socket,
-      playerName,
-      playerAvatar,
+      user.id,
+      user.username,
+      user.avatar,
       TypePlayerMember.Host,
     );
 
@@ -118,9 +134,9 @@ export class GameService {
     socket.join(this.roomId);
 
     // RoomTestFactory
-    const testName = data.testName || '';
+    const _testCaseName = testCaseName || '';
 
-    this.room = new Room(this.roomId, hostPlayer, this, testName);
+    this.room = new Room(this.roomId, hostPlayer, this, _testCaseName);
 
     this.rooms.set(this.roomId, this.room);
 
@@ -136,8 +152,20 @@ export class GameService {
    * @param {Socket} client - Socket client owner emitter
    * @returns {TypeServerResponse } - Server response object
    */
-  public joinRoom(data: GameReceiveDto, socket: Socket): TypeServerResponse {
-    const { roomId, playerName, playerAvatar } = data;
+  public async joinRoom(
+    data: RoomJoinDto,
+    socket: Socket,
+  ): Promise<TypeServerResponse> {
+    const { userId, roomId } = data;
+
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      return this.createResponseErrorObject({
+        type: TypeGameErrorType.UserNotFound,
+        message: 'User not found.',
+      });
+    }
 
     this.initRoom(roomId);
 
@@ -149,8 +177,9 @@ export class GameService {
 
     const player = new Player(
       socket,
-      playerName,
-      playerAvatar,
+      user.id,
+      user.username,
+      user.avatar,
       TypePlayerMember.Regular,
     );
 
@@ -231,22 +260,20 @@ export class GameService {
   public setChatMessage(
     data: GameReceiveDto,
     client: Socket,
-  ): TypeServerResponse {
+  ): TypeChatMessage[] {
     this.initRoom(client);
 
     if (!this.room) {
-      return this.createResponseErrorObject({
-        type: TypeGameErrorType.GameRoomNotFound,
-      });
+      return [];
     }
 
     const result = this.room.addChatMessage(client.id, data.message);
 
-    if (result !== true) {
-      return this.createResponseErrorObject(result);
+    if (result === true) {
+      return this.room.getChatState();
     }
 
-    return this.createResponseObject();
+    return [];
   }
 
   /**
@@ -483,17 +510,18 @@ export class GameService {
    * @param {string} player
    * @param {number} wins - Player is win = 1 or else 0
    */
-  public async updatePlayerStats(player: string, wins: number) {
+  public async updatePlayerStats(userId: number, player: string, wins: number) {
     const playerInfo = await this.ratingService.findOne(player);
 
     if (playerInfo) {
       this.ratingService.update({
+        userId,
         player,
         wins: playerInfo.wins + wins,
         total: playerInfo.total + 1,
       });
     } else {
-      this.ratingService.create({ player, wins, total: 1 });
+      this.ratingService.create({ userId, player, wins, total: 1 });
     }
   }
 

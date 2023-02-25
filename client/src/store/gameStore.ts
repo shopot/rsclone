@@ -7,7 +7,6 @@ import {
   TypeRoomStatus,
   TypeCard,
   TypeDealt,
-  TypeChatMessage,
   TypeGameAction,
   TypeServerError,
 } from '../shared/types';
@@ -24,7 +23,6 @@ export type TypeGameState = {
   hostSocketId: string;
   activeSocketId: string;
   players: TypePlayer[];
-  chat: TypeChatMessage[];
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
   deckCounter: number;
@@ -46,7 +44,6 @@ export type TypeGameState = {
     makeDefensiveMove: (card: TypeCard) => void;
     attackerPass: () => void;
     defenderTake: () => void;
-    sendMessage: (message: string) => void;
   };
 };
 
@@ -76,7 +73,6 @@ export const useGameStore = create<TypeGameState>()(
       hostSocketId: '',
       activeSocketId: '',
       players: [],
-      chat: [],
       trumpCard: {
         rank: TypeCardRank.RANK_6,
         suit: TypeCardSuit.Clubs,
@@ -139,10 +135,6 @@ export const useGameStore = create<TypeGameState>()(
 
         defenderTake() {
           socketIOService.emit(TypeSocketEvent.GamePickUpCards, { data: {} });
-        },
-
-        sendMessage(message: string) {
-          socketIOService.emit(TypeSocketEvent.GameChatMessage, { data: { message } });
         },
       },
     };

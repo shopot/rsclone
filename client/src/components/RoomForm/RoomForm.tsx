@@ -1,139 +1,26 @@
-import { useEffect, useState } from 'react';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { useState } from 'react';
 import { IS_OLD_GAME_UI_ENABLED } from '../../app/config';
-import { avatars, getPlayerAvatarIdx, validateAvatarIdx } from '../../shared/avatars';
-import {
-  AVATAR_PREFIX,
-  UNIQUE_LOCALSTORAGE_PREFIX,
-  MINIMUM_NICKNAME_LENGTH,
-  MAXIMUM_NICKNAME_LENGTH,
-} from '../../shared/constants';
-import { testNames } from '../../shared/tests/testNames';
+import { testCaseNames } from '../../shared/tests/testCaseNames';
 import styles from './RoomForm.m.scss';
 
-type TypePlayerSettings = {
-  playerName: string;
-  avatar: string;
-};
-
 export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
-  const validateName = (playerName: string) => {
-    if (
-      playerName.match(/^[a-zA-Z0-9а-яА-Я_\s]+$/) &&
-      playerName.length >= MINIMUM_NICKNAME_LENGTH &&
-      playerName.length <= MAXIMUM_NICKNAME_LENGTH
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const isPlayerSettings = (value: unknown): value is TypePlayerSettings => {
-    if (
-      value &&
-      typeof value === 'object' &&
-      'playerName' in value &&
-      typeof value.playerName === 'string' &&
-      validateName(value.playerName) &&
-      'avatar' in value &&
-      typeof value.avatar === 'string' &&
-      validateAvatarIdx(getPlayerAvatarIdx(value.avatar))
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const initialPlayerSettings: TypePlayerSettings = {
-    playerName: '',
-    avatar: `${AVATAR_PREFIX}0`,
-  };
-
-  const [playerSettings, setPlayerSettings] = useLocalStorage<TypePlayerSettings>(
-    UNIQUE_LOCALSTORAGE_PREFIX,
-    'playersettings',
-    initialPlayerSettings,
-    isPlayerSettings,
-  );
-
-  const [playerName, setPlayerName] = useState(playerSettings.playerName);
   const [oldGameUI, setOldGameUI] = useState(true);
-  const [isPlayerNameValid, setIsPlayerNameValid] = useState(false);
-  const [playerAvatarIdx, setPlayerAvatarIdx] = useState(getPlayerAvatarIdx(playerSettings.avatar));
-  const [testName, setTestName] = useState('');
+  const [testCaseName, setTestCaseName] = useState('');
 
   const actionText = title.toLowerCase().includes('join') ? 'Join' : 'Create';
 
-  useEffect(() => {
-    if (validateName(playerName)) {
-      setIsPlayerNameValid(true);
-    } else {
-      setIsPlayerNameValid(false);
-    }
-  }, [playerName]);
-
-  const handleChangePlayerName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPlayerName(event.target.value);
-  };
-
-  const handleChooseAvatar = (idx: number) => {
-    setPlayerAvatarIdx(idx);
-  };
-
   const handleChangeTestName = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setTestName(event.target.value);
+    setTestCaseName(event.target.value);
   };
 
   const handleSubmit = () => {
-    if (validateName(playerName) && validateAvatarIdx(playerAvatarIdx)) {
-      setPlayerSettings({
-        playerName,
-        avatar: `${AVATAR_PREFIX}${playerAvatarIdx}`,
-      });
-      onSubmit(playerName, `${AVATAR_PREFIX}${playerAvatarIdx}`, testName, oldGameUI);
-    }
+    onSubmit(testCaseName, oldGameUI);
   };
 
   return (
     <div className={styles.form}>
       <div className={styles.fromBody}>
         <h2 className="heading">{title}</h2>
-        <label
-          htmlFor="player-name"
-          className={styles.playerName}
-        >
-          Your nickname:
-          <input
-            autoComplete="off"
-            spellCheck="false"
-            value={playerName}
-            minLength={MINIMUM_NICKNAME_LENGTH}
-            maxLength={MAXIMUM_NICKNAME_LENGTH}
-            onChange={handleChangePlayerName}
-            id="player-name"
-            placeholder="Enter your Nickname"
-            type="text"
-          ></input>
-        </label>
-        <div className={styles.avatars}>
-          {avatars.map((avatar, idx) => (
-            <button
-              key={idx}
-              className={`${styles.avatar} ${idx === playerAvatarIdx ? styles.avatarChosen : ''}`}
-              type="button"
-              role="radio"
-              aria-checked={idx === playerAvatarIdx}
-              onClick={() => handleChooseAvatar(idx)}
-            >
-              <img
-                src={avatar}
-                alt={`player avatar #${idx}`}
-              />
-            </button>
-          ))}
-        </div>
         {IS_OLD_GAME_UI_ENABLED && (
           <>
             <label className={styles.oldUI}>
@@ -150,16 +37,16 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
                   <select
                     style={{ height: '34px', background: 'rgba(0, 0, 0, 0.5)' }}
                     name="testNames"
-                    value={testName}
+                    value={testCaseName}
                     onChange={handleChangeTestName}
                   >
                     <option value="">No testCase</option>
-                    {testNames.map((testName) => (
+                    {testCaseNames.map((testCaseName) => (
                       <option
-                        key={testName}
-                        value={testName}
+                        key={testCaseName}
+                        value={testCaseName}
                       >
-                        {testName}
+                        {testCaseName}
                       </option>
                     ))}
                   </select>
@@ -174,7 +61,6 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
           onClick={handleSubmit}
           className="btn"
           type="button"
-          disabled={!isPlayerNameValid}
         >
           {actionText}
         </button>
@@ -192,6 +78,6 @@ export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
 
 export declare interface IRoomFormProps {
   title: string;
-  onSubmit(playerName: string, playerAvatar: string, testName: string, oldGameUI: boolean): void;
+  onSubmit(testCaseName: string, oldGameUI: boolean): void;
   onCancel(): void;
 }

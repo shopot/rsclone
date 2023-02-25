@@ -15,8 +15,9 @@ import {
   TypeRoomEvent,
   TypeRoomList,
   TypeServerResponse,
+  TypeChatMessage,
 } from '../../shared/types';
-import { GameReceiveDto } from './dto';
+import { GameReceiveDto, RoomCreateDto, RoomJoinDto } from './dto';
 import { GameService } from './game.service';
 
 @Injectable()
@@ -66,16 +67,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
 
   /**
    * Create room event
-   * @param {GameReceiveDto} data
+   * @param {RoomCreateDto} data - receive userId and testCaseName
    * @param {Socket} client
    * @returns
    */
   @SubscribeMessage(TypeRoomEvent.GameCreateRoom)
-  handleGameCreateRoom(
-    @MessageBody('data') data: GameReceiveDto,
+  async handleGameCreateRoom(
+    @MessageBody('data') data: RoomCreateDto,
     @ConnectedSocket() client: Socket,
-  ): void {
-    const results = this.gameService.createRoom(data, client);
+  ): Promise<void> {
+    const results = await this.gameService.createRoom(data, client);
 
     this.emitEvent(TypeRoomEvent.GameCreateRoom, results, client);
 
@@ -89,11 +90,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    * @param {Socket} client
    */
   @SubscribeMessage(TypeRoomEvent.GameJoinRoom)
-  handleGameJoinRoom(
-    @MessageBody('data') data: GameReceiveDto,
+  async handleGameJoinRoom(
+    @MessageBody('data') data: RoomJoinDto,
     @ConnectedSocket() client: Socket,
-  ): void {
-    const results = this.gameService.joinRoom(data, client);
+  ): Promise<void> {
+    const results = await this.gameService.joinRoom(data, client);
 
     this.emitEvent(TypeRoomEvent.GameJoinRoom, results, client);
 
@@ -170,9 +171,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    const results = this.gameService.setChatMessage(data, client);
+    const chatState = this.gameService.setChatMessage(data, client);
 
-    this.sendStateToClientByClientSocket(client, results);
+    if (chatState.length > 0) {
+      this.emitEvent(TypeRoomEvent.GameChatState, chatState);
+    }
   }
 
   /**
@@ -256,7 +259,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    */
   private emitEvent(
     type: TypeRoomEvent,
-    payload: TypeServerResponse | TypeRoomList,
+    payload: TypeServerResponse | TypeRoomList | TypeChatMessage[],
     client: Socket | null = null,
   ): void {
     const response = { data: payload };

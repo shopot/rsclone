@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../../store/gameStore';
+import { useChatStore } from '../../store/chatStore';
 import { socketIOService } from '../../shared/api/socketio';
 import {
   TypeCard,
@@ -9,7 +10,6 @@ import {
   TypeRoomStatus,
   TypePlayerRole,
 } from '../../shared/types';
-import { avatars, getPlayerAvatarIdx } from '../../shared/avatars';
 import styles from './styles.m.scss';
 
 const renderHTML = (rawHTML: string) =>
@@ -65,11 +65,11 @@ const GamePage = () => {
     deckCounter,
     trumpCard,
     players,
-    chat,
     dealt,
     placedCards,
     error,
   } = useGameStore();
+  const { chat, actions: chatActions } = useChatStore();
 
   const isFirstAttackInRound = useGameStore((state) => state.placedCards.length === 0);
 
@@ -131,7 +131,7 @@ const GamePage = () => {
   };
 
   const handleSendMessage = () => {
-    actions.sendMessage(message);
+    chatActions.sendMessage(message);
     setMessage('');
   };
 
@@ -228,7 +228,7 @@ const GamePage = () => {
               <div className={styles.playerImgName}>
                 <img
                   className={styles.playerAvatar}
-                  src={avatars[getPlayerAvatarIdx(player.playerAvatar)]}
+                  src={player.playerAvatar}
                   alt={`Avatar of player ${player.playerName}`}
                 />
                 <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>

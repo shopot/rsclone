@@ -5,6 +5,7 @@ import { TypePlayerRole, TypePlayerStatus, TypePlayerMember } from '../types';
 
 export class Player {
   socket: Socket;
+  userId: number;
   playerName: string;
   playerAvatar: string;
   cards: Card[];
@@ -14,12 +15,14 @@ export class Player {
 
   constructor(
     socket: Socket,
+    userId: number,
     playerName: string,
     playerAvatar: string,
     memberStatus: TypePlayerMember = TypePlayerMember.Regular,
     playerStatus: TypePlayerStatus = TypePlayerStatus.InGame,
   ) {
     this.socket = socket;
+    this.userId = userId;
     this.playerName = playerName;
     this.playerAvatar = playerAvatar;
     this.cards = [];

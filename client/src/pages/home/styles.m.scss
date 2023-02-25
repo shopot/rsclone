@@ -1,3 +1,5 @@
+@use '../../app/styles/constants';
+
 @keyframes logo-anim {
   0% {
     transform: rotate(0deg);
@@ -16,10 +18,28 @@
   }
 }
 
+.container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: calc(8%);
+  background-color: constants.$bg-color;
+  background-image: url('../../assets/bg_dark.jpg');
+  background-repeat: repeat-y;
+  background-size: 100% 100%;
+
+  &>div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: calc(90vh - 8vh);
+  }
+}
+
 .innerContainer {
   width: 100%;
   position: relative;
-  top: calc(6%);
   display: flex;
   flex-direction: column;
   justify-content: center;
