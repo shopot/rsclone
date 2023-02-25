@@ -217,8 +217,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (
-      state.roomStatus === TypeRoomStatus.GameInProgress ||
-      state.roomStatus === TypeRoomStatus.GameIsOver
+      (state.roomStatus === TypeRoomStatus.GameInProgress ||
+        state.roomStatus === TypeRoomStatus.GameIsOver) &&
+      state.activeSocketId !== prevState.activeSocketId &&
+      prevState.roomStatus === TypeRoomStatus.GameInProgress
     ) {
       if (state.lastGameAction === TypeGameAction.DefenderDecidesToPickUp) {
         this.createBubble('Take');
