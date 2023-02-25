@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../../store/gameStore';
+import { useChatStore } from '../../store/chatStore';
 import { socketIOService } from '../../shared/api/socketio';
 import {
   TypeCard,
@@ -64,11 +65,11 @@ const GamePage = () => {
     deckCounter,
     trumpCard,
     players,
-    chat,
     dealt,
     placedCards,
     error,
   } = useGameStore();
+  const { chat, actions: chatActions } = useChatStore();
 
   const isFirstAttackInRound = useGameStore((state) => state.placedCards.length === 0);
 
@@ -130,7 +131,7 @@ const GamePage = () => {
   };
 
   const handleSendMessage = () => {
-    actions.sendMessage(message);
+    chatActions.sendMessage(message);
     setMessage('');
   };
 
