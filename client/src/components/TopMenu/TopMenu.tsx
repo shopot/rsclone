@@ -44,9 +44,9 @@ export const TopMenu = () => {
             className={({ isActive }) =>
               isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
             }
-            to={TypeRoute.About}
+            to={TypeRoute.Profile}
           >
-            About
+            Profile
           </NavLink>
         </li>
         <li>
@@ -54,9 +54,9 @@ export const TopMenu = () => {
             className={({ isActive }) =>
               isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
             }
-            to={TypeRoute.Profile}
+            to={TypeRoute.About}
           >
-            Profile
+            About
           </NavLink>
         </li>
         {user && (
