@@ -2,9 +2,12 @@ import { hasUser } from './../auth/helpers/hasUser';
 import { UserService } from './user.service';
 import {
   Controller,
+  FileTypeValidator,
   Get,
   Logger,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Post,
   Req,
   Res,
@@ -23,10 +26,19 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @UseGuards(AccessTokenGuard)
-  @Post('upload')
   @UseInterceptors(FileInterceptor('image'))
+  @Post('upload')
   uploadImage(
-    @UploadedFile(SharpPipe) imageFilename: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 0.7 }), // 0.7Mb
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|webp)' }),
+        ],
+      }),
+      SharpPipe,
+    )
+    imageFilename: string,
     @Req() req: Request,
   ) {
     if (hasUser(req)) {
@@ -34,6 +46,11 @@ export class UserController {
 
       if (userId) {
         this.userService.uploadAvatar(userId, imageFilename);
+
+        return {
+          statusCode: 200,
+          message: 'success',
+        };
       }
     }
   }
