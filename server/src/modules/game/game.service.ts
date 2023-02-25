@@ -269,7 +269,7 @@ export class GameService {
 
     const result = this.room.addChatMessage(client.id, data.message);
 
-    if (result !== true) {
+    if (result === true) {
       return this.room.getChatState();
     }
 
