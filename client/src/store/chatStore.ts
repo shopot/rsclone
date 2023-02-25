@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { socketIOService } from '../shared/api/socketio';
 import { TypeSocketEvent, TypeChatMessage } from '../shared/types';
 
-type TypeDataState = {
+export type TypeDataState = {
   chat: TypeChatMessage[];
   actions: { sendMessage: (message: string) => void };
 };

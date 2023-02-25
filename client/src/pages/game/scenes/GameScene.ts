@@ -7,6 +7,7 @@ import { Suit } from '../prefabs/Suit';
 import { Button } from '../prefabs/Button';
 import { socketIOService } from '../../../shared/api/socketio';
 import { TypeGameState, useGameStore } from '../../../store/gameStore';
+import { TypeDataState, useChatStore } from '../../../store/chatStore';
 import {
   TypeCard,
   TypeChatMessage,
@@ -24,6 +25,7 @@ import { StatusHelper } from '../prefabs/StatusHelper';
 import { Timer } from '../prefabs/Timer';
 import { Chat } from '../classes/Chat';
 import { Popup } from '../classes/Popup';
+import { DataType } from 'ajv/dist/compile/validate/dataType';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -74,6 +76,9 @@ export class GameScene extends Phaser.Scene {
 
   constructor() {
     super('Game');
+
+    useChatStore.subscribe((state) => this.updateChat(state.chat));
+
     // setPlayers
     useGameStore.subscribe(
       (state) => state.players.length,
@@ -130,7 +135,7 @@ export class GameScene extends Phaser.Scene {
     this.chat = new Chat(this);
   }
 
-  updateChat(chatContent: TypeChatMessage[], prevChatContent: TypeChatMessage[]) {
+  updateChat(chatContent: TypeChatMessage[]) {
     this.chat?.updateChat(chatContent);
     this.chat?.notify();
   }
@@ -211,9 +216,6 @@ export class GameScene extends Phaser.Scene {
       this.handleWinner(state, prevState);
     if (state.players.length != prevState.players.length) {
       this.onPlayerAmtSounds(state.players.length - prevState.players.length);
-    }
-    if (JSON.stringify(state.chat) !== JSON.stringify(prevState.chat)) {
-      this.updateChat(state.chat, prevState.chat);
     }
 
     if (

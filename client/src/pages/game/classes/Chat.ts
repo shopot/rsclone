@@ -1,5 +1,5 @@
 import { TypeChatMessage } from '../../../shared/types';
-import { useGameStore } from '../../../store/gameStore';
+import { useChatStore } from '../../../store/chatStore';
 import { config } from '../index';
 
 export class Chat {
@@ -54,7 +54,7 @@ export class Chat {
       .on('down', (event: KeyboardEvent) => {
         const formInput = this.formHtml?.getChildByName('chat');
         if (formInput instanceof HTMLInputElement && formInput.value !== '') {
-          useGameStore.getState().actions.sendMessage(formInput.value);
+          useChatStore.getState().actions.sendMessage(formInput.value);
           formInput.value = '';
         }
       });
