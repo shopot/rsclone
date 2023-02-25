@@ -89,8 +89,8 @@ export class Chat {
 
   updateChat(chatContent: TypeChatMessage[]) {
     const chat: string[] = [];
-    const LINES = 9;
-    const COLS = 27;
+    const LINES = 11;
+    const COLS = 29;
     // chatContent.forEach((el) => {
     //   const str = `${el.sender.playerName}: ${el.message}`;
     //   chat.push(str);
