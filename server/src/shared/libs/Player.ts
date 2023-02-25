@@ -72,7 +72,9 @@ export class Player {
   }
 
   public setPlayerStatus(status: TypePlayerStatus) {
-    this.playerStatus = status;
+    if (this.playerStatus !== TypePlayerStatus.Offline) {
+      this.playerStatus = status;
+    }
   }
 
   public getPlayerStatus() {

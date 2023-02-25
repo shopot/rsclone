@@ -191,6 +191,8 @@ export class Room {
     // Clear old chat messages
     this.chat = [];
 
+    this.isDefenderPickup = false;
+
     // Start new deck
     this.deck = new Deck();
 
@@ -315,6 +317,8 @@ export class Room {
       message,
     });
 
+    this.LastGameAction = TypeGameAction.ChatMessage;
+
     return true;
   }
 
@@ -376,6 +380,16 @@ export class Room {
     // Check game is finish for attacker
     if (this.isActivePlayerWin()) {
       this.setPlayerAsWinner(this.activePlayer);
+
+      // gameover if defender agreed to pickup and attacked drops his last card
+      // and becomes winner
+      if (this.isDefenderPickup && this.players.totalCountInGame() === 1) {
+        this.defender.setPlayerStatus(TypePlayerStatus.YouLoser);
+        this.lastLoser = this.defender;
+        this.setGameIsOver();
+        return true;
+      }
+
       this.attacker = this.getNextAttacker(this.activePlayer);
       this.attacker.setPlayerRole(TypePlayerRole.Attacker);
       // Change active player
@@ -383,7 +397,8 @@ export class Room {
     }
 
     if (this.activePlayer.getCardsCount() === 0) {
-      this.passCounterMaxValue -= 1;
+      // set pass max value
+      this.decrementPassCounterMaxValue();
     }
 
     // Move turn to defender from attacker
@@ -676,7 +691,8 @@ export class Room {
   private setPlayerAsWinner(player: Player): void {
     player.setPlayerStatus(TypePlayerStatus.YouWinner);
     player.setPlayerRole(TypePlayerRole.Waiting);
-    this.passCounterMaxValue -= 1;
+    // set pass max value
+    this.decrementPassCounterMaxValue();
   }
 
   private getPlayersForDealt(): Player[] {
@@ -824,7 +840,14 @@ export class Room {
       this.lastLoser = null;
     }
 
-    this.players.remove(leavePlayer);
+    if (
+      this.isGameInProgress() &&
+      leavePlayer.getPlayerStatus() !== TypePlayerStatus.InGame
+    ) {
+      leavePlayer.setPlayerStatus(TypePlayerStatus.Offline);
+    } else {
+      this.players.remove(leavePlayer);
+    }
 
     if (
       this.getRoomStatus() === TypeRoomStatus.WaitingForStart &&
@@ -1009,15 +1032,27 @@ export class Room {
     }
   }
 
+  decrementPassCounterMaxValue() {
+    if (this.passCounterMaxValue > 1 && this.players.totalCountInGame() > 1) {
+      this.passCounterMaxValue -= 1;
+    }
+  }
+
   /**
    * Set game is over
    */
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
+    // Set player roles to Waiting; kick offline players
+    const offlinePlayers = [];
     for (const player of this.players) {
       player.setPlayerRole(TypePlayerRole.Waiting);
+      if (player.getPlayerStatus() === TypePlayerStatus.Offline) {
+        offlinePlayers.push(player);
+      }
     }
+    offlinePlayers.forEach((player) => this.players.remove(player));
 
     this.updateGameStats();
   }
