@@ -176,12 +176,13 @@ export class Chat {
     }
   }
 
-  notify() {
+  notify(amt?: number) {
     if (!this.open) {
       this.sound.play();
       this.counter++;
       this.circle.setAlpha(1);
-      this.newMessagesAmt.setText(this.counter.toString());
+      const amount = amt !== undefined ? amt : this.counter;
+      this.newMessagesAmt.setText(amount.toString());
     }
   }
 }

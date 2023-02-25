@@ -133,11 +133,13 @@ export class GameScene extends Phaser.Scene {
 
   createChat() {
     this.chat = new Chat(this);
+    const chatData = useChatStore.getState().chat;
+    if (chatData.length !== 0) this.updateChat(chatData, chatData.length);
   }
 
-  updateChat(chatContent: TypeChatMessage[]) {
+  updateChat(chatContent: TypeChatMessage[], amt?: number) {
     this.chat?.updateChat(chatContent);
-    this.chat?.notify();
+    this.chat?.notify(amt);
   }
 
   createSounds() {
