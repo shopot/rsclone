@@ -3,7 +3,7 @@ import { MotionContainer } from '../../components/MotionContainer';
 import Avatar from 'react-avatar-edit';
 import { userService } from '../../services';
 import { avatars } from '../../shared/avatars';
-import { AVATAR_SIZE } from '../../shared/constants';
+import { AVATAR_SIZE, MESSAGE_TIMEOUT } from '../../shared/constants';
 import defaultAvatar from '../../assets/avatars/default-avatar.webp';
 import styles from './styles.m.scss';
 
@@ -41,7 +41,7 @@ const ProfilePage = () => {
       setErrorMessage(null);
       setTimeout(() => {
         setShowSuccessfulMessage(false);
-      }, 2500);
+      }, MESSAGE_TIMEOUT);
     } else {
       setErrorMessage(`${result.error.statusCode}: ${result.error.message}`);
     }
