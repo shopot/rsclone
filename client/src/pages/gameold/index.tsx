@@ -9,7 +9,6 @@ import {
   TypeRoomStatus,
   TypePlayerRole,
 } from '../../shared/types';
-import { avatars, getPlayerAvatarIdx } from '../../shared/avatars';
 import styles from './styles.m.scss';
 
 const renderHTML = (rawHTML: string) =>
@@ -228,7 +227,7 @@ const GamePage = () => {
               <div className={styles.playerImgName}>
                 <img
                   className={styles.playerAvatar}
-                  src={avatars[getPlayerAvatarIdx(player.playerAvatar)]}
+                  src={player.playerAvatar}
                   alt={`Avatar of player ${player.playerName}`}
                 />
                 <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MotionContainer } from '../../components/MotionContainer';
 import Avatar from 'react-avatar-edit';
 import { userService } from '../../services';
-import { avatars } from '../../shared/avatars';
+import { avatars } from './avatars';
 import { AVATAR_SIZE, MESSAGE_TIMEOUT } from '../../shared/constants';
 import defaultAvatar from '../../assets/avatars/default-avatar.webp';
 import styles from './styles.m.scss';
