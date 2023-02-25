@@ -236,8 +236,8 @@ export class GameScene extends Phaser.Scene {
         this.createBubble('Pass');
         this.updateHelper('passes');
       }
-      await this.handleClick();
     }
+    await this.handleClick();
 
     if (
       state.roomStatus === TypeRoomStatus.GameInProgress ||
