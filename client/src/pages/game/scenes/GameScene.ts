@@ -813,9 +813,15 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < this.playersSorted.length; i++) {
       const nickname = this.playersSorted[i].playerName;
       const socketId = this.playersSorted[i].socketId;
-      const avatar = this.playersSorted[i].playerAvatar;
-      const icon = new Icon(this, i, this.handSizes, nickname, socketId, avatar);
-      this.icons.push(icon);
+
+      const addIcon = () => {
+        const icon = new Icon(this, i, this.handSizes, nickname, socketId, i.toString());
+        this.icons.push(icon);
+      };
+
+      this.load.once('complete', addIcon, this);
+      this.load.image(i.toString(), this.playersSorted[i].playerAvatar);
+      this.load.start();
     }
   }
 

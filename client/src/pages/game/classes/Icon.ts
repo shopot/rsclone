@@ -34,7 +34,9 @@ export class Icon {
 
     this.x = tableSizes[index].startX;
     this.spriteY = index === 0 ? config.height - config.cardSize.h + 25 : 82;
-    this.pic = new IconPic(this.scene, this.x - 40, this.spriteY, 'icons', avatar);
+    // this.pic = new IconPic(this.scene, this.x - 40, this.spriteY, 'icons', avatar);
+    this.pic = this.scene.add.sprite(this.x - 40, this.spriteY, avatar).setScale(0.9);
+
     this.border = new IconBorder(this.scene, this.x - 68, this.spriteY - 27, 55, 55, 5);
 
     const textY = index === 0 ? this.spriteY - 55 : this.spriteY + 40;
