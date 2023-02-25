@@ -729,7 +729,7 @@ export class GameScene extends Phaser.Scene {
   createWaitTitle() {
     this.waitPopup?.destroy();
     const isHost = useGameStore.getState().players[0].socketId === this.socketId;
-    this.waitPopup = new WaitPopup(this, isHost);
+    this.waitPopup = new WaitPopup(this, isHost, this.playerAmt);
   }
 
   createHelper() {
