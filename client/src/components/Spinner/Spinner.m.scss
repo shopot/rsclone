@@ -1,0 +1,32 @@
+@use '../../app/styles/constants';
+
+.wrpapper {
+  padding: 30px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  vertical-align: -0.125em;
+  border-radius: 50%;
+  border: 0.25em solid constants.$main-color;
+  border-right-color: transparent;
+  animation: 1s linear infinite spinner-border;
+}
+
+.text {
+  padding-left: 10px;
+  font-family: Signika, sans-serif;
+  font-weight: 600;
+  color: constants.$main-color;
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}

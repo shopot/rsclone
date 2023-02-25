@@ -13,4 +13,5 @@ services:
       - .env
     volumes:
       - ./db:/app/db
+      - ./uploads:/app/uploads
     restart: always

@@ -1,42 +1,39 @@
 import { create } from 'zustand';
-import { historyService } from '../services/historyService';
-import { ratingService } from '../services/ratingService';
 import { TypeHistoryItem } from '../shared/types/TypeHistoryItem';
 import { TypeRatingItem } from '../shared/types';
 
-type TypeDataState = {
-  history: {
-    data: TypeHistoryItem[] | null;
-    error: string | null;
-  };
+interface IGetHistoryCallback {
+  (): Promise<TypeHistoryItem[]>;
+}
 
-  rating: {
-    data: TypeRatingItem[] | null;
-    error: string | null;
-  };
+interface IGetRatingCallback {
+  (): Promise<TypeRatingItem[]>;
+}
+
+type TypeDataState = {
+  history: TypeHistoryItem[];
+  rating: TypeRatingItem[];
 
   actions: {
-    setHistoryList: () => Promise<void>;
-    setRatingList: () => Promise<void>;
+    setHistoryList: (callback: IGetHistoryCallback) => Promise<void>;
+    setRatingList: (callback: IGetRatingCallback) => Promise<void>;
   };
 };
 
 export const useDataStore = create<TypeDataState>((set) => {
   return {
-    history: { data: null, error: null },
-    rating: { data: null, error: null },
+    history: [],
+    rating: [],
 
     actions: {
-      async setHistoryList() {
-        const result = await historyService.getAll();
-
-        set({ history: result });
+      async setHistoryList(getHistoryCallback: IGetHistoryCallback) {
+        const results = await getHistoryCallback();
+        set({ history: results });
       },
 
-      async setRatingList() {
-        const result = await ratingService.getAll();
-
-        set({ rating: result });
+      async setRatingList(getRatingCallback: IGetRatingCallback) {
+        const results = await getRatingCallback();
+        set({ rating: results });
       },
     },
   };

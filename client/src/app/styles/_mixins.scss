@@ -1,0 +1,8 @@
+@use 'sass:color';
+
+@mixin message($color) {
+  padding: 5px 10px;
+  text-align: center;
+  background: $color;
+  background: linear-gradient(90deg, rgba($color, 0) 0%, $color 50%, rgba($color, 0) 100%);
+}

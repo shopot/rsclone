@@ -1,5 +1,4 @@
 import { TypeCard } from './TypeCard';
-import { TypeChatMessage } from './TypeChatMessage';
 import { TypeGameError } from './TypeGameError';
 import { TypePlayerDto } from './TypePlayerDto';
 import { TypeDealt } from './TypeDealt';
@@ -13,7 +12,6 @@ export type TypeServerResponse = {
   hostSocketId?: string; // socketId
   activeSocketId?: string | '';
   players?: TypePlayerDto[];
-  chat?: TypeChatMessage[];
   trumpCard?: TypeCard;
   placedCards?: TypePlacedCard[];
   dealt?: TypeDealt[];

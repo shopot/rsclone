@@ -1,0 +1,56 @@
+@use '../../app/styles/constants';
+@use '../../app/styles/mixins';
+
+$content-width: 400px;
+
+.contents {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatars {
+  min-width: $content-width;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 1em;
+}
+
+.avatar {
+  box-sizing: content-box;
+  border: 2px solid transparent;
+  transition: transform 0.25s ease-in-out;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  img {
+    border-radius: 5px;
+  }
+}
+
+.avatarChosen {
+  border: 2px solid constants.$outline-color;
+  border-radius: 5px;
+}
+
+.avatarUploadCanvas {
+  div {
+    margin: 0 auto;
+  }
+}
+
+.successMessage {
+  @include mixins.message(constants.$success-color);
+}
+
+.errorMessage {
+  @include mixins.message(constants.$error-color);
+}
+
+.submitButton {
+  width: calc($content-width * 2 / 3);
+}

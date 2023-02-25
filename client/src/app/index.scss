@@ -63,6 +63,10 @@ input {
     border: 2px solid constants.$main-color;
     outline: none;
   }
+
+  &::placeholder {
+    color: color.adjust(constants.$text-color, $alpha: -0.5);
+  }
 }
 
 select {

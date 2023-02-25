@@ -15,3 +15,6 @@ export * from './TypeChatMessage';
 export * from './TypeGameAction';
 export * from './TypeHistoryItem';
 export * from './TypeRatingItem';
+export * from './TypeJWTTokens';
+export * from './TypeAPIError';
+export * from './TypeAuthResponse';

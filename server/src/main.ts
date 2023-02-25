@@ -1,13 +1,19 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import * as cookieParser from 'cookie-parser';
+import { COOKIE_SECRET } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Cross-origin resource sharing (CORS)
   app.enableCors({
-    origin: '*',
+    origin: true,
+    credentials: true,
   });
+
+  app.use(cookieParser(COOKIE_SECRET));
 
   const configService: ConfigService = app.get<ConfigService>(ConfigService);
 
