@@ -28,6 +28,13 @@
   background-image: url('../../assets/bg_dark.jpg');
   background-repeat: repeat-y;
   background-size: 100% 100%;
+
+  &>div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: calc(90vh - 8vh);
+  }
 }
 
 .innerContainer {
