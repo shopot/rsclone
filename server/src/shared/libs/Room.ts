@@ -1035,7 +1035,6 @@ export class Room {
       hostSocketId: this.hostPlayer?.getSocketId(),
       activeSocketId: this.activePlayer?.getSocketId(),
       players: this.players.getPlayersAsDto(),
-      chat: this.chat,
       trumpCard: this.getDeck().getTrumpCard().getCardDto() || {
         rank: TypeCardRank.RANK_6,
         suit: TypeCardSuit.Clubs,
