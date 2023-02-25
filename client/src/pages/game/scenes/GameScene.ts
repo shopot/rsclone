@@ -26,7 +26,6 @@ import { Timer } from '../prefabs/Timer';
 import { Chat } from '../classes/Chat';
 import { Popup } from '../classes/Popup';
 import { WaitPopup } from '../classes/WaitPopup';
-// import { DataType } from 'ajv/dist/compile/validate/dataType';
 
 export const enum TypeButtonStatus {
   Start = 'Start',

@@ -76,7 +76,7 @@ export class Popup {
       ? this.depths.onEnd
       : this.depths.onWin;
 
-    const shift = isFirst ? -80 : -20;
+    const shift = isFirst ? -80 : -50;
 
     this.wrapper = this.scene.add
       .sprite(config.width / 2, config.height / 2 - 30, 'winWrapper')
@@ -237,6 +237,19 @@ export class Popup {
           })
           .on('pointerover', () => this.leaveBtn?.setScale(0.83))
           .on('pointerout', () => this.leaveBtn?.setScale(0.8));
+      } else if (!isFirst && status) {
+        this.openBtnText = this.scene.add
+          .text(
+            config.width / 2,
+            config.height / 2 + 70,
+            'You can wait for host to start new game/open the room or you can leave',
+            {
+              color: '#fff',
+              font: '18px Signika',
+            },
+          )
+          .setOrigin(0.5)
+          .setDepth(zIndex + 1);
       }
     };
   }
