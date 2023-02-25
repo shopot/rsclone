@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { TypeRoute } from '../../shared/types';
 import { authService } from '../../services';
 
 interface ProtectedRouteProps {
@@ -11,7 +12,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps): React.ReactEl
   if (!authService.isAuth()) {
     return (
       <Navigate
-        to="/"
+        to={`${TypeRoute.Entrance}`}
         replace={true}
         state={{ from: location }}
       />

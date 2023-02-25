@@ -12,7 +12,7 @@ import durakLogoHat from '../../assets/durak-logo-hat.webp';
 import styles from './styles.m.scss';
 import { Footer } from '../../components/Footer';
 
-const HomePage = () => {
+const EntrancePage = () => {
   const locationState: unknown = useLocation().state;
   const refererPage = validateLocationState(locationState) ? locationState.from.pathname : null;
   const [formIdx, setFormIdx] = useState(0);
@@ -35,7 +35,7 @@ const HomePage = () => {
 
   return (
     <div className={styles.container}>
-      <MotionContainer identKey="HomePage">
+      <MotionContainer identKey="EntrancePage">
         <ModalContainer
           isOpen={isOpen}
           toggle={toggle}
@@ -88,4 +88,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default EntrancePage;

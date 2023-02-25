@@ -5,7 +5,7 @@ import AboutPage from './about';
 import GamePage from './game';
 import GamePageOld from './gameold';
 import HistoryPage from './history';
-import HomePage from './home';
+import EntrancePage from './entrance';
 import RatingPage from './rating';
 import ProfilePage from './profile';
 import { Layout } from '../components/Layout';
@@ -59,8 +59,8 @@ const PageRouting = () => {
       </Route>
 
       <Route
-        path={TypeRoute.Home}
-        element={<HomePage />}
+        path={TypeRoute.Entrance}
+        element={<EntrancePage />}
       />
       <Route
         path={TypeRoute.Game}
