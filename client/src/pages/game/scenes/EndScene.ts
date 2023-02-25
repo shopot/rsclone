@@ -11,6 +11,7 @@ export class EndScene extends Phaser.Scene {
     const text = this.add
       .text(config.width / 2, config.height / 2 - 30, 'Leaving...')
       .setOrigin(0.5, 0);
+    // this.game.destroy(true, false);
     window.location.href = '/';
   }
 }

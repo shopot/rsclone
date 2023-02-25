@@ -37,7 +37,7 @@ export class Chat {
       .setAlpha(0);
 
     this.chatText = this.scene.add
-      .text(this.chatParams.x, this.chatParams.y, 'chatbot: Start chatting here )', {
+      .text(this.chatParams.x, this.chatParams.y, 'chatbot: Hi there!', {
         backgroundColor: '#E7F0F9',
         color: '#000',
         font: '18px',
@@ -46,8 +46,8 @@ export class Chat {
       .setFixedSize(250, 240)
       .setAlign('justify')
       .setDepth(202)
-      .setAlpha(0)
-      .setWordWrapWidth(245, true);
+      .setAlpha(0);
+    // .setWordWrapWidth(245, true);
 
     this.enterKey = this.scene.input.keyboard
       .addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
@@ -90,7 +90,7 @@ export class Chat {
   updateChat(chatContent: TypeChatMessage[]) {
     const chat: string[] = [];
     const LINES = 11;
-    const COLS = 29;
+    const COLS = 22;
     // chatContent.forEach((el) => {
     //   const str = `${el.sender.playerName}: ${el.message}`;
     //   chat.push(str);
