@@ -822,12 +822,19 @@ export class GameScene extends Phaser.Scene {
       const socketId = this.playersSorted[i].socketId;
 
       const addIcon = () => {
-        const icon = new Icon(this, i, this.handSizes, nickname, socketId, i.toString());
+        const icon = new Icon(
+          this,
+          i,
+          this.handSizes,
+          nickname,
+          socketId,
+          this.playersSorted[i].playerAvatar,
+        );
         this.icons.push(icon);
       };
 
       this.load.once('complete', addIcon, this);
-      this.load.image(i.toString(), this.playersSorted[i].playerAvatar);
+      this.load.image(this.playersSorted[i].playerAvatar, this.playersSorted[i].playerAvatar);
       this.load.start();
     }
   }
