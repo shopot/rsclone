@@ -15,6 +15,7 @@ import {
   TypeRoomEvent,
   TypeRoomList,
   TypeServerResponse,
+  TypeChatMessage,
 } from '../../shared/types';
 import { GameReceiveDto, RoomCreateDto, RoomJoinDto } from './dto';
 import { GameService } from './game.service';
@@ -170,9 +171,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     @MessageBody('data') data: GameReceiveDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    const results = this.gameService.setChatMessage(data, client);
+    const chatState = this.gameService.setChatMessage(data, client);
 
-    this.sendStateToClientByClientSocket(client, results);
+    if (chatState.length > 0) {
+      this.emitEvent(TypeRoomEvent.GameChatState, chatState);
+    }
   }
 
   /**
@@ -256,7 +259,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
    */
   private emitEvent(
     type: TypeRoomEvent,
-    payload: TypeServerResponse | TypeRoomList,
+    payload: TypeServerResponse | TypeRoomList | TypeChatMessage[],
     client: Socket | null = null,
   ): void {
     const response = { data: payload };
