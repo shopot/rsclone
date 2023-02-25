@@ -314,6 +314,8 @@ export class Room {
       message,
     });
 
+    this.LastGameAction = TypeGameAction.ChatMessage;
+
     return true;
   }
 

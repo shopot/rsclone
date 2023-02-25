@@ -6,5 +6,6 @@ export const enum TypeGameAction {
   AttackerPass = 'AttackerPass',
   DefenderDecidesToPickUp = 'DefenderDecidesToPickUp',
   DefenderTakesCards = 'DefenderTakesCards',
+  ChatMessage = 'ChatMessage',
   Undefined = 'Undefined',
 }
