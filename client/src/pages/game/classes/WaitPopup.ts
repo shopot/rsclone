@@ -10,6 +10,8 @@ export class WaitPopup {
       ? 'Please wait until host starts the game'
       : isHost && playersAmt === 1
       ? 'Please wait for other players to join'
+      : isHost && playersAmt === 4
+      ? 'You can start the game now'
       : 'You can start the game now or wait for more players to join';
     this.text = this.scene.add
       .text(config.width / 2, config.height / 2 - 50, content, {
