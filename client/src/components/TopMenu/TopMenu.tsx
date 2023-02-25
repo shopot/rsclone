@@ -1,5 +1,6 @@
 import { NavLink, Link } from 'react-router-dom';
 import { useUserStore } from '../../store/userStore';
+import { PlayerInfo } from '../PlayerInfo';
 import { TypeRoute } from '../../shared/types';
 import styles from './TopMenu.m.scss';
 
@@ -60,17 +61,27 @@ export const TopMenu = () => {
           </NavLink>
         </li>
         {user && (
-          <li>
-            <Link
-              className={styles.navLink}
-              onClick={() => {
-                void actions.logout();
-              }}
-              to={TypeRoute.Home}
-            >
-              Logout
-            </Link>
-          </li>
+          <>
+            <li>
+              <Link
+                className={styles.navLink}
+                onClick={() => {
+                  void actions.logout();
+                }}
+                to={TypeRoute.Home}
+              >
+                Logout
+              </Link>
+            </li>
+            <li>
+              <Link to={TypeRoute.Profile}>
+                <PlayerInfo
+                  playerName={user.username}
+                  avatarURL={user.avatar}
+                />
+              </Link>
+            </li>
+          </>
         )}
       </ul>
     </nav>

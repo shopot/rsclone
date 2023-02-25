@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MotionContainer } from '../../components/MotionContainer';
 import Avatar from 'react-avatar-edit';
 import { userService } from '../../services';
+import { useUserStore } from '../../store/userStore';
 import { avatars } from './avatars';
 import { AVATAR_SIZE, MESSAGE_TIMEOUT } from '../../shared/constants';
 import defaultAvatar from '../../assets/avatars/default-avatar.webp';
@@ -13,6 +14,7 @@ const ProfilePage = () => {
   const [resetKey, setResetKey] = useState(+Date.now()); // hack to reset component to default state
   const [showSuccessfulMessage, setShowSuccessfulMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { actions } = useUserStore();
 
   const handleChooseAvatar = (avatar: string) => {
     setPlayerAvatar(avatar);
@@ -28,10 +30,6 @@ const ProfilePage = () => {
     setPlayerAvatar(avatars[0]);
   };
 
-  const handleBeforeUpload = (elem: unknown) => {
-    console.log(elem);
-  };
-
   const handleUpload = async () => {
     const result = await userService.uploadAvatar(playerAvatar);
 
@@ -39,6 +37,7 @@ const ProfilePage = () => {
       setResetKey(+Date.now());
       setShowSuccessfulMessage(true);
       setErrorMessage(null);
+      await actions.setUser();
       setTimeout(() => {
         setShowSuccessfulMessage(false);
       }, MESSAGE_TIMEOUT);
@@ -83,7 +82,6 @@ const ProfilePage = () => {
                 mimeTypes="image/jpeg,image/png,image/webp"
                 onClose={handleClose}
                 onCrop={handleCrop}
-                onBeforeFileLoad={handleBeforeUpload}
                 exportAsSquare={true}
                 exportSize={AVATAR_SIZE}
                 exportMimeType="image/jpeg"

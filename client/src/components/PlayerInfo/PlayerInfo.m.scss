@@ -1,0 +1,26 @@
+@use 'sass:color';
+@use '../../app/styles/constants';
+
+.playerName {
+  color: constants.$text-color;
+  font-size: 24px;
+  font-weight: bold;
+  user-select: none;
+  transition: color 0.3s ease-in-out;
+}
+
+.playerInfo {
+  padding: 10px 20px 10px 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  opacity: 0.8;
+  background-color: rgba(0 0 0 / 60%);
+
+  &:hover {
+    .playerName {
+      color: color.adjust(constants.$text-color, $lightness: -20%);
+    }
+  }
+}
