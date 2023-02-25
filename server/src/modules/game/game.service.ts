@@ -1,3 +1,4 @@
+import { TypeChatMessage } from './../../shared/types/TypeChatMessage';
 import { UserService } from './../user/user.service';
 import { getErrorMessage } from '../../shared/helpers';
 import { RatingService } from '../rating/rating.service';
@@ -259,22 +260,20 @@ export class GameService {
   public setChatMessage(
     data: GameReceiveDto,
     client: Socket,
-  ): TypeServerResponse {
+  ): TypeChatMessage[] {
     this.initRoom(client);
 
     if (!this.room) {
-      return this.createResponseErrorObject({
-        type: TypeGameErrorType.GameRoomNotFound,
-      });
+      return [];
     }
 
     const result = this.room.addChatMessage(client.id, data.message);
 
-    if (result !== true) {
-      return this.createResponseErrorObject(result);
+    if (result === true) {
+      return this.room.getChatState();
     }
 
-    return this.createResponseObject();
+    return [];
   }
 
   /**
