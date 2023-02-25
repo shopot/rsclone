@@ -10,6 +10,7 @@ import cardsSet from '../../assets/cards-set.webp';
 import durakLogoText from '../../assets/durak-logo-text.webp';
 import durakLogoHat from '../../assets/durak-logo-hat.webp';
 import styles from './styles.m.scss';
+import { Footer } from '../../components/Footer';
 
 const HomePage = () => {
   const locationState: unknown = useLocation().state;
@@ -78,6 +79,9 @@ const HomePage = () => {
               Start
             </button>
           </div>
+        </div>
+        <div className={styles.footerWrapper}>
+          <Footer />
         </div>
       </MotionContainer>
     </div>
