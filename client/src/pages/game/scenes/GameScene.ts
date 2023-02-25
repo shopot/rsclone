@@ -7,7 +7,7 @@ import { Suit } from '../prefabs/Suit';
 import { Button } from '../prefabs/Button';
 import { socketIOService } from '../../../shared/api/socketio';
 import { TypeGameState, useGameStore } from '../../../store/gameStore';
-import { TypeDataState, useChatStore } from '../../../store/chatStore';
+import { useChatStore } from '../../../store/chatStore';
 import {
   TypeCard,
   TypeChatMessage,
@@ -25,7 +25,8 @@ import { StatusHelper } from '../prefabs/StatusHelper';
 import { Timer } from '../prefabs/Timer';
 import { Chat } from '../classes/Chat';
 import { Popup } from '../classes/Popup';
-import { DataType } from 'ajv/dist/compile/validate/dataType';
+import { WaitPopup } from '../classes/WaitPopup';
+// import { DataType } from 'ajv/dist/compile/validate/dataType';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -73,6 +74,7 @@ export class GameScene extends Phaser.Scene {
   suit?: Suit;
   cardsCoords: number[][][] = [];
   cardsChanged: boolean[] = [];
+  waitPopup?: WaitPopup;
 
   constructor() {
     super('Game');
@@ -720,7 +722,14 @@ export class GameScene extends Phaser.Scene {
       this.createHands();
       this.createIcons();
       this.createHelper();
+      this.createWaitTitle();
     }
+  }
+
+  createWaitTitle() {
+    this.waitPopup?.destroy();
+    const isHost = useGameStore.getState().players[0].socketId === this.socketId;
+    this.waitPopup = new WaitPopup(this, isHost);
   }
 
   createHelper() {
@@ -872,6 +881,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async startGame() {
+    this.waitPopup?.destroy();
     this.trump = useGameStore.getState().trumpCard;
     this.createTrumpSuit();
     this.createTimer();
