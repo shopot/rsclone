@@ -68,7 +68,7 @@ export const TopMenu = () => {
                 onClick={() => {
                   void actions.logout();
                 }}
-                to={TypeRoute.Home}
+                to={TypeRoute.Entrance}
               >
                 Logout
               </Link>
