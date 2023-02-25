@@ -318,6 +318,10 @@ export class Room {
     return true;
   }
 
+  public getChatState(): TypeChatMessage[] {
+    return this.chat;
+  }
+
   /**
    * Give one card from attacker
    */
