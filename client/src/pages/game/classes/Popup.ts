@@ -149,13 +149,13 @@ export class Popup {
 
         const addIcon = () => {
           this.avatar = this.scene.add
-            .sprite(config.width / 3 - 20, config.height / 2 - 10 + shift, 'pic')
+            .sprite(config.width / 3 - 20, config.height / 2 - 10 + shift, player.playerAvatar)
             .setOrigin(0, 0)
             .setDepth(zIndex + 1);
         };
 
-        this.scene.load.once('complete', addIcon, this);
-        this.scene.load.image('pic', player.playerAvatar);
+        this.scene.load.on('complete', addIcon, this);
+        this.scene.load.image(player.playerAvatar, player.playerAvatar);
         this.scene.load.start();
 
         const hat = status ? 'foolscap' : 'crown';
