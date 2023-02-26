@@ -669,8 +669,6 @@ export class Room {
     this.round.restart();
 
     this.isDealtEnabled = true;
-
-    Logger.debug(`Room #${this.roomId} - Start next round`);
   }
 
   /**
@@ -1052,9 +1050,10 @@ export class Room {
         offlinePlayers.push(player);
       }
     }
-    offlinePlayers.forEach((player) => this.players.remove(player));
 
     this.updateGameStats();
+
+    offlinePlayers.forEach((player) => this.players.remove(player));
   }
 
   /**
@@ -1062,8 +1061,6 @@ export class Room {
    * @returns {TypeRoomState}  - Room state
    */
   public getState(): TypeRoomState {
-    Logger.debug(this.round);
-
     const state = {
       roomId: this.roomId,
       roomStatus: this.roomStatus || TypeRoomStatus.WaitingForPlayers,
