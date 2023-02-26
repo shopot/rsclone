@@ -1,268 +1,184 @@
-import React from 'react';
-import { useNavigate } from 'react-router';
-import { useGameStore } from '../../store/gameStore';
-import { socketIOService } from '../../shared/api/socketio';
-import {
-  TypeCard,
-  TypeCardRank,
-  TypeCardSuit,
-  TypeRoomStatus,
-  TypePlayerRole,
-} from '../../shared/types';
-import styles from './styles.m.scss';
+import React, { useRef } from 'react';
+import { useGame } from '../../app/hooks/useGame';
+import { BootScene } from './scenes/BootScene';
+import { EndScene } from './scenes/EndScene';
+import { GameScene } from './scenes/GameScene';
+import { RestartScene } from './scenes/RestartScene';
 
-const cardToString = (card: TypeCard) => {
-  let suit = '';
-  switch (card.suit) {
-    case TypeCardSuit.Clubs:
-      suit = '♣';
-      break;
-    case TypeCardSuit.Diamonds:
-      suit = '♦';
-      break;
-    case TypeCardSuit.Hearts:
-      suit = '♥';
-      break;
-    case TypeCardSuit.Spades:
-      suit = '♠';
-      break;
-  }
-
-  let rank = '';
-  switch (card.rank) {
-    case TypeCardRank.RANK_J:
-      rank = 'J';
-      break;
-    case TypeCardRank.RANK_Q:
-      rank = 'Q';
-      break;
-    case TypeCardRank.RANK_K:
-      rank = 'K';
-      break;
-    case TypeCardRank.RANK_A:
-      rank = 'A';
-      break;
-    default:
-      rank = card.rank.toString();
-  }
-
-  return `${rank}${suit}`;
+export const config = {
+  type: Phaser.AUTO,
+  width: 1280,
+  maxWidth: 1280,
+  height: 720,
+  maxHeight: 720,
+  backgroundColor: '0x000000',
+  tableColor: [0x000000, 0x00ff00],
+  tableBorderColor: [0xffff00, 0x00ff00],
+  depth: { bg: -5, suit: -4, trumpCard: -3 },
+  parent: 'game-content',
+  cardSize: { w: 150 * 0.7, h: 225 * 0.7 },
+  scene: [BootScene, GameScene, EndScene, RestartScene],
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  dom: {
+    createContainer: true,
+  },
+  icons: ['Dali', 'Earring', 'Frida', 'Mona', 'Peach', 'Unknown'],
+  suits: ['clubs', 'diamonds', 'hearts', 'spades'],
+  cardNames: [
+    '6C',
+    '6D',
+    '6H',
+    '6S',
+    '7C',
+    '7D',
+    '7H',
+    '7S',
+    '8C',
+    '8D',
+    '8H',
+    '8S',
+    '9C',
+    '9D',
+    '9H',
+    '9S',
+    '10C',
+    '10D',
+    '10H',
+    '10S',
+    'AC',
+    'AD',
+    'AH',
+    'AS',
+    'JC',
+    'JD',
+    'JH',
+    'JS',
+    'KC',
+    'KD',
+    'KH',
+    'KS',
+    'QC',
+    'QD',
+    'QH',
+    'QS',
+  ],
+  placesForAttack: {
+    3: [
+      { x: 1280 * 0.3, y: 720 / 2 - 50, scale: 0.9 },
+      { x: 1280 * 0.5, y: 720 / 2 - 50, scale: 0.9 },
+      { x: 1280 * 0.7, y: 720 / 2 - 50, scale: 0.9 },
+    ],
+    6: [
+      { x: 1280 * 0.3, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.5, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.7, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.3, y: 720 / 2 + 60, scale: 0.6 },
+      { x: 1280 * 0.5, y: 720 / 2 + 60, scale: 0.6 },
+      { x: 1280 * 0.7, y: 720 / 2 + 60, scale: 0.6 },
+    ],
+    12: [
+      { x: 1280 * 0.25, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.37, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.49, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.61, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.73, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.85, y: 720 / 2 - 120, scale: 0.6 },
+      { x: 1280 * 0.25, y: 720 / 2 + 60, scale: 0.6 },
+      { x: 1280 * 0.37, y: 720 / 2 + 60, scale: 0.6 },
+      { x: 1280 * 0.49, y: 720 / 2 + 60, scale: 0.6 },
+      { x: 1280 * 0.61, y: 720 / 2 + 60, scale: 0.6 },
+      { x: 1280 * 0.73, y: 720 / 2 + 60, scale: 0.6 },
+      { x: 1280 * 0.85, y: 720 / 2 + 60, scale: 0.6 },
+    ],
+  },
+  placesForDefend: {
+    3: [
+      { x: 1280 * 0.3 + 50, y: 720 / 2 + 30, scale: 0.9 },
+      { x: 1280 * 0.5 + 50, y: 720 / 2 + 30, scale: 0.9 },
+      { x: 1280 * 0.7 + 50, y: 720 / 2 + 30, scale: 0.9 },
+    ],
+    6: [
+      { x: 1280 * 0.3 + 50, y: 720 / 2 - 90, scale: 0.6 },
+      { x: 1280 * 0.5 + 50, y: 720 / 2 - 90, scale: 0.6 },
+      { x: 1280 * 0.7 + 50, y: 720 / 2 - 90, scale: 0.6 },
+      { x: 1280 * 0.3 + 50, y: 720 / 2 + 90, scale: 0.6 },
+      { x: 1280 * 0.5 + 50, y: 720 / 2 + 90, scale: 0.6 },
+      { x: 1280 * 0.7 + 50, y: 720 / 2 + 90, scale: 0.6 },
+    ],
+  },
+  playersHands: {
+    1: [
+      {
+        width: 1280 * 0.6,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.2,
+      },
+    ],
+    2: [
+      {
+        width: 1280 * 0.6,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.2,
+      },
+      {
+        width: 1280 * 0.3,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.35,
+      },
+    ],
+    3: [
+      {
+        width: 1280 * 0.6,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.2,
+      },
+      {
+        width: 1280 * 0.3,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.15,
+      },
+      {
+        width: 1280 * 0.3,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.65,
+      },
+    ],
+    4: [
+      {
+        width: 1280 * 0.6,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.2,
+      },
+      {
+        width: 1280 * 0.2,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.15,
+      },
+      {
+        width: 1280 * 0.2,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.45,
+      },
+      {
+        width: 1280 * 0.2,
+        height: 225 * 0.7 + 8,
+        startX: 1280 * 0.75,
+      },
+    ],
+  },
 };
 
 const GamePage = () => {
-  const navigate = useNavigate();
-  const {
-    actions,
-    isOnline,
-    roomId,
-    roomStatus,
-    hostSocketId,
-    activeSocketId,
-    deckCounter,
-    trumpCard,
-    players,
-    dealt,
-    placedCards,
-    error,
-  } = useGameStore();
-
-  const isFirstAttackInRound = useGameStore((state) => state.placedCards.length === 0);
-
-  const activePlayerRole = useGameStore((state) => {
-    const activePlayer = state.players.find((plr) => plr.socketId === state.activeSocketId);
-
-    return activePlayer?.playerRole || TypePlayerRole.Unknown;
-  });
-
-  const socketId = socketIOService.getSocketId();
-
-  const myPlayerName = useGameStore((state) => {
-    const me = state.players.find((plr) => plr.socketId === socketId);
-
-    return me?.playerName || 'John Doe';
-  });
-
-  const handleMakeMove = (card: TypeCard) => {
-    if (activePlayerRole === TypePlayerRole.Attacker) {
-      actions.makeAttackingMove(card);
-    } else if (activePlayerRole === TypePlayerRole.Defender) {
-      actions.makeDefensiveMove(card);
-    }
-  };
-
-  const handleStartGame = () => {
-    actions.startGame();
-  };
-
-  const handleLeaveRoom = () => {
-    actions.leaveRoom();
-    navigate('/');
-  };
-
-  const handleAttackerPass = () => {
-    actions.attackerPass();
-  };
-
-  const handleDefenderTake = () => {
-    actions.defenderTake();
-  };
+  const gameContainer = useRef<HTMLDivElement>(null);
+  useGame(config, gameContainer);
 
   return (
-    <div>
-      <h2 className={styles.title}>stats</h2>
-      <div className={styles.info}>
-        <div>
-          <p>Online status: {isOnline ? 'online' : 'offline'}</p>
-          <p>Room ID: {roomId}</p>
-          <p>Room status: {roomStatus}</p>
-          <p>Player Host socket ID: {hostSocketId}</p>
-          {error && <p className="stats-error">Error: {`${error.type}: ${error.message}`}</p>}
-        </div>
-        <div>
-          <p className={socketId === activeSocketId ? styles.playerActive : ''}>
-            Your player name: {myPlayerName}
-          </p>
-          <p>Your socked ID: {socketId}</p>
-          <p className="info__active-player">Player Active socket ID: {activeSocketId}</p>
-        </div>
-        <div className="deck">
-          <p>
-            Trump card: <span className={styles.cardName}>{cardToString(trumpCard)}</span>
-          </p>
-          <p>
-            Cards in the deck: <span className={styles.cardInDeck}>{deckCounter}</span>
-          </p>
-        </div>
-      </div>
-
-      <section className={styles.section}>
-        <h2 className={styles.title}>
-          players
-          <button
-            style={{ marginLeft: '30px' }}
-            className="btn"
-            type="button"
-            onClick={handleLeaveRoom}
-          >
-            leave room
-          </button>
-        </h2>
-        <div className={styles.players}>
-          {players.map((player) => (
-            <div
-              className={styles.player}
-              key={player.socketId}
-            >
-              <h3 className={player.socketId === activeSocketId ? styles.playerActive : ''}>
-                {player.playerName}
-              </h3>
-              <p>player socketId: {player.socketId}</p>
-              <p>
-                player role:{' '}
-                <span
-                  className={`${player.playerRole === 'Attacker' ? styles.attacker : ''}${
-                    player.playerRole === 'Defender' ? styles.defender : ''
-                  }`}
-                >
-                  {player.playerRole}
-                </span>
-              </p>
-              <p>player status: {player.playerStatus}</p>
-              <div>
-                <h4>Cards of {player.socketId}</h4>
-                <div className={styles.playerCards}>
-                  {player.cards.map((card, idx) => (
-                    <button
-                      className="btn btnCard"
-                      type="button"
-                      key={idx}
-                      disabled={activeSocketId !== socketId || activeSocketId !== player.socketId}
-                      onClick={() => handleMakeMove(card)}
-                    >
-                      {socketId === player.socketId ? cardToString(card) : '?'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.section}>
-        <h2>dealt cards</h2>
-        {dealt.map((player) => (
-          <p key={player.socketId}>
-            {player.socketId}: {player.count}
-          </p>
-        ))}
-      </section>
-
-      <section className={styles.section}>
-        <h2>placed cards</h2>
-        {placedCards.map((placedCard, idx) => (
-          <div key={idx}>
-            <p>placed card pair {idx + 1}</p>
-            <div>
-              <button
-                className="btn btnCard"
-                type="button"
-                key={`a-${idx}`}
-                disabled={true}
-              >
-                {cardToString(placedCard.attacker)}
-              </button>
-              {placedCard.defender && (
-                <button
-                  className="btn btnCard"
-                  type="button"
-                  key={`d-${idx}`}
-                  disabled={true}
-                >
-                  {cardToString(placedCard.defender)}
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      <section className={styles.section}>
-        <div className={styles.uiButtons}>
-          {roomStatus === TypeRoomStatus.WaitingForStart && socketId === hostSocketId && (
-            <button
-              className="btn"
-              type="button"
-              onClick={handleStartGame}
-            >
-              start game
-            </button>
-          )}
-          {roomStatus === TypeRoomStatus.GameInProgress &&
-            socketId === activeSocketId &&
-            !isFirstAttackInRound &&
-            activePlayerRole === TypePlayerRole.Attacker && (
-              <button
-                className="btn"
-                type="button"
-                onClick={handleAttackerPass}
-              >
-                pass
-              </button>
-            )}
-          {roomStatus === TypeRoomStatus.GameInProgress &&
-            socketId === activeSocketId &&
-            activePlayerRole === TypePlayerRole.Defender && (
-              <button
-                className="btn"
-                type="button"
-                onClick={handleDefenderTake}
-              >
-                take
-              </button>
-            )}
-        </div>
-      </section>
+    <div className="game-page">
+      <h1>Game Page</h1>
+      <div ref={gameContainer}></div>
     </div>
   );
 };

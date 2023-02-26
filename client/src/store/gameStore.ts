@@ -7,7 +7,6 @@ import {
   TypeRoomStatus,
   TypeCard,
   TypeDealt,
-  TypeChatMessage,
   TypeGameAction,
   TypeServerError,
 } from '../shared/types';
@@ -16,14 +15,14 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { socketIOService } from '../shared/api/socketio';
 import { IS_DEVELOPMENT_MODE } from '../app/config';
 
-type TypeGameState = {
+export type TypeGameState = {
   isOnline: boolean;
+  currentRound: number;
   roomId: string;
   roomStatus: TypeRoomStatus;
   hostSocketId: string;
   activeSocketId: string;
   players: TypePlayer[];
-  chat: TypeChatMessage[];
   trumpCard: TypeCard;
   placedCards: TypePlacedCard[];
   deckCounter: number;
@@ -45,7 +44,6 @@ type TypeGameState = {
     makeDefensiveMove: (card: TypeCard) => void;
     attackerPass: () => void;
     defenderTake: () => void;
-    sendMessage: (message: string) => void;
   };
 };
 
@@ -69,12 +67,12 @@ export const useGameStore = create<TypeGameState>()(
 
     return {
       isOnline: false,
+      currentRound: 0,
       roomId: '',
       roomStatus: TypeRoomStatus.WaitingForPlayers,
       hostSocketId: '',
       activeSocketId: '',
       players: [],
-      chat: [],
       trumpCard: {
         rank: TypeCardRank.RANK_6,
         suit: TypeCardSuit.Clubs,
@@ -137,10 +135,6 @@ export const useGameStore = create<TypeGameState>()(
 
         defenderTake() {
           socketIOService.emit(TypeSocketEvent.GamePickUpCards, { data: {} });
-        },
-
-        sendMessage(message: string) {
-          socketIOService.emit(TypeSocketEvent.GameChatMessage, { data: { message } });
         },
       },
     };

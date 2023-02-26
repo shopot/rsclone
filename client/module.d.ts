@@ -38,3 +38,13 @@ declare module '*.webp' {
   const res: string;
   export default res;
 }
+
+declare module '*.wav' {
+  const res: string;
+  export default res;
+}
+
+declare module '*.mp3' {
+  const res: string;
+  export default res;
+}

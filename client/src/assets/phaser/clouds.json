@@ -1,0 +1,28 @@
+{"frames": [
+
+{
+	"filename": "black",
+	"frame": {"x":0,"y":0,"w":200,"h":27},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":27},
+	"sourceSize": {"w":200,"h":27}
+},
+{
+	"filename": "blue",
+	"frame": {"x":0,"y":27,"w":200,"h":23},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":23},
+	"sourceSize": {"w":200,"h":23}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "clouds.png",
+	"format": "RGBA8888",
+	"size": {"w":200,"h":50},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:330ded6a59609986848e18554fc4558c:8f5d38841ddaaafe2cf3e991bf427ee2:e96b5453eed6fb7cc3a8e55168758fa4$"
+}
+}

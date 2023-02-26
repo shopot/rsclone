@@ -8,7 +8,7 @@ const NotFound = () => {
 
   const handleGoHome = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    navigate(TypeRoute.Home);
+    navigate(TypeRoute.Rooms);
   };
 
   return (

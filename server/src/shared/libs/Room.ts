@@ -44,7 +44,7 @@ export class Room {
   /** Players list in this room */
   players: Players;
   /** Names of of players who started the game (used for stats purposes) */
-  startingPlayerNames: string[];
+  startingPlayerNames: { userId: number; playerName: string }[];
   /** Chat messages */
   chat: TypeChatMessage[];
   /** Deck of cards */
@@ -84,7 +84,7 @@ export class Room {
   lastCloseDefenderCard: TypeCard | null;
 
   // RoomTestFactory
-  testName: string;
+  testCaseName: string;
 
   historyLogger: WinstonLogger;
   stateHash: string;
@@ -93,7 +93,7 @@ export class Room {
     roomId: string,
     hostPlayer: Player,
     gameService: GameService,
-    testName = '',
+    testCaseName = '',
   ) {
     this.roomId = roomId;
 
@@ -133,7 +133,7 @@ export class Room {
     this.lastOpenAttackerCard = null;
     this.lastCloseDefenderCard = null;
 
-    this.testName = testName;
+    this.testCaseName = testCaseName;
 
     this.historyLogger = createHistoryLogger(roomId);
     this.stateHash = '';
@@ -182,7 +182,10 @@ export class Room {
     // Save starting player names
     this.startingPlayerNames = [];
     for (const player of this.players) {
-      this.startingPlayerNames.push(player.playerName);
+      this.startingPlayerNames.push({
+        userId: player.userId,
+        playerName: player.playerName,
+      });
     }
 
     // Clear old chat messages
@@ -227,8 +230,8 @@ export class Room {
     this.round.setStartPlayerSocketId(this.activePlayer.getSocketId());
 
     // RoomTestFactory load case for testing
-    if (this.testName !== '') {
-      const test = new RoomTestFactory(this, this.testName);
+    if (this.testCaseName !== '') {
+      const test = new RoomTestFactory(this, this.testCaseName);
       test.create();
     }
 
@@ -314,7 +317,13 @@ export class Room {
       message,
     });
 
+    this.LastGameAction = TypeGameAction.ChatMessage;
+
     return true;
+  }
+
+  public getChatState(): TypeChatMessage[] {
+    return this.chat;
   }
 
   /**
@@ -831,7 +840,14 @@ export class Room {
       this.lastLoser = null;
     }
 
-    this.players.remove(leavePlayer);
+    if (
+      this.isGameInProgress() &&
+      leavePlayer.getPlayerStatus() !== TypePlayerStatus.InGame
+    ) {
+      leavePlayer.setPlayerStatus(TypePlayerStatus.Offline);
+    } else {
+      this.players.remove(leavePlayer);
+    }
 
     if (
       this.getRoomStatus() === TypeRoomStatus.WaitingForStart &&
@@ -993,7 +1009,9 @@ export class Room {
     // Update stats
     this.gameStats = {
       roomId: this.roomId,
-      players: this.startingPlayerNames.join('#'),
+      players: this.startingPlayerNames
+        .map((player) => player.playerName)
+        .join('#'),
       loser: this.lastLoser ? this.lastLoser.getPlayerName() : 'undefined',
       duration: Date.now() - this.gameTimeStart,
       rounds: this.currentRound,
@@ -1003,10 +1021,14 @@ export class Room {
     await this.gameService.updateGameHistory(this.gameStats);
 
     // Update players stats
-    for (const playerName of this.startingPlayerNames) {
+    for (const player of this.startingPlayerNames) {
       const isLoser =
-        this.lastLoser && this.lastLoser.getPlayerName() === playerName;
-      await this.gameService.updatePlayerStats(playerName, isLoser ? 0 : 1);
+        this.lastLoser && this.lastLoser.getPlayerName() === player.playerName;
+      await this.gameService.updatePlayerStats(
+        player.userId,
+        player.playerName,
+        isLoser ? 0 : 1,
+      );
     }
   }
 
@@ -1022,9 +1044,15 @@ export class Room {
   private setGameIsOver(): void {
     this.roomStatus = TypeRoomStatus.GameIsOver;
 
+    // Set player roles to Waiting; kick offline players
+    const offlinePlayers = [];
     for (const player of this.players) {
       player.setPlayerRole(TypePlayerRole.Waiting);
+      if (player.getPlayerStatus() === TypePlayerStatus.Offline) {
+        offlinePlayers.push(player);
+      }
     }
+    offlinePlayers.forEach((player) => this.players.remove(player));
 
     this.updateGameStats();
   }
@@ -1042,7 +1070,6 @@ export class Room {
       hostSocketId: this.hostPlayer?.getSocketId(),
       activeSocketId: this.activePlayer?.getSocketId(),
       players: this.players.getPlayersAsDto(),
-      chat: this.chat,
       trumpCard: this.getDeck().getTrumpCard().getCardDto() || {
         rank: TypeCardRank.RANK_6,
         suit: TypeCardSuit.Clubs,

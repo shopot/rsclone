@@ -39,3 +39,8 @@ docs
 
 # SQLite Game DB
 db/durak_online.db
+
+# Uploads
+!uploads
+uploads/*
+!uploads/default-avatar.webp
