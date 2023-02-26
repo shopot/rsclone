@@ -154,7 +154,7 @@ export class Popup {
             .setDepth(zIndex + 1);
         };
 
-        this.scene.load.on('complete', addIcon, this);
+        this.scene.load.once('complete', addIcon, this);
         this.scene.load.image(player.playerAvatar, player.playerAvatar);
         this.scene.load.start();
 
