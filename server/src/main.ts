@@ -2,8 +2,11 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import * as cookieParser from 'cookie-parser';
+import { createUploadsDir } from './shared/helpers';
 
 async function bootstrap() {
+  createUploadsDir();
+
   const app = await NestFactory.create(AppModule);
 
   // Cross-origin resource sharing (CORS)
