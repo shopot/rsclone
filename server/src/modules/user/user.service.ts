@@ -26,12 +26,11 @@ export class UserService {
 
     if (user && user.avatar) {
       const baseUrl =
-        this.configService.get<string>('APP_URL') || 'http://localhost';
-      const port = this.configService.get<string>('PORT') || 3000;
+        this.configService.get<string>('APP_URL') || 'http://localhost:3000';
 
       return {
         ...user,
-        avatar: `${baseUrl}:${port}/v1/user/avatar/${user.avatar}`,
+        avatar: `${baseUrl}/v1/user/avatar/${user.avatar}`,
       };
     }
 
