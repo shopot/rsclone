@@ -5,7 +5,9 @@ import * as cookieParser from 'cookie-parser';
 import { createUploadsDir } from './shared/helpers';
 
 async function bootstrap() {
-  createUploadsDir();
+  if (process.env.NODE_ENV !== 'production') {
+    createUploadsDir();
+  }
 
   const app = await NestFactory.create(AppModule);
 
