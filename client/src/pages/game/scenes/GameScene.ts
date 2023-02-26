@@ -7,7 +7,7 @@ import { Suit } from '../prefabs/Suit';
 import { Button } from '../prefabs/Button';
 import { socketIOService } from '../../../shared/api/socketio';
 import { TypeGameState, useGameStore } from '../../../store/gameStore';
-import { TypeDataState, useChatStore } from '../../../store/chatStore';
+import { useChatStore } from '../../../store/chatStore';
 import {
   TypeCard,
   TypeChatMessage,
@@ -25,7 +25,7 @@ import { StatusHelper } from '../prefabs/StatusHelper';
 import { Timer } from '../prefabs/Timer';
 import { Chat } from '../classes/Chat';
 import { Popup } from '../classes/Popup';
-import { DataType } from 'ajv/dist/compile/validate/dataType';
+import { WaitPopup } from '../classes/WaitPopup';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -73,6 +73,7 @@ export class GameScene extends Phaser.Scene {
   suit?: Suit;
   cardsCoords: number[][][] = [];
   cardsChanged: boolean[] = [];
+  waitPopup?: WaitPopup;
 
   constructor() {
     super('Game');
@@ -238,7 +239,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
     await this.handleClick();
-
     if (
       state.roomStatus === TypeRoomStatus.GameInProgress ||
       state.roomStatus === TypeRoomStatus.GameIsOver
@@ -720,7 +720,14 @@ export class GameScene extends Phaser.Scene {
       this.createHands();
       this.createIcons();
       this.createHelper();
+      this.createWaitTitle();
     }
+  }
+
+  createWaitTitle() {
+    this.waitPopup?.destroy();
+    const isHost = useGameStore.getState().players[0].socketId === this.socketId;
+    this.waitPopup = new WaitPopup(this, isHost, this.playerAmt);
   }
 
   createHelper() {
@@ -815,12 +822,19 @@ export class GameScene extends Phaser.Scene {
       const socketId = this.playersSorted[i].socketId;
 
       const addIcon = () => {
-        const icon = new Icon(this, i, this.handSizes, nickname, socketId, i.toString());
+        const icon = new Icon(
+          this,
+          i,
+          this.handSizes,
+          nickname,
+          socketId,
+          this.playersSorted[i].playerAvatar,
+        );
         this.icons.push(icon);
       };
 
       this.load.once('complete', addIcon, this);
-      this.load.image(i.toString(), this.playersSorted[i].playerAvatar);
+      this.load.image(this.playersSorted[i].playerAvatar, this.playersSorted[i].playerAvatar);
       this.load.start();
     }
   }
@@ -828,7 +842,10 @@ export class GameScene extends Phaser.Scene {
   //подписка на state.activeSocketId
   colorIcon(activeId: string) {
     if (useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress) {
-      this.icons.forEach((icon) => icon.colorBorder(false));
+      this.icons.forEach((icon) => {
+        icon.colorBorder(false);
+        if (icon.border.timer) this.time.removeEvent(icon.border.timer);
+      });
       const activeIcon = this.icons.find((icon) => icon.socketId === activeId);
       if (activeIcon !== undefined) {
         activeIcon.colorBorder(true);
@@ -872,6 +889,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async startGame() {
+    this.waitPopup?.destroy();
     this.trump = useGameStore.getState().trumpCard;
     this.createTrumpSuit();
     this.createTimer();

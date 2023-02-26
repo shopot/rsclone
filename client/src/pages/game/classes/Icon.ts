@@ -72,7 +72,7 @@ export class Icon {
 
   destroyIcon() {
     this.pic.destroy();
-    this.border.destroy();
+    this.border?.destroy();
     this.text.destroy();
     this.offlineIcon?.destroy();
     this.cloud.destroy();
@@ -82,8 +82,8 @@ export class Icon {
   }
 
   colorBorder(status: boolean) {
-    // setTimeout(() => this.border.createBorder(status), 300);
-    this.border.createBorder(status);
+    this.border.createBorder(status, false);
+    if (status) this.border.createTimerBorder();
   }
 
   createBubble(text: string, me: boolean) {
