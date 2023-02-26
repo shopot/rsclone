@@ -62,7 +62,6 @@ export class UserController {
   ) {
     const imagePath = await this.userService.getImagePath(imagename);
 
-    Logger.debug(imagePath);
     return of(res.sendFile(imagePath));
   }
 }

@@ -1,8 +1,5 @@
-import {
-  JWT_ACCESS_SECRET,
-  JWT_REFRESH_SECRET,
-  JWT_COOKIE_NAMES,
-} from './../../config/index';
+import { ConfigService } from '@nestjs/config';
+import { JWT_COOKIE_NAMES } from './../../config/index';
 import {
   BadRequestException,
   ForbiddenException,
@@ -31,6 +28,7 @@ export class AuthService {
   constructor(
     private usersService: UserService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
   async signUp(dto: AuthDto): Promise<TypeTokens> {
     // Check if user exists
@@ -115,7 +113,7 @@ export class AuthService {
           username,
         },
         {
-          secret: JWT_ACCESS_SECRET,
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
           expiresIn: '15m',
         },
       ),
@@ -125,7 +123,7 @@ export class AuthService {
           username,
         },
         {
-          secret: JWT_REFRESH_SECRET,
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
           expiresIn: '7d',
         },
       ),
