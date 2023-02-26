@@ -8,6 +8,7 @@ const schema: JTDSchemaType<TypeRatingItem[]> = {
       player: { type: 'string' },
       wins: { type: 'int32' },
       total: { type: 'int32' },
+      userId: { type: 'int32' },
       lastGameAt: { type: 'int32' },
     },
   },
