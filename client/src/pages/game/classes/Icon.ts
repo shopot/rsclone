@@ -117,7 +117,7 @@ export class Icon {
   }
 
   makeHat(ind: number, status: boolean) {
-    if (!status) this.hat.setFrame('foolscap').setAlpha(1);
+    if (!status) this.hat.setFrame('foolscap').setDepth(1000).setAlpha(1);
     else this.hat.setAlpha(1);
     this.hasHat = true;
   }

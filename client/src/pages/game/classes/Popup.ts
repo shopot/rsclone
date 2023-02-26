@@ -163,7 +163,7 @@ export class Popup {
           .sprite(config.width / 3 + 30, config.height / 2 - 22 + shift, 'aword', hat)
           .setScale(0.8)
           .setAngle(20)
-          .setDepth(zIndex + 1);
+          .setDepth(zIndex + 2);
       } else {
         const text = didHostLeave ? 'The host has left, you are the host now' : 'Drawn game';
         this.playerText = this.scene.add
