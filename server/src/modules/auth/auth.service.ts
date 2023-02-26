@@ -11,11 +11,13 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthDto } from './dto/auth.dto';
 import { UserService } from '../user/user.service';
 import { TypeTokens } from './types';
-import { Response } from 'express';
+import { Response, CookieOptions } from 'express';
 
-const authCookieOptions = {
+const authCookieOptions: CookieOptions = {
   maxAge: 1000 * 60 * 60 * 24 * 7,
   httpOnly: true,
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  secure: process.env.NODE_ENV === 'production',
 };
 
 const clearCookieOptions = {
