@@ -24,6 +24,7 @@ export class Popup {
   leaveBtn?: Phaser.GameObjects.Sprite;
   whiteBorder?: Phaser.GameObjects.Graphics;
   depths: { onWin: number; onEnd: number; onHostLeave: number };
+  isGameOverPopup = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -58,6 +59,7 @@ export class Popup {
         const loser = players.find((player) => player.playerStatus === TypePlayerStatus.YouLoser);
         this.createPopup(true, isFirst, loser);
       }
+      this.isGameOverPopup = true;
     }
   }
 
@@ -273,9 +275,9 @@ export class Popup {
   }
 
   setStartBtnInactive(playersAmt: number) {
-    if (playersAmt < 2) {
+    if (playersAmt < 2 && this.isGameOverPopup === true && this.scene) {
       this.startBtn?.setFrame('btn-start-disabled');
-      this.startBtn?.removeInteractive();
+      this.startBtn?.disableInteractive();
     }
   }
 }

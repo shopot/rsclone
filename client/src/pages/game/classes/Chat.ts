@@ -47,7 +47,6 @@ export class Chat {
       .setAlign('justify')
       .setDepth(202)
       .setAlpha(0);
-    // .setWordWrapWidth(245, true);
 
     this.enterKey = this.scene.input.keyboard
       .addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
@@ -91,10 +90,6 @@ export class Chat {
     const chat: string[] = [];
     const LINES = 11;
     const COLS = 22;
-    // chatContent.forEach((el) => {
-    //   const str = `${el.sender.playerName}: ${el.message}`;
-    //   chat.push(str);
-    // });
     chatContent.forEach((el) => {
       const str = `${el.sender.playerName}: ${el.message}`;
       const strToArr = str.split(' ');
@@ -150,7 +145,6 @@ export class Chat {
         ease: 'Sine.easeInOut',
         delay: 50,
         duration: 200,
-        // tint: 0xe7f0f9,
         onComplete: () => {
           this.btn.setScale(0.7);
           this.wrapper.setTint();

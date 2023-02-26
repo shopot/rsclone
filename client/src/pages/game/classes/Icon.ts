@@ -1,13 +1,11 @@
 import { TypePlayerRole } from '../../../shared/types';
 import { config } from '../index';
 import { IconBorder } from '../prefabs/IconBorder';
-import { IconPic } from '../prefabs/IconPic';
 import { Nickname } from '../prefabs/Nickname';
 import { SpeechBubble } from './SpeechBubble';
 
 export class Icon {
   scene: Phaser.Scene;
-  pic: IconPic;
   border: IconBorder;
   text: Nickname;
   socketId: string;
@@ -20,6 +18,7 @@ export class Icon {
   offlineIcon: Phaser.GameObjects.Sprite;
   hat: Phaser.GameObjects.Sprite;
   hasHat = false;
+  pic: Phaser.GameObjects.Sprite;
   constructor(
     scene: Phaser.Scene,
     index: number,
@@ -34,7 +33,6 @@ export class Icon {
 
     this.x = tableSizes[index].startX;
     this.spriteY = index === 0 ? config.height - config.cardSize.h + 25 : 82;
-    // this.pic = new IconPic(this.scene, this.x - 40, this.spriteY, 'icons', avatar);
     this.pic = this.scene.add.sprite(this.x - 40, this.spriteY, avatar).setScale(0.9);
 
     this.border = new IconBorder(this.scene, this.x - 68, this.spriteY - 27, 55, 55, 5);
