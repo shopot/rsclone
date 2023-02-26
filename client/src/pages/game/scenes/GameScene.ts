@@ -842,7 +842,10 @@ export class GameScene extends Phaser.Scene {
   //подписка на state.activeSocketId
   colorIcon(activeId: string) {
     if (useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress) {
-      this.icons.forEach((icon) => icon.colorBorder(false));
+      this.icons.forEach((icon) => {
+        icon.colorBorder(false);
+        if (icon.border.timer) this.time.removeEvent(icon.border.timer);
+      });
       const activeIcon = this.icons.find((icon) => icon.socketId === activeId);
       if (activeIcon !== undefined) {
         activeIcon.colorBorder(true);
