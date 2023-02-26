@@ -4,7 +4,7 @@ import { testCaseNames } from '../../shared/tests/testCaseNames';
 import styles from './RoomForm.m.scss';
 
 export const RoomForm = ({ title, onSubmit, onCancel }: IRoomFormProps) => {
-  const [oldGameUI, setOldGameUI] = useState(true);
+  const [oldGameUI, setOldGameUI] = useState(false);
   const [testCaseName, setTestCaseName] = useState('');
 
   const actionText = title.toLowerCase().includes('join') ? 'Join' : 'Create';
