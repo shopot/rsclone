@@ -1,4 +1,3 @@
-import { UPLOADED_FILES_DESTINATION } from './../config/index';
 import { AuthModule } from '../modules/auth/auth.module';
 import { UserModule } from '../modules/user/user.module';
 import { Module } from '@nestjs/common';
@@ -12,6 +11,8 @@ import appLoggerConfig from './app-logger.config';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 
+const isDevMod = process.env.NODE_ENV === 'development';
+
 @Module({
   imports: [
     AuthModule,
@@ -21,7 +22,7 @@ import { memoryStorage } from 'multer';
     RatingModule,
     DatabaseModule,
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath: isDevMod ? '.env.development' : '.env',
       isGlobal: true,
     }),
     WinstonModule.forRoot(appLoggerConfig),
