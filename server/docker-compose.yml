@@ -10,7 +10,7 @@ services:
       # Add PORT=5003 for NestJS app, DOCKER_HOST_PORT=5003 for public port
       - ${PORT}:${DOCKER_HOST_PORT}
     env_file:
-      - .env.production
+      - .env
     volumes:
       - ./db:/app/db
       - ./uploads:/app/uploads
