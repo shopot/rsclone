@@ -16,7 +16,7 @@ import shieldSwordJson from '../../../assets/phaser/shield_sword.json';
 import hatPng from '../../../assets/phaser/hat.png';
 import hatJson from '../../../assets/phaser/hat.json';
 
-import bgDark from '../../../assets/phaser/bg_dark.jpg';
+import bgDark from '../../../assets/phaser/bg_dark.webp';
 import bgLight from '../../../assets/phaser/bg_light.jpg';
 import chatWrapperPng from '../../../assets/phaser/chatWrapper.png';
 import redCircle from '../../../assets/phaser/red-circle.png';
