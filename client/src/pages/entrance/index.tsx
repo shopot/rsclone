@@ -14,19 +14,26 @@ import { Footer } from '../../components/Footer';
 
 const EntrancePage = () => {
   const locationState: unknown = useLocation().state;
-  const refererPage = validateLocationState(locationState) ? locationState.from.pathname : null;
   const [formIdx, setFormIdx] = useState(0);
+
+  let refererPage = validateLocationState(locationState) ? locationState.from.pathname : null;
+
+  if (refererPage === '/' || refererPage === '') {
+    refererPage = null;
+  }
+
   const handleChangeForm = () => {
     setFormIdx((prev) => (prev + 1) % forms.length);
   };
+
   const forms = [
     <LoginForm
-      key="loginform"
+      key="loginForm"
       refererPage={refererPage}
       onChangeForm={handleChangeForm}
     />,
     <RegisterForm
-      key="registerform"
+      key="registerForm"
       refererPage={refererPage}
       onChangeForm={handleChangeForm}
     />,
