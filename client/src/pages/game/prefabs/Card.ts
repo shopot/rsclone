@@ -3,6 +3,7 @@ import { TypeCard, TypeRoomStatus } from '../../../shared/types';
 import { config } from '../index';
 import { socketIOService } from '../../../shared/api/socketio';
 import { useGameStore } from '../../../store/gameStore';
+import { IS_DEVELOPMENT_MODE } from '../../../app/config';
 
 export class Card extends Phaser.GameObjects.Sprite {
   value: string;
@@ -63,9 +64,11 @@ export class Card extends Phaser.GameObjects.Sprite {
     const isSocketActive = socketId === useGameStore.getState().activeSocketId;
     const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
     if (isSocketActive && this.cardType !== undefined && isGameOn) {
-      console.log('``````````click to server``````````````');
-      console.log(this.cardType, 'this.cardType');
-      console.log(this.value, 'this.value');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log('``````````click to server``````````````');
+        console.log(this.cardType, 'this.cardType');
+        console.log(this.value, 'this.value');
+      }
       const thisPlayer = useGameStore
         .getState()
         .players.filter((player) => player.socketId === socketId)[0];
