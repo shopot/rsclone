@@ -731,8 +731,11 @@ export class GameScene extends Phaser.Scene {
       console.log('```````````````createButtons`````````````');
     }
     this.mainButton = new Button(this);
-    if (this.socketId !== useGameStore.getState().players[0].socketId) {
+    const players = useGameStore.getState().players;
+    if (players.length > 0 && this.socketId !== players[0].socketId) {
       this.mainButton.setAlpha(0);
+    } else if (players.length === 0) {
+      this.scene.start('End');
     }
     new ButtonLeave(this);
   }
@@ -797,8 +800,11 @@ export class GameScene extends Phaser.Scene {
 
   createWaitTitle() {
     this.waitPopup?.destroy();
-    const isHost = useGameStore.getState().players[0].socketId === this.socketId;
-    this.waitPopup = new WaitPopup(this, isHost, this.playerAmt);
+    const players = useGameStore.getState().players;
+    if (players.length > 0) {
+      const isHost = players[0].socketId === this.socketId;
+      this.waitPopup = new WaitPopup(this, isHost, this.playerAmt);
+    }
   }
 
   createHelper() {
