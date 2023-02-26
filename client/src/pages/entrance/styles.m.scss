@@ -25,11 +25,11 @@
   align-items: flex-start;
   padding-top: calc(8%);
   background-color: constants.$bg-color;
-  background-image: url('../../assets/bg_dark.jpg');
+  background-image: url('../../assets/bg_dark.webp');
   background-repeat: repeat-y;
   background-size: 100% 100%;
 
-  &>div {
+  & > div {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
