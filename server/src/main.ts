@@ -2,12 +2,10 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import * as cookieParser from 'cookie-parser';
-import { createUploadsDir } from './shared/helpers';
+import { checkUploadsDir } from './shared/helpers';
 
 async function bootstrap() {
-  if (process.env.NODE_ENV !== 'production') {
-    createUploadsDir();
-  }
+  checkUploadsDir();
 
   const app = await NestFactory.create(AppModule);
 

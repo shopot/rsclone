@@ -1,3 +1,3 @@
 export * from './getErrorMessage';
 export * from './createHistoryLogger';
-export * from './createUploadsDir';
+export * from './checkUploadsDir';
