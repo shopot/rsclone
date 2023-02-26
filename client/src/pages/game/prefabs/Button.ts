@@ -122,7 +122,6 @@ export class Button extends Phaser.GameObjects.Sprite {
       ease: 'Sine.easeInOut',
       alpha: targetValue,
       duration: 200,
-      // onComplete: () => {},
     });
   }
 }
