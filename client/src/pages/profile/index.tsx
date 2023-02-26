@@ -103,7 +103,7 @@ const ProfilePage = () => {
                 void handleUpload();
               }}
             >
-              upload
+              save settings
             </button>
           </div>
         </div>
