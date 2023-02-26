@@ -3,7 +3,6 @@ import { TypeCard, TypeRoomStatus } from '../../../shared/types';
 import { config } from '../index';
 import { socketIOService } from '../../../shared/api/socketio';
 import { useGameStore } from '../../../store/gameStore';
-import { IS_DEVELOPMENT_MODE } from '../../../app/config';
 
 export class Card extends Phaser.GameObjects.Sprite {
   value: string;
@@ -12,8 +11,6 @@ export class Card extends Phaser.GameObjects.Sprite {
   highlighted: boolean;
   sounds: {
     placeCard: Phaser.Sound.BaseSound;
-    // loser: this.sound.add('loser'),
-    // fromDeck: Phaser.Sound.BaseSound;
   };
   constructor(
     scene: Phaser.Scene,
@@ -64,11 +61,6 @@ export class Card extends Phaser.GameObjects.Sprite {
     const isSocketActive = socketId === useGameStore.getState().activeSocketId;
     const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
     if (isSocketActive && this.cardType !== undefined && isGameOn) {
-      if (IS_DEVELOPMENT_MODE) {
-        console.log('``````````click to server``````````````');
-        console.log(this.cardType, 'this.cardType');
-        console.log(this.value, 'this.value');
-      }
       const thisPlayer = useGameStore
         .getState()
         .players.filter((player) => player.socketId === socketId)[0];
@@ -244,21 +236,6 @@ export class Card extends Phaser.GameObjects.Sprite {
       this.setDepth(index + 2);
     });
   }
-
-  //вар 2 - мусорку за пределы
-  // async animateToBeaten() {
-  //   this.setFrame('cardBack');
-  //   await new Promise((resolve) => {
-  //     this.scene.tweens.add({
-  //       targets: this,
-  //       x: config.width + config.cardSize.w,
-  //       y: config.height / 2 - 20,
-  //       ease: 'Linear',
-  //       duration: 100,
-  //       onComplete: resolve,
-  //     });
-  //   });
-  // }
 
   async redrawTable(cardindex: number, pileIndex: number, piles: number) {
     const isAttacking = cardindex === 0 ? true : false;

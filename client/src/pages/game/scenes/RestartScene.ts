@@ -7,10 +7,8 @@ export class RestartScene extends Phaser.Scene {
   }
 
   create() {
-    const bg = this.add.sprite(config.width / 2, config.height / 2, 'bgDark');
-    const text = this.add
-      .text(config.width / 2, config.height / 2 - 30, 'Restarting...')
-      .setOrigin(0.5, 0);
+    this.add.sprite(config.width / 2, config.height / 2, 'bgDark');
+    this.add.text(config.width / 2, config.height / 2 - 30, 'Restarting...').setOrigin(0.5, 0);
     this.scene.start('Game');
   }
 }

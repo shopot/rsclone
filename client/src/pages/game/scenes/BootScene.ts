@@ -1,8 +1,6 @@
 import Phaser from 'phaser';
 import cardsPng from '../../../assets/phaser/cards.png';
 import cardsJson from '../../../assets/phaser/cards.json';
-// import iconsPng from '../../../assets/phaser/avatar.png';
-// import iconsJson from '../../../assets/phaser/avatar.json';
 import suitsPng from '../../../assets/phaser/suits.png';
 import suitsJson from '../../../assets/phaser/suits.json';
 import buttonsPng from '../../../assets/phaser/buttons.png';
@@ -54,7 +52,6 @@ export class BootScene extends Phaser.Scene {
     this.load.atlas('cards', cardsPng, cardsJson);
     this.load.atlas('buttons', buttonsPng, buttonsJson);
     this.load.atlas('roundBtns', roundPng, roundJson);
-    // this.load.atlas('icons', iconsPng, iconsJson);
     this.load.atlas('suits', suitsPng, suitsJson);
     this.load.atlas('clouds', cloudsPng, cloudsJson);
     this.load.atlas('shieldSword', shieldSwordPng, shieldSwordJson);

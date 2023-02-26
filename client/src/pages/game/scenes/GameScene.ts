@@ -26,7 +26,6 @@ import { Timer } from '../prefabs/Timer';
 import { Chat } from '../classes/Chat';
 import { Popup } from '../classes/Popup';
 import { WaitPopup } from '../classes/WaitPopup';
-import { IS_DEVELOPMENT_MODE } from '../../../app/config';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -81,37 +80,31 @@ export class GameScene extends Phaser.Scene {
 
     useChatStore.subscribe((state) => this.updateChat(state.chat));
 
-    // setPlayers
     useGameStore.subscribe(
       (state) => state.players.length,
       () => this.setPlayers(),
     );
 
-    // sortPlayersData
     useGameStore.subscribe(
       (state) => state.players,
       (data) => this.sortPlayersData(data),
     );
 
-    // handleRoomStatus
     useGameStore.subscribe(
       (state) => state.roomStatus,
       (data) => void this.handleRoomStatus(data),
     );
 
-    // colorIcon
     useGameStore.subscribe(
       (state) => state.activeSocketId,
       (data) => this.colorIcon(data),
     );
 
-    // handleActions
     useGameStore.subscribe(
       (state) => state,
       (state, prevState) => void this.handleActions(state, prevState),
     );
 
-    // saveTableCards
     useGameStore.subscribe(
       (state) => state.placedCards,
       (piles, prevPiles) => this.saveTableCards(piles, prevPiles),
@@ -119,7 +112,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    //добавить в стейт выбор темы и тогда грузить светлый или темный бг
     this.createBg();
     this.createChat();
     this.setPlayers();
@@ -156,10 +148,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   cleanOut() {
-    // this.scene.start('Restart');
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('``````````````clean before restart``````````````');
-    }
     this.popupOnOver = false;
     this.popups.forEach((el) => el.destroyPopup());
     this.deckCards.forEach((el) => el.destroy());
@@ -185,19 +173,14 @@ export class GameScene extends Phaser.Scene {
 
   async restartGame() {
     this.cleanOut();
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('```````````````restartGame```````````````````');
-    }
     this.trump = useGameStore.getState().trumpCard;
     await this.startGame();
   }
 
   endGame() {
     this.scene.start('End');
-    //сделать модалку
   }
 
-  //подписка на статус целиком. если только на экшены, то они могут не меняться, если несколько игроков делают пасс
   async handleActions(state: TypeGameState, prevState: TypeGameState) {
     this.prevState = prevState;
     this.state = state;
@@ -293,18 +276,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleOfflinePlayer() {
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('```````handleOfflinePlayer````````````````');
-    }
     const playerStatuses = this.playersSorted.map((player) => player.playerStatus);
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(playerStatuses, 'playerStatuses');
-    }
     this.icons.forEach((icon, ind) => {
       if (playerStatuses[ind] === TypePlayerStatus.Offline) {
-        if (IS_DEVELOPMENT_MODE) {
-          console.log(ind, 'ind');
-        }
         icon.offline(ind);
       }
     });
@@ -344,9 +318,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleTake() {
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('``````handle take````````````');
-    }
     this.removeHighlight();
     this.calculatePositions();
 
@@ -384,9 +355,6 @@ export class GameScene extends Phaser.Scene {
     }
   }
   async handlePass() {
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('````````````handle pass````````````````');
-    }
     this.removeHighlight();
     const angle = 180 / (this.piles.flat().length + 1);
     this.sounds?.toBeaten.play({ volume: 0.1, loop: true });
@@ -400,31 +368,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleClick() {
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('`````````handle click`````````````');
-    }
     const params = { isAttacker: false, cardToMoveValue: '', pileInd: -1, pileLength: 0 };
-
     params.isAttacker = this.state?.lastGameAction === TypeGameAction.AttackerMoveCard;
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(params.isAttacker, 'params.isAttacker');
-    }
     params.pileInd = params.isAttacker ? this.piles.length : this.piles.length - 1;
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(this.piles, 'this.piles');
-    }
     params.pileLength = params.isAttacker ? this.piles.length + 1 : this.piles.length;
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(params.pileLength, 'params.pileLength');
-    }
     const prevActivePlayerID = this.prevState?.activeSocketId || '';
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(prevActivePlayerID, 'prevActivePlayerID');
-    }
     const isMe = prevActivePlayerID === this.socketId;
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(isMe, 'isMe');
-    }
     //если есть карты на столе в текущем стейте (не бито, не тейк)
     const placedArr = useGameStore
       .getState()
@@ -432,20 +381,11 @@ export class GameScene extends Phaser.Scene {
       .flat()
       .filter(Boolean);
     if (this.state?.placedCards.length !== 0 && placedArr.length > this.piles.flat().length) {
-      if (IS_DEVELOPMENT_MODE) {
-        console.log('normal');
-      }
       const cardToMoveType = params.isAttacker
         ? this.state?.lastOpenAttackerCard
         : this.state?.lastCloseDefenderCard;
-      if (IS_DEVELOPMENT_MODE) {
-        console.log(cardToMoveType, 'cardToMoveType');
-      }
       if (cardToMoveType) {
         params.cardToMoveValue = this.getCardTexture(cardToMoveType);
-        if (IS_DEVELOPMENT_MODE) {
-          console.log(params.cardToMoveValue, 'params.cardToMoveValue');
-        }
       }
     }
 
@@ -454,9 +394,6 @@ export class GameScene extends Phaser.Scene {
       this.state?.placedCards.length === 0 &&
       this.state?.lastGameAction === TypeGameAction.DefenderTakesCards
     ) {
-      if (IS_DEVELOPMENT_MODE) {
-        console.log('autotake');
-      }
       params.isAttacker = true;
       const cardToMoveType = this.state?.lastOpenAttackerCard;
       if (cardToMoveType) {
@@ -471,55 +408,27 @@ export class GameScene extends Phaser.Scene {
       this.state?.placedCards.length === 0 &&
       this.state?.lastGameAction === TypeGameAction.DefenderMoveCard
     ) {
-      if (IS_DEVELOPMENT_MODE) {
-        console.log('скинул последнюю');
-      }
       params.isAttacker = false;
       const cardToMoveType = this.state?.lastCloseDefenderCard;
       if (cardToMoveType) {
         params.cardToMoveValue = this.getCardTexture(cardToMoveType);
       }
     }
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(params, 'params');
-    }
 
     const sprite = this.playersCardsSprites
       .flat()
       .find((card) => card.value === params.cardToMoveValue);
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(sprite, 'sprite');
-    }
 
     if (sprite) {
       await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe, 0.8);
-      if (IS_DEVELOPMENT_MODE) {
-        console.log(sprite, 'sprite');
-      }
-
       const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
-      if (IS_DEVELOPMENT_MODE) {
-        console.log(player, 'player');
-      }
-
       const playerInd = this.playersCardsSprites.indexOf(player);
-      if (IS_DEVELOPMENT_MODE) {
-        console.log(playerInd, 'playerInd');
-      }
-
       const spriteInd = this.playersCardsSprites[playerInd].indexOf(sprite);
-      if (IS_DEVELOPMENT_MODE) {
-        console.log(spriteInd, 'spriteInd');
-      }
-
       this.playersCardsSprites[playerInd].splice(spriteInd, 1);
       params.isAttacker
         ? this.piles.push([sprite])
         : this.piles[params.pileLength - 1].push(sprite);
       this.handleHighlight();
-      if (IS_DEVELOPMENT_MODE) {
-        console.log(this.playersCardsSprites[playerInd], 'this.playersCardsSprites[playerInd]');
-      }
       this.handleCardsAtHandsBeforeMove();
       this.updatePlayersText();
       await this.updateCardsPosOnTable();
@@ -551,19 +460,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleActionsBeforeGameOver() {
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('``````check lastGameAction: "DefenderDecidesToPickUp"  ````````````');
-      console.log('``````check lastGameAction: "AttackerMoveCard"  ````````````');
-    }
     this.removeHighlight();
     const isPickingUp = this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp;
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(isPickingUp, 'isPickingUp');
-    }
     const didAttackerMove = this.state?.lastGameAction === TypeGameAction.AttackerMoveCard;
-    if (IS_DEVELOPMENT_MODE) {
-      console.log(didAttackerMove, 'didAttackerMove');
-    }
 
     if (isPickingUp || didAttackerMove) {
       let defenderInd = -1;
@@ -571,36 +470,21 @@ export class GameScene extends Phaser.Scene {
         const loser = this.state?.players.find(
           (player) => player.playerStatus === TypePlayerStatus.YouLoser,
         );
-        if (IS_DEVELOPMENT_MODE) {
-          console.log(loser, 'loser');
-        }
         //если игрок вышел, то loser undefined
         if (loser) {
           const defender = this.playersSorted.filter((el) => el.socketId === loser.socketId)[0];
-          if (IS_DEVELOPMENT_MODE) {
-            console.log(defender, 'defender');
-          }
           defenderInd = this.playersSorted.indexOf(defender);
         }
       } else {
         const lastDefender = this.prevState?.players.find(
           (player) => player.playerRole === TypePlayerRole.Defender,
         );
-        if (IS_DEVELOPMENT_MODE) {
-          console.log(lastDefender, 'lastDefender');
-        }
         if (lastDefender) {
           const defender = this.playersSorted.filter(
             (el) => el.socketId === lastDefender.socketId,
           )[0];
-          if (IS_DEVELOPMENT_MODE) {
-            console.log(defender, 'defender');
-          }
           defenderInd = this.playersSorted.indexOf(defender);
         }
-      }
-      if (IS_DEVELOPMENT_MODE) {
-        console.log(defenderInd, 'defenderInd');
       }
 
       if (defenderInd !== -1) {
@@ -620,9 +504,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   async checkGameOver() {
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('``````checkGameOver````````````');
-    }
     if (this.state?.roomStatus === TypeRoomStatus.GameIsOver && this.popupOnOver === false) {
       await this.handleActionsBeforeGameOver();
 
@@ -654,10 +535,6 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
-  }
-
-  handleWrongClick() {
-    //определить, кто нажимал ранее и у него проигрывать звук неправильного клика
   }
 
   handleHighlight() {
@@ -722,9 +599,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   createButtons() {
-    if (IS_DEVELOPMENT_MODE) {
-      console.log('```````````````createButtons`````````````');
-    }
     this.mainButton = new Button(this);
     const players = useGameStore.getState().players;
     if (players.length > 0 && this.socketId !== players[0].socketId) {
@@ -850,7 +724,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   createHands() {
-    //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
     this.hands.forEach((el) => el.destroy());
     this.hands = [];
     this.handSizes =
@@ -884,7 +757,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   createIcons() {
-    //пока просто переисовка, если будет время, то сделать анимацию движения столов при добавлении пользователей
     if (this.icons.length !== 0) {
       this.icons.forEach((el) => el.destroyIcon());
       this.icons = [];
