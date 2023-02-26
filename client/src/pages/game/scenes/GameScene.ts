@@ -26,6 +26,7 @@ import { Timer } from '../prefabs/Timer';
 import { Chat } from '../classes/Chat';
 import { Popup } from '../classes/Popup';
 import { WaitPopup } from '../classes/WaitPopup';
+import { IS_DEVELOPMENT_MODE } from '../../../app/config';
 
 export const enum TypeButtonStatus {
   Start = 'Start',
@@ -161,7 +162,9 @@ export class GameScene extends Phaser.Scene {
 
   cleanOut() {
     // this.scene.start('Restart');
-    console.log('``````````````clean before restart``````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('``````````````clean before restart``````````````');
+    }
     this.popupOnOver = false;
     this.popups.forEach((el) => el.destroyPopup());
     this.deckCards.forEach((el) => el.destroy());
@@ -187,7 +190,9 @@ export class GameScene extends Phaser.Scene {
 
   async restartGame() {
     this.cleanOut();
-    console.log('```````````````restartGame```````````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('```````````````restartGame```````````````````');
+    }
     this.trump = useGameStore.getState().trumpCard;
     await this.startGame();
   }
@@ -293,12 +298,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleOfflinePlayer() {
-    console.log('```````handleOfflinePlayer````````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('```````handleOfflinePlayer````````````````');
+    }
     const playerStatuses = this.playersSorted.map((player) => player.playerStatus);
-    console.log(playerStatuses, 'playerStatuses');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(playerStatuses, 'playerStatuses');
+    }
     this.icons.forEach((icon, ind) => {
       if (playerStatuses[ind] === TypePlayerStatus.Offline) {
-        console.log(ind, 'ind');
+        if (IS_DEVELOPMENT_MODE) {
+          console.log(ind, 'ind');
+        }
         icon.offline(ind);
       }
     });
@@ -338,7 +349,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleTake() {
-    console.log('``````handle take````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('``````handle take````````````');
+    }
     this.removeHighlight();
     this.calculatePositions();
 
@@ -376,7 +389,9 @@ export class GameScene extends Phaser.Scene {
     }
   }
   async handlePass() {
-    console.log('````````````handle pass````````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('````````````handle pass````````````````');
+    }
     this.removeHighlight();
     const angle = 180 / (this.piles.flat().length + 1);
     this.sounds?.toBeaten.play({ volume: 0.1, loop: true });
@@ -390,19 +405,31 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleClick() {
-    console.log('`````````handle click`````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('`````````handle click`````````````');
+    }
     const params = { isAttacker: false, cardToMoveValue: '', pileInd: -1, pileLength: 0 };
 
     params.isAttacker = this.state?.lastGameAction === TypeGameAction.AttackerMoveCard;
-    console.log(params.isAttacker, 'params.isAttacker');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(params.isAttacker, 'params.isAttacker');
+    }
     params.pileInd = params.isAttacker ? this.piles.length : this.piles.length - 1;
-    console.log(this.piles, 'this.piles');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(this.piles, 'this.piles');
+    }
     params.pileLength = params.isAttacker ? this.piles.length + 1 : this.piles.length;
-    console.log(params.pileLength, 'params.pileLength');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(params.pileLength, 'params.pileLength');
+    }
     const prevActivePlayerID = this.prevState?.activeSocketId || '';
-    console.log(prevActivePlayerID, 'prevActivePlayerID');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(prevActivePlayerID, 'prevActivePlayerID');
+    }
     const isMe = prevActivePlayerID === this.socketId;
-    console.log(isMe, 'isMe');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(isMe, 'isMe');
+    }
     //если есть карты на столе в текущем стейте (не бито, не тейк)
     const placedArr = useGameStore
       .getState()
@@ -410,14 +437,20 @@ export class GameScene extends Phaser.Scene {
       .flat()
       .filter(Boolean);
     if (this.state?.placedCards.length !== 0 && placedArr.length > this.piles.flat().length) {
-      console.log('normal');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log('normal');
+      }
       const cardToMoveType = params.isAttacker
         ? this.state?.lastOpenAttackerCard
         : this.state?.lastCloseDefenderCard;
-      console.log(cardToMoveType, 'cardToMoveType');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log(cardToMoveType, 'cardToMoveType');
+      }
       if (cardToMoveType) {
         params.cardToMoveValue = this.getCardTexture(cardToMoveType);
-        console.log(params.cardToMoveValue, 'params.cardToMoveValue');
+        if (IS_DEVELOPMENT_MODE) {
+          console.log(params.cardToMoveValue, 'params.cardToMoveValue');
+        }
       }
     }
 
@@ -426,7 +459,9 @@ export class GameScene extends Phaser.Scene {
       this.state?.placedCards.length === 0 &&
       this.state?.lastGameAction === TypeGameAction.DefenderTakesCards
     ) {
-      console.log('autotake');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log('autotake');
+      }
       params.isAttacker = true;
       const cardToMoveType = this.state?.lastOpenAttackerCard;
       if (cardToMoveType) {
@@ -441,39 +476,55 @@ export class GameScene extends Phaser.Scene {
       this.state?.placedCards.length === 0 &&
       this.state?.lastGameAction === TypeGameAction.DefenderMoveCard
     ) {
-      console.log('скинул послденюю');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log('скинул последнюю');
+      }
       params.isAttacker = false;
       const cardToMoveType = this.state?.lastCloseDefenderCard;
       if (cardToMoveType) {
         params.cardToMoveValue = this.getCardTexture(cardToMoveType);
       }
     }
-    console.log(params, 'params');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(params, 'params');
+    }
 
     const sprite = this.playersCardsSprites
       .flat()
       .find((card) => card.value === params.cardToMoveValue);
-    console.log(sprite, 'sprite');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(sprite, 'sprite');
+    }
 
     if (sprite) {
       await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe, 0.8);
-      console.log(sprite, 'sprite');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log(sprite, 'sprite');
+      }
 
       const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
-      console.log(player, 'player');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log(player, 'player');
+      }
 
       const playerInd = this.playersCardsSprites.indexOf(player);
-      console.log(playerInd, 'playerInd');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log(playerInd, 'playerInd');
+      }
 
       const spriteInd = this.playersCardsSprites[playerInd].indexOf(sprite);
-      console.log(spriteInd, 'spriteInd');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log(spriteInd, 'spriteInd');
+      }
 
       this.playersCardsSprites[playerInd].splice(spriteInd, 1);
       params.isAttacker
         ? this.piles.push([sprite])
         : this.piles[params.pileLength - 1].push(sprite);
       this.handleHighlight();
-      console.log(this.playersCardsSprites[playerInd], 'this.playersCardsSprites[playerInd]');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log(this.playersCardsSprites[playerInd], 'this.playersCardsSprites[playerInd]');
+      }
       this.handleCardsAtHandsBeforeMove();
       this.updatePlayersText();
       await this.updateCardsPosOnTable();
@@ -505,13 +556,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleActionsBeforeGameOver() {
-    console.log('``````check lastGameAction: "DefenderDecidesToPickUp"  ````````````');
-    console.log('``````check lastGameAction: "AttackerMoveCard"  ````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('``````check lastGameAction: "DefenderDecidesToPickUp"  ````````````');
+      console.log('``````check lastGameAction: "AttackerMoveCard"  ````````````');
+    }
     this.removeHighlight();
     const isPickingUp = this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp;
-    console.log(isPickingUp, 'isPickingUp');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(isPickingUp, 'isPickingUp');
+    }
     const didAttackerMove = this.state?.lastGameAction === TypeGameAction.AttackerMoveCard;
-    console.log(didAttackerMove, 'didAttackerMove');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log(didAttackerMove, 'didAttackerMove');
+    }
 
     if (isPickingUp || didAttackerMove) {
       let defenderInd = -1;
@@ -519,27 +576,37 @@ export class GameScene extends Phaser.Scene {
         const loser = this.state?.players.find(
           (player) => player.playerStatus === TypePlayerStatus.YouLoser,
         );
-        console.log(loser, 'loser');
+        if (IS_DEVELOPMENT_MODE) {
+          console.log(loser, 'loser');
+        }
         //если игрок вышел, то loser undefined
         if (loser) {
           const defender = this.playersSorted.filter((el) => el.socketId === loser.socketId)[0];
-          console.log(defender, 'defender');
+          if (IS_DEVELOPMENT_MODE) {
+            console.log(defender, 'defender');
+          }
           defenderInd = this.playersSorted.indexOf(defender);
         }
       } else {
         const lastDefender = this.prevState?.players.find(
           (player) => player.playerRole === TypePlayerRole.Defender,
         );
-        console.log(lastDefender, 'lastDefender');
+        if (IS_DEVELOPMENT_MODE) {
+          console.log(lastDefender, 'lastDefender');
+        }
         if (lastDefender) {
           const defender = this.playersSorted.filter(
             (el) => el.socketId === lastDefender.socketId,
           )[0];
-          console.log(defender, 'defender');
+          if (IS_DEVELOPMENT_MODE) {
+            console.log(defender, 'defender');
+          }
           defenderInd = this.playersSorted.indexOf(defender);
         }
       }
-      console.log(defenderInd, 'defenderInd');
+      if (IS_DEVELOPMENT_MODE) {
+        console.log(defenderInd, 'defenderInd');
+      }
 
       if (defenderInd !== -1) {
         await Promise.all(
@@ -558,7 +625,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   async checkGameOver() {
-    console.log('``````checkGameOver````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('``````checkGameOver````````````');
+    }
     if (this.state?.roomStatus === TypeRoomStatus.GameIsOver && this.popupOnOver === false) {
       await this.handleActionsBeforeGameOver();
 
@@ -658,7 +727,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   createButtons() {
-    console.log('```````````````createButtons`````````````');
+    if (IS_DEVELOPMENT_MODE) {
+      console.log('```````````````createButtons`````````````');
+    }
     this.mainButton = new Button(this);
     if (this.socketId !== useGameStore.getState().players[0].socketId) {
       this.mainButton.setAlpha(0);
