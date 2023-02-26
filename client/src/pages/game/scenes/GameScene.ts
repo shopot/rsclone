@@ -126,11 +126,6 @@ export class GameScene extends Phaser.Scene {
     this.createButtons();
     this.createDeck(36);
     this.createSounds();
-    // const isFirst = useGameStore.getState().players[0].socketId === this.socketId;
-    // new Popup(this, this.playersSorted, true, isFirst);
-    // this.icons.forEach((icon, ind) => {
-    //   icon.offline(ind);
-    // })
   }
 
   createChat() {
