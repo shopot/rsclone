@@ -19,7 +19,7 @@ export const config = {
   cardSize: { w: 150 * 0.7, h: 225 * 0.7 },
   scene: [BootScene, GameScene, EndScene, RestartScene],
   scale: {
-    mode: Phaser.Scale.FIT,
+    // mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   dom: {
