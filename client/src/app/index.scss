@@ -28,8 +28,15 @@ img {
 }
 
 .game-page {
+  position: absolute;
+  top: 0;
   min-height: 100vh;
+  min-width: 100vw;
   background-color: constants.$bg-color;
+}
+
+.game-wrapper {
+  min-height: 100vh;
 }
 
 .container {

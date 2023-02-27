@@ -150,20 +150,25 @@ export class Card extends Phaser.GameObjects.Sprite {
         onComplete: resolve,
       });
       if (playerInd !== 0) this.close();
-      else this.makeClickable();
+      else this.open();
     });
   }
 
-  shiftOnHand(arr: number[]) {
-    const [x, y, z] = arr;
-    this.scene.tweens.add({
-      targets: this,
-      x: x,
-      y: y,
-      ease: 'Linear',
-      duration: 150,
-    });
-    this.setDepth(z);
+  async shiftOnHand(arr: number[]) {
+    if (Array.isArray(arr)) {
+      await new Promise((resolve) => {
+        const [x, y, z] = arr;
+        this.scene.tweens.add({
+          targets: this,
+          x: x,
+          y: y,
+          ease: 'Linear',
+          duration: 150,
+          onComplete: resolve,
+        });
+        this.setDepth(z);
+      });
+    }
   }
 
   async animateToPlayer(playerInd: number, playersAmt: number) {
@@ -186,7 +191,7 @@ export class Card extends Phaser.GameObjects.Sprite {
         onComplete: resolve,
       });
       if (playerInd !== 0) this.close();
-      else this.makeClickable();
+      else this.open();
     });
   }
 

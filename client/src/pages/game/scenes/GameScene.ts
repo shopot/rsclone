@@ -320,6 +320,8 @@ export class GameScene extends Phaser.Scene {
   async handleTake() {
     this.removeHighlight();
     this.calculatePositions();
+    const mySprites = this.playersCardsSprites[0];
+    if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
 
     const spriteValueFromPile = this.piles.flat()[0].value;
 
@@ -420,42 +422,59 @@ export class GameScene extends Phaser.Scene {
       .find((card) => card.value === params.cardToMoveValue);
 
     if (sprite) {
-      await sprite.animateToTable(params.pileInd, params.isAttacker, params.pileLength, isMe, 0.8);
       const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
       const playerInd = this.playersCardsSprites.indexOf(player);
-      const spriteInd = this.playersCardsSprites[playerInd].indexOf(sprite);
-      this.playersCardsSprites[playerInd].splice(spriteInd, 1);
-      params.isAttacker
-        ? this.piles.push([sprite])
-        : this.piles[params.pileLength - 1].push(sprite);
-      this.handleHighlight();
-      this.handleCardsAtHandsBeforeMove();
-      this.updatePlayersText();
-      await this.updateCardsPosOnTable();
+      if (player && playerInd !== -1) {
+        const mySprites = this.playersCardsSprites[0];
+        if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
 
-      //далее перенаправляем на тейк и пасс, если есть
-      if (
-        this.state?.lastGameAction === TypeGameAction.AttackerPass &&
-        this.state.placedCards.length === 0
-      ) {
-        await this.handlePass();
-        await this.checkDealt(this.state.dealt);
-      } else if (this.state?.lastGameAction === TypeGameAction.DefenderTakesCards) {
-        await this.handleTake();
-        await this.checkDealt(this.state.dealt);
-      } else if (
-        this.state?.lastGameAction === TypeGameAction.DefenderMoveCard &&
-        this.state.placedCards.length === 0
-      ) {
-        await this.handlePass();
-        await this.checkDealt(this.state.dealt);
-      } else if (
-        this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp &&
-        this.state?.roomStatus === TypeRoomStatus.GameIsOver
-      ) {
-        await this.handleTake();
+        await sprite.animateToTable(
+          params.pileInd,
+          params.isAttacker,
+          params.pileLength,
+          isMe,
+          0.8,
+        );
+
+        const spriteInd = player.indexOf(sprite);
+        this.playersCardsSprites[playerInd].splice(spriteInd, 1);
+        params.isAttacker
+          ? this.piles.push([sprite])
+          : this.piles[params.pileLength - 1].push(sprite);
+        this.handleHighlight();
+        await this.handleCardsAtHandsBeforeMove();
+        if (mySprites.length > 0) {
+          setTimeout(() => {
+            mySprites.forEach((sprite) => sprite.makeClickable());
+          }, 300);
+        }
+        this.updatePlayersText();
+        await this.updateCardsPosOnTable();
+
+        //далее перенаправляем на тейк и пасс, если есть
+        if (
+          this.state?.lastGameAction === TypeGameAction.AttackerPass &&
+          this.state.placedCards.length === 0
+        ) {
+          await this.handlePass();
+          await this.checkDealt(this.state.dealt);
+        } else if (this.state?.lastGameAction === TypeGameAction.DefenderTakesCards) {
+          await this.handleTake();
+          await this.checkDealt(this.state.dealt);
+        } else if (
+          this.state?.lastGameAction === TypeGameAction.DefenderMoveCard &&
+          this.state.placedCards.length === 0
+        ) {
+          await this.handlePass();
+          await this.checkDealt(this.state.dealt);
+        } else if (
+          this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp &&
+          this.state?.roomStatus === TypeRoomStatus.GameIsOver
+        ) {
+          await this.handleTake();
+        }
+        await this.checkGameOver();
       }
-      await this.checkGameOver();
     }
   }
 
@@ -488,6 +507,8 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (defenderInd !== -1) {
+        const mySprites = this.playersCardsSprites[0];
+        if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
         await Promise.all(
           this.piles.flat().map(async (card) => {
             card.setAngle(0);
@@ -497,7 +518,12 @@ export class GameScene extends Phaser.Scene {
         );
 
         this.piles = [];
-        this.handleCardsAtHandsBeforeMove();
+        await this.handleCardsAtHandsBeforeMove();
+        if (mySprites.length > 0) {
+          setTimeout(() => {
+            mySprites.forEach((sprite) => sprite.makeClickable());
+          }, 300);
+        }
         this.updatePlayersText();
       }
     }
@@ -854,6 +880,8 @@ export class GameScene extends Phaser.Scene {
     const round = useGameStore.getState().currentRound;
     const isNew = JSON.stringify(this.prevDealt) !== JSON.stringify(dealt);
     if (dealtCards.length !== 0 && round > 1 && isNew) {
+      const mySprites = this.playersCardsSprites[0];
+      if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
       await this.createCardSprites(dealt, round);
       this.prevDealt = dealt;
     }
@@ -894,7 +922,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   async animateFromDeckToPlayers() {
-    this.handleCardsAtHandsBeforeMove();
+    console.log('```````new version``````');
+    await this.handleCardsAtHandsBeforeMove();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const positions: number[][][] = JSON.parse(JSON.stringify(this.cardsCoords));
     positions.forEach((arr, i) =>
@@ -947,23 +976,33 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  shiftCardsAtHands() {
-    this.playersCardsSprites.forEach((set, i) => {
-      set.forEach((card, ind) => {
-        card.shiftOnHand(this.cardsCoords[i][ind]);
-      });
-    });
+  async shiftCardsAtHands() {
+    await Promise.all(
+      this.playersCardsSprites.map(async (set, i) => {
+        await Promise.all(
+          set.map(async (card, ind) => {
+            await card.shiftOnHand(this.cardsCoords[i][ind]);
+          }),
+        );
+      }),
+    );
   }
 
-  handleCardsAtHandsBeforeMove() {
+  async handleCardsAtHandsBeforeMove() {
     this.calculatePositions();
-    this.shiftCardsAtHands();
+    await this.shiftCardsAtHands();
   }
 
   async handleCardsAtHandsAfterMove() {
     this.sortCards();
     await this.moveCardsAtHandsToCenter();
-    this.shiftCardsAtHands();
+    await this.shiftCardsAtHands();
+    const mySprites = this.playersCardsSprites[0];
+    if (mySprites.length > 0) {
+      setTimeout(() => {
+        mySprites.forEach((sprite) => sprite.makeClickable());
+      }, 300);
+    }
   }
 
   async moveCardsAtHandsToCenter() {
