@@ -177,7 +177,10 @@ const GamePage = () => {
 
   return (
     <div className="game-page">
-      <div ref={gameContainer}></div>
+      <div
+        className="game-wrapper"
+        ref={gameContainer}
+      ></div>
     </div>
   );
 };
