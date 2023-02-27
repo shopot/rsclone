@@ -155,18 +155,20 @@ export class Card extends Phaser.GameObjects.Sprite {
   }
 
   async shiftOnHand(arr: number[]) {
-    await new Promise((resolve) => {
-      const [x, y, z] = arr;
-      this.scene.tweens.add({
-        targets: this,
-        x: x,
-        y: y,
-        ease: 'Linear',
-        duration: 150,
-        onComplete: resolve,
+    if (Array.isArray(arr)) {
+      await new Promise((resolve) => {
+        const [x, y, z] = arr;
+        this.scene.tweens.add({
+          targets: this,
+          x: x,
+          y: y,
+          ease: 'Linear',
+          duration: 150,
+          onComplete: resolve,
+        });
+        this.setDepth(z);
       });
-      this.setDepth(z);
-    });
+    }
   }
 
   async animateToPlayer(playerInd: number, playersAmt: number) {
