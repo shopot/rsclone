@@ -1,8 +1,14 @@
-# Card Game Durak (RS Clone 2022Q3)
+<p align="center">
+  <a href="https://github.com/shopot/rsclone">
+  <img src="https://user-images.githubusercontent.com/1072928/221486013-6a73a77c-6892-4b5b-bdd2-04c6f1bf0027.png" alt="Game Card Durak">
+  </a>
+</p>
+
+<h1 align="center">Card Game Durak</h1>
 
 ## Description
 
-Team project by [@shopot](https://github.com/shopot), [@sinastya](https://github.com/sinastya/), and [@gentoosiast](https://github.com/gentoosiast/)
+Team project (RS Clone 2022Q3) by [@shopot](https://github.com/shopot), [@sinastya](https://github.com/sinastya/), and [@gentoosiast](https://github.com/gentoosiast/)
 
 #### VS Code Extensions required for development
 
