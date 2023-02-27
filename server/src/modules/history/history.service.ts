@@ -43,18 +43,12 @@ export class HistoryService {
    * @param createHistoryDto
    * @returns
    */
-  async create(createHistoryDto: ICreateHistoryDto): Promise<void> {
+  async create(dto: ICreateHistoryDto): Promise<void> {
     try {
-      await this.historyRepository
-        .createQueryBuilder()
-        .insert()
-        .into(History)
-        .values({ ...createHistoryDto })
-        .updateEntity(false)
-        .execute();
+      await this.historyRepository.save(dto);
     } catch {
       this.logger.error('Insert createHistoryDto to History:');
-      this.logger.error(createHistoryDto);
+      this.logger.error(dto);
     }
   }
 }
