@@ -898,6 +898,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async animateFromDeckToPlayers() {
+    console.log('```````new version``````');
     await this.handleCardsAtHandsBeforeMove();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const positions: number[][][] = JSON.parse(JSON.stringify(this.cardsCoords));
