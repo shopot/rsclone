@@ -23,6 +23,7 @@ import offline from '../../../assets/phaser/offline.png';
 
 import cardPlacesound from '../../../assets/sounds/place_card.wav';
 import loserSound from '../../../assets/sounds/loser_v1.mp3';
+import winnerSound from '../../../assets/sounds/winner.mp3';
 import fromDeckSound from '../../../assets/sounds/fromDeck.mp3';
 import toBeatenSound from '../../../assets/sounds/toBeaten.wav';
 import newMessage from '../../../assets/sounds/newMessage.mp3';
@@ -59,6 +60,7 @@ export class BootScene extends Phaser.Scene {
 
     this.load.audio('placeCard', [cardPlacesound]);
     this.load.audio('loser', [loserSound]);
+    this.load.audio('winner', [winnerSound]);
     this.load.audio('toBeaten', [toBeatenSound]);
     this.load.audio('fromDeck', [fromDeckSound]);
     this.load.audio('newMessage', [newMessage]);
