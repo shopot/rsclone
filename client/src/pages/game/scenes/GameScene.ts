@@ -424,7 +424,7 @@ export class GameScene extends Phaser.Scene {
     if (sprite) {
       const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
       const playerInd = this.playersCardsSprites.indexOf(player);
-      if (player) {
+      if (player && playerInd !== -1) {
         const mySprites = this.playersCardsSprites[0];
         if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
 
