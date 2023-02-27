@@ -1,10 +1,26 @@
-<p align="center">
-  <h1 align="center">Card Game Durak</h1
-</p>
+# Card Game Durak (RS Clone 2022Q3)
 
 ## Description
 
-RS Clone 2022Q3
+Team project by [@shopot](https://github.com/shopot), [@sinastya](https://github.com/sinastya/), and [@gentoosiast](https://github.com/gentoosiast/)
+
+#### VS Code Extensions required for development
+
+- [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig)
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [Stylelint](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint)
+
+#### Full-Stack Projects
+
+- [Node.js](https://nodejs.org)
+- [React](https://reactjs.org)
+- [React Router](https://reactrouter.com)
+- [Zustand](https://github.com/pmndrs/zustand)
+- [Phaser](https://phaser.io/)
+- [Nest.js](http://nodejs.org/)
+- [TypeORM](https://typeorm.io/)
+- [SQLite](https://www.sqlite.org)
 
 ## Installation
 
@@ -57,9 +73,3 @@ $ npm run build
 ```
 
 Card Game Durak is now ready! You can access it via `http://localhost:3000`.
-
-## Authors
-
-- [shopot](https://github.com/shopot/)
-- [sinastya](https://github.com/sinastya)
-- [gentoosiast](https://github.com/gentoosiast/)
