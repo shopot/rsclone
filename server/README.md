@@ -9,7 +9,7 @@ RS Clone 2022Q3
 ## Installation
 
 - Clone this repository on your local computer
-- Install npm packages for client and server
+- Install depends npm packages of Node.js for client and server
 
 ```bash
 $ git clone https://github.com/shopot/rsclone.git
