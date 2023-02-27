@@ -443,7 +443,11 @@ export class GameScene extends Phaser.Scene {
           : this.piles[params.pileLength - 1].push(sprite);
         this.handleHighlight();
         await this.handleCardsAtHandsBeforeMove();
-        if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.makeClickable());
+        if (mySprites.length > 0) {
+          setTimeout(() => {
+            mySprites.forEach((sprite) => sprite.makeClickable());
+          }, 300);
+        }
         this.updatePlayersText();
         await this.updateCardsPosOnTable();
 
@@ -515,7 +519,11 @@ export class GameScene extends Phaser.Scene {
 
         this.piles = [];
         await this.handleCardsAtHandsBeforeMove();
-        if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.makeClickable());
+        if (mySprites.length > 0) {
+          setTimeout(() => {
+            mySprites.forEach((sprite) => sprite.makeClickable());
+          }, 300);
+        }
         this.updatePlayersText();
       }
     }
@@ -990,7 +998,11 @@ export class GameScene extends Phaser.Scene {
     await this.moveCardsAtHandsToCenter();
     await this.shiftCardsAtHands();
     const mySprites = this.playersCardsSprites[0];
-    if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.makeClickable());
+    if (mySprites.length > 0) {
+      setTimeout(() => {
+        mySprites.forEach((sprite) => sprite.makeClickable());
+      }, 300);
+    }
   }
 
   async moveCardsAtHandsToCenter() {
