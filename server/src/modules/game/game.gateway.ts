@@ -173,9 +173,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
   ): void {
     const chatState = this.gameService.setChatMessage(data, client);
 
-    if (chatState.length > 0) {
-      this.emitEvent(TypeRoomEvent.GameChatState, chatState);
-    }
+    this.sendChatState(chatState);
   }
 
   /**
@@ -249,6 +247,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
 
       this.logger.info(TypeRoomEvent.GameUpdateState);
       this.logger.info(response);
+    }
+  }
+
+  private sendChatState(state: { roomId: string; chat: TypeChatMessage[] }) {
+    const { roomId, chat } = state;
+
+    if (roomId && chat.length > 0) {
+      this.server.to(roomId).emit(TypeRoomEvent.GameChatState, chat);
     }
   }
 
