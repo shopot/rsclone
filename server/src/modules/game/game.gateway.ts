@@ -254,7 +254,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayDisconnect {
     const { roomId, chat } = state;
 
     if (roomId && chat.length > 0) {
-      this.server.to(roomId).emit(TypeRoomEvent.GameChatState, chat);
+      this.server.to(roomId).emit(TypeRoomEvent.GameChatState, {
+        data: chat,
+      });
     }
   }
 
