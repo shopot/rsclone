@@ -260,20 +260,23 @@ export class GameService {
   public setChatMessage(
     data: GameReceiveDto,
     client: Socket,
-  ): TypeChatMessage[] {
+  ): {
+    roomId: string;
+    chat: TypeChatMessage[];
+  } {
     this.initRoom(client);
 
     if (!this.room) {
-      return [];
+      return { roomId: '', chat: [] };
     }
 
     const result = this.room.addChatMessage(client.id, data.message);
 
     if (result === true) {
-      return this.room.getChatState();
+      return { roomId: this.roomId, chat: this.room.getChatState() };
     }
 
-    return [];
+    return { roomId: '', chat: [] };
   }
 
   /**
