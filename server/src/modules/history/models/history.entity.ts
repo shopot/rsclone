@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 @Entity('history')
 export class History {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id: number;
 
   @Column({ type: 'text', nullable: false, unique: true })
   roomId: string;
@@ -23,5 +23,5 @@ export class History {
   rounds: number;
 
   @Column({ default: () => 'unixepoch()' })
-  createdAt?: number;
+  createdAt: number;
 }
