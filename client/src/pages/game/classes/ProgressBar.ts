@@ -61,6 +61,6 @@ export class ProgressBar {
       .clear()
       .fillStyle(this.style.barColor)
       .fillRect(this.style.x, this.style.y, this.style.width * value, this.style.height);
-    this.valueText.setText(`${value * 100}%`);
+    this.valueText.setText(`${(value * 100).toFixed()}%`);
   }
 }
