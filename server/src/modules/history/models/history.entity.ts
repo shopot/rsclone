@@ -5,7 +5,7 @@ export class History {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text', nullable: false, unique: true })
+  @Column({ type: 'text', default: '' })
   roomId: string;
 
   // Player names with separator "#", example: "Alex#Demon#Olga"
