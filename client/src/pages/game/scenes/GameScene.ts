@@ -74,6 +74,23 @@ export class GameScene extends Phaser.Scene {
   cardsCoords: number[][][] = [];
   cardsChanged: boolean[] = [];
   waitPopup?: WaitPopup;
+  animations = {
+    take: false,
+    pass: false,
+    click: false,
+    beforeGameOver: false,
+    formDeck: false,
+    shift: false,
+    toCenter: false,
+    tableResize: false,
+  };
+  spritesCalcs = {
+    highlight: false,
+    create: false,
+    positions: false,
+    sort: false,
+    spliceFromPlayer: false,
+  };
 
   constructor() {
     super('Game');
@@ -318,10 +335,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   async handleTake() {
+    this.deActivateSprites();
     this.removeHighlight();
     this.calculatePositions();
-    const mySprites = this.playersCardsSprites[0];
-    if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
 
     const spriteValueFromPile = this.piles.flat()[0].value;
 
@@ -333,7 +349,7 @@ export class GameScene extends Phaser.Scene {
         }
       });
     });
-
+    this.animations.take = true;
     await Promise.all(
       this.piles.flat().map(async (card) => {
         card.setAngle(0);
@@ -341,10 +357,24 @@ export class GameScene extends Phaser.Scene {
         this.playersCardsSprites[defenderInd].push(card);
       }),
     );
-
+    this.animations.take = false;
     this.piles = [];
     await this.handleCardsAtHandsAfterMove();
     this.updatePlayersText();
+  }
+
+  activateSprites() {
+    const mySprites = this.playersCardsSprites[0];
+    if (mySprites && mySprites.length > 0) {
+      setTimeout(() => {
+        mySprites.forEach((sprite) => sprite.makeClickable());
+      }, 300);
+    }
+  }
+
+  deActivateSprites() {
+    const sprites = this.playersCardsSprites.flat();
+    if (sprites && sprites.length > 0) sprites.forEach((sprite) => sprite.makeNotClickable());
   }
 
   createBubble(text: string) {
@@ -356,7 +386,9 @@ export class GameScene extends Phaser.Scene {
       prevActiveIcon.createBubble(text, me);
     }
   }
+
   async handlePass() {
+    this.animations.pass = true;
     this.removeHighlight();
     const angle = 180 / (this.piles.flat().length + 1);
     this.sounds?.toBeaten.play({ volume: 0.1, loop: true });
@@ -367,6 +399,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.sounds?.toBeaten.stop();
     this.piles = [];
+    this.animations.pass = false;
   }
 
   async handleClick() {
@@ -417,6 +450,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    this.spritesCalcs.spliceFromPlayer = true;
     const sprite = this.playersCardsSprites
       .flat()
       .find((card) => card.value === params.cardToMoveValue);
@@ -424,10 +458,8 @@ export class GameScene extends Phaser.Scene {
     if (sprite) {
       const player = this.playersCardsSprites.filter((arr) => arr.includes(sprite))[0];
       const playerInd = this.playersCardsSprites.indexOf(player);
-      if (player && playerInd !== -1) {
-        const mySprites = this.playersCardsSprites[0];
-        if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
-
+      if (player && playerInd !== -1 && params.pileInd !== -1) {
+        this.animations.click = true;
         await sprite.animateToTable(
           params.pileInd,
           params.isAttacker,
@@ -435,19 +467,16 @@ export class GameScene extends Phaser.Scene {
           isMe,
           0.8,
         );
+        this.animations.click = false;
 
         const spriteInd = player.indexOf(sprite);
         this.playersCardsSprites[playerInd].splice(spriteInd, 1);
         params.isAttacker
           ? this.piles.push([sprite])
           : this.piles[params.pileLength - 1].push(sprite);
+
         this.handleHighlight();
         await this.handleCardsAtHandsBeforeMove();
-        if (mySprites.length > 0) {
-          setTimeout(() => {
-            mySprites.forEach((sprite) => sprite.makeClickable());
-          }, 300);
-        }
         this.updatePlayersText();
         await this.updateCardsPosOnTable();
 
@@ -476,9 +505,12 @@ export class GameScene extends Phaser.Scene {
         await this.checkGameOver();
       }
     }
+    this.spritesCalcs.spliceFromPlayer = false;
+    // this.animations.click = false;
   }
 
   async handleActionsBeforeGameOver() {
+    this.animations.beforeGameOver = true;
     this.removeHighlight();
     const isPickingUp = this.state?.lastGameAction === TypeGameAction.DefenderDecidesToPickUp;
     const didAttackerMove = this.state?.lastGameAction === TypeGameAction.AttackerMoveCard;
@@ -507,8 +539,7 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (defenderInd !== -1) {
-        const mySprites = this.playersCardsSprites[0];
-        if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
+        this.deActivateSprites();
         await Promise.all(
           this.piles.flat().map(async (card) => {
             card.setAngle(0);
@@ -519,14 +550,10 @@ export class GameScene extends Phaser.Scene {
 
         this.piles = [];
         await this.handleCardsAtHandsBeforeMove();
-        if (mySprites.length > 0) {
-          setTimeout(() => {
-            mySprites.forEach((sprite) => sprite.makeClickable());
-          }, 300);
-        }
         this.updatePlayersText();
       }
     }
+    this.animations.beforeGameOver = false;
   }
 
   async checkGameOver() {
@@ -564,6 +591,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleHighlight() {
+    this.spritesCalcs.highlight = true;
     const imIActive = useGameStore.getState().activeSocketId === this.socketId;
     const tableSprites = this.piles.flat();
     const mySprites = this.playersCardsSprites[0];
@@ -574,6 +602,7 @@ export class GameScene extends Phaser.Scene {
     } else if (mySprites && imIActive && tableSprites.length === 0 && mySprites.length !== 0) {
       this.playersCardsSprites[0].forEach((card) => card.removeHighlight());
     }
+    this.spritesCalcs.highlight = false;
   }
 
   createHighlight() {
@@ -635,12 +664,35 @@ export class GameScene extends Phaser.Scene {
     new ButtonLeave(this);
   }
 
-  update() {
+  setHelperToZero() {
     if (this.piles.length === 0 && this.state?.placedCards.length === 0) {
       setTimeout(() => {
         this.statusHelper?.setStatus('', '');
       }, 1000);
     }
+  }
+
+  removeInteractiveByClick() {
+    const isAnyClicked = this.playersCardsSprites.flat().some((sprite) => sprite.clicked === true);
+    if (isAnyClicked) {
+      this.playersCardsSprites[0].forEach((sprite) => {
+        sprite.makeNotClickable();
+        sprite.clicked = false;
+      });
+    }
+  }
+
+  controlAnimations() {
+    const allAnimationsDone = Object.values(this.animations).every((el) => el === false);
+    const allCalcsDone = Object.values(this.spritesCalcs).every((el) => el === false);
+    if (allAnimationsDone && allCalcsDone) this.activateSprites();
+    else this.deActivateSprites();
+  }
+
+  update() {
+    this.setHelperToZero();
+    this.removeInteractiveByClick();
+    this.controlAnimations();
   }
 
   //подписка на [state.roomStatus, state.activeSocketId, round]
@@ -705,6 +757,7 @@ export class GameScene extends Phaser.Scene {
   createHelper() {
     this.statusHelper = new StatusHelper(this);
   }
+
   //подписка на state.players
   sortPlayersData(players: TypePlayer[]) {
     this.playersSortedPrev = [...this.playersSorted];
@@ -880,14 +933,14 @@ export class GameScene extends Phaser.Scene {
     const round = useGameStore.getState().currentRound;
     const isNew = JSON.stringify(this.prevDealt) !== JSON.stringify(dealt);
     if (dealtCards.length !== 0 && round > 1 && isNew) {
-      const mySprites = this.playersCardsSprites[0];
-      if (mySprites.length > 0) mySprites.forEach((sprite) => sprite.removeInteractive());
+      this.deActivateSprites();
       await this.createCardSprites(dealt, round);
       this.prevDealt = dealt;
     }
   }
 
   async createCardSprites(dealt: TypeDealt[], round: number) {
+    this.spritesCalcs.create = true;
     //= создание новых спрайтов, если идет раздача из колоды
     const sortedDealt: TypeCard[][] = [];
     const playersId = [...this.playersSorted].map((data) => data.socketId);
@@ -907,6 +960,7 @@ export class GameScene extends Phaser.Scene {
     await this.animateFromDeckToPlayers();
     this.dealtToPlayers(round);
     await this.handleCardsAtHandsAfterMove();
+    this.spritesCalcs.create = false;
   }
 
   dealtToPlayers(round: number) {
@@ -922,7 +976,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   async animateFromDeckToPlayers() {
-    console.log('```````new version``````');
+    this.animations.formDeck = true;
+    this.deActivateSprites();
     await this.handleCardsAtHandsBeforeMove();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const positions: number[][][] = JSON.parse(JSON.stringify(this.cardsCoords));
@@ -946,9 +1001,11 @@ export class GameScene extends Phaser.Scene {
 
     this.updateDeck();
     this.updatePlayersText();
+    this.animations.formDeck = false;
   }
 
   calculatePositions() {
+    this.spritesCalcs.positions = true;
     this.cardsCoords = [];
     const border = 8;
     const handSize = { ...this.handSizes[0] };
@@ -974,9 +1031,12 @@ export class GameScene extends Phaser.Scene {
       });
       this.cardsCoords.push(arr);
     });
+    this.spritesCalcs.positions = false;
   }
 
   async shiftCardsAtHands() {
+    this.animations.shift = true;
+    this.deActivateSprites();
     await Promise.all(
       this.playersCardsSprites.map(async (set, i) => {
         await Promise.all(
@@ -986,6 +1046,7 @@ export class GameScene extends Phaser.Scene {
         );
       }),
     );
+    this.animations.shift = false;
   }
 
   async handleCardsAtHandsBeforeMove() {
@@ -997,15 +1058,11 @@ export class GameScene extends Phaser.Scene {
     this.sortCards();
     await this.moveCardsAtHandsToCenter();
     await this.shiftCardsAtHands();
-    const mySprites = this.playersCardsSprites[0];
-    if (mySprites.length > 0) {
-      setTimeout(() => {
-        mySprites.forEach((sprite) => sprite.makeClickable());
-      }, 300);
-    }
   }
 
   async moveCardsAtHandsToCenter() {
+    this.animations.toCenter = true;
+    this.deActivateSprites();
     await Promise.all(
       this.playersCardsSprites.map(async (set, i) => {
         if (this.cardsChanged[i] === true) {
@@ -1017,9 +1074,11 @@ export class GameScene extends Phaser.Scene {
         }
       }),
     );
+    this.animations.toCenter = false;
   }
 
   sortCards() {
+    this.spritesCalcs.sort = true;
     this.cardsChanged = [];
     const newPlayersCardsSprites: Card[][] = [];
     this.playersCardsSprites.map((arr) => {
@@ -1048,6 +1107,7 @@ export class GameScene extends Phaser.Scene {
       else this.cardsChanged.push(true);
     });
     this.playersCardsSprites = newPlayersCardsSprites;
+    this.spritesCalcs.sort = false;
   }
 
   updateDeck() {
@@ -1092,6 +1152,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   async updateCardsPosOnTable() {
+    this.animations.tableResize = true;
     if (this.piles.length === 4) {
       await Promise.all(
         this.piles.map(async (set, pileInd) => {
@@ -1103,5 +1164,6 @@ export class GameScene extends Phaser.Scene {
         }),
       );
     }
+    this.animations.tableResize = false;
   }
 }

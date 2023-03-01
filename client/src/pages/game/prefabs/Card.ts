@@ -12,6 +12,7 @@ export class Card extends Phaser.GameObjects.Sprite {
   sounds: {
     placeCard: Phaser.Sound.BaseSound;
   };
+  clicked: boolean;
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -33,10 +34,16 @@ export class Card extends Phaser.GameObjects.Sprite {
       primaryColor: Phaser.Display.Color.ValueToColor(0xffffff),
       secondaryColor: Phaser.Display.Color.ValueToColor(0xeeee76),
     };
+    this.clicked = false;
     this.setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => this.onCardClick())
-      .on('pointerover', () => this.shiftCard(true))
-      .on('pointerout', () => this.shiftCard(false))
+      .on('pointerover', () => {
+        this.shiftCard(true);
+        setTimeout(() => {
+          this.shiftCard(false);
+        }, 500);
+      })
+      // .on('pointerout', () => this.shiftCard(false))
       .removeInteractive();
 
     this.sounds = {
@@ -61,6 +68,7 @@ export class Card extends Phaser.GameObjects.Sprite {
     const isSocketActive = socketId === useGameStore.getState().activeSocketId;
     const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;
     if (isSocketActive && this.cardType !== undefined && isGameOn) {
+      this.clicked = true;
       const thisPlayer = useGameStore
         .getState()
         .players.filter((player) => player.socketId === socketId)[0];
