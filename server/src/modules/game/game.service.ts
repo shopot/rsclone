@@ -522,6 +522,7 @@ export class GameService {
         player,
         wins: playerInfo.wins + wins,
         total: playerInfo.total + 1,
+        lastGameAt: Math.floor(Date.now() / 1000),
       });
     } else {
       this.ratingService.create({ userId, player, wins, total: 1 });
