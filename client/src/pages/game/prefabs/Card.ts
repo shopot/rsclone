@@ -13,6 +13,8 @@ export class Card extends Phaser.GameObjects.Sprite {
     placeCard: Phaser.Sound.BaseSound;
   };
   clicked: boolean;
+  shifted = false;
+  origY: number;
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -24,6 +26,7 @@ export class Card extends Phaser.GameObjects.Sprite {
     super(scene, x, y, texture, 'cardBack');
     this.x = x;
     this.y = y;
+    this.origY = y;
     this.scene = scene;
     this.value = value;
     this.cardType = type;
@@ -37,13 +40,8 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.clicked = false;
     this.setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => this.onCardClick())
-      .on('pointerover', () => {
-        this.shiftCard(true);
-        setTimeout(() => {
-          this.shiftCard(false);
-        }, 500);
-      })
-      // .on('pointerout', () => this.shiftCard(false))
+      .on('pointerover', () => this.shiftCard(true))
+      .on('pointerout', () => this.shiftCard(false))
       .removeInteractive();
 
     this.sounds = {
@@ -51,6 +49,8 @@ export class Card extends Phaser.GameObjects.Sprite {
     };
   }
   shiftCard(status: boolean) {
+    this.shifted = status;
+    this.origY = this.y;
     const shift = status ? 5 : -5;
     this.setPosition(this.x, this.y - shift);
   }
@@ -63,7 +63,16 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.removeInteractive();
   }
 
+  stopSpam() {
+    this.makeClickable();
+    if (this.shifted) this.setPosition(this.x, this.origY);
+    setTimeout(() => {
+      this.makeClickable();
+    }, 1000);
+  }
+
   onCardClick() {
+    this.stopSpam();
     const socketId = socketIOService.getSocketId();
     const isSocketActive = socketId === useGameStore.getState().activeSocketId;
     const isGameOn = useGameStore.getState().roomStatus === TypeRoomStatus.GameInProgress;

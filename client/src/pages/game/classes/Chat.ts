@@ -6,7 +6,7 @@ export class Chat {
   scene: Phaser.Scene;
   chatText: Phaser.GameObjects.Text;
   formHtml: Phaser.GameObjects.DOMElement;
-  enterKey: Phaser.Input.Keyboard.Key;
+  // enterKey: Phaser.Input.Keyboard.Key | null;
   btn: Phaser.GameObjects.Sprite;
   open: boolean;
   wrapParams: { x: number; y: number };
@@ -18,6 +18,7 @@ export class Chat {
   newMessagesAmt: Phaser.GameObjects.Text;
   counter: number;
   sound: Phaser.Sound.BaseSound;
+  enterKey: Phaser.Input.Keyboard.KeyboardPlugin | null;
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.open = false;
@@ -48,15 +49,18 @@ export class Chat {
       .setDepth(202)
       .setAlpha(0);
 
-    this.enterKey = this.scene.input.keyboard
-      .addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
-      .on('down', (event: KeyboardEvent) => {
-        const formInput = this.formHtml?.getChildByName('chat');
-        if (formInput instanceof HTMLInputElement && formInput.value !== '') {
-          useChatStore.getState().actions.sendMessage(formInput.value);
-          formInput.value = '';
-        }
-      });
+    this.enterKey = this.scene.input.keyboard;
+    if (this.enterKey) {
+      this.enterKey
+        .addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
+        .on('down', (event: KeyboardEvent) => {
+          const formInput = this.formHtml?.getChildByName('chat');
+          if (formInput instanceof HTMLInputElement && formInput.value !== '') {
+            useChatStore.getState().actions.sendMessage(formInput.value);
+            formInput.value = '';
+          }
+        });
+    }
 
     this.btn = this.scene.add.sprite(0, 0, 'roundBtns', 'button-chat');
     const a = config.width;
