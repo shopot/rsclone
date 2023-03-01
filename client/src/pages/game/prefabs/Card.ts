@@ -37,8 +37,13 @@ export class Card extends Phaser.GameObjects.Sprite {
     this.clicked = false;
     this.setInteractive({ cursor: 'pointer' })
       .on('pointerdown', () => this.onCardClick())
-      .on('pointerover', () => this.shiftCard(true))
-      .on('pointerout', () => this.shiftCard(false))
+      .on('pointerover', () => {
+        this.shiftCard(true);
+        setTimeout(() => {
+          this.shiftCard(false);
+        }, 500);
+      })
+      // .on('pointerout', () => this.shiftCard(false))
       .removeInteractive();
 
     this.sounds = {
