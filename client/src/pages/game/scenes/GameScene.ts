@@ -685,7 +685,8 @@ export class GameScene extends Phaser.Scene {
   controlAnimations() {
     const allAnimationsDone = Object.values(this.animations).every((el) => el === false);
     const allCalcsDone = Object.values(this.spritesCalcs).every((el) => el === false);
-    if (allAnimationsDone && allCalcsDone) this.activateSprites();
+    const amActive = useGameStore.getState().activeSocketId === this.socketId;
+    if (allAnimationsDone && allCalcsDone && amActive) this.activateSprites();
     else this.deActivateSprites();
   }
 
