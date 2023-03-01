@@ -33,7 +33,7 @@ const RatingPage = () => {
       render: (value: number) => (
         <>
           {new Date(value * 1000).toLocaleString('en-GB', {
-            hourCycle: 'h24',
+            hourCycle: 'h23',
             dateStyle: 'short',
             timeStyle: 'short',
           })}
