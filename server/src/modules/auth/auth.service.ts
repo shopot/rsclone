@@ -54,13 +54,13 @@ export class AuthService {
     const user = await this.usersService.findByUsername(data.username);
 
     if (!user) {
-      throw new BadRequestException('User does not exist');
+      throw new BadRequestException('Incorrect username or password');
     }
 
     const passwordMatches = await argon2.verify(user.hash, data.password);
 
     if (!passwordMatches) {
-      throw new BadRequestException('Password is incorrect');
+      throw new BadRequestException('Incorrect username or password');
     }
 
     const tokens = await this.getTokens(user.id, user.username);
