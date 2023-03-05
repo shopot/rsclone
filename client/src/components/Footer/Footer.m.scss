@@ -1,0 +1,35 @@
+@use 'sass:color';
+@use '../../app/styles/constants';
+
+.footer {
+  padding: 30px 0;
+}
+
+.SVGIcon {
+  width: auto;
+  height: 24px;
+  transition: color 0.3s ease-in-out;
+}
+
+.creditsSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+}
+
+.iconLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: constants.$text-color;
+  transition: color 0.3s ease-in-out;
+
+  &:hover {
+    color: color.adjust(constants.$text-color, $lightness: -25%);
+
+    .SVGIcon {
+      color: color.adjust(constants.$text-color, $lightness: -25%);
+    }
+  }
+}

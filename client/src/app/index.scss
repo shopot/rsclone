@@ -1,0 +1,117 @@
+@use 'css-init/src/init' as *;
+@use './styles/constants';
+@use './styles/buttons';
+@use './styles/table';
+@use './styles/layouts';
+@use 'sass:color';
+
+* {
+  box-sizing: border-box;
+  color: inherit;
+}
+
+body {
+  color: constants.$text-color;
+  font-family: Signika, sans-serif;
+  font-size: 16px;
+}
+
+button,
+input {
+  font-family: Signika, sans-serif;
+  font-size: 16px;
+}
+
+img {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+.game-page {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  min-width: 100vw;
+  background-color: constants.$bg-color;
+}
+
+.game-wrapper {
+  min-width: 1280px;
+  min-height: 720px;
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  max-width: 1200px;
+  padding: 10px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 22px;
+}
+
+h3 {
+  font-size: 20px;
+}
+
+input {
+  border: 2px solid constants.$secondary-color;
+  border-radius: 5px;
+  padding: 8px 10px;
+  padding-left: 15px;
+  transition: border 0.3s ease-in-out;
+  background: rgb(0 0 0 / 50%);
+
+  &:focus {
+    border: 2px solid constants.$main-color;
+    outline: none;
+  }
+
+  &::placeholder {
+    color: color.adjust(constants.$text-color, $alpha: -0.5);
+  }
+}
+
+select {
+  padding: 0 10px;
+  border-radius: 5px;
+  appearance: menulist;
+  background-color: color.adjust(constants.$main-color, $lightness: -10%);
+}
+
+.heading {
+  margin-bottom: 20px;
+  color: constants.$heading-color;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.error-message {
+  padding: 5px;
+  border-radius: 5px;
+  background-color: constants.$error-color;
+  text-align: center;
+}
+
+.feather {
+  width: 24px;
+  height: 24px;
+  stroke: currentcolor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.text-center {
+  text-align: center;
+}

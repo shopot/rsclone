@@ -1,0 +1,126 @@
+@use '../../app/styles/constants';
+
+.buttonsDiv {
+  display: flex;
+  flex-direction: column;
+  gap: 1em 2em;
+}
+
+.addPlayer,
+.chat,
+.joinRoom {
+  display: flex;
+  gap: 1em;
+}
+
+.miscButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+.section:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em;
+  padding: 6px;
+}
+
+.player {
+  h3 {
+    padding: 4px 8px;
+    text-align: center;
+    font-size: 24px;
+    text-transform: uppercase;
+  }
+}
+
+.player:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.playerImgName {
+  margin-bottom: 5px;
+  border-radius: 10px;
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  background-color: #343a46;
+}
+
+.playerAvatar {
+  border-radius: 5px;
+}
+
+.playerCards {
+  display: flex;
+  gap: 5px;
+}
+
+.uiButtons {
+  display: flex;
+  gap: 0.5em;
+}
+
+.playerActive {
+  color: constants.$main-color;
+}
+
+.cardName {
+  font-size: 36px;
+}
+
+// Temporary styles
+.stats-error {
+  color: red;
+}
+
+.title {
+  text-align: center;
+  border-bottom: 1px solid gray;
+  padding-bottom: 6px;
+}
+
+.info {
+  padding-top: 6px;
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid gray;
+  padding-bottom: 6px;
+}
+
+.cardInDeck {
+  font-size: 36px;
+}
+
+.attacker {
+  color: red;
+}
+
+.defender {
+  color: yellowgreen;
+}
+
+.playerButtons {
+  border-bottom: 1px solid gray;
+  display: flex;
+  gap: 0.5em;
+  justify-content: center;
+  align-items: center;
+}
+
+.chatSection {
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.chatMessage {
+  display: flex;
+  gap: 0.5em;
+}

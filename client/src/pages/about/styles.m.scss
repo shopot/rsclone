@@ -1,0 +1,40 @@
+@use 'sass:color';
+@use '../../app/styles/constants';
+
+.rulesList {
+  position: relative;
+  padding: 10px;
+
+  li {
+    padding-inline-start: 1ch;
+  }
+
+  li:not(:last-child) {
+    margin-bottom: 5px;
+  }
+
+  li::marker {
+    content: '•';
+    color: rgb(252 205 71 / 90%);
+  }
+}
+
+.rulesSection {
+  font-size: 1.1rem;
+}
+
+.rulesSection::before {
+  content: ' ';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 25%;
+  width: 100%;
+  height: 60%;
+  opacity: 0.15;
+  background-image: url("../../assets/durak-logo-hat.webp");
+  background-repeat: no-repeat;
+  background-position: 50% 0;
+  background-size: 60% auto;
+  z-index: 1;
+}

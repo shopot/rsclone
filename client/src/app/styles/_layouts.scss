@@ -1,0 +1,31 @@
+@use './constants';
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.box-container {
+  position: relative;
+  max-width: max-content;
+  padding: 20px 30px;
+  border: 8px solid #030301;
+  border-radius: 15px;
+  background-color: rgb(0 0 0 / 50%);
+  box-shadow: inset 0 0 30px #030301;
+  margin: 0 auto;
+  color: rgb(255 255 255 / 80%);
+}
+
+.layout-container {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr;
+  background-color: constants.$bg-color;
+  background-image: url('../assets/bg_dark.webp');
+  background-repeat: repeat-y;
+  background-size: 100% 100%;
+}

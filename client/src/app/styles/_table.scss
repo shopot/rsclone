@@ -1,0 +1,29 @@
+@use 'sass:color';
+@use './constants';
+
+.rc-table {
+  table {
+    margin: 0 auto;
+  }
+}
+
+.rc-table-thead {
+  background: #090000;
+  font-weight: bold;
+
+  th.rc-table-cell {
+    padding: 5px 10px;
+    color: rgb(252 205 71 / 90%);
+  }
+}
+
+.rc-table-tbody {
+  .rc-table-row:nth-of-type(2n) {
+    background-color: color.adjust(constants.$bg-color, $lightness: 0%);
+  }
+
+  .rc-table-cell {
+    padding: 5px 10px;
+    text-align: center;
+  }
+}

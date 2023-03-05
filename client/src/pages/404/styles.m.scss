@@ -1,0 +1,33 @@
+@use '../../app/styles/constants';
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background-image: url('../../assets/404-bg.webp');
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.textContents {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.heading404 {
+  margin-bottom: 25px;
+  font-size: 96px;
+  line-height: 1;
+  color: constants.$heading-color;
+}
+
+.description {
+  font-size: 64px;
+  line-height: 1;
+}
